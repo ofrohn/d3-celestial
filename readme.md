@@ -69,7 +69,7 @@ __GeoJSON data files__
 * `constellations.lines.json` Constellation lines \[3\]
   
 * `mw.json` Milky way outlines in 5 brightness steps \[5\]
-
+ 
 __Sources__
 
 \[1\] XHIP: An Extended Hipparcos Compilation; Anderson E., Francis C. (2012) [VizieR catalogue V/137D](http://cdsarc.u-strasbg.fr/viz-bin/Cat?V/137D)  
