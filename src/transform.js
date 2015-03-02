@@ -32,7 +32,7 @@ Celestial.transform = function(c, euler) {
   if (!euler) { return c; }
 
   λ = c[0];  // celestial longitude 0..2pi
-  if (λ < 0) λ += pi2;
+  if (λ < 0) { λ += pi2; }
   φ = c[1];  // celestial latitude  -pi/2..pi/2
   
   λ -= euler[0];  // celestial longitude - celestial coordinates of the native pole
@@ -51,7 +51,7 @@ Celestial.transform = function(c, euler) {
     dψ = λ - Math.PI;
   }
   ψ = (γ + dψ); //+ pi2) % (pi2));
-  if (ψ > Math.PI) ψ -= pi2;
+  if (ψ > Math.PI) { ψ -= pi2; } 
   
   if (λ % Math.PI === 0) {
     θ = φ + Math.cos(λ) * β;

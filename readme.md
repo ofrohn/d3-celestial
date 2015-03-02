@@ -8,7 +8,6 @@ var config = {
   width: 1024,     //Default width; height is determined by projection
   projection: "aitoff",  //Map projection used: see below
   transform: null, //*TBI* Coordinate transformation euler angles: euler.ecliptic, euler.galactic, euler.supergalactic, [0,0,0]
-  bgcolor: "#000", //Background color css value
   stars: {
     show: true,    //Show stars
     limit: 6,      //up to maximum stellar magnitude
@@ -37,7 +36,6 @@ var config = {
   },
   mw: {
     show: true,    //Show Milky Way as filled polygons (css-class: mw)
-    opacity: 0.55  //Maximum opacity
   },
   lines: {
     graticule: true,  //Show graticule lines (css-class: gridline)
@@ -52,14 +50,12 @@ Celestial.display(config);
 ```
 
 
-__Supported projections:__ airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
+__Supported projections:__ airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3  
 most of these need the extension [d3.geo.projections](https://github.com/d3/d3-geo-projection/)  
 
 ### Files
 
 __GeoJSON data files__
-
-All positions
 
 * `stars.6.json` Stars down to 6th magnitude \[1\]
 * `stars.7.json` Stars down to 7th magnitude \[1\]
@@ -74,7 +70,7 @@ All positions
   
 * `mw.json` Milky way outlines in 5 brightness steps \[5\]
 
-### Sources
+__Sources__
 
 \[1\] XHIP: An Extended Hipparcos Compilation; Anderson E., Francis C. (2012) [VizieR catalogue V/137D](http://cdsarc.u-strasbg.fr/viz-bin/Cat?V/137D)  
 \[2\] [Saguaro Astronomy Club Database version 8.1](http://www.saguaroastro.org/content/downloads.htm)  
@@ -82,6 +78,6 @@ All positions
 \[4\] Catalogue of Constellation Boundary Data; Davenhall A.C., Leggett S.K. (1989) [VizieR catalogue VI/49/](http://vizier.cfa.harvard.edu/viz-bin/Cat?VI/49)  
 \[5\] [Milky Way Outline Catalog](http://www.skymap.com/milkyway_cat.htm), Jose R. Vieira  
 
-all data converted to GeoJSON at J2000 epoch 
+all data converted to GeoJSON at J2000 epoch, positions converted from 0...24h right ascension to -180...180 degrees longitude as per GeoJSON requirements, 0...12h -> 0...180º; 12...24h -> -180...0º
 
 And thanks to Jason Davies for [d3.geo.zoom](http://www.jasondavies.com/maps/rotate/), which saved me some major headaches in figuring out how to rotate/zomm the map.

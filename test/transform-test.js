@@ -35,16 +35,16 @@ assert.deepEqual(Celestial.transform([0,0]).map(Round), [0,0]);
 assert.deepEqual(Celestial.transform([75*deg2rad,40*deg2rad]).map(Round), [75*deg2rad,40*deg2rad].map(Round));
 
 //Transform to galactic coordinates
-assert.deepEqual(Celestial.transform([0,0], euler.galactic).map(Round), [-83.663 * deg2rad, -60.189 * deg2rad].map(Round));
+assert.deepEqual(Celestial.transform([0,0], euler.galactic).map(Round), [96.337 * deg2rad, -60.189 * deg2rad].map(Round));
 
 //Transform to galactic coordinates 2
-assert.deepEqual(Celestial.transform([75*deg2rad,40*deg2rad], euler.galactic).map(Round), [-14.421*deg2rad, -1.461*deg2rad].map(Round));
+assert.deepEqual(Celestial.transform([75*deg2rad,40*deg2rad], euler.galactic).map(Round), [165.579*deg2rad, -1.461*deg2rad].map(Round));
 
 //Transform to ecliptic coordinates 
-assert.deepEqual(Celestial.transform([75*deg2rad,40*deg2rad], euler.ecliptic).map(Round), [-101.987*deg2rad, 17.182*deg2rad].map(Round));
+assert.deepEqual(Celestial.transform([75*deg2rad,40*deg2rad], euler.ecliptic).map(Round), [78.022*deg2rad, 17.182*deg2rad].map(Round));
 
 //Transform to supergalactic coordinates 
-assert.deepEqual(Celestial.transform([75*deg2rad,40*deg2rad], euler.supergalactic).map(Round), [-178.265*deg2rad, -28.195*deg2rad].map(Round));
+assert.deepEqual(Celestial.transform([75*deg2rad,40*deg2rad], euler.supergalactic).map(Round), [1.735*deg2rad, -28.195*deg2rad].map(Round));
 
 
 //Method exists

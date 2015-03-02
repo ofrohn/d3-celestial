@@ -2,11 +2,13 @@
 var Celestial = {};
 
 Celestial.display = function(config) {
+  var circle;
   
   var set = function() {
     var set, key;
     for (set in settings) {
-    if (!config.hasOwnProperty(set) || config[set] === null) { continue; }
+    if (!config.hasOwnProperty(set)) { continue; }
+    if (config[set] === null) { continue; }
       if (settings[set].constructor != Object ) {
         settings[set] = config[set];
       } else {
@@ -19,7 +21,7 @@ Celestial.display = function(config) {
     }
   };
 
-  if (config) set(config);
+  if (config) { set(config); }
   
   if (!projections.hasOwnProperty(settings.projection)) { return; }
   
@@ -37,7 +39,7 @@ Celestial.display = function(config) {
   if (proj.clip) {
     projection.clipAngle(90);
     projBg.clipAngle(90);
-    var circle = d3.geo.circle().angle([90]);
+    circle = d3.geo.circle().angle([90]);
   }
 
   var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([proj.scale*0.8, proj.scale*4]).on("zoom", zoomed);
@@ -68,7 +70,7 @@ Celestial.display = function(config) {
        .enter()
        .append("path")
        .attr("class", "mw")
-       .attr("d", path)
+       .attr("d", path);
        //.style("fill", settings.mw.color)
        //.style("opacity", settings.mw.opacity/5);
   });}
@@ -196,10 +198,9 @@ Celestial.display = function(config) {
   function point(coords) {
     return "translate(" + projection(coords) + ")";
   }
-
   
   function zoomed() {
-    if (!d3.event) return;
+    if (!d3.event) { return; }
     var rot = projection.rotate();
     projBg.scale(projection.scale());
     projBg.rotate(projection.rotate());
@@ -207,18 +208,6 @@ Celestial.display = function(config) {
     
     center = [-rot[0], -rot[1]];
     
-    /*if (circle) { 
-      //svg.selectAll(".outline").exit().remove();
-      circle.origin(center);
-      svg.selectAll(".outline")
-         //.attr("r", projection.scale())
-         //.attr("transform", [width/2, height/2]);  
-         .attr("x", function(d) { return point(center);  });
-      //svg.append("path").datum(circle).attr("class", "outline").attr("d", bg).style("fill", "rgba(0,0,0,0.5)");     
-      //svg.datum(circle).attr("d", bg);
-    }*/
-    
-
     svg.selectAll(".constname")
        .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
        .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });
