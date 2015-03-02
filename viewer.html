@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <title>D3 Starmap</title>
+  <script type="text/javascript" src="lib/d3.min.js"></script>
+  <script type="text/javascript" src="lib/d3.geo.projection.min.js"></script>
+  <script type="text/javascript" src="celestial.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head><body>
+<script type="text/javascript">
+  //Width and height
+  var width = 1024, height = 512;
+      
+  var PROJECTION = "aitoff",
+      //galactic, ecliptic, [0,0,0]
+      TRANSFORM = null,//euler["galactic"],
+      BGCOLOR = "#000";
+              
+  Celsestial.display(settings);
+
+  </script>
+  </body>
+</html>

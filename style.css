@@ -1,0 +1,16 @@
+body { background: none; }
+text { stroke: none; fill: #fff; font: 10px sans-serif; }
+.stroke { fill: none; stroke: #fff; stroke-width: 3px; }
+.fill { fill: none; }
+.gridline { fill: none; stroke: #ccc; stroke-width: .5px; stroke-opacity: .8; }
+.outline { fill: #000; }
+.constline { fill: none; stroke: #999; stroke-width: 1px; stroke-opacity: .8; }
+.constname { fill: #cc9; font: 10px sans-serif; }
+.starname, .dsoname { stroke: none; fill: #ccd; font: 8px serif; }
+.boundaryline { fill: none; stroke: #cc0; stroke-width: .5px; stroke-opacity: .8; stroke-dasharray: 6,3; }
+.equatorial, .ecliptic, .galactic, .supergalactic { fill: none; stroke-width: 1.5px; stroke-opacity: .8; }
+.equatorial { stroke: #ccc; }
+.ecliptic { stroke: #6c6; }
+.galactic { stroke: #c66; }
+.supergalactic { stroke: #c6c; }
+.mw { fill: #fff; fill-opacity: 0.12; }
