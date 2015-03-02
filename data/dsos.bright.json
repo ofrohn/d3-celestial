@@ -1,0 +1,381 @@
+{"type": "FeatureCollection",
+ "features": [
+  {"type": "Feature",
+   "id": "Cr140",
+   "properties": {
+     "name": "Collinder 140",
+     "desig": "Cr 140",
+     "type": "oc",
+     "mag": 3.5,
+     "dim": "60"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [111.12,-31.85]
+  }},
+  {"type": "Feature",
+   "id": "Cr399",
+   "properties": {
+     "name": "Coathanger",
+     "desig": "Cr 399",
+     "type": "oc",
+     "mag": 3.6,
+     "dim": "60"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [-68.445,20.1]
+  }},
+  {"type": "Feature",
+   "id": "IC2602",
+   "properties": {
+     "name": "θ Carinae Cluster",
+     "desig": "IC 2602",
+     "type": "oc",
+     "mag": 1.9,
+     "dim": "100"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [160.725,-64.4]
+  }},
+  {"type": "Feature",
+   "id": "LMC",
+   "properties": {
+     "name": "Large Magellanic Cloud",
+     "desig": "LMC",
+     "type": "sd",
+     "mag": 0.4,
+     "dim": "550x170"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [80.895,-69.75]
+  }},
+  {"type": "Feature",
+   "id": "M4",
+   "properties": {
+     "name": "Messier 4",
+     "desig": "M4",
+     "type": "gc",
+     "mag": 5.4,
+     "dim": "26.3"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [83.82,-26.533]
+  }},
+  {"type": "Feature",
+   "id": "M6",
+   "properties": {
+     "name": "Butterfly Cluster",
+     "desig": "M6",
+     "type": "oc",
+     "mag": 4.2,
+     "dim": "20"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [-94.92,-32.25]
+  }},
+  {"type": "Feature",
+   "id": "M7",
+   "properties": {
+     "name": "Ptolemy's Cluster",
+     "desig": "M7",
+     "type": "oc",
+     "mag": 3.3,
+     "dim": "80"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [-91.53,-34.8]
+  }},
+  {"type": "Feature",
+   "id": "M8",
+   "properties": {
+     "name": "Lagoon Nebula",
+     "desig": "M8",
+     "type": "sfr",
+     "mag": 5,
+     "dim": "45x30"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [-89.07,-24.383]
+  }},
+  {"type": "Feature",
+   "id": "M16",
+   "properties": {
+     "name": "Eagle Nebula",
+     "desig": "M16",
+     "type": "oc",
+     "mag": 6,
+     "dim": "7"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [-85.305,-13.783]
+  }},
+  {"type": "Feature",
+   "id": "M31",
+   "properties": {
+     "name": "Andromeda Galaxy",
+     "desig": "M31",
+     "type": "s",
+     "mag": 3.4,
+     "dim": "189x61"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [10.68,41.267]
+  }},
+  {"type": "Feature",
+   "id": "M33",
+   "properties": {
+     "name": "Triangulum Galaxy",
+     "desig": "M33",
+     "type": "s",
+     "mag": 5.7,
+     "dim": "68.7x41.6"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [23.475,30.65]
+  }},
+  {"type": "Feature",
+   "id": "M42",
+   "properties": {
+     "name": "Orion Nebula",
+     "desig": "M42",
+     "type": "sfr",
+     "mag": 4,
+     "dim": "90x60"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [83.82,-5.383]
+  }},
+  {"type": "Feature",
+   "id": "M44",
+   "properties": {
+     "name": "Praesepe",
+     "desig": "M44",
+     "type": "oc",
+     "mag": 3.1,
+     "dim": "95"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [130.005,19.667]
+  }},
+  {"type": "Feature",
+   "id": "M45",
+   "properties":{
+     "name": "Pleiades",
+     "desig": "M45",
+     "type": "oc",
+     "mag": 1.2,
+     "dim": "100"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [56.745,24.117]
+  }},
+
+  {"type": "Feature",
+   "id": "Mel20",
+   "properties": {
+     "name": "σ Persei Cluster",
+     "desig": "Mel 20",
+     "type": "oc",
+     "mag": 1.2,
+     "dim": "185"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [51.075,48.167]
+  }},
+  {"type": "Feature",
+   "id": "Mel25",
+   "properties": {
+     "name": "Hyades",
+     "desig": "Hyades",
+     "type": "oc",
+     "mag": 0.5,
+     "dim": "330"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [66.75,16]
+  }},
+  {"type": "Feature",
+   "id": "Mel111",
+   "properties": {
+     "name": "Coma Cluster",
+     "desig": "Mel 111",
+     "type": "oc",
+     "mag": 1.8,
+     "dim": "275"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [-173.73,26.117]
+  }},
+  {"type": "Feature",
+   "id": "NGC104",
+   "properties": {
+     "name": "47 Tucanae Cluster",
+     "desig": "47 Tuc",
+     "type": "gc",
+     "mag": 4,
+     "dim": "30.9"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [6.03,-72.08]
+  }},
+  {"type": "Feature",
+   "id": "NGC884",
+   "properties": {
+     "name": "h & χ Persei Cluster",
+     "desig": "h+χ Per",
+     "type": "oc",
+     "mag": 4.3,
+     "dim": "30"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [35.13,57.130]
+  }},
+  {"type": "Feature",
+   "id": "NGC2239",
+   "properties": {
+     "name": "Rosette Nebula",
+     "desig": "NGC 2239",
+     "type": "oc",
+     "mag": 4.8,
+     "dim": "24"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [97.98,4.95]
+  }},
+  {"type": "Feature",
+   "id": "NGC2264",
+   "properties": {
+     "name": "Cone Nebula",
+     "desig": "NGC 2264",
+     "type": "sfr",
+     "mag": 3.9,
+     "dim": "20"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [100.245,9.9]
+  }},
+  {"type": "Feature",
+   "id": "NGC2362",
+   "properties": {
+     "name": "τ CMa Cluster",
+     "desig": "NGC 2362",
+     "type": "oc",
+     "mag": 4.1,
+     "dim": "8"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [109.68,-24.95]
+  }},
+  {"type": "Feature",
+   "id": "NGC2451",
+   "properties": {
+     "name": "NGC 2451",
+     "desig": "NGC 2451",
+     "type": "oc",
+     "mag": 2.8,
+     "dim": "50"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [116.325,-37.967]
+  }},
+  {"type": "Feature",
+   "id": "NGC2516",
+   "properties": {
+     "name": "NGC 2516",
+     "desig": "NGC 2516",
+     "type": "oc",
+     "mag": 3.8,
+     "dim": "21"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [119.52,-60.75]
+  }},
+  {"type": "Feature",
+   "id": "NGC3372",
+   "properties": {
+     "name": "η Carinae Nebula",
+     "desig": "η Car",
+     "type": "en",
+     "mag": 1,
+     "dim": "120x120"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [161.28,-59.867]
+  }},
+  {"type": "Feature",
+   "id": "NGC5139",
+   "properties": {
+     "name": "ω Centauri Cluster",
+     "desig": "ω Cen",
+     "type": "gc",
+     "mag": 3.9,
+     "dim": "36.3"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [-158.295,-47.483]
+  }},
+  {"type": "Feature",
+   "id": "NGC6231",
+   "properties": {
+     "name": "NGC 6231",
+     "desig": "NGC 6231",
+     "type": "oc",
+     "mag": 2.6,
+     "dim": "15"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [-106.455,-41.817]
+  }},
+  {"type": "Feature",
+   "id": "SMC",
+   "properties": {
+     "name": "Small Magellanic Cloud",
+     "desig": "SMC",
+     "type": "i",
+     "mag": 2.3,
+     "dim": "319x205"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [13.155,-72.8]
+  }},
+  {"type": "Feature",
+   "id": "VirgoI",
+   "properties": {
+     "name": "Virgo Galaxy Cluster",
+     "desig": "Virgo Cl.",
+     "type": "gg",
+     "mag": 999,
+     "dim": "240"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [-178.305,12.4]
+  }}
+]}

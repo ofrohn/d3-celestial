@@ -1,0 +1,107 @@
+//Stars
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "id": "",
+    "properties": {
+      "name": "",
+      "desig": "",   //bayer, flamsteed, variable, gliese, hd
+      "mag": "",
+      "spc": ""
+    },
+    "geometry": {  
+      "type": "Point",
+      "coordinates": []
+    }
+  }, { } ]
+}
+//Constellations
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "id": "",
+    "properties": {
+      "name": "",
+      "genitive": ""
+      "desig": "", 
+    },
+    "geometry": {  
+      "type": "Point",
+      "coordinates": []
+    }      
+  }, { } ]
+}
+
+//Lines
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "id": "",
+    "geometry": {  
+      "type": "MultiLineString",
+      "coordinates": [[[],[]],[[],[]]]
+    }
+  }, { } ]
+}
+
+//Boundaries
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "id": "",
+    "geometry": {  
+      "type": "Polygon",
+      "coordinates": [[[],[]]]
+    },
+  }, { } ]
+}
+//DSOs
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "id": "",
+    "properties": {
+      "name": "",
+      "type": "",   //gg, g, s, s0, ds, i, e, oc, gc, dn, bn, sfr, rn, pn, snr
+      "mag": "",
+      "dim": ""
+    },
+    "geometry": {  
+      "type": "Point",
+      "coordinates": []
+    }
+  }, { } ]
+}
+
+//Milky way
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "id": "",
+    "properties": {},
+    "geometry": {
+      "type": "MultiPolygon",
+      "coordinates":[[[[],[]],[[],[]]]]
+    }
+  }, { } ]
+}
+
+
+//Planes
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "id": "",
+    "geometry": {  
+      "type": "LineString",
+      "coordinates": [[],[]]
+    }
+  }, { } ]
+}
