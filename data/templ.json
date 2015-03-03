@@ -3,12 +3,12 @@
   "type": "FeatureCollection",
   "features": [{
     "type": "Feature",
-    "id": "",
+    "id": "",        // hipparcos number
     "properties": {
-      "name": "",
-      "desig": "",   //bayer, flamsteed, variable, gliese, hd
-      "mag": "",
-      "spc": ""
+      "name": "",    // proper name
+      "desig": "",   // bayer, flamsteed, variable, gliese, hd, hip
+      "mag": "",     // apparent magnitude
+      "bv": ""       // b-v color index
     },
     "geometry": {  
       "type": "Point",
@@ -21,11 +21,11 @@
   "type": "FeatureCollection",
   "features": [{
     "type": "Feature",
-    "id": "",
+    "id": "",           // 3-letter designator
     "properties": {
-      "name": "",
-      "genitive": ""
-      "desig": "", 
+      "name": "",       // full name
+      "genitive": ""    // for naming stars, not yet used
+      "desig": "",      // 3-letter designator again
     },
     "geometry": {  
       "type": "Point",
@@ -39,7 +39,7 @@
   "type": "FeatureCollection",
   "features": [{
     "type": "Feature",
-    "id": "",
+    "id": "",           // 3-letter designator of contellation
     "geometry": {  
       "type": "MultiLineString",
       "coordinates": [[[],[]],[[],[]]]
@@ -52,7 +52,7 @@
   "type": "FeatureCollection",
   "features": [{
     "type": "Feature",
-    "id": "",
+    "id": "",           // 3-letter designator of contellation
     "geometry": {  
       "type": "Polygon",
       "coordinates": [[[],[]]]
@@ -64,12 +64,12 @@
   "type": "FeatureCollection",
   "features": [{
     "type": "Feature",
-    "id": "",
+    "id": "",       // short designator
     "properties": {
-      "name": "",
-      "type": "",   //gg, g, s, s0, ds, i, e, oc, gc, dn, bn, sfr, rn, pn, snr
-      "mag": "",
-      "dim": ""
+      "name": "",   // most common designator
+      "type": "",   // object type: gg, g, s, s0, ds, i, e, oc, gc, dn, bn, sfr, rn, pn, snr
+      "mag": "",    // apparent magnitude, 999 if n.a.
+      "dim": ""     // angular dimensions in arcminutes
     },
     "geometry": {  
       "type": "Point",
@@ -83,7 +83,7 @@
   "type": "FeatureCollection",
   "features": [{
     "type": "Feature",
-    "id": "",
+    "id": "",       // ol 1-5
     "properties": {},
     "geometry": {
       "type": "MultiPolygon",
@@ -98,7 +98,7 @@
   "type": "FeatureCollection",
   "features": [{
     "type": "Feature",
-    "id": "",
+    "id": "",       
     "geometry": {  
       "type": "LineString",
       "coordinates": [[],[]]

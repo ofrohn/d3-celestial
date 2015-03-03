@@ -1,7 +1,8 @@
 # Celestial map with D3.js
 
-### Usage
+Interactive, adaptable celestial map done with the [D3.js](http://d3js.org/) visualization library. Yes, GeoJSON for sky stuff. Which surprisingly nobody has done yet, it seems. A pity
 
+### Usage
 
 ```js
 var config = { 
@@ -69,7 +70,9 @@ __GeoJSON data files__
 * `constellations.lines.json` Constellation lines \[3\]
   
 * `mw.json` Milky way outlines in 5 brightness steps \[5\]
- 
+  
+* `templ.json` GeoJSON templates for all the different object types used
+  
 __Sources__
 
 \[1\] XHIP: An Extended Hipparcos Compilation; Anderson E., Francis C. (2012) [VizieR catalogue V/137D](http://cdsarc.u-strasbg.fr/viz-bin/Cat?V/137D)  
@@ -79,5 +82,19 @@ __Sources__
 \[5\] [Milky Way Outline Catalog](http://www.skymap.com/milkyway_cat.htm), Jose R. Vieira  
 
 All data converted to GeoJSON at J2000 epoch, positions converted from 0...24h right ascension to -180...180 degrees longitude as per GeoJSON requirements, 0...12h -> 0...180º; 12...24h -> -180...0º
+
+__Other files__
+
+* `celestial.js` Main javascript object
+* `celestial.min.js`  Minified javascript
+* `LICENSE`
+* `readme.md` This file
+* `style.css` Stylesheet
+* `viewer.html` Interactive map-viewer/demo
+* `lib/d3.min.js`  Necessary libraries
+* `lib/d3.geo.projection.min.js`
+* `lib/d3.geo.zoom.js`
+* `src/*.js` source code for all modules
+
 
 And thanks to Jason Davies for [d3.geo.zoom](http://www.jasondavies.com/maps/rotate/), which saved me some major headaches in figuring out how to rotate/zoom the map.
