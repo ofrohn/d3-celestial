@@ -1,55 +1,63 @@
 # Celestial map with D3.js
 
-Interactive, adaptable celestial map done with the [D3.js](http://d3js.org/) visualization library. Yes, GeoJSON for sky stuff. Which surprisingly nobody has done yet, it seems. A pity
+Interactive, adaptable celestial map done with the [D3.js](http://d3js.org/) visualization library. So, GeoJSON for sky stuff. Which surprisingly nobody has done yet, it seems.  
+
+Features display of stars and deep sky objects up to selectable magnitude limit up to 6, or choose different GeoJSON data source. Also shows constellations with names, lines and/or boundaries, the Milky Way band and graticules. Alternate coordinate spaces e.g. galactic or supergalactic will also be possible, but not yet. Full support for zoom and rotation with mouse or gestures.
+
+Since it uses D3, needs a modern browser with svg support, so any recent flavor of Chrome/Firefox/Safari/Opera and IE 9 and above should suffice. Check out the demo at &lt;insert link here> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment.
 
 ### Usage
 
+Simply edit the default options and display the map with `Celestial.display(config)`.
+
 ```js
 var config = { 
-  width: 1024,     //Default width; height is determined by projection
+  width: 1024,     // Default width; height is determined by projection
   projection: "aitoff",  //Map projection used: see below
-  transform: null, //*TBI* Coordinate transformation euler angles: euler.ecliptic, euler.galactic, euler.supergalactic, [0,0,0]
+  transform: null, // *TBI* Coordinate transformation euler angles: euler.ecliptic, 
+                   // euler.galactic, euler.supergalactic, [0,0,0]
   stars: {
-    show: true,    //Show stars
-    limit: 6,      //up to maximum stellar magnitude
-    colors: true,  //Show stars in spectral colors, if not use "color"
-    color: "#fff", //Default color for stars
-    names: true,   //Show star names (css-class starname)
-    proper: false, //Show proper names (if none shows designation)
-    desig: true,   //Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
-    namelimit: 2,  //Maximum magnitude with name
-    data: 'data/stars.6.json' //Data source for stellar data
+    show: true,    // Show stars
+    limit: 6,      // up to maximum stellar magnitude
+    colors: true,  // Show stars in spectral colors, if not use default color
+    color: "#fff", // Default color for stars
+    names: true,   // Show star names (css-class starname)
+    proper: false, // Show proper names (if none shows designation)
+    desig: true,   // Show designation (Bayer, Flamsteed, variable star, Gliese, Draper,
+                   // Hipparcos, whichever applies first in the given order)
+    namelimit: 2,  // Maximum magnitude with name
+    data: 'data/stars.6.json' // Data source for stellar data
   },
   dsos: {
-    show: true,    //Show Deep Space Objects
-    limit: 6,      //up to maximum magnitude
-    names: true,   //Show DSO names
-    desig: true,   //Show short DSO names
-    namelimit: 6,  //Maximum magnitude with name
-    data: 'data/dsos.bright.json'  //Data source for DSOs
+    show: true,    // Show Deep Space Objects
+    limit: 6,      // up to maximum magnitude
+    names: true,   // Show DSO names
+    desig: true,   // Show short DSO names
+    namelimit: 6,  // Maximum magnitude with name
+    data: 'data/dsos.bright.json'  // Data source for DSOs
   },
   constellations: {
-    show: true,    //Show constellations 
-    names: true,   //Show constellation names (css-class: constname)
-    desig: true,   //Show short constellation names (3 letter designations)
-    lines: true,   //Show constellation lines (css-class: constline)
-    bounds: false  //Show constellation boundaries (css-class: boundaryline)
+    show: true,    // Show constellations 
+    names: true,   // Show constellation names (css-class: constname)
+    desig: true,   // Show short constellation names (3 letter designations)
+    lines: true,   // Show constellation lines (css-class: constline)
+    bounds: false  // Show constellation boundaries (css-class: boundaryline)
   },
   mw: {
-    show: true,    //Show Milky Way as filled polygons (css-class: mw)
+    show: true     // Show Milky Way as filled multi-polygon outlines (css-class: mw)
   },
   lines: {
-    graticule: true,  //Show graticule lines (css-class: gridline)
-    equatorial: false,  //Show equatorial plane (css-class: equatorial)
-    ecliptic: true,   //Show ecliptic plane (css-class: ecliptic)
-    galactic: false,  //Show galactic plane (css-class: galactic)
-    supergalactic: false  //Show supergalactic plane (css-class: supergalactic)
+    graticule: true,   // Show graticule lines (css-class: gridline)
+    equatorial: false, // Show equatorial plane (css-class: equatorial)
+    ecliptic: true,    // Show ecliptic plane (css-class: ecliptic)
+    galactic: false,   // Show galactic plane (css-class: galactic)
+    supergalactic: false  // Show supergalactic plane (css-class: supergalactic)
   }
 };
 
+// Display map with the configuration above
 Celestial.display(config);
 ```
-
 
 __Supported projections:__ airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3  
 most of these need the extension [d3.geo.projections](https://github.com/d3/d3-geo-projection/)  
@@ -75,26 +83,32 @@ __GeoJSON data files__
   
 __Sources__
 
-\[1\] XHIP: An Extended Hipparcos Compilation; Anderson E., Francis C. (2012) [VizieR catalogue V/137D](http://cdsarc.u-strasbg.fr/viz-bin/Cat?V/137D)  
-\[2\] [Saguaro Astronomy Club Database version 8.1](http://www.saguaroastro.org/content/downloads.htm)  
-\[3\] [IAU Constellation page](http://www.iau.org/public/themes/constellations/), name positions and some line modifications by me  
-\[4\] Catalogue of Constellation Boundary Data; Davenhall A.C., Leggett S.K. (1989) [VizieR catalogue VI/49/](http://vizier.cfa.harvard.edu/viz-bin/Cat?VI/49)  
-\[5\] [Milky Way Outline Catalog](http://www.skymap.com/milkyway_cat.htm), Jose R. Vieira  
+* \[1\] XHIP: An Extended Hipparcos Compilation; Anderson E., Francis C. (2012) [VizieR V/137D](http://cdsarc.u-strasbg.fr/viz-bin/Cat?V/137D)  
+    _Star names & designations:_  
+    HD-DM-GC-HR-HIP-Bayer-Flamsteed Cross Index (Kostjuk, 2002) [VizieR IV/27A](http://cdsarc.u-strasbg.fr/viz-bin/Cat?IV/27A)  
+ FK5-SAO-HD-Common Name Cross Index (Smith 1996) [VizieR IV/22](http://cdsarc.u-strasbg.fr/viz-bin/Cat?IV/22)  
+ General Catalogue of Variable Stars (Samus et.al. 2007-2013) [VizieR B/gcvs](http://cdsarc.u-strasbg.fr/viz-bin/Cat?B/gcvs)  
+ Preliminary Version of the Third Catalogue of Nearby Stars (Gliese+ 1991) [VizieR V/70A](http://cdsarc.u-strasbg.fr/viz-bin/Cat?V/70A)  
+* \[2\] [Saguaro Astronomy Club Database version 8.1](http://www.saguaroastro.org/content/downloads.htm)  
+* \[3\] [IAU Constellation page](http://www.iau.org/public/themes/constellations/), name positions and some line modifications by me  
+* \[4\] Catalogue of Constellation Boundary Data; Davenhall A.C., Leggett S.K. (1989) [VizieR VI/49/](http://vizier.cfa.harvard.edu/viz-bin/Cat?VI/49)  
+* \[5\] [Milky Way Outline Catalog](http://www.skymap.com/milkyway_cat.htm), Jose R. Vieira  
 
 All data converted to GeoJSON at J2000 epoch, positions converted from 0...24h right ascension to -180...180 degrees longitude as per GeoJSON requirements, 0...12h -> 0...180º; 12...24h -> -180...0º
 
 __Other files__
 
-* `celestial.js` Main javascript object
-* `celestial.min.js`  Minified javascript
+* `celestial.js` main javascript object
+* `celestial.min.js`  minified javascript
+* `celestial.tar.gz`  data, minified script and viewer, all you need for local display 
 * `LICENSE`
-* `readme.md` This file
-* `style.css` Stylesheet
-* `viewer.html` Interactive map-viewer/demo
-* `lib/d3.min.js`  Necessary libraries
+* `readme.md` this file
+* `style.css` stylesheet
+* `viewer.html` interactive map-viewer/demo
+* `lib/d3.min.js`  necessary libraries
 * `lib/d3.geo.projection.min.js`
 * `lib/d3.geo.zoom.js`
 * `src/*.js` source code for all modules
 
-
-And thanks to Jason Davies for [d3.geo.zoom](http://www.jasondavies.com/maps/rotate/), which saved me some major headaches in figuring out how to rotate/zoom the map.
+Thanks to Mike Bostock and Jason Davies for [D3.js](http://d3js.org/) and [d3.geo.projections](https://github.com/d3/d3-geo-projection).
+And also thanks to Jason Davies for [d3.geo.zoom](http://www.jasondavies.com/maps/rotate/), which saved me some major headaches in figuring out how to rotate/zoom the map.
