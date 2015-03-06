@@ -2,9 +2,9 @@
 var Celestial = {};
 
 Celestial.display = function(config) {
-  var circle;
+  var cfg, circle;
   
-  var set = function() {
+/*  var set = function() {
     var set, key;
     for (set in settings) {
     if (!config.hasOwnProperty(set)) { continue; }
@@ -20,21 +20,21 @@ Celestial.display = function(config) {
       }
     }
   };
-
-  if (config) { set(config); }
+*/
+  cfg = settings.set(config); 
   
-  if (!projections.hasOwnProperty(settings.projection)) { return; }
+  if (!projections.hasOwnProperty(cfg.projection)) { return; }
   
-  var proj = projections[settings.projection],
+  var proj = projections[cfg.projection],
       ratio = proj.ratio || 2,
-      width = settings.width,
+      width = cfg.width,
       height = width / ratio,
       sc = width / 180,
       center = [180, 0, 0];
     
-  var projection = Celestial.projection(settings.projection, settings.transform).rotate(center).translate([width/2, height/2]).scale([proj.scale]);
-  var projBg = Celestial.projection(settings.projection).rotate(center).translate([width/2, height/2]).scale([proj.scale]);
-  var projOl = Celestial.projection(settings.projection).translate([width/2, height/2]).scale([proj.scale]);
+  var projection = Celestial.projection(cfg.projection, cfg.transform).rotate(center).translate([width/2, height/2]).scale([proj.scale]);
+  var projBg = Celestial.projection(cfg.projection).rotate(center).translate([width/2, height/2]).scale([proj.scale]);
+  var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([proj.scale]);
 
   if (proj.clip) {
     projection.clipAngle(90);
@@ -53,30 +53,30 @@ Celestial.display = function(config) {
   var svg = d3.select("body").append("svg").attr("width", width).attr("height", height).call(zoom);
   
   if (circle) {
-    svg.append("path").datum(circle).attr("class", "outline").attr("d", ol); //.style("fill", settings.bgcolor);
+    svg.append("path").datum(circle).attr("class", "outline").attr("d", ol); //.style("fill", cfg.bgcolor);
   } else {
-    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", bg); //.style("fill", settings.bgcolor);
+    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", bg); //.style("fill", cfg.bgcolor);
   }
-  if (settings.lines.graticule) {
+  if (cfg.lines.graticule) {
     svg.append("path").datum(graticule).attr("class", "gridline").attr("d", bg);
   }
   
   //d3.select("body").style("background-color", "black");
   
   //Milky way outline
-  if (settings.mw.show) { d3.json("data/mw.json", function(error, mwjson) {
+  if (cfg.mw.show) { d3.json("data/mw.json", function(error, mwjson) {
     svg.selectAll(".mway")
        .data(mwjson.features)
        .enter()
        .append("path")
        .attr("class", "mw")
        .attr("d", path);
-       //.style("fill", settings.mw.color)
-       //.style("opacity", settings.mw.opacity/5);
+       //.style("fill", cfg.mw.color)
+       //.style("opacity", cfg.mw.opacity/5);
   });}
 
   //Constellation nemes or designation
-  if (settings.constellations.show) { 
+  if (cfg.constellations.show) { 
     d3.json("data/constellations.json", function(error, conjson) {
       svg.selectAll(".constnames")
          .data(conjson.features)
@@ -84,12 +84,12 @@ Celestial.display = function(config) {
          .append("text")
          .attr("class", "constname")
          .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-         .text( function(d, i) { if (settings.constellations.names) { return settings.constellations.desig?d.properties.desig:d.properties.name; }})
+         .text( function(d, i) { if (cfg.constellations.names) { return cfg.constellations.desig?d.properties.desig:d.properties.name; }})
          .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); }); 
     });
 
     //Constellation boundaries
-    if (settings.constellations.bounds) { 
+    if (cfg.constellations.bounds) { 
       d3.json("data/constellations.bounds.json", function(error, bndjson) {
         svg.selectAll(".bounds")
            .data(bndjson.features)
@@ -101,7 +101,7 @@ Celestial.display = function(config) {
     }
 
     //Constellation lines
-    if (settings.constellations.lines) { 
+    if (cfg.constellations.lines) { 
       d3.json("data/constellations.lines.json", function(error, linejson) {
         svg.selectAll(".lines")
            .data(linejson.features)
@@ -114,8 +114,8 @@ Celestial.display = function(config) {
   }
   
   //Stars
-  if (settings.stars.show) { 
-    d3.json(settings.stars.data, function(error, starjson) {
+  if (cfg.stars.show) { 
+    d3.json(cfg.stars.data, function(error, starjson) {
       svg.selectAll(".stars")
          .data(starjson.features)
          .enter()
@@ -128,7 +128,7 @@ Celestial.display = function(config) {
            return starcolor(d.properties);
          });
 
-      if (settings.stars.names) { 
+      if (cfg.stars.names) { 
         svg.selectAll(".starnames")
            .data(starjson.features)
            .enter()
@@ -144,8 +144,8 @@ Celestial.display = function(config) {
   }
 
   //Deep space objects
-  if (settings.dsos.show) { 
-    d3.json(settings.dsos.data, function(error, dsojson) {
+  if (cfg.dsos.show) { 
+    d3.json(cfg.dsos.data, function(error, dsojson) {
       svg.selectAll(".dsos")
          .data(dsojson.features)
          .enter()
@@ -158,7 +158,7 @@ Celestial.display = function(config) {
          .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); })
          .style("stroke-opacity", function(d, i) { return clip(d.geometry.coordinates); }); 
     
-      if (settings.dsos.names) { 
+      if (cfg.dsos.names) { 
         svg.selectAll(".dsonames")
            .data(dsojson.features)
            .enter()
@@ -175,8 +175,8 @@ Celestial.display = function(config) {
   }
 
   //Celestial planes
-  for (var key in settings.lines) {
-    if (settings.lines.hasOwnProperty(key) && key != "graticule" && settings.lines[key] !== false) { 
+  for (var key in cfg.lines) {
+    if (cfg.lines.hasOwnProperty(key) && key != "graticule" && cfg.lines[key] !== false) { 
       var pl = Celestial.plane(key);  
 
       svg.selectAll(".pl" + key)
@@ -259,8 +259,8 @@ Celestial.display = function(config) {
   function dsocolor(prop, which) {
     if (!prop.type || 
         !symbols.hasOwnProperty(prop.type) || 
-        prop.mag == 999 && Math.sqrt(parseInt(prop.dim)) < settings.dsos.limit || 
-        prop.mag != 999 && prop.mag > settings.dsos.limit) { return "none"; }
+        prop.mag == 999 && Math.sqrt(parseInt(prop.dim)) < cfg.dsos.limit || 
+        prop.mag != 999 && prop.mag > cfg.dsos.limit) { return "none"; }
     return symbols[prop.type][which]; 
   }
 
@@ -270,18 +270,18 @@ Celestial.display = function(config) {
   }
 
   function dsoname(prop) {
-    if (prop.mag == 999 && Math.sqrt(parseInt(prop.dim)) < settings.dsos.namelimit || 
-        prop.mag != 999 && prop.mag > settings.dsos.namelimit || 
+    if (prop.mag == 999 && Math.sqrt(parseInt(prop.dim)) < cfg.dsos.namelimit || 
+        prop.mag != 999 && prop.mag > cfg.dsos.namelimit || 
         prop.name === "") { return; }
-    if (settings.dsos.desig && prop.desig) { return prop.desig; }
+    if (cfg.dsos.desig && prop.desig) { return prop.desig; }
     return prop.name;
   }
   
   function starname(prop) {
-    if (prop.mag > settings.stars.namelimit || 
-       (settings.stars.desig === false && prop.name === "")) { return; }
-    if (settings.stars.proper && prop.name !== "") { return prop.name; }
-    if (settings.stars.desig) { return prop.desig; }
+    if (prop.mag > cfg.stars.namelimit || 
+       (cfg.stars.desig === false && prop.name === "")) { return; }
+    if (cfg.stars.proper && prop.name !== "") { return prop.name; }
+    if (cfg.stars.desig) { return prop.desig; }
   }
   
   function starsize(mag) {
@@ -291,8 +291,8 @@ Celestial.display = function(config) {
   }
   
   function starcolor(prop) {
-    if (prop.mag > settings.stars.limit) { return "rgba(0,0,0,0)"; }
-    if (!settings.stars.colors || prop.mag > 5) { return settings.stars.color; }
+    if (prop.mag > cfg.stars.limit) { return "rgba(0,0,0,0)"; }
+    if (!cfg.stars.colors || prop.mag > 5) { return cfg.stars.color; }
     return bvcolor(prop.bv);
   }
   

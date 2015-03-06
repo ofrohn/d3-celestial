@@ -9,15 +9,62 @@
   <link rel="stylesheet" href="style.css">
 </head><body>
 <script type="text/javascript">
-  //Width and height
-  var width = 1024, height = 512;
-      
-  var PROJECTION = "aitoff",
-      //galactic, ecliptic, [0,0,0]
-      TRANSFORM = null,//euler["galactic"],
-      BGCOLOR = "#000";
-              
-  Celsestial.display(settings);
+
+var config = { 
+  width: 1024,       //Default width
+  projection: "stereographic",  //Map projection used
+  transform: null,   //Coordinate transformation euler angles, e.g. euler.galactic, euler.ecliptic, [0,0,0]
+  stars: {
+    show: true,    //Show stars
+    limit: 6,      //up to maximum stellar magnitude
+    colors: true,  //Show stars spectral colors, if not use "color"
+    color: "#fff", //Default color for stars
+    names: true,   //Show star names (css-class starname)
+    proper: false, //Show proper names (if none shows designation)
+    desig: true,   //Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
+    namelimit: 2   //Maximum magnitude with name
+  },
+  constellations: {
+    show: true,    //Show constellations 
+    names: true,   //Show constellation names (css-class constname)
+    desig: true,   //Show short constellation names (3 letter designations)
+    lines: true,   //Show constellation lines (css-class constline)
+    bounds: false  //Show constellation boundaries (css-class boundaryline)
+  },
+  dsos: {
+    show: true,    //Show Deep Space Objects
+    limit: 6,      //up to maximum magnitude
+    names: true,   //Show DSO names
+    desig: true,   //Show short DSO names
+    namelimit: 6   //Maximum magnitude with name
+  },
+  mw: {
+    show: true,    //Show Milky Way outlines
+  },
+  lines: {
+    graticule: true,  //Show graticule lines
+    ecliptic: true,   //Show ecliptic plane
+    galactic: false,  //Show galactic plane
+    equatorial: false,  //Show equatorial plane
+    supergalactic: false  //Show supergalactic plane
+  }
+};
+
+Celestial.display(config);
+
+
+
+function query() {
+  var qs = location.search.split('&'), 
+      i, name, t, res = {};
+  for (i=0; i<qs.length; i++) {
+    t = qs[i].split('=', 2);
+    name = unescape(t[0]);
+    if (!res[name]) { res[name] = {}; }
+    if (t.length > 1) { res[name].push(unescape(t[1])); }
+  }
+  return res;
+}
 
   </script>
   </body>

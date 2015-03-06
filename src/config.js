@@ -3,7 +3,6 @@ var settings = {
   width: 1024,     //Default width; height is determined by projection
   projection: "aitoff",  //Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
   transform: null, //*TBI* Coordinate transformation euler angles, euler.ecliptic, euler.galactic, euler.supergalactic, [0,0,0]
-  bgcolor: "#000", //Background color css value
   stars: {
     show: true,    //Show stars
     limit: 6,      //up to maximum stellar magnitude
@@ -32,7 +31,6 @@ var settings = {
   },
   mw: {
     show: true,    //Show Milky Way as filled polygons (css-class: mw)
-    opacity: 0.55  //Maximum opacity
   },
   lines: {
     graticule: true,  //Show graticule lines (css-class: gridline)
@@ -40,7 +38,30 @@ var settings = {
     ecliptic: true,   //Show ecliptic plane (css-class: ecliptic)
     galactic: false,  //Show galactic plane (css-class: galactic)
     supergalactic: false  //Show supergalactic plane (css-class: supergalactic)
+  },
+  set: function(cfg) {
+    var prop, key, res = {};
+    if (!cfg) return this;
+    for (prop in this) {
+      if (!this.hasOwnProperty(prop) || typeof(this[prop]) == 'function') { continue; }
+      if (!cfg.hasOwnProperty(prop) || cfg[prop] === null) { 
+        res[prop] = this[prop]; 
+      } else if (this[prop].constructor != Object ) {
+        res[prop] = cfg[prop];
+      } else {
+        res[prop] = {};
+        for (key in this[prop]) {
+          if (cfg[prop].hasOwnProperty(key)) {
+            res[prop][key] = cfg[prop][key];
+          } else {
+            res[prop][key] = this[prop][key];
+          }            
+        }
+      }
+    }
+    return res;
   }
+  
 };
 
 
