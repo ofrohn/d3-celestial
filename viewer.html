@@ -5,63 +5,136 @@
   <script type="text/javascript" src="lib/d3.min.js"></script>
   <script type="text/javascript" src="lib/d3.geo.projection.min.js"></script>
   <script type="text/javascript" src="lib/d3.geo.zoom.js"></script>
-  <script type="text/javascript" src="celestial.min.js"></script>
+  <script type="text/javascript" src="celestial.js"></script>
   <link rel="stylesheet" href="style.css">
 </head><body>
+<div id="map"></div>
+<form id="params" method="get" action="#">
+  <div class="line">
+  <!-- projection, size, center-->
+  <label>Projection<select name="projection" id="projection"></select></label>
+  <label>Width<input type="number" maxlength="4" name="width" value="1024" /> px</label>
+  </div>
+  <div class="col">
+  <!-- stars, limit, colors, col, names, short, limit -->
+  <label><strong>Stars</strong> <input type="checkbox" name="stars-show" value="true" checked="checked" /></label>
+  <label>Limit<input type="number" name="stars-limit" value="6" max="6" min="-1"> mag</label><br>
+  <label>Names<input type="checkbox" name="stars-names" value="true" checked="checked"> </label>
+  <label>Short<input type="checkbox" name="stars-desig" value="true" checked="checked"> </label>
+  <label>Limit<input type="number" name="stars-namelimit" value="2" max="6" min="-1"> mag </label><br>
+  <label>Spectral colors<input type="checkbox" name="stars-colors" value="true" checked="checked"> </label>
+  <label>Def. color<input type="color" name="stars-color" value="#ffffff"> </label>
+  </div>  
+  <div class="col">
+  <!-- dsos, limit, names, short, limit -->
+  <label><strong>DSOs</strong> <input type="checkbox" name="dsos-show" value="true" checked="checked"> </label>
+  <label>Limit<input type="number" name="dsos-limit" value="6" max="6" min="-1"> mag </label><br>
+  <label>Names<input type="checkbox" name="dsos-names" value="true" checked="checked"> </label>
+  <label>Short<input type="checkbox" name="dsos-desig" value="true" checked="checked"> </label>
+  <label>Limit<input type="number" name="dsos-namelimit" value="6" max="6" min="-1"> mag </label><br><br>
+  </div>  
+  <div class="col">
+  <!-- constellations, names, short, lines, bounds -->
+  <label><strong>Constellations</strong> <input type="checkbox" name="constellations-show" checked> </label><br>
+  <label>Names<input type="checkbox" name="constellations-names" value="true" checked="checked"> </label>
+  <label>Short<input type="checkbox" name="constellations-desig" value="true" checked="checked"> </label><br>
+  <label>Lines<input type="checkbox" name="constellations-lines" value="true" checked="checked"> </label>
+  <label>Boundaries<input type="checkbox" name="constellations-bounds" value="1"> </label>
+  </div>  
+  <div class="line">
+  <!-- graticule, bgcol, mw, equ, ecl, gal, sgl -->
+  <strong>Lines</strong>
+  <label>Graticule<input type="checkbox" name="lines-graticule" value="true" checked> </label>
+  <label>Equator<input type="checkbox" name="lines-equatorial" value="true"> </label>
+  <label>Ecliptic<input type="checkbox" name="lines-ecliptic" value="true" checked="checked"> </label>
+  <label>Galactic Plane<input type="checkbox" name="lines-galactic" value="true"> </label>
+  <label>Supergal. Plane<input type="checkbox" name="lines-supergalactic" value="true"> </label>
+  <label>Milky Way<input type="checkbox" name="mw-show" value="true" checked="checked"> </label>
+  </div>
+  <input type="submit" value="Show">&nbsp;&nbsp;
+  <input type="reset" value="Reset">
+</form>
+</div>
+
 <script type="text/javascript">
 
-var config = { 
-  width: 1024,       //Default width
-  projection: "stereographic",  //Map projection used
-  transform: null,   //Coordinate transformation euler angles, e.g. euler.galactic, euler.ecliptic, [0,0,0]
-  stars: {
-    show: true,    //Show stars
-    limit: 6,      //up to maximum stellar magnitude
-    colors: true,  //Show stars spectral colors, if not use "color"
-    color: "#fff", //Default color for stars
-    names: true,   //Show star names (css-class starname)
-    proper: false, //Show proper names (if none shows designation)
-    desig: true,   //Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
-    namelimit: 2   //Maximum magnitude with name
-  },
-  constellations: {
-    show: true,    //Show constellations 
-    names: true,   //Show constellation names (css-class constname)
-    desig: true,   //Show short constellation names (3 letter designations)
-    lines: true,   //Show constellation lines (css-class constline)
-    bounds: false  //Show constellation boundaries (css-class boundaryline)
-  },
-  dsos: {
-    show: true,    //Show Deep Space Objects
-    limit: 6,      //up to maximum magnitude
-    names: true,   //Show DSO names
-    desig: true,   //Show short DSO names
-    namelimit: 6   //Maximum magnitude with name
-  },
-  mw: {
-    show: true,    //Show Milky Way outlines
-  },
-  lines: {
-    graticule: true,  //Show graticule lines
-    ecliptic: true,   //Show ecliptic plane
-    galactic: false,  //Show galactic plane
-    equatorial: false,  //Show equatorial plane
-    supergalactic: false  //Show supergalactic plane
+var cfg = parseQuery();
+
+fillOptions();
+if (cfg) {
+  cfg = fillForm(cfg);
+  cfg = settings.set(objectify(cfg));
+}
+ 
+Celestial.display(cfg);
+
+//Form
+function fillForm(cfg) {
+  var i, e = document.forms[0].elements;
+
+  for (i=0; i<e.length; i++) {
+    if (e[i].type == "checkbox") { 
+      if (cfg.hasOwnProperty(e[i].name)) {
+        e[i].checked = true;
+        cfg[e[i].name] = true;
+      } else { 
+        e[i].checked = false;
+        cfg[e[i].name] = false;
+      }      
+    }
+    else if (e[i].type == "select-one") { selectOption(e[i], cfg[e[i].name]); }
+    else if (cfg.hasOwnProperty(e[i].name)) { e[i].value = cfg[e[i].name]; }
+  }    
+  return cfg;
+}
+
+function selectOption(e, opt) {
+  var i;
+  for (i=0; i<e.options.length; i++) {
+    if (e.options[i].value == opt) {
+      e.selectedIndex = i;
+      return;
+    }
   }
-};
+}
 
-Celestial.display(config);
+function fillOptions() {
+  var t, key, par = $("projection");
+  
+  $("params").action = document.location.href.replace(/\?.*/, "");
+  
+  for (key in projections) {
+    t = document.createElement("option");
+    t.value = key;
+    t.innerHTML = key;
+    if (key == settings.projection) t.selected = "selected";
+    par.appendChild(t);
+  }
+}
 
+function parseQuery() {
+  if (!location.search) return;
+  var i, t, res = {}, cfg = location.search.replace(/^\?/, "").split('&');
 
+  for (i=0; i<cfg.length; i++) {
+    t = cfg[i].split('=', 2).map( function(str) { return unescape(str) } );
+    res[t[0]] = t.length > 1 ? t[1] : null;
+  }
+  return res;
+}
 
-function query() {
-  var qs = location.search.split('&'), 
-      i, name, t, res = {};
-  for (i=0; i<qs.length; i++) {
-    t = qs[i].split('=', 2);
-    name = unescape(t[0]);
-    if (!res[name]) { res[name] = {}; }
-    if (t.length > 1) { res[name].push(unescape(t[1])); }
+function objectify(cfg) {
+  var t, key, prop, res = {};
+  for (key in cfg) {
+    if (!cfg.hasOwnProperty(key)) { continue; }
+    t = key.split('-');
+    prop = t[0];
+    if (t.length == 1) {
+      res[prop] = cfg[key];
+    } else {
+      if (!res[prop]) { res[prop] = {}; }
+      res[prop][t[1]] = cfg[key]; 
+    }
   }
   return res;
 }

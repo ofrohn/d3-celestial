@@ -41,9 +41,10 @@ var settings = {
   },
   set: function(cfg) {
     var prop, key, res = {};
-    if (!cfg) return this;
+    if (!cfg) { return this; }
     for (prop in this) {
-      if (!this.hasOwnProperty(prop) || typeof(this[prop]) == 'function') { continue; }
+      if (!this.hasOwnProperty(prop)) { continue; }
+      if (typeof(this[prop]) == 'function') { continue; }
       if (!cfg.hasOwnProperty(prop) || cfg[prop] === null) { 
         res[prop] = this[prop]; 
       } else if (this[prop].constructor != Object ) {

@@ -2,26 +2,11 @@
 var Celestial = {};
 
 Celestial.display = function(config) {
-  var cfg, circle;
+  var cfg, circle, par;
   
-/*  var set = function() {
-    var set, key;
-    for (set in settings) {
-    if (!config.hasOwnProperty(set)) { continue; }
-    if (config[set] === null) { continue; }
-      if (settings[set].constructor != Object ) {
-        settings[set] = config[set];
-      } else {
-        for (key in settings[set]) {
-          if (config[set].hasOwnProperty(key)) {
-            settings[set][key] = config[set][key];
-          }
-        }
-      }
-    }
-  };
-*/
   cfg = settings.set(config); 
+  
+  par = $("map") ? "#map" : "body";
   
   if (!projections.hasOwnProperty(cfg.projection)) { return; }
   
@@ -50,7 +35,8 @@ Celestial.display = function(config) {
   var bg = d3.geo.path().projection(projBg);
   var ol = d3.geo.path().projection(projOl);
       
-  var svg = d3.select("body").append("svg").attr("width", width).attr("height", height).call(zoom);
+  //div with id #map or body
+  var svg = d3.select(par).append("svg").attr("width", width).attr("height", height).call(zoom);
   
   if (circle) {
     svg.append("path").datum(circle).attr("class", "outline").attr("d", ol); //.style("fill", cfg.bgcolor);
@@ -297,3 +283,7 @@ Celestial.display = function(config) {
   }
   
 };
+
+function $(id) {
+  return document.getElementById(id);
+}

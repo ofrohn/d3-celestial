@@ -14,3 +14,8 @@ text { stroke: none; fill: #fff; font: 10px sans-serif; }
 .galactic { stroke: #c66; }
 .supergalactic { stroke: #c6c; }
 .mw { fill: #fff; fill-opacity: 0.12; }
+
+input[type='number'] { width:32px; text-align:right; margin-left:4px; }
+input[name='width'], input[type='color'] { width:48px; }
+
+.col { width:260px; height:80px; display:inline-block; margin:0; }
