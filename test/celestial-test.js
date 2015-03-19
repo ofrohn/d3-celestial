@@ -3,7 +3,7 @@ var shell = require('shelljs/global'),
     assert = require('assert'),
     vm = require('vm'),
     jsdom = require("jsdom").jsdom,
-    includes = ['../lib/d3.js', '../lib/d3.geo.projection.js', '../celestial.js'];
+    includes = ['../lib/d3.js', '../lib/d3.geo.zoom.js', '../lib/d3.geo.projection.js', '../celestial.js'];
    
     
 global.document = jsdom("Testing"),

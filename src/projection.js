@@ -1,5 +1,5 @@
 
-Celestial.projection = function(projection, euler) {
+Celestial.projection = function(projection) {
   var p, trans, raw, forward;
   
   if (!projections.hasOwnProperty(projection)) { throw new Error("Projection not supported: " + projection); }
@@ -11,18 +11,18 @@ Celestial.projection = function(projection, euler) {
     raw = d3.geo[projection].raw;  
   }
   
-  if (euler) {
+/*  if (euler) {
     forward = function(λ, φ) {
       var coords = Celestial.transform([-λ, φ],euler);
       coords = raw(coords[0], coords[1]);
       return coords;
     };
-  } else {
+  } else {*/
     forward = function(λ, φ) {
       var coords = raw(-λ, φ);
       return coords;
     };
-  }
+  //}
   forward.invert = function(x, y) {
     //Needs tranform
     var coords = raw.invert(x, y);
@@ -31,4 +31,18 @@ Celestial.projection = function(projection, euler) {
   };
 
   return d3.geo.projection(forward);
+};
+
+var eulerAngles = {
+  "equatorial": [180.0, 0.0, 0.0],
+  "ecliptic": [180.0, 0.0, 23.4393],
+  "galactic": [93.5949, 28.9362, -58.5988],
+  "supergalactic": [137.3100, 59.5283, 57,7303]
+};
+
+var poles = {
+  "equatorial": [0.0, 90.0],
+  "ecliptic": [-90.0, 66.5607],
+  "galactic": [-167.1405, 27.1283],
+  "supergalactic": [-76.2458, 15.7089]  
 };

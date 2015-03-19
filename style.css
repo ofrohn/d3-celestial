@@ -3,9 +3,9 @@ text { stroke: none; fill: #fff; font: 10px sans-serif; }
 .stroke { fill: none; stroke: #fff; stroke-width: 3px; }
 .fill { fill: none; }
 .gridline { fill: none; stroke: #ccc; stroke-width: .5px; stroke-opacity: .8; }
-.outline { fill: #000; }
+.outline { }
 .constline { fill: none; stroke: #999; stroke-width: 1px; stroke-opacity: .8; }
-.constname { fill: #cc9; font: 10px sans-serif; }
+.constname { fill: #cc9; font: 10px sans-serif; text-anchor: middle }
 .starname, .dsoname { stroke: none; fill: #ccd; font: 8px serif; }
 .boundaryline { fill: none; stroke: #cc0; stroke-width: .5px; stroke-opacity: .8; stroke-dasharray: 6,3; }
 .equatorial, .ecliptic, .galactic, .supergalactic { fill: none; stroke-width: 1.5px; stroke-opacity: .8; }
@@ -14,8 +14,10 @@ text { stroke: none; fill: #fff; font: 10px sans-serif; }
 .galactic { stroke: #c66; }
 .supergalactic { stroke: #c6c; }
 .mw { fill: #fff; fill-opacity: 0.12; }
-
+/* Form */
+input { vertical-align: -1px; }
 input[type='number'] { width:32px; text-align:right; margin-left:4px; }
+input[type='checkbox'] { vertical-align: -2px; }
 input[name='width'], input[type='color'] { width:48px; }
 
-.col { width:260px; height:80px; display:inline-block; margin:0; }
+.col { border-bottom: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }

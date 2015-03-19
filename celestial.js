@@ -2,7 +2,8 @@
 var settings = { 
   width: 1024,     //Default width; height is determined by projection
   projection: "aitoff",  //Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
-  transform: null, //*TBI* Coordinate transformation euler angles, euler.ecliptic, euler.galactic, euler.supergalactic, [0,0,0]
+  transform: "equatorial", //Coordinate transformation euler angles; equatorial, ecliptic, galactic, supergalactic
+  background: "#000",
   stars: {
     show: true,    //Show stars
     limit: 6,      //up to maximum stellar magnitude
@@ -82,7 +83,8 @@ var symbols = {
   rn: {shape:"square", stroke:"#00f", fill:"#00f"},  //Reflection nebula blue square
   pn: {shape:"diamond", stroke:"#0cc", fill:"#0cc"}, //Planetary nebula cyan diamond
   snr: {shape:"diamond", stroke:"#f0c", fill:"#f0c"}, //Supernova remnant pink diamond
-  dn: {shape:"square", stroke:"#999", fill:"none"}    //Dark nebula grey open square
+  dn: {shape:"square", stroke:"#999", fill:"none"},    //Dark nebula grey open square
+  pos: {shape:"marker", stroke:"#ccc", fill:"none"}    //Dark nebula grey open square
 };
 
 //b-v color index to rgb color value scale
@@ -176,14 +178,15 @@ Celestial.display = function(config) {
   if (!projections.hasOwnProperty(cfg.projection)) { return; }
   
   var proj = projections[cfg.projection],
+      trans = cfg.transform || "equatorial",
       ratio = proj.ratio || 2,
       width = cfg.width,
       height = width / ratio,
-      sc = width / 180,
-      base = 7, exp = -0.3,
-      center = [180, 0, 0];
+      //sc = width / 180,
+      base = 7, exp = -0.3, //Object size base & exponent
+      center = trans == "galactic" ? [0,0,0] : [180, 0, 0];
     
-  var projection = Celestial.projection(cfg.projection, cfg.transform).rotate(center).translate([width/2, height/2]).scale([proj.scale]);
+  var projection = Celestial.projection(cfg.projection).rotate(eulerAngles[trans]).translate([width/2, height/2]).scale([proj.scale]);
   var projBg = Celestial.projection(cfg.projection).rotate(center).translate([width/2, height/2]).scale([proj.scale]);
   var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([proj.scale]);
 
@@ -193,7 +196,7 @@ Celestial.display = function(config) {
     circle = d3.geo.circle().angle([90]);
   }
 
-  var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([proj.scale*0.8, proj.scale*4]).on("zoom", zoomed);
+  var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([proj.scale*0.8, proj.scale*4]).on("zoom", redraw);
   
   var graticule = d3.geo.graticule().minorStep([15,10]);
                     
@@ -205,9 +208,9 @@ Celestial.display = function(config) {
   var svg = d3.select(par).append("svg").attr("width", width).attr("height", height).call(zoom);
   
   if (circle) {
-    svg.append("path").datum(circle).attr("class", "outline").attr("d", ol); //.style("fill", cfg.bgcolor);
+    svg.append("path").datum(circle).attr("class", "outline").attr("d", ol).style("fill", cfg.background);
   } else {
-    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", bg); //.style("fill", cfg.bgcolor);
+    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", bg).style("fill", cfg.background);
   }
   if (cfg.lines.graticule) {
     svg.append("path").datum(graticule).attr("class", "gridline").attr("d", bg);
@@ -331,14 +334,19 @@ Celestial.display = function(config) {
   //Celestial planes
   for (var key in cfg.lines) {
     if (cfg.lines.hasOwnProperty(key) && key != "graticule" && cfg.lines[key] !== false) { 
-      var pl = Celestial.plane(key);  
+      svg.append("path")
+         .datum(d3.geo.circle().angle([90]).origin(poles[key]) )
+         .attr("class", key)
+         .attr("d", path);
+
+ /*     var pl = Celestial.plane(key);  
 
       svg.selectAll(".pl" + key)
          .data(pl.features)
          .enter()
          .append("path")
          .attr("d", path)
-         .attr("class", key);
+         .attr("class", key);*/
     }
   }
   
@@ -353,11 +361,15 @@ Celestial.display = function(config) {
     return "translate(" + projection(coords) + ")";
   }
   
-  function zoomed() {
+  function redraw() {
     if (!d3.event) { return; }
     var rot = projection.rotate();
     projBg.scale(projection.scale());
-    projBg.rotate(projection.rotate());
+    projBg.rotate(rot.map( function(d, i) { 
+      var a = d - eulerAngles[trans][i]; 
+      if (i != 1) { return a<-180 ? a + 360 : a; }
+      else { return a<-90 ? 180 - a : a; }
+    } ));
     projOl.scale(projection.scale());
     base = 7 * Math.sqrt(projection.scale()/proj.scale);
     center = [-rot[0], -rot[1]];
@@ -369,7 +381,7 @@ Celestial.display = function(config) {
     svg.selectAll(".boundaryline").attr("d", path);  
 
     svg.selectAll(".star")
-       .attr("d", path.pointRadius( function(d, i) { return starsize(d.properties.mag); } )); 
+       .attr("d", path.pointRadius( function(d, i) { return d.properties ? starsize(d.properties.mag) : 1; } )); 
     svg.selectAll(".starname")
        .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
        .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });
@@ -451,14 +463,14 @@ Celestial.display = function(config) {
   }
   
   function starsize(mag) {
-    if (mag === null) { return 0.3; }
+    if (mag === null) { return 0.2; }
     var d = base * Math.exp(exp * (mag+2));
-    return d>0.5 ? d : 0.5;
+    return d>0.2 ? d : 0.2;
   }
   
   function starcolor(prop) {
     if (prop.mag > cfg.stars.limit) { return "rgba(0,0,0,0)"; }
-    if (!cfg.stars.colors || prop.mag > 5) { return cfg.stars.color; }
+    if (!cfg.stars.colors) { return cfg.stars.color; }
     return bvcolor(prop.bv);
   }
   
@@ -469,7 +481,7 @@ function $(id) {
 }
 
 
-Celestial.projection = function(projection, euler) {
+Celestial.projection = function(projection) {
   var p, trans, raw, forward;
   
   if (!projections.hasOwnProperty(projection)) { throw new Error("Projection not supported: " + projection); }
@@ -481,18 +493,18 @@ Celestial.projection = function(projection, euler) {
     raw = d3.geo[projection].raw;  
   }
   
-  if (euler) {
+/*  if (euler) {
     forward = function(λ, φ) {
       var coords = Celestial.transform([-λ, φ],euler);
       coords = raw(coords[0], coords[1]);
       return coords;
     };
-  } else {
+  } else {*/
     forward = function(λ, φ) {
       var coords = raw(-λ, φ);
       return coords;
     };
-  }
+  //}
   forward.invert = function(x, y) {
     //Needs tranform
     var coords = raw.invert(x, y);
@@ -503,6 +515,19 @@ Celestial.projection = function(projection, euler) {
   return d3.geo.projection(forward);
 };
 
+var eulerAngles = {
+  "equatorial": [180.0, 0.0, 0.0],
+  "ecliptic": [180.0, 0.0, 23.4393],
+  "galactic": [93.5949, 28.9362, -58.5988],
+  "supergalactic": [137.3100, 59.5283, 57,7303]
+};
+
+var poles = {
+  "equatorial": [0.0, 90.0],
+  "ecliptic": [-90.0, 66.5607],
+  "galactic": [-167.1405, 27.1283],
+  "supergalactic": [-76.2458, 15.7089]  
+};
 var pi2 = Math.PI*2,
     pi_2 = Math.PI/2,
     deg2rad = Math.PI/180;
@@ -607,7 +632,15 @@ var customSymbolTypes = d3.map({
     ' m' + (-rx) + ',0' +
     ' a' + rx + ',' + ry + ' 0 1,0' + (rx * 2) + ',0' +
     ' a' + rx + ',' + ry + ' 0 1,0' + (-(rx * 2)) + ',0';
-  }      
+  },
+  'marker': function(size) {
+    var s =  size > 48 ? size / 4 : 12,
+        r = s/2, l = r-3;
+    return 'M ' + (-r) + ' 0 h ' + l + 
+           ' M 0 ' + (-r) + ' v ' + l + 
+           ' M ' + r + ' 0 h ' + (-l) +  
+           ' M 0 ' + r + ' v ' + (-l);
+  }
 });
 
 d3.svg.customSymbol = function() {

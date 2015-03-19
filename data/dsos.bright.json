@@ -1,6 +1,19 @@
 {"type": "FeatureCollection",
  "features": [
   {"type": "Feature",
+   "id": "GC",
+   "properties": {
+     "name": "GC",
+     "desig": "GC",
+     "type": "pos",
+     "mag": 1,
+     "dim": "60"
+   },
+   "geometry": {
+     "type": "Point",
+     "coordinates": [-93.5959,-28.9362]
+  }},
+  {"type": "Feature",
    "id": "Cr140",
    "properties": {
      "name": "Collinder 140",

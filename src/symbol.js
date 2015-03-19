@@ -7,7 +7,15 @@ var customSymbolTypes = d3.map({
     ' m' + (-rx) + ',0' +
     ' a' + rx + ',' + ry + ' 0 1,0' + (rx * 2) + ',0' +
     ' a' + rx + ',' + ry + ' 0 1,0' + (-(rx * 2)) + ',0';
-  }      
+  },
+  'marker': function(size) {
+    var s =  size > 48 ? size / 4 : 12,
+        r = s/2, l = r-3;
+    return 'M ' + (-r) + ' 0 h ' + l + 
+           ' M 0 ' + (-r) + ' v ' + l + 
+           ' M ' + r + ' 0 h ' + (-l) +  
+           ' M 0 ' + r + ' v ' + (-l);
+  }
 });
 
 d3.svg.customSymbol = function() {

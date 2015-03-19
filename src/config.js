@@ -2,7 +2,8 @@
 var settings = { 
   width: 1024,     //Default width; height is determined by projection
   projection: "aitoff",  //Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
-  transform: null, //*TBI* Coordinate transformation euler angles, euler.ecliptic, euler.galactic, euler.supergalactic, [0,0,0]
+  transform: "equatorial", //Coordinate transformation euler angles; equatorial, ecliptic, galactic, supergalactic
+  background: "#000",
   stars: {
     show: true,    //Show stars
     limit: 6,      //up to maximum stellar magnitude
@@ -82,7 +83,8 @@ var symbols = {
   rn: {shape:"square", stroke:"#00f", fill:"#00f"},  //Reflection nebula blue square
   pn: {shape:"diamond", stroke:"#0cc", fill:"#0cc"}, //Planetary nebula cyan diamond
   snr: {shape:"diamond", stroke:"#f0c", fill:"#f0c"}, //Supernova remnant pink diamond
-  dn: {shape:"square", stroke:"#999", fill:"none"}    //Dark nebula grey open square
+  dn: {shape:"square", stroke:"#999", fill:"none"},    //Dark nebula grey open square
+  pos: {shape:"marker", stroke:"#ccc", fill:"none"}    //Dark nebula grey open square
 };
 
 //b-v color index to rgb color value scale

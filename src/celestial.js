@@ -11,14 +11,15 @@ Celestial.display = function(config) {
   if (!projections.hasOwnProperty(cfg.projection)) { return; }
   
   var proj = projections[cfg.projection],
+      trans = cfg.transform || "equatorial",
       ratio = proj.ratio || 2,
       width = cfg.width,
       height = width / ratio,
-      sc = width / 180,
-      base = 7, exp = -0.3,
-      center = [180, 0, 0];
+      //sc = width / 180,
+      base = 7, exp = -0.3, //Object size base & exponent
+      center = trans == "galactic" ? [0,0,0] : [180, 0, 0];
     
-  var projection = Celestial.projection(cfg.projection, cfg.transform).rotate(center).translate([width/2, height/2]).scale([proj.scale]);
+  var projection = Celestial.projection(cfg.projection).rotate(eulerAngles[trans]).translate([width/2, height/2]).scale([proj.scale]);
   var projBg = Celestial.projection(cfg.projection).rotate(center).translate([width/2, height/2]).scale([proj.scale]);
   var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([proj.scale]);
 
@@ -28,7 +29,7 @@ Celestial.display = function(config) {
     circle = d3.geo.circle().angle([90]);
   }
 
-  var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([proj.scale*0.8, proj.scale*4]).on("zoom", zoomed);
+  var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([proj.scale*0.8, proj.scale*4]).on("zoom", redraw);
   
   var graticule = d3.geo.graticule().minorStep([15,10]);
                     
@@ -40,9 +41,9 @@ Celestial.display = function(config) {
   var svg = d3.select(par).append("svg").attr("width", width).attr("height", height).call(zoom);
   
   if (circle) {
-    svg.append("path").datum(circle).attr("class", "outline").attr("d", ol); //.style("fill", cfg.bgcolor);
+    svg.append("path").datum(circle).attr("class", "outline").attr("d", ol).style("fill", cfg.background);
   } else {
-    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", bg); //.style("fill", cfg.bgcolor);
+    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", bg).style("fill", cfg.background);
   }
   if (cfg.lines.graticule) {
     svg.append("path").datum(graticule).attr("class", "gridline").attr("d", bg);
@@ -166,14 +167,19 @@ Celestial.display = function(config) {
   //Celestial planes
   for (var key in cfg.lines) {
     if (cfg.lines.hasOwnProperty(key) && key != "graticule" && cfg.lines[key] !== false) { 
-      var pl = Celestial.plane(key);  
+      svg.append("path")
+         .datum(d3.geo.circle().angle([90]).origin(poles[key]) )
+         .attr("class", key)
+         .attr("d", path);
+
+ /*     var pl = Celestial.plane(key);  
 
       svg.selectAll(".pl" + key)
          .data(pl.features)
          .enter()
          .append("path")
          .attr("d", path)
-         .attr("class", key);
+         .attr("class", key);*/
     }
   }
   
@@ -188,11 +194,15 @@ Celestial.display = function(config) {
     return "translate(" + projection(coords) + ")";
   }
   
-  function zoomed() {
+  function redraw() {
     if (!d3.event) { return; }
     var rot = projection.rotate();
     projBg.scale(projection.scale());
-    projBg.rotate(projection.rotate());
+    projBg.rotate(rot.map( function(d, i) { 
+      var a = d - eulerAngles[trans][i]; 
+      if (i != 1) { return a<-180 ? a + 360 : a; }
+      else { return a<-90 ? 180 - a : a; }
+    } ));
     projOl.scale(projection.scale());
     base = 7 * Math.sqrt(projection.scale()/proj.scale);
     center = [-rot[0], -rot[1]];
@@ -204,7 +214,7 @@ Celestial.display = function(config) {
     svg.selectAll(".boundaryline").attr("d", path);  
 
     svg.selectAll(".star")
-       .attr("d", path.pointRadius( function(d, i) { return starsize(d.properties.mag); } )); 
+       .attr("d", path.pointRadius( function(d, i) { return d.properties ? starsize(d.properties.mag) : 1; } )); 
     svg.selectAll(".starname")
        .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
        .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });

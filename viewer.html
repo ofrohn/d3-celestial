@@ -9,47 +9,53 @@
   <link rel="stylesheet" href="style.css">
 </head><body>
 <div id="map"></div>
-<form id="params" method="get" action="#">
-  <div class="line">
-  <!-- projection, size, center-->
-  <label>Projection<select name="projection" id="projection"></select></label>
-  <label>Width<input type="number" maxlength="4" name="width" value="1024" /> px</label>
+<form id="params" name="params" method="get" action="#">
+  <div class="col">
+  <!-- projection, transform, size, center?-->
+  <label>Width<input type="number" maxlength="4" name="width" value="1024" /> px</label>&nbsp;&nbsp;
+  <label>Projection <select name="projection" id="projection"></select></label>&nbsp;&nbsp;
+  <label>Coordinates <select name="transform" id="transform"></select></label>
   </div>
   <div class="col">
   <!-- stars, limit, colors, col, names, short, limit -->
   <label><strong>Stars</strong> <input type="checkbox" name="stars-show" value="true" checked="checked" /></label>
-  <label>Limit<input type="number" name="stars-limit" value="6" max="6" min="-1"> mag</label><br>
-  <label>Names<input type="checkbox" name="stars-names" value="true" checked="checked"> </label>
-  <label>Short<input type="checkbox" name="stars-desig" value="true" checked="checked"> </label>
-  <label>Limit<input type="number" name="stars-namelimit" value="2" max="6" min="-1"> mag </label><br>
-  <label>Spectral colors<input type="checkbox" name="stars-colors" value="true" checked="checked"> </label>
-  <label>Def. color<input type="color" name="stars-color" value="#ffffff"> </label>
+  <label>down to magnitude<input type="number" name="stars-limit" value="6" max="6" min="-1"></label>
+  <label>with spectral colors<input type="checkbox" name="stars-colors" value="true" checked="checked"> </label>
+  <label>or default color <input type="color" name="stars-color" value="#ffffff"> </label><br>
+  <label>Show names<input type="checkbox" name="stars-names" value="true" checked="checked"> </label> 
+  <label>proper names (if any)<input type="checkbox" name="stars-proper" value="true" checked=""> </label> 
+  <label>or designations<input type="checkbox" name="stars-desig" value="true" checked="checked"> </label>
+  <label>down to mag<input type="number" name="stars-namelimit" value="2" max="6" min="-1"></label>
   </div>  
   <div class="col">
   <!-- dsos, limit, names, short, limit -->
   <label><strong>DSOs</strong> <input type="checkbox" name="dsos-show" value="true" checked="checked"> </label>
-  <label>Limit<input type="number" name="dsos-limit" value="6" max="6" min="-1"> mag </label><br>
-  <label>Names<input type="checkbox" name="dsos-names" value="true" checked="checked"> </label>
-  <label>Short<input type="checkbox" name="dsos-desig" value="true" checked="checked"> </label>
-  <label>Limit<input type="number" name="dsos-namelimit" value="6" max="6" min="-1"> mag </label><br><br>
+  <label>down to mag<input type="number" name="dsos-limit" value="6" max="6" min="-1"></label>
+  <label>with names<input type="checkbox" name="dsos-names" value="true" checked="checked"> </label>
+  <label>or designations<input type="checkbox" name="dsos-desig" value="true" checked="checked"> </label>
+  <label>down to mag<input type="number" name="dsos-namelimit" value="6" max="6" min="-1"> mag </label>
   </div>  
   <div class="col">
   <!-- constellations, names, short, lines, bounds -->
-  <label><strong>Constellations</strong> <input type="checkbox" name="constellations-show" checked> </label><br>
-  <label>Names<input type="checkbox" name="constellations-names" value="true" checked="checked"> </label>
-  <label>Short<input type="checkbox" name="constellations-desig" value="true" checked="checked"> </label><br>
-  <label>Lines<input type="checkbox" name="constellations-lines" value="true" checked="checked"> </label>
-  <label>Boundaries<input type="checkbox" name="constellations-bounds" value="1"> </label>
+  <label><strong>Constellations</strong> <input type="checkbox" name="constellations-show" checked> </label>
+  <label>with names<input type="checkbox" name="constellations-names" value="true" checked="checked"> </label>
+  <label>abbreviated<input type="checkbox" name="constellations-desig" value="true" checked="checked"> </label>
+  <label>with lines<input type="checkbox" name="constellations-lines" value="true" checked="checked"> </label>
+  <label>with boundaries<input type="checkbox" name="constellations-bounds" value="1"> </label>
   </div>  
-  <div class="line">
+  <div class="col">
   <!-- graticule, bgcol, mw, equ, ecl, gal, sgl -->
   <strong>Lines</strong>
-  <label>Graticule<input type="checkbox" name="lines-graticule" value="true" checked> </label>
+  <label>Graticule<input type="checkbox" name="lines-graticule" value="true" checked> </label>&nbsp;&nbsp;
   <label>Equator<input type="checkbox" name="lines-equatorial" value="true"> </label>
   <label>Ecliptic<input type="checkbox" name="lines-ecliptic" value="true" checked="checked"> </label>
-  <label>Galactic Plane<input type="checkbox" name="lines-galactic" value="true"> </label>
-  <label>Supergal. Plane<input type="checkbox" name="lines-supergalactic" value="true"> </label>
-  <label>Milky Way<input type="checkbox" name="mw-show" value="true" checked="checked"> </label>
+  <label>Galactic plane<input type="checkbox" name="lines-galactic" value="true"> </label>
+  <label>Supergal. plane<input type="checkbox" name="lines-supergalactic" value="true"> </label>
+  </div>  
+  <div class="col">
+  <strong>Other</strong>
+  <label>Milky Way<input type="checkbox" name="mw-show" value="true" checked="checked"> </label>&nbsp;&nbsp;
+  <label> Background color <input type="color" name="background" value="#000"> </label>
   </div>
   <input type="submit" value="Show">&nbsp;&nbsp;
   <input type="reset" value="Reset">
@@ -65,6 +71,7 @@ if (cfg) {
   cfg = fillForm(cfg);
   cfg = settings.set(objectify(cfg));
 }
+enableForm();      
  
 Celestial.display(cfg);
 
@@ -80,13 +87,43 @@ function fillForm(cfg) {
       } else { 
         e[i].checked = false;
         cfg[e[i].name] = false;
-      }      
+      } 
     }
     else if (e[i].type == "select-one") { selectOption(e[i], cfg[e[i].name]); }
+    else if (e[i].type == "number") { e[i].value = parseFloat(cfg[e[i].name]); }
     else if (cfg.hasOwnProperty(e[i].name)) { e[i].value = cfg[e[i].name]; }
   }    
   return cfg;
 }
+
+function enableForm() {
+  var t, i, key, f = document.forms[0],
+  deps = {
+    "stars-limit": "stars-show",
+    "stars-names": "stars-show",
+    "stars-proper": "stars-show,stars-names",
+    "stars-desig": "stars-show,stars-names",
+    "stars-namelimit": "stars-show,stars-names",
+    "stars-colors": "stars-show",
+    "stars-color": "stars-show",
+    "dsos-limit": "dsos-show",
+    "dsos-names": "dsos-show",
+    "dsos-desig": "dsos-show,dsos-names",
+    "dsos-namelimit": "dsos-show,dsos-names",
+    "constellations-names": "constellations-show",
+    "constellations-desig": "constellations-show,constellations-names",
+    "constellations-lines": "constellations-show",
+    "constellations-bounds": "constellations-show"
+  };
+
+  for (key in deps) {
+    if (!deps.hasOwnProperty(key)) continue;
+    t = deps[key].split(",");
+    f[key].disabled = t.some( function(d) { return !f[d].checked; } );
+    f[key].parentNode.style.color = f[key].disabled ? "#999" : "#000";
+  }
+}
+
 
 function selectOption(e, opt) {
   var i;
@@ -99,17 +136,33 @@ function selectOption(e, opt) {
 }
 
 function fillOptions() {
-  var t, key, par = $("projection");
-  
+  var t, i, key, e = document.forms[0].elements;
+      proj = $(),
+      trans = $("transform");
+      
   $("params").action = document.location.href.replace(/\?.*/, "");
   
-  for (key in projections) {
+  fillSelect("projection", projections);
+  fillSelect("transform", eulerAngles);
+  
+  for (i=0; i<e.length; i++) {
+    e[i].onchange = enableForm;
+  }
+}
+
+function fillSelect(id, fill) {
+  var t, key, elem = $(id);
+  
+  if (!elem || !fill) return;
+        
+  for (key in fill) {
     t = document.createElement("option");
     t.value = key;
     t.innerHTML = key;
-    if (key == settings.projection) t.selected = "selected";
-    par.appendChild(t);
+    if (key == settings[id]) t.selected = "selected";
+    elem.appendChild(t);
   }
+
 }
 
 function parseQuery() {
