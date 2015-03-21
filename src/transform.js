@@ -1,27 +1,30 @@
-var pi2 = Math.PI*2,
-    pi_2 = Math.PI/2,
+var τ = Math.PI*2,
+    halfπ = Math.PI/2,
     deg2rad = Math.PI/180;
 
-Celestial.plane = function(transformation) {
-  var i, coords = [], tr,
-  planeJson = function(id, coords) {
-    var res = {type:"FeatureCollection", features:[]};
-    res.features[0] = {type:"Feature", "id":id, properties:{}, geometry:{}};
-    res.features[0].geometry.type = "LineString";
-    res.features[0].geometry.coordinates = coords;
-    return res;
-  };
+Celestial.graticule = function(svg, path, trans) {
+  //d3.geo.circle graticule [0,90]/10..170deg + [0..180,0]/90deg
+
+  var i;
   
-  if (transformation == "equatorial") {
-    for (i=-180; i<=180; i+=1) { coords.push([i,0]); }
-  } else {
-    tr = "inverse " + transformation;
-    if (!euler.hasOwnProperty(tr)) { return null; }
-    for (i=-Math.PI; i<=Math.PI; i+=0.01) {
-      coords.push( Celestial.transform([i,0], euler[tr]).map( function(rad) { return rad / deg2rad; }));
-    }
+  if (!trans || trans == "equatorial") { return; }
+  for (i=10; i<=170; i+=10) {
+    svg.append("path")
+       .datum( d3.geo.circle().angle([i]).origin(poles[trans]) )
+       .attr("class", 'gridline')
+       .attr("d", path);
   }
-  return planeJson(transformation, coords);
+  for (i=10; i<=180; i+=10) {
+    svg.append("path")
+       .datum( d3.geo.circle().angle([90]).origin(Celestial.transformDeg([i,0], euler["inverse " + trans])) )
+       .attr("class", 'gridline')
+       .attr("d", path);    
+  }  
+};
+
+Celestial.transformDeg = function(c, euler) {
+  var res = Celestial.transform( c.map( function(d) { return d * deg2rad; } ), euler);
+  return res.map( function(d) { return d / deg2rad; } );
 };
 
 //Transform equatorial into any coordinates
@@ -32,7 +35,7 @@ Celestial.transform = function(c, euler) {
   if (!euler) { return c; }
 
   λ = c[0];  // celestial longitude 0..2pi
-  if (λ < 0) { λ += pi2; }
+  if (λ < 0) { λ += τ; }
   φ = c[1];  // celestial latitude  -pi/2..pi/2
   
   λ -= euler[0];  // celestial longitude - celestial coordinates of the native pole
@@ -50,13 +53,13 @@ Celestial.transform = function(c, euler) {
   } else {
     dψ = λ - Math.PI;
   }
-  ψ = (γ + dψ); //+ pi2) % (pi2));
-  if (ψ > Math.PI) { ψ -= pi2; } 
+  ψ = (γ + dψ); 
+  if (ψ > Math.PI) { ψ -= τ; } 
   
   if (λ % Math.PI === 0) {
     θ = φ + Math.cos(λ) * β;
-    if (θ > pi_2) { θ = Math.PI - θ; }
-    if (θ < -pi_2) { θ = -Math.PI - θ; }
+    if (θ > halfπ) { θ = Math.PI - θ; }
+    if (θ < -halfπ) { θ = -Math.PI - θ; }
   } else {
     z = Math.sin(φ) * Math.cos(β) + Math.cos(φ) * Math.sin(β) * Math.cos(λ);
     if (Math.abs(z) > 0.99) {

@@ -48,7 +48,7 @@ assert.deepEqual(Celestial.transform([75*deg2rad,40*deg2rad], euler.supergalacti
 
 
 //Method exists
-assert.ok(Celestial.hasOwnProperty("plane"));
+assert.ok(Celestial.hasOwnProperty("graticule"));
 
 
 

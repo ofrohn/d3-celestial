@@ -20,12 +20,12 @@ Celestial.display = function(config) {
       center = trans == "galactic" ? [0,0,0] : [180, 0, 0];
     
   var projection = Celestial.projection(cfg.projection).rotate(eulerAngles[trans]).translate([width/2, height/2]).scale([proj.scale]);
-  var projBg = Celestial.projection(cfg.projection).rotate(center).translate([width/2, height/2]).scale([proj.scale]);
+  //var projBg = Celestial.projection(cfg.projection).rotate(center).translate([width/2, height/2]).scale([proj.scale]);
   var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([proj.scale]);
 
   if (proj.clip) {
     projection.clipAngle(90);
-    projBg.clipAngle(90);
+    //projBg.clipAngle(90);
     circle = d3.geo.circle().angle([90]);
   }
 
@@ -34,7 +34,7 @@ Celestial.display = function(config) {
   var graticule = d3.geo.graticule().minorStep([15,10]);
                     
   var path = d3.geo.path().projection(projection);
-  var bg = d3.geo.path().projection(projBg);
+  //var bg = d3.geo.path().projection(projBg);
   var ol = d3.geo.path().projection(projOl);
       
   //div with id #map or body
@@ -43,10 +43,14 @@ Celestial.display = function(config) {
   if (circle) {
     svg.append("path").datum(circle).attr("class", "outline").attr("d", ol).style("fill", cfg.background);
   } else {
-    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", bg).style("fill", cfg.background);
+    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", ol).style("fill", cfg.background);
   }
   if (cfg.lines.graticule) {
-    svg.append("path").datum(graticule).attr("class", "gridline").attr("d", bg);
+    if (trans == "equatorial") {
+      svg.append("path").datum(graticule).attr("class", "gridline").attr("d", path);
+    } else {
+      Celestial.graticule(svg, path, trans);
+    }
   }
   
   //d3.select("body").style("background-color", "black");
@@ -142,8 +146,6 @@ Celestial.display = function(config) {
          .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
          .attr("d", function(d, i) { return dsosymbol(d.properties); })
          .attr("style", function(d, i) { return dsocolor(d.properties); })
-         //.style("stroke", function(d, i) { return dsocolor(d.properties, "stroke"); })
-         //.style("fill", function(d, i) { return dsocolor(d.properties, "fill"); })
          .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); })
          .style("stroke-opacity", function(d, i) { return clip(d.geometry.coordinates); }); 
     
@@ -158,7 +160,6 @@ Celestial.display = function(config) {
            .attr("dy", "-.5em")
            .attr("dx", ".35em")
            .attr("style", function(d, i) { return dsocolor(d.properties, true); })
-           //.style("fill", function(d, i) { return dsocolor(d.properties, "stroke"); })
            .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); }); 
       }
     });
@@ -171,15 +172,6 @@ Celestial.display = function(config) {
          .datum(d3.geo.circle().angle([90]).origin(poles[key]) )
          .attr("class", key)
          .attr("d", path);
-
- /*     var pl = Celestial.plane(key);  
-
-      svg.selectAll(".pl" + key)
-         .data(pl.features)
-         .enter()
-         .append("path")
-         .attr("d", path)
-         .attr("class", key);*/
     }
   }
   
@@ -187,7 +179,7 @@ Celestial.display = function(config) {
   //-- Helper functions
 
   function clip(coords) {
-    return proj.clip && d3.geo.distance(center, coords) > pi_2 ? 0 : 1;
+    return proj.clip && d3.geo.distance(center, coords) > halfπ ? 0 : 1;
   }
 
   function point(coords) {
@@ -197,12 +189,12 @@ Celestial.display = function(config) {
   function redraw() {
     if (!d3.event) { return; }
     var rot = projection.rotate();
-    projBg.scale(projection.scale());
-    projBg.rotate(rot.map( function(d, i) { 
+    //projBg.scale(projection.scale());
+    /*projBg.rotate(rot); .map( function(d, i) { 
       var a = d - eulerAngles[trans][i]; 
       if (i != 1) { return a<-180 ? a + 360 : a; }
       else { return a<-90 ? 180 - a : a; }
-    } ));
+    } ));*/
     projOl.scale(projection.scale());
     base = 7 * Math.sqrt(projection.scale()/proj.scale);
     center = [-rot[0], -rot[1]];
@@ -229,7 +221,7 @@ Celestial.display = function(config) {
        .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });
     
     svg.selectAll(".outline").attr("d", ol);  
-    svg.selectAll(".gridline").attr("d", bg);  
+    svg.selectAll(".gridline").attr("d", path);  
 
     svg.selectAll(".mw").attr("d", path);  
     svg.selectAll(".ecliptic").attr("d", path);  
@@ -239,7 +231,6 @@ Celestial.display = function(config) {
        
   }
 
- 
   function dsosymbol(prop) {
     var size = dsosize(prop.mag, prop.dim) || 9,
         type = dsoshape(prop.type);
@@ -266,15 +257,7 @@ Celestial.display = function(config) {
       return 'stroke:' + symbols[prop.type].stroke + '; fill:' + symbols[prop.type].fill; 
     }
   }
-  /*
-  function dsocolor(prop, which) {
-    if (!prop.type || 
-        !symbols.hasOwnProperty(prop.type) || 
-        prop.mag == 999 && Math.sqrt(parseInt(prop.dim)) < cfg.dsos.limit || 
-        prop.mag != 999 && prop.mag > cfg.dsos.limit) { return "none"; }
-    return symbols[prop.type][which]; 
-  }
-  */
+
   function dsosize(mag, dim) {
     if (!mag || mag == 999) { return Math.pow(parseInt(dim)*base/7, 0.5); }
     return Math.pow(2*base-mag, 1.4);

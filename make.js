@@ -24,12 +24,12 @@ echo('JSHint tests passed');
 
 //run tests
 cd('test');
-/*ls("*-test.js").forEach(function(file) {
+ls("*-test.js").forEach(function(file) {
   if (exec('node ' + file).code !== 123) {
     echo('TEST FAILED for ' + file);
     exit(0);  
   }
-});*/
+});
 
 echo('Unit tests passed');
 

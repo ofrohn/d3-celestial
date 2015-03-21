@@ -1,4 +1,4 @@
-
+//Flipped projection generated on the fly
 Celestial.projection = function(projection) {
   var p, trans, raw, forward;
   
@@ -11,20 +11,12 @@ Celestial.projection = function(projection) {
     raw = d3.geo[projection].raw;  
   }
   
-/*  if (euler) {
-    forward = function(λ, φ) {
-      var coords = Celestial.transform([-λ, φ],euler);
-      coords = raw(coords[0], coords[1]);
-      return coords;
-    };
-  } else {*/
-    forward = function(λ, φ) {
-      var coords = raw(-λ, φ);
-      return coords;
-    };
-  //}
+  forward = function(λ, φ) {
+    var coords = raw(-λ, φ);
+    return coords;
+  };
+
   forward.invert = function(x, y) {
-    //Needs tranform
     var coords = raw.invert(x, y);
     coords[0] *= -1;
     return coords;
