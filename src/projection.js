@@ -29,7 +29,7 @@ var eulerAngles = {
   "equatorial": [180.0, 0.0, 0.0],
   "ecliptic": [180.0, 0.0, 23.4393],
   "galactic": [93.5949, 28.9362, -58.5988],
-  "supergalactic": [137.3100, 59.5283, 57,7303]
+  "supergalactic": [137.3100, 59.5283, 57.7303]
 };
 
 var poles = {

@@ -1,46 +1,46 @@
 // global: d3
 var settings = { 
-  width: 1024,     //Default width; height is determined by projection
+  width: 1024,     // Default width; height is determined by projection
   projection: "aitoff",  //Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
-  transform: "equatorial", //Coordinate transformation euler angles; equatorial, ecliptic, galactic, supergalactic
-  background: "#000",
+  transform: "equatorial", // Coordinate transformation euler angles; equatorial, ecliptic, galactic, supergalactic
+  background: "#000", //Background color or gradient  
   stars: {
-    show: true,    //Show stars
-    limit: 6,      //up to maximum stellar magnitude
-    colors: true,  //Show stars in spectral colors, if not use "color"
-    color: "#fff", //Default color for stars
-    names: true,   //Show star names (css-class starname)
-    proper: false, //Show proper names (if none shows designation)
-    desig: true,   //Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
-    namelimit: 2,  //Maximum magnitude with name
-    data: 'data/stars.6.json' //Data source for stellar data
+    show: true,    // Show stars
+    limit: 6,      // down to maximum stellar magnitude
+    colors: true,  // Show stars in spectral colors, if not use "color"
+    color: "#fff", // Default color for stars
+    names: true,   // Show star names (css-class starname)
+    proper: false, // Show proper names (if none shows designation)
+    desig: true,   // Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
+    namelimit: 2,  // Maximum magnitude with name
+    data: 'data/stars.6.json' // Data source for stellar data
   },
   dsos: {
-    show: true,    //Show Deep Space Objects
-    limit: 6,      //up to maximum magnitude
-    names: true,   //Show DSO names
-    desig: true,   //Show short DSO names
-    namelimit: 6,  //Maximum magnitude with name
-    data: 'data/dsos.bright.json'  //Data source for DSOs
+    show: true,    // Show Deep Space Objects (css-class per type)
+    limit: 6,      // down to maximum magnitude
+    names: true,   // Show DSO names
+    desig: true,   // Show short DSO names
+    namelimit: 4,  // Maximum magnitude with name
+    data: 'data/dsos.bright.json'  // Data source for DSOs
   },
   constellations: {
-    show: true,    //Show constellations 
-    names: true,   //Show constellation names (css-class: constname)
-    desig: true,   //Show short constellation names (3 letter designations)
-    lines: true,   //Show constellation lines (css-class: constline)
-    bounds: false  //Show constellation boundaries (css-class: boundaryline)
+    show: true,    // Show constellations 
+    names: true,   // Show constellation names (css-class: constname)
+    desig: true,   // Show short constellation names (3 letter designations)
+    lines: true,   // Show constellation lines (css-class: constline)
+    bounds: false  // Show constellation boundaries (css-class: boundaryline)
   },
   mw: {
-    show: true,    //Show Milky Way as filled polygons (css-class: mw)
+    show: true,    // Show Milky Way as filled polygons (css-class: mw)
   },
   lines: {
-    graticule: true,  //Show graticule lines (css-class: gridline)
-    equatorial: false,  //Show equatorial plane (css-class: equatorial)
-    ecliptic: true,   //Show ecliptic plane (css-class: ecliptic)
-    galactic: false,  //Show galactic plane (css-class: galactic)
-    supergalactic: false  //Show supergalactic plane (css-class: supergalactic)
+    graticule: true,    // Show graticule lines (css-class: gridline)
+    equatorial: false,  // Show equatorial plane (css-class: equatorial)
+    ecliptic: true,     // Show ecliptic plane (css-class: ecliptic)
+    galactic: false,    // Show galactic plane (css-class: galactic)
+    supergalactic: false  // Show supergalactic plane (css-class: supergalactic)
   },
-  set: function(cfg) {
+  set: function(cfg) {  // Override defaults with values of cfg
     var prop, key, res = {};
     if (!cfg) { return this; }
     for (prop in this) {
@@ -68,31 +68,35 @@ var settings = {
 
 
 var symbols = {
-  gg: {shape:"circle", stroke:"#f00", fill:"#f00"},  //Galaxy cluster red circle
-  g:  {shape:"ellipse", stroke:"#f00", fill:"#f00"}, //Generic galaxy red ellipse
-  s:  {shape:"ellipse", stroke:"#f00", fill:"#f00"}, //Spiral galaxy red ellipse
-  s0: {shape:"ellipse", stroke:"#f00", fill:"#f00"}, //Lenticular galaxy red ellipse
-  sd: {shape:"ellipse", stroke:"#f00", fill:"#f00"}, //Dwarf galaxy red ellipse
-  e:  {shape:"ellipse", stroke:"#f00", fill:"#f00"}, //Elliptical galaxy red ellipse
-  i:  {shape:"ellipse", stroke:"#f00", fill:"#f00"}, //Irregular galaxy red ellipse
-  oc: {shape:"circle", stroke:"#fc0", fill:"none"},  //Open cluster orange open circle
-  gc: {shape:"circle", stroke:"#f90", fill:"#f90"},  //Globular cluster dark orange circle
-  en: {shape:"square", stroke:"#f0c", fill:"#f0c"},  //Emission nebula pink square
-  bn: {shape:"square", stroke:"#f0c", fill:"none"},  //Generic bright nebula pink open square
-  sfr: {shape:"square", stroke:"#c0f", fill:"none"}, //Star forming region purple open square
-  rn: {shape:"square", stroke:"#00f", fill:"#00f"},  //Reflection nebula blue square
-  pn: {shape:"diamond", stroke:"#0cc", fill:"#0cc"}, //Planetary nebula cyan diamond
-  snr: {shape:"diamond", stroke:"#f0c", fill:"#f0c"}, //Supernova remnant pink diamond
-  dn: {shape:"square", stroke:"#999", fill:"none"},    //Dark nebula grey open square
-  pos: {shape:"marker", stroke:"#ccc", fill:"none"}    //Dark nebula grey open square
+  gg: {shape:"circle", stroke:"#f00", fill:"#f00"},   // Galaxy cluster red circle
+  g:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Generic galaxy red ellipse
+  s:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Spiral galaxy red ellipse
+  s0: {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Lenticular galaxy red ellipse
+  sd: {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Dwarf galaxy red ellipse
+  e:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Elliptical galaxy red ellipse
+  i:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Irregular galaxy red ellipse
+  oc: {shape:"circle", stroke:"#fc0", fill:"none"},   // Open cluster orange open circle
+  gc: {shape:"circle", stroke:"#f90", fill:"#f90"},   // Globular cluster dark orange circle
+  en: {shape:"square", stroke:"#f0c", fill:"#f0c"},   // Emission nebula pink square
+  bn: {shape:"square", stroke:"#f0c", fill:"none"},   // Generic bright nebula pink open square
+  sfr: {shape:"square", stroke:"#c0f", fill:"none"},  // Star forming region purple open square
+  rn: {shape:"square", stroke:"#00f", fill:"#00f"},   // Reflection nebula blue square
+  pn: {shape:"diamond", stroke:"#0cc", fill:"#0cc"},  // Planetary nebula cyan diamond
+  snr: {shape:"diamond", stroke:"#f0c", fill:"#f0c"}, // Supernova remnant pink diamond
+  dn: {shape:"square", stroke:"#999", fill:"none"},   // Dark nebula grey open square
+  pos: {shape:"marker", stroke:"#ccc", fill:"none"}   // Generic marker light grey open cross
 };
 
 //b-v color index to rgb color value scale
 var bvcolor = 
   d3.scale.quantize().domain([3.347, -0.335]) //main sequence <= 1.7
     .range([ '#ff4700', '#ff4b00', '#ff4f00', '#ff5300', '#ff5600', '#ff5900', '#ff5b00', '#ff5d00', '#ff6000', '#ff6300', '#ff6500', '#ff6700', '#ff6900', '#ff6b00', '#ff6d00', '#ff7000', '#ff7300', '#ff7500', '#ff7800', '#ff7a00', '#ff7c00', '#ff7e00', '#ff8100', '#ff8300', '#ff8506', '#ff870a', '#ff8912', '#ff8b1a', '#ff8e21', '#ff9127', '#ff932c', '#ff9631', '#ff9836', '#ff9a3c', '#ff9d3f', '#ffa148', '#ffa34b', '#ffa54f', '#ffa753', '#ffa957', '#ffab5a', '#ffad5e', '#ffb165', '#ffb269', '#ffb46b', '#ffb872', '#ffb975', '#ffbb78', '#ffbe7e', '#ffc184', '#ffc489', '#ffc78f', '#ffc892', '#ffc994', '#ffcc99', '#ffce9f', '#ffd1a3', '#ffd3a8', '#ffd5ad', '#ffd7b1', '#ffd9b6', '#ffdbba', '#ffddbe', '#ffdfc2', '#ffe1c6', '#ffe3ca', '#ffe4ce', '#ffe8d5', '#ffe9d9', '#ffebdc', '#ffece0', '#ffefe6', '#fff0e9', '#fff2ec', '#fff4f2', '#fff5f5', '#fff6f8', '#fff9fd', '#fef9ff', '#f9f6ff', '#f6f4ff', '#f3f2ff', '#eff0ff', '#ebeeff', '#e9edff', '#e6ebff', '#e3e9ff', '#e0e7ff', '#dee6ff', '#dce5ff', '#d9e3ff', '#d7e2ff', '#d3e0ff', '#c9d9ff', '#bfd3ff', '#b7ceff', '#afc9ff', '#a9c5ff', '#a4c2ff', '#9fbfff', '#9bbcff']);
- /* d3.scale.quantize().domain([-0.400,3.332]) //main sequence <= 1.7
-.range(["#a5b7ff","#a6b9ff","#a7baff","#a8bbff","#a9bcff","#aabcff","#abbeff","#adc0ff","#afc2ff","#b1c4ff","#b3c5ff","#b5c7ff","#b8c9ff","#bbcbff","#bdcdff","#c0ceff","#c3d1ff","#c5d4ff","#c7d7ff","#cad9ff","#cedcff","#d2dfff","#d7e1ff","#dbe4ff","#e0e7ff","#e5e9ff","#e9ecff","#edefff","#f1f2ff","#f4f4ff","#f8f7ff","#fbf8ff","#fdf9ff","#fffafe","#fffbfd","#fffbfc","#fffbfb","#fffaf7","#fff9f3","#fff8f0","#fff7ec","#fff6e7","#fff5e1","#fff3dc","#fff2d7","#fff0cf","#ffedc8","#ffeac1","#ffe8ba","#ffe5b3","#ffe2ad","#ffe0a6","#ffdda1","#ffda9b","#ffd896","#ffd790","#ffd58c","#ffd387","#ffd183","#ffcf7f","#ffce7c","#ffcd79","#ffcc77","#ffcb75","#ffca74","#ffc870","#ffc76f","#ffc66e","#ffc56d","#ffc46c","#ffc36b","#ffc26a","#ffc169","#ffc068","#ffbf67","#ffbe66","#ffbd65","#ffbc64","#ffbb63","#ffba62","#ffb961","#ffb860","#ffb75f","#ffb65e","#ffb55d","#ffb45c","#ffb35b","#ffb25a","#ffb159","#ffb058","#ffaf57","#ffar56","#ffad55","#ffac54","#ffab53","#ffaa52","#ffa951","#ffa850","#ffa74f","#ffa64e","#ffa54d","#ffa44c","#ffa34b","#ffa24a","#ffa149","#ffa048","#ff9f47","#ff9e46","#ff9d45","#ff9c44","#ff9b43","#ff9a42","#ff9941","#ff983f","#ff973e"]);
+ 
+/* Default parameters for each supported projection
+     arg: constructor argument, if any 
+     scale: scale parameter so that they all have ~equal width
+     ratio: width/height ration, 2.0 if none
+     clip: projection clipped to 90 degrees from center
 */
 var projections = {
   "airy": {arg:Math.PI/2, scale:360, ratio:1.0, clip:true},
@@ -182,36 +186,35 @@ Celestial.display = function(config) {
       ratio = proj.ratio || 2,
       width = cfg.width,
       height = width / ratio,
-      //sc = width / 180,
       base = 7, exp = -0.3, //Object size base & exponent
       center = trans == "galactic" ? [0,0,0] : [180, 0, 0];
     
   var projection = Celestial.projection(cfg.projection).rotate(eulerAngles[trans]).translate([width/2, height/2]).scale([proj.scale]);
-  //var projBg = Celestial.projection(cfg.projection).rotate(center).translate([width/2, height/2]).scale([proj.scale]);
-  var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([proj.scale]);
+  //var projC = Celestial.projection(cfg.projection).rotate(eulerAngles[trans]).translate([width/2, height/2]).scale([proj.scale]);
+  var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([proj.scale]); //projected non moving outline
 
   if (proj.clip) {
     projection.clipAngle(90);
-    //projBg.clipAngle(90);
     circle = d3.geo.circle().angle([90]);
   }
 
-  var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([proj.scale*0.8, proj.scale*4]).on("zoom", redraw);
+  var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([proj.scale, proj.scale*4]).on("zoom.redraw", redraw);
   
   var graticule = d3.geo.graticule().minorStep([15,10]);
-                    
+  
   var path = d3.geo.path().projection(projection);
-  //var bg = d3.geo.path().projection(projBg);
-  var ol = d3.geo.path().projection(projOl);
+  //var conP = d3.geo.path().projection(projC);
+  var olP = d3.geo.path().projection(projOl);
       
   //div with id #map or body
   var svg = d3.select(par).append("svg").attr("width", width).attr("height", height).call(zoom);
   
   if (circle) {
-    svg.append("path").datum(circle).attr("class", "outline").attr("d", ol).style("fill", cfg.background);
+    svg.append("path").datum(circle).attr("class", "outline").attr("d", olP).style("fill", cfg.background);
   } else {
-    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", ol).style("fill", cfg.background);
+    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", olP).style("fill", cfg.background);
   }
+
   if (cfg.lines.graticule) {
     if (trans == "equatorial") {
       svg.append("path").datum(graticule).attr("class", "gridline").attr("d", path);
@@ -243,8 +246,8 @@ Celestial.display = function(config) {
          .append("text")
          .attr("class", "constname")
          .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-         .text( function(d, i) { if (cfg.constellations.names) { return cfg.constellations.desig?d.properties.desig:d.properties.name; }})
-         .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); }); 
+         .text( function(d) { if (cfg.constellations.names) { return cfg.constellations.desig?d.properties.desig:d.properties.name; }})
+         .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
     });
 
     //Constellation boundaries
@@ -280,10 +283,10 @@ Celestial.display = function(config) {
          .enter()
          .append("path")
          .attr("class", "star")
-         .attr("d", path.pointRadius( function(d, i) {
-           return starsize(d.properties.mag);
-         } ))
-         .style("fill", function(d, i) {
+         .attr("d", path.pointRadius( function(d) {
+           return d.properties ? starsize(d.properties.mag) : 1;
+         }))
+         .style("fill", function(d) {
            return starcolor(d.properties);
          });
 
@@ -292,12 +295,10 @@ Celestial.display = function(config) {
            .data(starjson.features)
            .enter()
            .append("text")
-           .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-           .text( function(d, i) { return starname(d.properties); })
-           .attr("dy", "-.5em")
-           .attr("dx", ".35em")
-           .attr("class", "starname")
-           .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); }); 
+           .attr("transform", function(d) { return point(d.geometry.coordinates); })
+           .text( function(d) { return starname(d.properties); })
+           .attr({dy: "-.5em", dx: ".35em", class: "starname"})
+           .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
       }       
     });
   }
@@ -309,25 +310,26 @@ Celestial.display = function(config) {
          .data(dsojson.features)
          .enter()
          .append("path")
-         .attr("class", "dso")
-         .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-         .attr("d", function(d, i) { return dsosymbol(d.properties); })
-         .attr("style", function(d, i) { return dsocolor(d.properties); })
-         .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); })
-         .style("stroke-opacity", function(d, i) { return clip(d.geometry.coordinates); }); 
+         .attr("class", function(d) { return "dso " + d.properties.type; } )
+         .attr("transform", function(d) { return point(d.geometry.coordinates); })
+         .attr("d", function(d) { return dsosymbol(d.properties); })
+         .attr("style", function(d) { return dsocolor(d.properties); })
+         .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); })
+         .style("stroke-opacity", function(d) { return clip(d.geometry.coordinates); }); 
     
       if (cfg.dsos.names) { 
         svg.selectAll(".dsonames")
            .data(dsojson.features)
            .enter()
            .append("text")
-           .attr("class", "dsoname")
-           .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-           .text( function(d, i) { return dsoname(d.properties); } )
-           .attr("dy", "-.5em")
-           .attr("dx", ".35em")
-           .attr("style", function(d, i) { return dsocolor(d.properties, true); })
-           .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); }); 
+           .attr("class", function(d) { return "dsoname " + d.properties.type; } )
+           //.attr("class", "dsoname")
+           .attr("transform", function(d) { return point(d.geometry.coordinates); })
+           .text( function(d) { return dsoname(d.properties); } )
+           .attr({dy: "-.5em", dx: ".35em", 
+                  style: function(d) { return dsocolor(d.properties, true); } 
+            })
+           .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
       }
     });
   }
@@ -342,7 +344,8 @@ Celestial.display = function(config) {
     }
   }
   
-   
+  //redraw();
+  
   //-- Helper functions
 
   function clip(coords) {
@@ -355,13 +358,8 @@ Celestial.display = function(config) {
   
   function redraw() {
     if (!d3.event) { return; }
+    //d3.event.sourceEvent.preventDefault();
     var rot = projection.rotate();
-    //projBg.scale(projection.scale());
-    /*projBg.rotate(rot); .map( function(d, i) { 
-      var a = d - eulerAngles[trans][i]; 
-      if (i != 1) { return a<-180 ? a + 360 : a; }
-      else { return a<-90 ? 180 - a : a; }
-    } ));*/
     projOl.scale(projection.scale());
     base = 7 * Math.sqrt(projection.scale()/proj.scale);
     center = [-rot[0], -rot[1]];
@@ -371,13 +369,13 @@ Celestial.display = function(config) {
        .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });
     svg.selectAll(".constline").attr("d", path);  
     svg.selectAll(".boundaryline").attr("d", path);  
-
+    
     svg.selectAll(".star")
        .attr("d", path.pointRadius( function(d, i) { return d.properties ? starsize(d.properties.mag) : 1; } )); 
     svg.selectAll(".starname")
-       .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-       .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });
-       
+       .attr("transform", function(d) { return point(d.geometry.coordinates); })
+       .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); });
+    
     svg.selectAll(".dso")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
        .attr("d", function(d, i) { return dsosymbol(d.properties); })
@@ -387,7 +385,7 @@ Celestial.display = function(config) {
        .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
        .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });
     
-    svg.selectAll(".outline").attr("d", ol);  
+    svg.selectAll(".outline").attr("d", olP);  
     svg.selectAll(".gridline").attr("d", path);  
 
     svg.selectAll(".mw").attr("d", path);  
@@ -395,7 +393,7 @@ Celestial.display = function(config) {
     svg.selectAll(".equatorial").attr("d", path);  
     svg.selectAll(".galactic").attr("d", path);  
     svg.selectAll(".supergalactic").attr("d", path);  
-       
+    
   }
 
   function dsosymbol(prop) {
@@ -494,7 +492,7 @@ var eulerAngles = {
   "equatorial": [180.0, 0.0, 0.0],
   "ecliptic": [180.0, 0.0, 23.4393],
   "galactic": [93.5949, 28.9362, -58.5988],
-  "supergalactic": [137.3100, 59.5283, 57,7303]
+  "supergalactic": [137.3100, 59.5283, 57.7303]
 };
 
 var poles = {
