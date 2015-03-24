@@ -2,7 +2,8 @@ var shell = require('shelljs/global'),
     ug = require('uglify-js'),
     fs = require('fs'),
     tar = require('tar-fs'),
-    zlib = require('zlib');
+    zlib = require('zlib'),
+    copy = "Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE\n";
 
 
 cat([
@@ -36,8 +37,18 @@ echo('Unit tests passed');
 cd('..');
 
 var out = ug.minify('./celestial.js');
-fs.writeFileSync('./celestial.min.js', out.code);
-//console.log(out.map);
+fs.writeFileSync('./celestial.min.js', copy + out.code);
+/*var read = ug.parse(fs.readFileSync('./celestial.js', "utf8"));
+read.figure_out_scope();
+
+var comp = read.transform( UglifyJS.Compressor(); );
+comp.figure_out_scope();
+comp.compute_char_frequency();
+comp.mangle_names();
+
+var out = comp.print_to_string();
+fs.writeFileSync('./celestial.min.js', out);
+*/
 
 echo('Writing data');
 

@@ -2,9 +2,9 @@
 
 Interactive, adaptable celestial map done with the [D3.js](http://d3js.org/) visualization library. So, GeoJSON for sky stuff. Which surprisingly nobody has done yet, it seems.  
 
-Features display of stars and deep sky objects up to selectable magnitude limit up to 6, or choose different GeoJSON data source. Also shows constellations with names, lines and/or boundaries, the Milky Way band and graticules. Alternate coordinate spaces e.g. galactic or supergalactic will also be possible, but not yet. Full support for zoom and rotation with mouse or gestures.
+Features display of stars and deep sky objects up to selectable magnitude limit up to 6, or choose different GeoJSON data source for higher magnitudes. Also shows constellations with names, lines and/or boundaries, the Milky Way band and graticules. Alternate coordinate spaces e.g. ecliptc, galactic or supergalactic are also possible. Full support for zoom and rotation with mouse or gestures.
 
-Since it uses D3, needs a modern browser with svg support, so any recent flavor of Chrome/Firefox/Safari/Opera and IE 9 and above should suffice. Check out the demo at &lt;insert link here> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment.
+Since it uses D3, it needs a modern browser with svg support, so any recent flavor of Chrome/Firefox/Safari/Opera and IE 9 and above should suffice. Check out the demo at &lt;insert link here> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment.
 
 ### Usage
 
@@ -13,9 +13,10 @@ Simply edit the default options and display the map with `Celestial.display(conf
 ```js
 var config = { 
   width: 1024,     // Default width; height is determined by projection
-  projection: "aitoff",  //Map projection used: see below
-  transform: null, // *TBI* Coordinate transformation euler angles: euler.ecliptic, 
-                   // euler.galactic, euler.supergalactic, [0,0,0]
+  projection: "aitoff",    //Map projection used: see below
+  transform: "equatorial", // Coordinate transformation euler angles: euler.ecliptic, 
+                           // euler.galactic, euler.supergalactic, [0,0,0]
+  background: "#000",      //Background color or gradient  
   stars: {
     show: true,    // Show stars
     limit: 6,      // up to maximum stellar magnitude
@@ -26,15 +27,15 @@ var config = {
     desig: true,   // Show designation (Bayer, Flamsteed, variable star, Gliese, Draper,
                    // Hipparcos, whichever applies first in the given order)
     namelimit: 2,  // Maximum magnitude with name
-    data: 'data/stars.6.json' // Data source for stellar data
+    data: 'data/stars.6.json' // Data source for stellar data, number indicates limit mag
   },
   dsos: {
-    show: true,    // Show Deep Space Objects
+    show: true,    // Show Deep Space Objects (css-classes per object type)
     limit: 6,      // up to maximum magnitude
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
     namelimit: 6,  // Maximum magnitude with name
-    data: 'data/dsos.bright.json'  // Data source for DSOs
+    data: 'data/dsos.bright.json'  // Data source for DSOs, opt. number indicates limit mag
   },
   constellations: {
     show: true,    // Show constellations 
@@ -67,17 +68,17 @@ most of these need the extension [d3.geo.projections](https://github.com/d3/d3-g
 __GeoJSON data files__
 
 * `stars.6.json` Stars down to 6th magnitude \[1\]
-* `stars.7.json` Stars down to 7th magnitude \[1\]
+* `stars.8.5.json` Stars down to 8.5th magnitude \[1\]
   
 * `dsos.6.json` Deep space objects down to 6th magnitude \[2\]
-* `dsos.7.json` Deep space objects down to 7th magnitude \[2\]
+* `dsos.14.json` Deep space objects down to 14th magnitude \[2\]
 * `dsos.bright.json` Some of the brightest showpiece DSOs of my own choosing
   
 * `constellations.json` Constellation data  \[3\]
 * `constellations.bounds.json` Constellation boundaries \[4\]
 * `constellations.lines.json` Constellation lines \[3\]
   
-* `mw.json` Milky way outlines in 5 brightness steps \[5\]
+* `mw.json` Milky Way outlines in 5 brightness steps \[5\]
   
 * `templ.json` GeoJSON templates for all the different object types used
   
@@ -104,6 +105,7 @@ __Other files__
 * `LICENSE`
 * `readme.md` this file
 * `style.css` stylesheet
+* `map.html` simple map-viewer with editable configuration
 * `viewer.html` interactive map-viewer/demo
 * `lib/d3.min.js`  necessary libraries
 * `lib/d3.geo.projection.min.js`

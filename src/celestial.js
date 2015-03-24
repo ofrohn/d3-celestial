@@ -8,7 +8,7 @@ Celestial.display = function(config) {
   
   par = $("map") ? "#map" : "body";
   
-  if (!projections.hasOwnProperty(cfg.projection)) { return; }
+  if (!projections.hasOwnProperty(cfg.projection)) return; 
   
   var proj = projections[cfg.projection],
       trans = cfg.transform || "equatorial",
@@ -19,7 +19,6 @@ Celestial.display = function(config) {
       center = trans == "galactic" ? [0,0,0] : [180, 0, 0];
     
   var projection = Celestial.projection(cfg.projection).rotate(eulerAngles[trans]).translate([width/2, height/2]).scale([proj.scale]);
-  //var projC = Celestial.projection(cfg.projection).rotate(eulerAngles[trans]).translate([width/2, height/2]).scale([proj.scale]);
   var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([proj.scale]); //projected non moving outline
 
   if (proj.clip) {
@@ -32,7 +31,6 @@ Celestial.display = function(config) {
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
   var path = d3.geo.path().projection(projection);
-  //var conP = d3.geo.path().projection(projC);
   var olP = d3.geo.path().projection(projOl);
       
   //div with id #map or body
@@ -222,6 +220,7 @@ Celestial.display = function(config) {
     svg.selectAll(".equatorial").attr("d", path);  
     svg.selectAll(".galactic").attr("d", path);  
     svg.selectAll(".supergalactic").attr("d", path);  
+    svg.selectAll(".mars").attr("d", path);  
     
   }
 
@@ -236,8 +235,8 @@ Celestial.display = function(config) {
   }
 
   function dsoshape(type) {
-    if (!type || !symbols.hasOwnProperty(type)) { return "circle"; }
-    else { return symbols[type].shape; }
+    if (!type || !symbols.hasOwnProperty(type)) return "circle"; 
+    else return symbols[type].shape; 
   }
 
 
@@ -253,34 +252,34 @@ Celestial.display = function(config) {
   }
 
   function dsosize(mag, dim) {
-    if (!mag || mag == 999) { return Math.pow(parseInt(dim)*base/7, 0.5); }
+    if (!mag || mag == 999) return Math.pow(parseInt(dim)*base/7, 0.5); 
     return Math.pow(2*base-mag, 1.4);
   }
 
   function dsoname(prop) {
     if (prop.mag == 999 && Math.sqrt(parseInt(prop.dim)) < cfg.dsos.namelimit || 
         prop.mag != 999 && prop.mag > cfg.dsos.namelimit || 
-        prop.name === "") { return; }
-    if (cfg.dsos.desig && prop.desig) { return prop.desig; }
+        prop.name === "") return; 
+    if (cfg.dsos.desig && prop.desig) return prop.desig; 
     return prop.name;
   }
   
   function starname(prop) {
     if (prop.mag > cfg.stars.namelimit || 
-       (cfg.stars.desig === false && prop.name === "")) { return; }
-    if (cfg.stars.proper && prop.name !== "") { return prop.name; }
-    if (cfg.stars.desig) { return prop.desig; }
+       (cfg.stars.desig === false && prop.name === "")) return; 
+    if (cfg.stars.proper && prop.name !== "") return prop.name; 
+    if (cfg.stars.desig)  return prop.desig; 
   }
   
   function starsize(mag) {
-    if (mag === null) { return 0.2; }
+    if (mag === null) return 0.2; 
     var d = base * Math.exp(exp * (mag+2));
     return d>0.2 ? d : 0.2;
   }
   
   function starcolor(prop) {
-    if (prop.mag > cfg.stars.limit) { return "rgba(0,0,0,0)"; }
-    if (!cfg.stars.colors) { return cfg.stars.color; }
+    if (prop.mag > cfg.stars.limit) return "rgba(0,0,0,0)"; 
+    if (!cfg.stars.colors) {return cfg.stars.color; }
     return bvcolor(prop.bv);
   }
   

@@ -3,6 +3,7 @@
   <meta charset="utf-8">
   <title>D3 Starmap</title>
   <script type="text/javascript" src="lib/d3.min.js"></script>
+  <script type="text/javascript" src="lib/d3.geo.zoom.js"></script>
   <script type="text/javascript" src="lib/d3.geo.projection.min.js"></script>
   <script type="text/javascript" src="celestial.js"></script>
   <link rel="stylesheet" href="style.css">
@@ -16,7 +17,7 @@
   <label>Coordinates <select name="transform" id="transform"></select></label>
   </div>
   <div class="col">
-  <!-- stars, limit, colors, col, names, short, limit -->
+  <!-- stars -->
   <label><strong>Stars</strong> <input type="checkbox" name="stars-show" value="true" checked="checked" /></label>
   <label>down to magnitude<input type="number" name="stars-limit" value="6" max="6" min="-1"></label>
   <label>with spectral colors<input type="checkbox" name="stars-colors" value="true" checked="checked"> </label>
@@ -27,7 +28,7 @@
   <label>down to mag<input type="number" name="stars-namelimit" value="2" max="6" min="-1"></label>
   </div>  
   <div class="col">
-  <!-- dsos, limit, names, short, limit -->
+  <!-- dsos -->
   <label><strong>DSOs</strong> <input type="checkbox" name="dsos-show" value="true" checked="checked"> </label>
   <label>down to mag<input type="number" name="dsos-limit" value="6" max="6" min="-1"></label>
   <label>with names<input type="checkbox" name="dsos-names" value="true" checked="checked"> </label>
@@ -35,7 +36,7 @@
   <label>down to mag<input type="number" name="dsos-namelimit" value="6" max="6" min="-1"> mag </label>
   </div>  
   <div class="col">
-  <!-- constellations, names, short, lines, bounds -->
+  <!-- constellations -->
   <label><strong>Constellations</strong> <input type="checkbox" name="constellations-show" checked> </label>
   <label>with names<input type="checkbox" name="constellations-names" value="true" checked="checked"> </label>
   <label>abbreviated<input type="checkbox" name="constellations-desig" value="true" checked="checked"> </label>
@@ -43,7 +44,7 @@
   <label>with boundaries<input type="checkbox" name="constellations-bounds" value="1"> </label>
   </div>  
   <div class="col">
-  <!-- graticule, bgcol, mw, equ, ecl, gal, sgl -->
+  <!-- graticules & planes -->
   <strong>Lines</strong>
   <label>Graticule<input type="checkbox" name="lines-graticule" value="true" checked> </label>&nbsp;&nbsp;
   <label>Equator<input type="checkbox" name="lines-equatorial" value="true"> </label>
@@ -62,6 +63,12 @@
 </div>
 
 <script type="text/javascript">
+/* D3-Celestial sky map
+   Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
+*/
+/*  Uncomment for deeper data files */
+//var stardata = "data6/stars.8.5.json";
+//var dsodata = "data/dsos.14.json";
 
 var cfg = parseQuery();
 
@@ -69,8 +76,14 @@ fillOptions();
 if (cfg) {
   cfg = fillForm(cfg);
   cfg = settings.set(objectify(cfg));
+} else {
+  cfg = settings.set();
 }
 enableForm();      
+
+if (stardata) cfg.stars.data = stardata;
+if (dsodata) cfg.dsos.data = dsodata;
+
  
 Celestial.display(cfg);
 
@@ -135,7 +148,7 @@ function selectOption(e, opt) {
 }
 
 function fillOptions() {
-  var t, i, key, e = document.forms[0].elements;
+  var lim, i, key, e = document.forms[0].elements;
       proj = $(),
       trans = $("transform");
       
@@ -144,9 +157,35 @@ function fillOptions() {
   fillSelect("projection", projections);
   fillSelect("transform", eulerAngles);
   
+  lim = getLimits();
+  
   for (i=0; i<e.length; i++) {
     e[i].onchange = enableForm;
   }
+}
+
+function getLimits() {
+  var t, rx = /\d+(\.\d+)?/g,
+      s, d, res = {s:6, d:6};
+  if (dsodata) d = dsodata;
+  else d = = settings.dsos.data;
+  
+  //test d
+  t = d.match(rx);
+  if (t !== null) {
+    res.d = parseFloat(t[t.length-1]);
+  }
+   
+
+  if (stardata) s = stardata;
+  else s = settings.stars.data;
+  
+  //test s
+  t = s.match(rx);
+  if (t !== null) {
+    res.s = parseFloat(t[t.length-1]);
+  }
+  return res;
 }
 
 function fillSelect(id, fill) {
@@ -178,7 +217,7 @@ function parseQuery() {
 function objectify(cfg) {
   var t, key, prop, res = {};
   for (key in cfg) {
-    if (!cfg.hasOwnProperty(key)) { continue; }
+    if (!cfg.hasOwnProperty(key)) continue;
     t = key.split('-');
     prop = t[0];
     if (t.length == 1) {

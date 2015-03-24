@@ -7,7 +7,7 @@ Celestial.graticule = function(svg, path, trans) {
 
   var i;
   
-  if (!trans || trans == "equatorial") { return; }
+  if (!trans || trans == "equatorial") return; 
   for (i=10; i<=170; i+=10) {
     svg.append("path")
        .datum( d3.geo.circle().angle([i]).origin(poles[trans]) )
@@ -32,10 +32,10 @@ Celestial.transform = function(c, euler) {
   var x, y, z, β, γ, λ, φ, dψ, ψ, θ,
       ε = 1.0e-5;
 
-  if (!euler) { return c; }
+  if (!euler) return c; 
 
   λ = c[0];  // celestial longitude 0..2pi
-  if (λ < 0) { λ += τ; }
+  if (λ < 0) λ += τ; 
   φ = c[1];  // celestial latitude  -pi/2..pi/2
   
   λ -= euler[0];  // celestial longitude - celestial coordinates of the native pole
@@ -54,17 +54,17 @@ Celestial.transform = function(c, euler) {
     dψ = λ - Math.PI;
   }
   ψ = (γ + dψ); 
-  if (ψ > Math.PI) { ψ -= τ; } 
+  if (ψ > Math.PI) ψ -= τ; 
   
   if (λ % Math.PI === 0) {
     θ = φ + Math.cos(λ) * β;
-    if (θ > halfπ) { θ = Math.PI - θ; }
-    if (θ < -halfπ) { θ = -Math.PI - θ; }
+    if (θ > halfπ) θ = Math.PI - θ; 
+    if (θ < -halfπ) θ = -Math.PI - θ; 
   } else {
     z = Math.sin(φ) * Math.cos(β) + Math.cos(φ) * Math.sin(β) * Math.cos(λ);
     if (Math.abs(z) > 0.99) {
       θ = Math.abs(Math.acos(Math.sqrt(x*x+y*y)));
-      if (z < 0) { θ *= -1; }
+      if (z < 0) θ *= -1; 
     } else {
       θ = Math.asin(z);
     }
@@ -75,8 +75,8 @@ Celestial.transform = function(c, euler) {
 
 
 var euler = {
-  "ecliptic": [270.0, 23.4393, 90.0],
-  "inverse ecliptic": [90.0, 23.4393, 270.0],
+  "ecliptic": [-90.0, 23.4393, 90.0],
+  "inverse ecliptic": [90.0, 23.4393, -90.0],
   "galactic": [192.8595, 62.8717, 122.9319], 
   "inverse galactic": [238.9319, 62.8717, 192.8595],
   "supergalactic": [283.7542, 74.2911, 26.4504],
@@ -89,7 +89,7 @@ var euler = {
     }
   },
   "add": function(name, ang) {
-    if (!ang || !name || ang.length !== 3 || this.hasOwnProperty(name)) { return; }
+    if (!ang || !name || ang.length !== 3 || this.hasOwnProperty(name)) return; 
     this[name] = ang.map( function(val) { return val * deg2rad; } );
     return this[name];
   }

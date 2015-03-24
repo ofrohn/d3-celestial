@@ -1,4 +1,5 @@
 // global: d3
+// Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 var settings = { 
   width: 1024,     // Default width; height is determined by projection
   projection: "aitoff",  //Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
@@ -38,14 +39,15 @@ var settings = {
     equatorial: false,  // Show equatorial plane (css-class: equatorial)
     ecliptic: true,     // Show ecliptic plane (css-class: ecliptic)
     galactic: false,    // Show galactic plane (css-class: galactic)
-    supergalactic: false  // Show supergalactic plane (css-class: supergalactic)
+    supergalactic: false,  // Show supergalactic plane (css-class: supergalactic)
+    mars: false
   },
   set: function(cfg) {  // Override defaults with values of cfg
     var prop, key, res = {};
-    if (!cfg) { return this; }
+    if (!cfg) return this; 
     for (prop in this) {
-      if (!this.hasOwnProperty(prop)) { continue; }
-      if (typeof(this[prop]) == 'function') { continue; }
+      if (!this.hasOwnProperty(prop)) continue; 
+      if (typeof(this[prop]) == 'function') continue; 
       if (!cfg.hasOwnProperty(prop) || cfg[prop] === null) { 
         res[prop] = this[prop]; 
       } else if (this[prop].constructor != Object ) {

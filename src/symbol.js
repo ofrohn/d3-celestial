@@ -1,4 +1,4 @@
-
+//Thanks to stackoverflow user jshanley for the custom symbol class
 var customSymbolTypes = d3.map({
   'ellipse': function(size) {
     var s = Math.sqrt(size), 
@@ -25,12 +25,12 @@ d3.svg.customSymbol = function() {
     return customSymbolTypes.get(type.call(this,d,i))(size.call(this,d,i));
   }
   symbol.type = function(_) {
-    if (!arguments.length) { return type; }
+    if (!arguments.length) return type; 
     type = d3.functor(_);
     return symbol;
   };
   symbol.size = function(_) {
-    if (!arguments.length) { return size; }
+    if (!arguments.length) return size; 
     size = d3.functor(_);
     return symbol;
   };

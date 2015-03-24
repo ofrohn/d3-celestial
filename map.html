@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <title>D3 Starmap</title>
+  <script type="text/javascript" src="lib/d3.js"></script>
+  <script type="text/javascript" src="lib/d3.geo.zoom.js"></script>
+  <script type="text/javascript" src="lib/d3.geo.projection.js"></script>
+  <script type="text/javascript" src="src/config.js"></script>
+  <script type="text/javascript" src="src/symbol.js"></script>
+  <script type="text/javascript" src="src/celestial.js"></script>
+  <script type="text/javascript" src="src/projection.js"></script>
+  <script type="text/javascript" src="src/transform.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head><body>
+<script type="text/javascript">
+/* D3-Celestial sky map
+   Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
+   
+   Edit configuration to your liking and display in browser. 
+   Data files in folder data for stars and DSOs, number indicates limit magnitude, 
+   or roll your own with the format template in templ.json
+*/
+var config = { 
+  width: 1024,       //Default width
+  projection: "aitoff",  //Map projections supported: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
+  transform: "equatorial",   //Coordinate transformation euler angles: equatorial, ecliptic, galactic, supergalactic
+  stars: {
+    show: true,    //Show stars
+    limit: 6,      //up to maximum stellar magnitude
+    colors: true,  //Show stars spectral colors, if not use "color"
+    color: "#fff", //Default color for stars
+    names: true,   //Show star names (css-class starname)
+    proper: false, //Show proper names (if none shows designation)
+    desig: true,   //Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
+    namelimit: 2,   //Maximum magnitude with name
+    data: 'data/stars.6.json' // Data source for stellar data, files named data/stars.*.json
+  },
+  dsos: {
+    show: true,    //Show Deep Space Objects
+    limit: 6,      //up to maximum magnitude
+    names: true,   //Show DSO names
+    desig: true,   //Show short DSO names
+    namelimit: 4   //Maximum magnitude with name
+    data: 'data/dsos.bright.json'  // Data source for DSOs, files named data/dsos.*.json
+  },
+  constellations: {
+    show: true,    //Show constellations 
+    names: true,   //Show constellation names (css-class constname)
+    desig: true,   //Show short constellation names (3 letter designations)
+    lines: true,   //Show constellation lines (css-class constline)
+    bounds: false  //Show constellation boundaries (css-class boundaryline)
+  },
+  mw: {
+    show: true,    //Show Milky Way outlines
+  },
+  lines: {
+    graticule: true,  //Show graticule lines
+    ecliptic: true,   //Show ecliptic plane
+    galactic: false,  //Show galactic plane
+    equatorial: true,  //Show equatorial plane
+    supergalactic: false  //Show supergalactic plane
+  }
+};
+  
+Celestial.display(config);
+
+</script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+/* Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE */
 body { background: none; }
 text { stroke: none; fill: #fff; font: 10px sans-serif; }
 .stroke { fill: none; stroke: #fff; stroke-width: 3px; }
@@ -13,8 +14,9 @@ text { stroke: none; fill: #fff; font: 10px sans-serif; }
 .ecliptic { stroke: #6c6; }
 .galactic { stroke: #c66; }
 .supergalactic { stroke: #c6c; }
+.mars { stroke: #c00; }
 .mw { fill: #fff; fill-opacity: 0.12; }
-/* Blanks to override standard styles, always with !important */
+/* DSO-blanks to override standard styles, always with !important */
 .gg  { }  /* Galaxy cluster */
 .g   { }  /* Generic galaxy */
 .s   { }  /* Spiral galaxy */
