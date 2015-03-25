@@ -1,27 +1,28 @@
-// global: d3
-// Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
+/* global d3, Celestial */
+//Defaults
 var settings = { 
   width: 1024,     // Default width; height is determined by projection
   projection: "aitoff",  //Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
   transform: "equatorial", // Coordinate transformation euler angles; equatorial, ecliptic, galactic, supergalactic
   background: "#000", //Background color or gradient  
+  adaptable: true,    //Magnitude limits are relaxed with higher zoom
   stars: {
     show: true,    // Show stars
-    limit: 6,      // down to maximum stellar magnitude
+    limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use "color"
     color: "#fff", // Default color for stars
     names: true,   // Show star names (css-class starname)
     proper: false, // Show proper names (if none shows designation)
     desig: true,   // Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
-    namelimit: 2,  // Maximum magnitude with name
+    namelimit: 2.5,  // Show only names for stars brighter than namelimit
     data: 'data/stars.6.json' // Data source for stellar data
   },
   dsos: {
     show: true,    // Show Deep Space Objects (css-class per type)
-    limit: 6,      // down to maximum magnitude
+    limit: 6,      // Show only DSOs brighter than limit magnitude
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
-    namelimit: 4,  // Maximum magnitude with name
+    namelimit: 4,  // Show only names for DSOs brighter than namelimit
     data: 'data/dsos.bright.json'  // Data source for DSOs
   },
   constellations: {
@@ -68,7 +69,9 @@ var settings = {
   
 };
 
+Celestial.settings = function() { return settings; };
 
+//DSO symbol definitions
 var symbols = {
   gg: {shape:"circle", stroke:"#f00", fill:"#f00"},   // Galaxy cluster red circle
   g:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Generic galaxy red ellipse
@@ -170,3 +173,6 @@ var projections = {
   "wiechel": {arg:null, scale:360, ratio:1.0, clip:true},
   "winkel3": {arg:null, scale:196, ratio:1.7}
 };
+
+Celestial.projections = function() { return projections; };
+

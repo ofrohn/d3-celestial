@@ -1,3 +1,4 @@
+/* global Celestial, projections */
 //Flipped projection generated on the fly
 Celestial.projection = function(projection) {
   var p, trans, raw, forward;
@@ -40,3 +41,6 @@ var poles = {
   "supergalactic": [-76.2458, 15.7089],
   "mars": [-42.3186, 52.8865]
 };
+
+Celestial.eulerAngles = function() { return eulerAngles; };
+Celestial.poles = function() { return poles; };

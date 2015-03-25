@@ -4,12 +4,13 @@ var shell = require('shelljs/global'),
     vm = require('vm'),
     shell = require('shelljs'),
     jsdom = require("jsdom").jsdom,
-    includes = ['../lib/d3.js', '../lib/d3.geo.projection.js', '../celestial.js'];
+    includes = ['../lib/d3.js', '../lib/d3.geo.projection.js', '../src/config.js', '../src/projection.js'];
    
     
 global.document = jsdom("Testing"),
 global.window = document.parentWindow;
-    
+global.Celestial = {};
+
 includes.forEach(function(file) {
   vm.runInThisContext(fs.readFileSync(file, 'utf-8'), file);
 });

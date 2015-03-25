@@ -1,13 +1,14 @@
 /* Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE */
 body { background: none; }
-text { stroke: none; fill: #fff; font: 10px sans-serif; }
+text { stroke: none; fill: #fff; font: 11px Helvetica, Arial, sans-serif; }
 .stroke { fill: none; stroke: #fff; stroke-width: 3px; }
 .fill { fill: none; }
 .gridline { fill: none; stroke: #ccc; stroke-width: .5px; stroke-opacity: .8; }
 .outline { }
 .constline { fill: none; stroke: #999; stroke-width: 1px; stroke-opacity: .8; }
-.constname { fill: #cc9; font: 10px sans-serif; text-anchor: middle }
-.starname, .dsoname { stroke: none; fill: #ccd; font: 8px serif; }
+.constname { fill: #cc9; font: 12px Helvetica, Arial, sans-serif; text-anchor: middle }
+.starname { stroke: none; fill: #ddb; font: 11px Georgia, Times, 'Times Roman', serif; }
+.dsoname { stroke: none; fill: #ccc; font: 11px Helvetica, Arial, serif; }
 .boundaryline { fill: none; stroke: #cc0; stroke-width: .5px; stroke-opacity: .8; stroke-dasharray: 6,3; }
 .equatorial, .ecliptic, .galactic, .supergalactic { fill: none; stroke-width: 1.5px; stroke-opacity: .8; }
 .equatorial { stroke: #ccc; }
@@ -41,3 +42,4 @@ input[type='number'] { width:32px; text-align:right; margin-left:4px; }
 input[type='checkbox'] { vertical-align: -2px; }
 input[name='width'], input[type='color'] { width:48px; }
 .col { border-bottom: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }
+div.fullwindow {position: absolute; top: 0; left: 0; width: 100%}

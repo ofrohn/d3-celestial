@@ -23,7 +23,7 @@
   <label>with spectral colors<input type="checkbox" name="stars-colors" value="true" checked="checked"> </label>
   <label>or default color <input type="color" name="stars-color" value="#ffffff"> </label><br>
   <label>Show names<input type="checkbox" name="stars-names" value="true" checked="checked"> </label> 
-  <label>proper names (if any)<input type="checkbox" name="stars-proper" value="true" checked=""> </label> 
+  <label>proper names (if any)<input type="checkbox" name="stars-proper" value="true"> </label> 
   <label>or designations<input type="checkbox" name="stars-desig" value="true" checked="checked"> </label>
   <label>down to mag<input type="number" name="stars-namelimit" value="2" max="6" min="-1"></label>
   </div>  
@@ -46,16 +46,17 @@
   <div class="col">
   <!-- graticules & planes -->
   <strong>Lines</strong>
-  <label>Graticule<input type="checkbox" name="lines-graticule" value="true" checked> </label>&nbsp;&nbsp;
+  <label>Graticule<input type="checkbox" name="lines-graticule" value="true" checked="checked"> </label>&nbsp;&nbsp;
   <label>Equator<input type="checkbox" name="lines-equatorial" value="true"> </label>
   <label>Ecliptic<input type="checkbox" name="lines-ecliptic" value="true" checked="checked"> </label>
   <label>Galactic plane<input type="checkbox" name="lines-galactic" value="true"> </label>
   <label>Supergal. plane<input type="checkbox" name="lines-supergalactic" value="true"> </label>
   </div>  
   <div class="col">
-  <strong>Other</strong>
+  <strong>Other</strong>&nbsp;&nbsp;
   <label>Milky Way<input type="checkbox" name="mw-show" value="true" checked="checked"> </label>&nbsp;&nbsp;
-  <label> Background color <input type="color" name="background" value="#000"> </label>
+  <label> Background color <input type="color" name="background" value="#000"> </label>&nbsp;&nbsp;
+  <label> Adaptable magnitude limits <input type="checkbox" name="adaptable" value="true"> </label>
   </div>
   <input type="submit" value="Show">&nbsp;&nbsp;
   <input type="reset" value="Reset">
@@ -67,7 +68,7 @@
    Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 */
 /*  Uncomment for deeper data files */
-//var stardata = "data6/stars.8.5.json";
+//var stardata = "data/stars.8.5.json";
 //var dsodata = "data/dsos.14.json";
 
 var cfg = parseQuery();
@@ -75,14 +76,14 @@ var cfg = parseQuery();
 fillOptions();
 if (cfg) {
   cfg = fillForm(cfg);
-  cfg = settings.set(objectify(cfg));
+  cfg = Celestial.settings().set(objectify(cfg));
 } else {
-  cfg = settings.set();
+  cfg = Celestial.settings().set();
 }
 enableForm();      
 
-if (stardata) cfg.stars.data = stardata;
-if (dsodata) cfg.dsos.data = dsodata;
+if (typeof stardata !== 'undefined') cfg.stars.data = stardata;
+if (typeof dsodata !== 'undefined') cfg.dsos.data = dsodata;
 
  
 Celestial.display(cfg);
@@ -149,15 +150,23 @@ function selectOption(e, opt) {
 
 function fillOptions() {
   var lim, i, key, e = document.forms[0].elements;
-      proj = $(),
-      trans = $("transform");
       
   $("params").action = document.location.href.replace(/\?.*/, "");
   
-  fillSelect("projection", projections);
-  fillSelect("transform", eulerAngles);
+  fillSelect("projection", Celestial.projections());
+  fillSelect("transform", Celestial.eulerAngles());
   
   lim = getLimits();
+  
+  if (lim.s != 6) {
+    document.params["stars-limit"].max = lim.s;
+    document.params["stars-namelimit"].max = lim.s;
+  };
+
+  if (lim.d != 6) {
+    document.params["dsos-limit"].max = lim.d;
+    document.params["dsos-namelimit"].max = lim.d;
+  };
   
   for (i=0; i<e.length; i++) {
     e[i].onchange = enableForm;
@@ -166,9 +175,10 @@ function fillOptions() {
 
 function getLimits() {
   var t, rx = /\d+(\.\d+)?/g,
-      s, d, res = {s:6, d:6};
-  if (dsodata) d = dsodata;
-  else d = = settings.dsos.data;
+      s, d, res = {s:6, d:6},
+      cfg =  Celestial.settings();
+  if (typeof dsodata !== 'undefined') d = dsodata;
+  else d = cfg.dsos.data;
   
   //test d
   t = d.match(rx);
@@ -177,8 +187,8 @@ function getLimits() {
   }
    
 
-  if (stardata) s = stardata;
-  else s = settings.stars.data;
+  if (typeof stardata !== 'undefined') s = stardata;
+  else s = cfg.stars.data;
   
   //test s
   t = s.match(rx);
@@ -189,7 +199,8 @@ function getLimits() {
 }
 
 function fillSelect(id, fill) {
-  var t, key, elem = $(id);
+  var t, key, elem = document.params[id],
+      cfg = Celestial.settings();
   
   if (!elem || !fill) return;
         
@@ -197,7 +208,7 @@ function fillSelect(id, fill) {
     t = document.createElement("option");
     t.value = key;
     t.innerHTML = key;
-    if (key == settings[id]) t.selected = "selected";
+    if (key == cfg[id]) t.selected = "selected";
     elem.appendChild(t);
   }
 
@@ -208,7 +219,7 @@ function parseQuery() {
   var i, t, res = {}, cfg = location.search.replace(/^\?/, "").split('&');
 
   for (i=0; i<cfg.length; i++) {
-    t = cfg[i].split('=', 2).map( function(str) { return unescape(str) } );
+    t = cfg[i].split('=', 2).map( function(str) { return decodeURIComponent(str) } );
     res[t[0]] = t.length > 1 ? t[1] : null;
   }
   return res;
@@ -228,6 +239,11 @@ function objectify(cfg) {
     }
   }
   return res;
+}
+
+
+function $(id) {
+  return document.getElementById(id);
 }
 
   </script>
