@@ -47,8 +47,8 @@ target.build = function() {
     './src/projection.js', 
     './src/transform.js', 
     './src/config.js', 
-    './src/filetest.js', 
-    './src/symbol.js' 
+    './src/symbol.js',
+    './lib/d3.geo.zoom.js'
   ]);
   file = copy + begin + file.replace(/\/\* global.*/g, '') + end;
   file.to('./celestial.js');
@@ -73,7 +73,7 @@ target.build = function() {
 
   // zip data + prod. code + css
   tar.pack('./', {
-       entries: ['viewer.html', 'style.css', 'readme.md', 'LICENSE', 'celestial.min.js', 'data', 'lib/d3.min.js', 'lib/d3.geo.projection.min.js', 'lib/d3.geo.zoom.js'] 
+       entries: ['viewer.html', 'style.css', 'readme.md', 'LICENSE', 'celestial.min.js', 'data', 'lib/d3.min.js', 'lib/d3.geo.projection.min.js'] 
      })
      .pipe(zlib.createGzip())
      .pipe(fs.createWriteStream('./celestial-data.tar.gz'))

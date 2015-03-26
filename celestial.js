@@ -1,9 +1,8 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
-// celestial.js main file
 var Celestial = {};
 
-
+// show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
   var cfg, circle, par;
   
@@ -19,7 +18,8 @@ Celestial.display = function(config) {
       width = cfg.width,
       height = width / ratio,
       base = 7, exp = -0.3, //Object size base & exponent
-      center = trans == "galactic" ? [0,0,0] : [180, 0, 0];
+      adapt = 1,
+      center = trans == "galactic" ? [0,0,0] : [180, 0, 0]; // most skyviews look better centerd at 180º
     
   var projection = Celestial.projection(cfg.projection).rotate(eulerAngles[trans]).translate([width/2, height/2]).scale([proj.scale]);
   var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([proj.scale]); //projected non moving outline
@@ -114,11 +114,12 @@ Celestial.display = function(config) {
          .append("path")
          .attr("class", "star")
          .attr("d", path.pointRadius( function(d) {
-           return d.properties ? starsize(d.properties.mag) : 1;
+           return d.properties ? starSize(d.properties.mag) : 1;
          }))
          .style("fill", function(d) {
-           return starcolor(d.properties);
-         });
+           return starColor(d.properties);
+         })
+         .style("fill-opacity", function(d) { return isVisible("stars", d.properties.mag); }); 
 
       if (cfg.stars.names) { 
         svg.selectAll(".starnames")
@@ -126,9 +127,9 @@ Celestial.display = function(config) {
            .enter()
            .append("text")
            .attr("transform", function(d) { return point(d.geometry.coordinates); })
-           .text( function(d) { return starname(d.properties); })
+           .text( function(d) { return starName(d.properties); })
            .attr({dy: "-.5em", dx: ".35em", class: "starname"})
-           .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
+           .style("fill-opacity", function(d) { return clip(d.geometry.coordinates) == 1 && hasName("stars", d.properties.mag) == 1 ? 1 : 0; }); 
       }       
     });
   }
@@ -142,8 +143,8 @@ Celestial.display = function(config) {
          .append("path")
          .attr("class", function(d) { return "dso " + d.properties.type; } )
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
-         .attr("d", function(d) { return dsosymbol(d.properties); })
-         .attr("style", function(d) { return dsocolor(d.properties); })
+         .attr("d", function(d) { return dsoSymbol(d.properties); })
+         .attr("style", function(d) { return dsoColor(d.properties); })
          .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); })
          .style("stroke-opacity", function(d) { return clip(d.geometry.coordinates); }); 
     
@@ -155,9 +156,9 @@ Celestial.display = function(config) {
            .attr("class", function(d) { return "dsoname " + d.properties.type; } )
            //.attr("class", "dsoname")
            .attr("transform", function(d) { return point(d.geometry.coordinates); })
-           .text( function(d) { return dsoname(d.properties); } )
+           .text( function(d) { return dsoName(d.properties); } )
            .attr({dy: "-.5em", dx: ".35em", 
-                  style: function(d) { return dsocolor(d.properties, true); } 
+                  style: function(d) { return dsoColor(d.properties, true); } 
             })
            .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
       }
@@ -184,56 +185,45 @@ Celestial.display = function(config) {
     return "translate(" + projection(coords) + ")";
   }
   
+  function isVisible(what, mag) {
+    return (mag > cfg[what].limit * adapt) ? 0 : 1; 
+  }
+
+  function hasName(what, mag) {
+    return (mag > cfg[what].namelimit * adapt) ? 0 : 1; 
+  }
+  
   function redraw() {
     if (!d3.event) { return; }
     //d3.event.sourceEvent.preventDefault();
     var rot = projection.rotate();
     projOl.scale(projection.scale());
-    base = 7 * Math.sqrt(projection.scale()/proj.scale);
+    if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/proj.scale);
+    base = 7 * adapt;
     center = [-rot[0], -rot[1]];
 
     svg.selectAll("path")
-       .attr("d", path.pointRadius( function(d, i) { return d.properties ? starsize(d.properties.mag) : 1; } )); 
+       .attr("d", path.pointRadius( function(d, i) { return d.properties ? starSize(d.properties.mag) : 1; } )); 
     svg.selectAll("text")
        .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
        .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });
-   
-/*    svg.selectAll(".constname")
-       .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-       .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });
-    svg.selectAll(".constline").attr("d", path);  
-    svg.selectAll(".boundaryline").attr("d", path);  
-*/  
-/*    svg.selectAll(".star")
-       .attr("d", path.pointRadius( function(d, i) { return d.properties ? starsize(d.properties.mag) : 1; } )); 
-    svg.selectAll(".starname")
-       .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); });
-*/    
+
+    svg.selectAll(".star")
+       .style("fill-opacity", function(d) { return isVisible("stars", d.properties.mag); }); 
+    svg.selectAll(".starname")   
+      .style("fill-opacity", function(d) { return clip(d.geometry.coordinates) == 1 && hasName("stars", d.properties.mag) == 1 ? 1 : 0; }); 
+
     svg.selectAll(".dso")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .attr("d", function(d, i) { return dsosymbol(d.properties); })
+       .attr("d", function(d, i) { return dsoSymbol(d.properties); })
        .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); })
        .style("stroke-opacity", function(d, i) { return clip(d.geometry.coordinates); });
-/*    svg.selectAll(".dsoname")
-       .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-       .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });
-*/    
     svg.selectAll(".outline").attr("d", olP);  
-/*    svg.selectAll(".gridline").attr("d", path);  
-
-    svg.selectAll(".mw").attr("d", path);  
-    svg.selectAll(".ecliptic").attr("d", path);  
-    svg.selectAll(".equatorial").attr("d", path);  
-    svg.selectAll(".galactic").attr("d", path);  
-    svg.selectAll(".supergalactic").attr("d", path);  
-    svg.selectAll(".mars").attr("d", path);  
-*/    
   }
 
-  function dsosymbol(prop) {
-    var size = dsosize(prop.mag, prop.dim) || 9,
-        type = dsoshape(prop.type);
+  function dsoSymbol(prop) {
+    var size = dsoSize(prop.mag, prop.dim) || 9,
+        type = dsoShape(prop.type);
     if (d3.svg.symbolTypes.indexOf(type) !== -1) {
       return d3.svg.symbol().type(type).size(size)();
     } else {
@@ -241,13 +231,13 @@ Celestial.display = function(config) {
     }
   }
 
-  function dsoshape(type) {
+  function dsoShape(type) {
     if (!type || !symbols.hasOwnProperty(type)) return "circle"; 
     else return symbols[type].shape; 
   }
 
 
-  function dsocolor(prop, text) {
+  function dsoColor(prop, text) {
     if (!prop.type || !symbols.hasOwnProperty(prop.type) || 
         prop.mag == 999 && Math.sqrt(parseInt(prop.dim)) < cfg.dsos.limit || 
         prop.mag != 999 && prop.mag > cfg.dsos.limit) { return ''; }
@@ -258,12 +248,12 @@ Celestial.display = function(config) {
     }
   }
 
-  function dsosize(mag, dim) {
+  function dsoSize(mag, dim) {
     if (!mag || mag == 999) return Math.pow(parseInt(dim)*base/7, 0.5); 
     return Math.pow(2*base-mag, 1.4);
   }
 
-  function dsoname(prop) {
+  function dsoName(prop) {
     if (prop.mag == 999 && Math.sqrt(parseInt(prop.dim)) < cfg.dsos.namelimit || 
         prop.mag != 999 && prop.mag > cfg.dsos.namelimit || 
         prop.name === "") return; 
@@ -271,24 +261,25 @@ Celestial.display = function(config) {
     return prop.name;
   }
   
-  function starname(prop) {
-    if (prop.mag > cfg.stars.namelimit || 
-       (cfg.stars.desig === false && prop.name === "")) return; 
+  function starName(prop) {
+    if //(prop.mag > cfg.stars.namelimit || 
+       (cfg.stars.desig === false && prop.name === "") return; 
     if (cfg.stars.proper && prop.name !== "") return prop.name; 
     if (cfg.stars.desig)  return prop.desig; 
   }
   
-  function starsize(mag) {
+  function starSize(mag) {
     if (mag === null) return 0.2; 
     var d = base * Math.exp(exp * (mag+2));
     return d>0.2 ? d : 0.2;
   }
   
-  function starcolor(prop) {
-    if (prop.mag > cfg.stars.limit) return "rgba(0,0,0,0)"; 
-    if (!cfg.stars.colors) {return cfg.stars.color; }
+  function starColor(prop) {
+    //if (prop.mag > cfg.stars.limit + adapt) return "rgba(0,0,0,0)"; 
+    if (!cfg.stars.colors || isNaN(prop.bv)) {return cfg.stars.color; }
     return bvcolor(prop.bv);
   }
+  
   
 };
 
@@ -350,7 +341,8 @@ var τ = Math.PI*2,
     deg2rad = Math.PI/180;
 
 Celestial.graticule = function(svg, path, trans) {
-  //d3.geo.circle graticule [0,90]/10..170deg + [0..180,0]/90deg
+  //d3.geo.circle graticule for coordinate spaces other than equatorial
+  //circles center [0º,90º] / angle 10..170º and  center [0..180º,0º] / angle 90º
 
   var i;
   
@@ -369,12 +361,13 @@ Celestial.graticule = function(svg, path, trans) {
   }  
 };
 
+//Transform equatorial into any coordinates, degrees
 function transformDeg(c, euler) {
   var res = transform( c.map( function(d) { return d * deg2rad; } ), euler);
   return res.map( function(d) { return d / deg2rad; } );
 }
 
-//Transform equatorial into any coordinates
+//Transform equatorial into any coordinates, radians
 function transform(c, euler) {
   var x, y, z, β, γ, λ, φ, dψ, ψ, θ,
       ε = 1.0e-5;
@@ -446,28 +439,30 @@ euler.init();
 Celestial.euler = function() { return euler; };
 
 
+//Defaults
 var settings = { 
   width: 1024,     // Default width; height is determined by projection
   projection: "aitoff",  //Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
   transform: "equatorial", // Coordinate transformation euler angles; equatorial, ecliptic, galactic, supergalactic
   background: "#000", //Background color or gradient  
+  adaptable: true,    //Magnitude limits are relaxed with higher zoom
   stars: {
     show: true,    // Show stars
-    limit: 6,      // down to maximum stellar magnitude
+    limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use "color"
     color: "#fff", // Default color for stars
     names: true,   // Show star names (css-class starname)
     proper: false, // Show proper names (if none shows designation)
     desig: true,   // Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
-    namelimit: 2,  // Maximum magnitude with name
+    namelimit: 2.5,  // Show only names for stars brighter than namelimit
     data: 'data/stars.6.json' // Data source for stellar data
   },
   dsos: {
     show: true,    // Show Deep Space Objects (css-class per type)
-    limit: 6,      // down to maximum magnitude
+    limit: 6,      // Show only DSOs brighter than limit magnitude
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
-    namelimit: 4,  // Maximum magnitude with name
+    namelimit: 4,  // Show only names for DSOs brighter than namelimit
     data: 'data/dsos.bright.json'  // Data source for DSOs
   },
   constellations: {
@@ -516,6 +511,7 @@ var settings = {
 
 Celestial.settings = function() { return settings; };
 
+//DSO symbol definitions
 var symbols = {
   gg: {shape:"circle", stroke:"#f00", fill:"#f00"},   // Galaxy cluster red circle
   g:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Generic galaxy red ellipse
@@ -661,5 +657,262 @@ d3.svg.customSymbol = function() {
 };
 
 
+
+// Copyright 2014, Jason Davies, http://www.jasondavies.com
+// See LICENSE.txt for details.
+(function() {
+
+var radians = Math.PI / 180,
+    degrees = 180 / Math.PI;
+
+// TODO make incremental rotate optional
+
+d3.geo.zoom = function() {
+  var projection,
+      duration;
+
+  var zoomPoint,
+      zooming = 0,
+      event = d3_eventDispatch(zoom, "zoomstart", "zoom", "zoomend"),
+      zoom = d3.behavior.zoom()
+        .on("zoomstart", function() {
+          var mouse0 = d3.mouse(this),
+              rotate = quaternionFromEuler(projection.rotate()),
+              point = position(projection, mouse0);
+          if (point) zoomPoint = point;
+
+          zoomOn.call(zoom, "zoom", function() {
+                projection.scale(view.k = d3.event.scale);
+                var mouse1 = d3.mouse(this),
+                    between = rotateBetween(zoomPoint, position(projection, mouse1));
+                projection.rotate(view.r = eulerFromQuaternion(rotate = between
+                    ? multiply(rotate, between)
+                    : multiply(bank(projection, mouse0, mouse1), rotate)));
+                mouse0 = mouse1;
+                zoomed(event.of(this, arguments));
+              });
+          zoomstarted(event.of(this, arguments));
+        })
+        .on("zoomend", function() {
+          zoomOn.call(zoom, "zoom", null);
+          zoomended(event.of(this, arguments));
+        }),
+      zoomOn = zoom.on,
+      view = {r: [0, 0, 0], k: 1};
+
+  zoom.rotateTo = function(location) {
+    var between = rotateBetween(cartesian(location), cartesian([-view.r[0], -view.r[1]]));
+    return eulerFromQuaternion(multiply(quaternionFromEuler(view.r), between));
+  };
+
+  zoom.projection = function(_) {
+    if (!arguments.length) return projection;
+    projection = _;
+    view = {r: projection.rotate(), k: projection.scale()};
+    return zoom.scale(view.k);
+  };
+
+  zoom.duration = function(_) {
+    return arguments.length ? (duration = _, zoom) : duration;
+  };
+
+  zoom.event = function(g) {
+    g.each(function() {
+      var g = d3.select(this),
+          dispatch = event.of(this, arguments),
+          view1 = view,
+          transition = d3.transition(g);
+      if (transition !== g) {
+        transition
+            .each("start.zoom", function() {
+              if (this.__chart__) { // pre-transition state
+                view = this.__chart__;
+              }
+              projection.rotate(view.r).scale(view.k);
+              zoomstarted(dispatch);
+            })
+            .tween("zoom:zoom", function() {
+              var width = zoom.size()[0],
+                  i = interpolateBetween(quaternionFromEuler(view.r), quaternionFromEuler(view1.r)),
+                  d = d3.geo.distance(view.r, view1.r),
+                  smooth = d3.interpolateZoom([0, 0, width / view.k], [d, 0, width / view1.k]);
+              if (duration) transition.duration(duration(smooth.duration * .001)); // see https://github.com/mbostock/d3/pull/2045
+              return function(t) {
+                var uw = smooth(t);
+                this.__chart__ = view = {r: eulerFromQuaternion(i(uw[0] / d)), k: width / uw[2]};
+                projection.rotate(view.r).scale(view.k);
+                zoom.scale(view.k);
+                zoomed(dispatch);
+              };
+            })
+            .each("end.zoom", function() {
+              zoomended(dispatch);
+            });
+        try { // see https://github.com/mbostock/d3/pull/1983
+          transition
+              .each("interrupt.zoom", function() {
+                zoomended(dispatch);
+              });
+        } catch (e) { console.log(e); }
+      } else {
+        this.__chart__ = view;
+        zoomstarted(dispatch);
+        zoomed(dispatch);
+        zoomended(dispatch);
+      }
+    });
+  };
+
+  function zoomstarted(dispatch) {
+    if (!zooming++) dispatch({type: "zoomstart"});
+  }
+
+  function zoomed(dispatch) {
+    dispatch({type: "zoom"});
+  }
+
+  function zoomended(dispatch) {
+    if (!--zooming) dispatch({type: "zoomend"});
+  }
+
+  return d3.rebind(zoom, event, "on");
+};
+
+function bank(projection, p0, p1) {
+  var t = projection.translate(),
+      angle = Math.atan2(p0[1] - t[1], p0[0] - t[0]) - Math.atan2(p1[1] - t[1], p1[0] - t[0]);
+  return [Math.cos(angle / 2), 0, 0, Math.sin(angle / 2)];
+}
+
+function position(projection, point) {
+  var spherical = projection.invert(point);
+  return spherical && isFinite(spherical[0]) && isFinite(spherical[1]) && cartesian(spherical);
+}
+
+function quaternionFromEuler(euler) {
+  var λ = .5 * euler[0] * radians,
+      φ = .5 * euler[1] * radians,
+      γ = .5 * euler[2] * radians,
+      sinλ = Math.sin(λ), cosλ = Math.cos(λ),
+      sinφ = Math.sin(φ), cosφ = Math.cos(φ),
+      sinγ = Math.sin(γ), cosγ = Math.cos(γ);
+  return [
+    cosλ * cosφ * cosγ + sinλ * sinφ * sinγ,
+    sinλ * cosφ * cosγ - cosλ * sinφ * sinγ,
+    cosλ * sinφ * cosγ + sinλ * cosφ * sinγ,
+    cosλ * cosφ * sinγ - sinλ * sinφ * cosγ
+  ];
+}
+
+function multiply(a, b) {
+  var a0 = a[0], a1 = a[1], a2 = a[2], a3 = a[3],
+      b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+  return [
+    a0 * b0 - a1 * b1 - a2 * b2 - a3 * b3,
+    a0 * b1 + a1 * b0 + a2 * b3 - a3 * b2,
+    a0 * b2 - a1 * b3 + a2 * b0 + a3 * b1,
+    a0 * b3 + a1 * b2 - a2 * b1 + a3 * b0
+  ];
+}
+
+function rotateBetween(a, b) {
+  if (!a || !b) return;
+  var axis = cross(a, b),
+      norm = Math.sqrt(dot(axis, axis)),
+      halfγ = .5 * Math.acos(Math.max(-1, Math.min(1, dot(a, b)))),
+      k = Math.sin(halfγ) / norm;
+  return norm && [Math.cos(halfγ), axis[2] * k, -axis[1] * k, axis[0] * k];
+}
+
+// Interpolate between two quaternions (slerp).
+function interpolateBetween(a, b) {
+  var d = Math.max(-1, Math.min(1, dot(a, b))),
+      s = d < 0 ? -1 : 1,
+      θ = Math.acos(s * d),
+      sinθ = Math.sin(θ);
+  return sinθ ? function(t) {
+    var A = s * Math.sin((1 - t) * θ) / sinθ,
+        B = Math.sin(t * θ) / sinθ;
+    return [
+      a[0] * A + b[0] * B,
+      a[1] * A + b[1] * B,
+      a[2] * A + b[2] * B,
+      a[3] * A + b[3] * B
+    ];
+  } : function() { return a; };
+}
+
+function eulerFromQuaternion(q) {
+  return [
+    Math.atan2(2 * (q[0] * q[1] + q[2] * q[3]), 1 - 2 * (q[1] * q[1] + q[2] * q[2])) * degrees,
+    Math.asin(Math.max(-1, Math.min(1, 2 * (q[0] * q[2] - q[3] * q[1])))) * degrees,
+    Math.atan2(2 * (q[0] * q[3] + q[1] * q[2]), 1 - 2 * (q[2] * q[2] + q[3] * q[3])) * degrees
+  ];
+}
+
+function cartesian(spherical) {
+  var λ = spherical[0] * radians,
+      φ = spherical[1] * radians,
+      cosφ = Math.cos(φ);
+  return [
+    cosφ * Math.cos(λ),
+    cosφ * Math.sin(λ),
+    Math.sin(φ)
+  ];
+}
+
+function dot(a, b) {
+  for (var i = 0, n = a.length, s = 0; i < n; ++i) s += a[i] * b[i];
+  return s;
+}
+
+function cross(a, b) {
+  return [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0]
+  ];
+}
+
+// Like d3.dispatch, but for custom events abstracting native UI events. These
+// events have a target component (such as a brush), a target element (such as
+// the svg:g element containing the brush) and the standard arguments `d` (the
+// target element's data) and `i` (the selection index of the target element).
+function d3_eventDispatch(target) {
+  var i = 0,
+      n = arguments.length,
+      argumentz = [];
+
+  while (++i < n) argumentz.push(arguments[i]);
+
+  var dispatch = d3.dispatch.apply(null, argumentz);
+
+  // Creates a dispatch context for the specified `thiz` (typically, the target
+  // DOM element that received the source event) and `argumentz` (typically, the
+  // data `d` and index `i` of the target element). The returned function can be
+  // used to dispatch an event to any registered listeners; the function takes a
+  // single argument as input, being the event to dispatch. The event must have
+  // a "type" attribute which corresponds to a type registered in the
+  // constructor. This context will automatically populate the "sourceEvent" and
+  // "target" attributes of the event, as well as setting the `d3.event` global
+  // for the duration of the notification.
+  dispatch.of = function(thiz, argumentz) {
+    return function(e1) {
+      try {
+        var e0 =
+        e1.sourceEvent = d3.event;
+        e1.target = target;
+        d3.event = e1;
+        dispatch[e1.type].apply(thiz, argumentz);
+      } finally {
+        d3.event = e0;
+      }
+    };
+  };
+
+  return dispatch;
+}
+
+})();
 this.Celestial = Celestial;
 })();

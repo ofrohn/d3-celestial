@@ -3,13 +3,8 @@
   <meta charset="utf-8">
   <title>D3 Starmap</title>
   <script type="text/javascript" src="lib/d3.js"></script>
-  <script type="text/javascript" src="lib/d3.geo.zoom.js"></script>
   <script type="text/javascript" src="lib/d3.geo.projection.js"></script>
-  <script type="text/javascript" src="src/config.js"></script>
-  <script type="text/javascript" src="src/symbol.js"></script>
-  <script type="text/javascript" src="src/celestial.js"></script>
-  <script type="text/javascript" src="src/projection.js"></script>
-  <script type="text/javascript" src="src/transform.js"></script>
+  <script type="text/javascript" src="celestial.js"></script>
   <link rel="stylesheet" href="style.css">
 </head><body>
 <script type="text/javascript">
@@ -24,6 +19,8 @@ var config = {
   width: 1024,       //Default width
   projection: "aitoff",  //Map projections supported: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
   transform: "equatorial",   //Coordinate transformation euler angles: equatorial, ecliptic, galactic, supergalactic
+  background: "#000", //Background color or gradient  
+  adaptable: true,    //Magnitude limits are relaxed with higher zoom
   stars: {
     show: true,    //Show stars
     limit: 6,      //up to maximum stellar magnitude

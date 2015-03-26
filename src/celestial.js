@@ -118,7 +118,7 @@ Celestial.display = function(config) {
          .style("fill", function(d) {
            return starColor(d.properties);
          })
-         .style("fill-opacity", function(d) { return isVisible("stars", d.properties.mag); }); 
+         .style("fill-opacity", function(d) { return starOpacity(d.properties.mag); }); 
 
       if (cfg.stars.names) { 
         svg.selectAll(".starnames")
@@ -128,7 +128,7 @@ Celestial.display = function(config) {
            .attr("transform", function(d) { return point(d.geometry.coordinates); })
            .text( function(d) { return starName(d.properties); })
            .attr({dy: "-.5em", dx: ".35em", class: "starname"})
-           .style("fill-opacity", function(d) { return clip(d.geometry.coordinates) == 1 && hasName("stars", d.properties.mag) == 1 ? 1 : 0; }); 
+           .style("fill-opacity", function(d) { return clip(d.geometry.coordinates) == 1 && starOpacity(d.properties.mag, true) == 1 ? 1 : 0; }); 
       }       
     });
   }
@@ -143,9 +143,10 @@ Celestial.display = function(config) {
          .attr("class", function(d) { return "dso " + d.properties.type; } )
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .attr("d", function(d) { return dsoSymbol(d.properties); })
-         .attr("style", function(d) { return dsoColor(d.properties); })
-         .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); })
-         .style("stroke-opacity", function(d) { return clip(d.geometry.coordinates); }); 
+         //.attr("style", function(d) { return dsoColor(d.properties); })
+         .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates, d.properties); });
+         //.style("fill-opacity", function(d) { return clip(d.geometry.coordinates); })
+         //.style("stroke-opacity", function(d) { return clip(d.geometry.coordinates); }); 
     
       if (cfg.dsos.names) { 
         svg.selectAll(".dsonames")
@@ -153,13 +154,13 @@ Celestial.display = function(config) {
            .enter()
            .append("text")
            .attr("class", function(d) { return "dsoname " + d.properties.type; } )
-           //.attr("class", "dsoname")
            .attr("transform", function(d) { return point(d.geometry.coordinates); })
            .text( function(d) { return dsoName(d.properties); } )
-           .attr({dy: "-.5em", dx: ".35em", 
-                  style: function(d) { return dsoColor(d.properties, true); } 
-            })
-           .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
+           .attr({dy: "-.5em", dx: ".35em"})
+           //       style: function(d) { return dsoColor(d.properties, true); } 
+            //})
+           .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates, d.properties, true); });
+           //.style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
       }
     });
   }
@@ -184,14 +185,6 @@ Celestial.display = function(config) {
     return "translate(" + projection(coords) + ")";
   }
   
-  function isVisible(what, mag) {
-    return (mag > cfg[what].limit * adapt) ? 0 : 1; 
-  }
-
-  function hasName(what, mag) {
-    return (mag > cfg[what].namelimit * adapt) ? 0 : 1; 
-  }
-  
   function redraw() {
     if (!d3.event) { return; }
     //d3.event.sourceEvent.preventDefault();
@@ -208,15 +201,19 @@ Celestial.display = function(config) {
        .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });
 
     svg.selectAll(".star")
-       .style("fill-opacity", function(d) { return isVisible("stars", d.properties.mag); }); 
+       .style("fill-opacity", function(d) { return starOpacity(d.properties.mag); }); 
     svg.selectAll(".starname")   
-      .style("fill-opacity", function(d) { return clip(d.geometry.coordinates) == 1 && hasName("stars", d.properties.mag) == 1 ? 1 : 0; }); 
+      .style("fill-opacity", function(d) { return clip(d.geometry.coordinates) == 1 && starOpacity(d.properties.mag, true) == 1 ? 1 : 0; }); 
 
     svg.selectAll(".dso")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
        .attr("d", function(d, i) { return dsoSymbol(d.properties); })
-       .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); })
-       .style("stroke-opacity", function(d, i) { return clip(d.geometry.coordinates); });
+       .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates, d.properties); });
+       //.style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); })
+       //.style("stroke-opacity", function(d, i) { return clip(d.geometry.coordinates); });
+    svg.selectAll(".dsoname")
+       .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates, d.properties, true); });
+
     svg.selectAll(".outline").attr("d", olP);  
   }
 
@@ -237,9 +234,9 @@ Celestial.display = function(config) {
 
 
   function dsoColor(prop, text) {
-    if (!prop.type || !symbols.hasOwnProperty(prop.type) || 
+    if (!prop.type || !symbols.hasOwnProperty(prop.type) /* || 
         prop.mag == 999 && Math.sqrt(parseInt(prop.dim)) < cfg.dsos.limit || 
-        prop.mag != 999 && prop.mag > cfg.dsos.limit) { return ''; }
+        prop.mag != 999 && prop.mag > cfg.dsos.limit*/) { return ''; }
     if (text) {
       return 'fill:' + symbols[prop.type].stroke; 
     } else {
@@ -247,14 +244,23 @@ Celestial.display = function(config) {
     }
   }
 
+  function dsoOpacity(coords, prop, text) {
+    var fld = text ? "namelimit" : "limit", opa = 0;
+    if (clip(coords) == 1 && 
+        prop.mag == 999 && Math.sqrt(parseInt(prop.dim)) > cfg.dsos[fld] * adapt || 
+        prop.mag != 999 && prop.mag < cfg.dsos[fld] * adapt) opa = 1;
+
+    return dsoColor(prop, text) + ';stroke-opacity:' + opa + ';fill-opacity:' + opa; 
+  }
+  
   function dsoSize(mag, dim) {
     if (!mag || mag == 999) return Math.pow(parseInt(dim)*base/7, 0.5); 
     return Math.pow(2*base-mag, 1.4);
   }
 
   function dsoName(prop) {
-    if (prop.mag == 999 && Math.sqrt(parseInt(prop.dim)) < cfg.dsos.namelimit || 
-        prop.mag != 999 && prop.mag > cfg.dsos.namelimit || 
+    if (/*prop.mag == 999 && Math.sqrt(parseInt(prop.dim)) < cfg.dsos.namelimit || 
+        prop.mag != 999 && prop.mag > cfg.dsos.namelimit || */
         prop.name === "") return; 
     if (cfg.dsos.desig && prop.desig) return prop.desig; 
     return prop.name;
@@ -275,10 +281,14 @@ Celestial.display = function(config) {
   
   function starColor(prop) {
     //if (prop.mag > cfg.stars.limit + adapt) return "rgba(0,0,0,0)"; 
-    if (!cfg.stars.colors || parseFloat(prop.bv) == NaN) {return cfg.stars.color; }
+    if (!cfg.stars.colors || isNaN(prop.bv)) {return cfg.stars.color; }
     return bvcolor(prop.bv);
   }
   
+  function starOpacity(mag, text) {
+    if (text)  return (mag > cfg.stars.namelimit * adapt) ? 0 : 1; 
+    else return (mag > cfg.stars.limit * adapt) ? 0 : 1; 
+  }
   
 };
 
