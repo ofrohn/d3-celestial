@@ -16,25 +16,26 @@ var config = {
   projection: "aitoff",    //Map projection used: see below
   transform: "equatorial", // Coordinate transformation euler angles: euler.ecliptic, 
                            // euler.galactic, euler.supergalactic, [0,0,0]
-  background: "#000",      //Background color or gradient  
+  background: "#000", //Background color or gradient  
+  adaptable: true,    //Magnitude limits are relaxed with higher zoom-levels
   stars: {
     show: true,    // Show stars
-    limit: 6,      // up to maximum stellar magnitude
+    limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use default color
     color: "#fff", // Default color for stars
     names: true,   // Show star names (css-class starname)
     proper: false, // Show proper names (if none shows designation)
     desig: true,   // Show designation (Bayer, Flamsteed, variable star, Gliese, Draper,
                    // Hipparcos, whichever applies first in the given order)
-    namelimit: 2,  // Maximum magnitude with name
+    namelimit: 2.5,  // Show only names/designations for stars brighter than namelimit
     data: 'data/stars.6.json' // Data source for stellar data, number indicates limit mag
   },
   dsos: {
     show: true,    // Show Deep Space Objects (css-classes per object type)
-    limit: 6,      // up to maximum magnitude
+    limit: 6,      // Show only DSOs brighter than limit magnitude
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
-    namelimit: 6,  // Maximum magnitude with name
+    namelimit: 6,  // Show only names for DSOs brighter than namelimit
     data: 'data/dsos.bright.json'  // Data source for DSOs, opt. number indicates limit mag
   },
   constellations: {

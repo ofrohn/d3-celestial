@@ -14,21 +14,22 @@ Celestial.display = function(config) {
   var proj = projections[cfg.projection],
       trans = cfg.transform || "equatorial",
       ratio = proj.ratio || 2,
-      width = cfg.width,
+      width = cfg.width === 0 ? document.body.offsetWidth : cfg.width,
       height = width / ratio,
+      scale = proj.scale * width/1024,
       base = 7, exp = -0.3, //Object size base & exponent
       adapt = 1,
       center = trans == "galactic" ? [0,0,0] : [180, 0, 0]; // most skyviews look better centerd at 180º
     
-  var projection = Celestial.projection(cfg.projection).rotate(eulerAngles[trans]).translate([width/2, height/2]).scale([proj.scale]);
-  var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([proj.scale]); //projected non moving outline
+  var projection = Celestial.projection(cfg.projection).rotate(eulerAngles[trans]).translate([width/2, height/2]).scale([scale]);
+  var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([scale]); //projected non moving outline
 
   if (proj.clip) {
     projection.clipAngle(90);
     circle = d3.geo.circle().angle([90]);
   }
 
-  var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([proj.scale, proj.scale*4]).on("zoom.redraw", redraw);
+  var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([scale, scale*4]).on("zoom.redraw", redraw);
   
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
@@ -190,30 +191,38 @@ Celestial.display = function(config) {
     //d3.event.sourceEvent.preventDefault();
     var rot = projection.rotate();
     projOl.scale(projection.scale());
-    if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/proj.scale);
+    if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/scale);
     base = 7 * adapt;
     center = [-rot[0], -rot[1]];
 
-    svg.selectAll("path")
-       .attr("d", path.pointRadius( function(d, i) { return d.properties ? starSize(d.properties.mag) : 1; } )); 
-    svg.selectAll("text")
-       .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-       .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });
 
     svg.selectAll(".star")
+       .attr("d", path.pointRadius( function(d, i) { return d.properties ? starSize(d.properties.mag) : 1; } ))
        .style("fill-opacity", function(d) { return starOpacity(d.properties.mag); }); 
     svg.selectAll(".starname")   
-      .style("fill-opacity", function(d) { return clip(d.geometry.coordinates) == 1 && starOpacity(d.properties.mag, true) == 1 ? 1 : 0; }); 
+       .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
+       .style("fill-opacity", function(d) { return clip(d.geometry.coordinates) == 1 && starOpacity(d.properties.mag, true) == 1 ? 1 : 0; }); 
 
     svg.selectAll(".dso")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
        .attr("d", function(d, i) { return dsoSymbol(d.properties); })
        .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates, d.properties); });
-       //.style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); })
-       //.style("stroke-opacity", function(d, i) { return clip(d.geometry.coordinates); });
     svg.selectAll(".dsoname")
+       .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
        .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates, d.properties, true); });
 
+    svg.selectAll(".constname")
+       .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
+       .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });
+    svg.selectAll(".constline").attr("d", path);  
+    svg.selectAll(".boundaryline").attr("d", path);  
+
+    svg.selectAll(".mw").attr("d", path);  
+    svg.selectAll(".ecliptic").attr("d", path);  
+    svg.selectAll(".equatorial").attr("d", path);  
+    svg.selectAll(".galactic").attr("d", path);  
+    svg.selectAll(".supergalactic").attr("d", path);  
+    svg.selectAll(".gridline").attr("d", path);  
     svg.selectAll(".outline").attr("d", olP);  
   }
 
