@@ -6,6 +6,7 @@ var settings = {
   transform: "equatorial", // Coordinate transformation euler angles; equatorial, ecliptic, galactic, supergalactic
   background: "#000", //Background color or gradient  
   adaptable: true,    //Magnitude limits are relaxed with higher zoom-levels
+  interactive: true,    //Enable zooming and rotation with mousewheel and dragging
   stars: {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude

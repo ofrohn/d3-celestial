@@ -106,8 +106,8 @@ __Other files__
 * `LICENSE`
 * `readme.md` this file
 * `style.css` stylesheet
-* `map.html` simple map-viewer with editable configuration
-* `viewer.html` interactive map-viewer/demo
+* `map.html` simple map viewer with editable configuration
+* `viewer.html` interactive map viewer/demo
 * `lib/d3.min.js`  necessary libraries
 * `lib/d3.geo.projection.min.js`
 * `lib/d3.geo.zoom.js`
