@@ -1,10 +1,11 @@
 /* Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE */
 body { background: none; }
-text { stroke: none; fill: #fff; font: 11px Helvetica, Arial, sans-serif; cursor: move!important; }
+svg { cursor: move!important; }
+text { stroke: none; fill: #fff; font: 11px Helvetica, Arial, sans-serif; }
 .stroke { fill: none; stroke: #fff; stroke-width: 3px; }
 .fill { fill: none; }
 .gridline { fill: none; stroke: #ccc; stroke-width: .5px; stroke-opacity: .8; }
-.outline { cursor: move!important; }
+.outline { }
 .constline { fill: none; stroke: #999; stroke-width: 1px; stroke-opacity: .8; }
 .constname { fill: #cc9; font: 12px Helvetica, Arial, sans-serif; text-anchor: middle }
 .starname { stroke: none; fill: #ddb; font: 11px Georgia, Times, 'Times Roman', serif; }

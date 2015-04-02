@@ -11,9 +11,7 @@ Celestial.display = function(config) {
   
   if (!projections.hasOwnProperty(cfg.projection)) return; 
   
-  var loops = 0, received = 0, TIMEOUT = 300, DATASETS = 6,
-      data = {}, loaded = {},
-      proj = projections[cfg.projection],
+  var proj = projections[cfg.projection],
       trans = cfg.transform || "equatorial",
       ratio = proj.ratio || 2,
       width = cfg.width === 0 ? document.body.offsetWidth : cfg.width,
@@ -41,7 +39,8 @@ Celestial.display = function(config) {
   //div with id #map or body
   var svg = d3.select(par).append("svg").attr("width", width).attr("height", height);
   if (cfg.interactive) svg.call(zoom);
-  
+  else svg.attr("style", "cursor: default!important");
+    
   if (circle) {
     svg.append("path").datum(circle).attr("class", "outline").attr("d", olP).style("fill", cfg.background);
   } else {
@@ -67,14 +66,14 @@ Celestial.display = function(config) {
   }
   
   //Milky way outline
-  if (cfg.mw.show) { d3.json("data/mw.json", function(error, mwjson) {
+  if (cfg.mw.show) { d3.json("data/mw.json", function(error, json) {
     if (error) { 
       window.alert("Your Browser doesn't support local file loading or the file doesn't exist. See readme.md");
-      console.warn(error);
-      return; 
+      return console.warn(error);
+       
     }
     svg.selectAll(".mway")
-       .data(mwjson.features)
+       .data(json.features)
        .enter()
        .append("path")
        .attr("class", "mw")
@@ -83,10 +82,10 @@ Celestial.display = function(config) {
 
   //Constellation nemes or designation
   if (cfg.constellations.show) { 
-    d3.json("data/constellations.json", function(error, conjson) {
+    d3.json("data/constellations.json", function(error, json) {
       if (error) return console.warn(error);
       svg.selectAll(".constnames")
-         .data(conjson.features)
+         .data(json.features)
          .enter()
          .append("text")
          .attr("class", "constname")
@@ -97,10 +96,10 @@ Celestial.display = function(config) {
 
     //Constellation boundaries
     if (cfg.constellations.bounds) { 
-      d3.json("data/constellations.bounds.json", function(error, bndjson) {
+      d3.json("data/constellations.bounds.json", function(error, json) {
         if (error) return console.warn(error);
         svg.selectAll(".bounds")
-           .data(bndjson.features)
+           .data(json.features)
            .enter()
            .append("path")
            .attr("class", "boundaryline")
@@ -110,10 +109,10 @@ Celestial.display = function(config) {
 
     //Constellation lines
     if (cfg.constellations.lines) { 
-      d3.json("data/constellations.lines.json", function(error, linejson) {
+      d3.json("data/constellations.lines.json", function(error, json) {
         if (error) return console.warn(error);
         svg.selectAll(".lines")
-           .data(linejson.features)
+           .data(json.features)
            .enter()
            .append("path")
            .attr("class", "constline")
@@ -124,15 +123,13 @@ Celestial.display = function(config) {
   
   //Stars
   if (cfg.stars.show) { 
-    d3.json(cfg.stars.data, function(error, starjson) {
+    d3.json(cfg.stars.data, function(error, json) {
       if (error) return console.warn(error);
-      //data.stars = starjson.features;
-      //loaded.stars = true;
-      //received++;
       svg.selectAll(".stars")
-         .data(starjson.features)
-         .enter()
-         .append("path")
+         .data(json.features.filter( function(d) {
+           return d.properties.mag <= cfg.stars.limit; 
+         }))
+         .enter().append("path")
          .attr("class", "star")
          .attr("d", path.pointRadius( function(d) {
            return d.properties ? starSize(d.properties.mag) : 1;
@@ -144,25 +141,28 @@ Celestial.display = function(config) {
 
       if (cfg.stars.names) { 
         svg.selectAll(".starnames")
-           .data(starjson.features)
-           .enter()
-           .append("text")
+           .data(json.features.filter( function(d) {
+             return d.properties.mag <= cfg.stars.namelimit; 
+           }))
+           .enter().append("text")
            .attr("transform", function(d) { return point(d.geometry.coordinates); })
            .text( function(d) { return starName(d.properties); })
            .attr({dy: "-.5em", dx: ".35em", class: "starname"})
            .style("fill-opacity", function(d) { return clip(d.geometry.coordinates) == 1 && starOpacity(d.properties.mag, true) == 1 ? 1 : 0; }); 
-      }       
+      }
     });
   }
 
   //Deep space objects
   if (cfg.dsos.show) { 
-    d3.json(cfg.dsos.data, function(error, dsojson) {
+    d3.json(cfg.dsos.data, function(error, json) {
       if (error) return console.warn(error);
       svg.selectAll(".dsos")
-         .data(dsojson.features)
-         .enter()
-         .append("path")
+         .data(json.features.filter( function(d) {
+           return d.properties.mag == 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.limit ||
+                  d.properties.mag != 999 && d.properties.mag <= cfg.dsos.limit; 
+         }))
+         .enter().append("path")
          .attr("class", function(d) { return "dso " + d.properties.type; } )
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .attr("d", function(d) { return dsoSymbol(d.properties); })
@@ -170,9 +170,11 @@ Celestial.display = function(config) {
     
       if (cfg.dsos.names) { 
         svg.selectAll(".dsonames")
-           .data(dsojson.features)
-           .enter()
-           .append("text")
+           .data(json.features.filter( function(d) {
+             return d.properties.mag == 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.namelimit ||
+                    d.properties.mag != 999 && d.properties.mag <= cfg.dsos.namelimit; 
+           }))
+           .enter().append("text")
            .attr("class", function(d) { return "dsoname " + d.properties.type; } )
            .attr("transform", function(d) { return point(d.geometry.coordinates); })
            .text( function(d) { return dsoName(d.properties); } )
@@ -182,20 +184,7 @@ Celestial.display = function(config) {
     });
   }
 
-    
-  //-- Helper functions
-  /*
-  function waitForIt() {
-    if (received < DATASETS && loops < TIMEOUT) window.setTimeout(100, waitForIt);
-    loops++;
-    if (loaded.mw) drawMw();
-    if (loaded.consts) drawConstellatios();
-    if (loaded.constlines) drawConstLines();
-    if (loaded.constbounds) drawConstBounds();
-    if (loaded.stars) drawStars();
-    if (loaded.dsos) drawDsos();
-  }
-  */
+  // Helper functions
   
   function clip(coords) {
     return proj.clip && d3.geo.distance(center, coords) > halfπ ? 0 : 1;
@@ -204,11 +193,9 @@ Celestial.display = function(config) {
   function point(coords) {
     return "translate(" + projection(coords) + ")";
   }
-  
-  
-  
+    
   function redraw() {
-    if (!d3.event) { return; }
+    if (!d3.event) return; 
     var rot = projection.rotate();
     projOl.scale(projection.scale());
     if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/scale);
@@ -217,23 +204,25 @@ Celestial.display = function(config) {
 
 
     svg.selectAll(".star")
-       .attr("d", path.pointRadius( function(d, i) { return d.properties ? starSize(d.properties.mag) : 1; } ))
+       .attr("d", path.pointRadius( function(d) { return d.properties ? starSize(d.properties.mag) : 1; } ))
        .style("fill-opacity", function(d) { return starOpacity(d.properties.mag); }); 
+
     svg.selectAll(".starname")   
-       .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-       .style("fill-opacity", function(d) { return clip(d.geometry.coordinates) == 1 && starOpacity(d.properties.mag, true) == 1 ? 1 : 0; }); 
+       .attr("transform", function(d) { return point(d.geometry.coordinates); })
+       .style("fill-opacity", function(d) { return clip(d.geometry.coordinates) == 1 && starOpacity(d.properties.mag, true) == 1 ? 1 : 0; 
+       }); 
 
     svg.selectAll(".dso")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .attr("d", function(d, i) { return dsoSymbol(d.properties); })
+       .attr("d", function(d) { return dsoSymbol(d.properties); })
        .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates, d.properties); });
     svg.selectAll(".dsoname")
-       .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
+       .attr("transform", function(d) { return point(d.geometry.coordinates); })
        .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates, d.properties, true); });
 
     svg.selectAll(".constname")
-       .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-       .style("fill-opacity", function(d, i) { return clip(d.geometry.coordinates); });
+       .attr("transform", function(d) { return point(d.geometry.coordinates); })
+       .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); });
     svg.selectAll(".constline").attr("d", path);  
     svg.selectAll(".boundaryline").attr("d", path);  
 
@@ -273,9 +262,7 @@ Celestial.display = function(config) {
 
   function dsoOpacity(coords, prop, text) {
     var fld = text ? "namelimit" : "limit", opa = 0;
-    if (clip(coords) == 1 && 
-        (prop.mag == 999 && Math.sqrt(parseInt(prop.dim)) > cfg.dsos[fld] * adapt || 
-        prop.mag != 999 && prop.mag < cfg.dsos[fld] * adapt)) opa = 1;
+    if (clip(coords) == 1) opa = 1;
 
     return dsoColor(prop, text) + ';stroke-opacity:' + opa + ';fill-opacity:' + opa; 
   }
