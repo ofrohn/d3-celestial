@@ -1,13 +1,12 @@
 {
   "name": "d3-celestial",
-  "version": "0.4.0",
+  "version": "0.3.1",
   "description": "A star map with D3.js",
   "main": "celestial.js",
   "directories": {
     "test": "test"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "jsdom": "^3.1.0",
     "jshint": "^2.6.0",
