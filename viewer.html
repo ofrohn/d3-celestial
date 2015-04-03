@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
 </head><body>
 <div id="map"></div>
+<div id="param-wrap">
 <form id="params" name="params" method="get" action="#">
   <div class="col">
   <!-- projection, transform, size, center?-->
@@ -55,12 +56,14 @@
   <strong>Other</strong>&nbsp;&nbsp;
   <label>Milky Way<input type="checkbox" name="mw-show" value="true" checked="checked"> </label>&nbsp;&nbsp;
   <label> Background color <input type="color" name="background" value="#000"> </label>&nbsp;&nbsp;
-  <label> Adaptable magnitude limits <input type="checkbox" name="adaptable" value="true"> </label>
+  <label> Adaptable sizes <input type="checkbox" name="adaptable" value="true"> </label>
   </div>
   <input type="submit" value="Show">&nbsp;&nbsp;
   <input type="reset" value="Reset">
 </form>
 </div>
+
+<p>Schrieb</p>
 
 <script type="text/javascript">
 /* D3-Celestial sky map
@@ -77,9 +80,9 @@ if (cfg) {
   cfg = fillForm(cfg);
   cfg = Celestial.settings().set(objectify(cfg));
 } else {
-  cfg = Celestial.settings().set();
+  cfg = Celestial.settings().set({width:0, projection:"aitoff"});
 }
-enableForm();      
+enableForm();      0
 
 if (typeof stardata !== 'undefined') cfg.stars.data = stardata;
 if (typeof dsodata !== 'undefined') cfg.dsos.data = dsodata;
@@ -102,7 +105,7 @@ function fillForm(cfg) {
       } 
     }
     else if (e[i].type == "select-one") { selectOption(e[i], cfg[e[i].name]); }
-    else if (e[i].type == "number") { e[i].value = parseFloat(cfg[e[i].name]); }
+    else if (e[i].type == "number") { cfg[e[i].name] = parseFloat(cfg[e[i].name]); e[i].value = cfg[e[i].name];  }
     else if (cfg.hasOwnProperty(e[i].name)) { e[i].value = cfg[e[i].name]; }
   }    
   return cfg;

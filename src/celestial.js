@@ -3,27 +3,39 @@ var Celestial = {};
 
 // show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
-  var cfg, circle, par;
+  var circle, par;
   
-  cfg = settings.set(config); 
+  var cfg = settings.set(config); 
   
-  par = $("map") ? "#map" : "body";
+  var parent = $(cfg.container);
+  if (parent) { 
+    par = "#"+cfg.container;
+    var stl = window.getComputedStyle(parent, null);
+    if (!stl.width && !cfg.width) parent.style.width = px(parent.parentNode.clientWidth);    
+  } else { 
+    par = "body"; 
+    parent = null; 
+  }
   
   if (!projections.hasOwnProperty(cfg.projection)) return; 
   
   var proj = projections[cfg.projection],
       trans = cfg.transform || "equatorial",
       ratio = proj.ratio || 2,
-      width = cfg.width === 0 ? document.body.offsetWidth : cfg.width,
+      width = getWidth(),
       height = width / ratio,
       scale = proj.scale * width/1024,
       base = 7, exp = -0.3, //Object size base & exponent
       adapt = 1,
-      center = trans == "galactic" ? [0,0,0] : [180, 0, 0]; // most skyviews look better centerd at 180º
-    
+      center = [-eulerAngles[trans][0], -eulerAngles[trans][1]];
+      //center = trans == "galactic" ? [0,0,0] : [180, 0, 0]; // most skyviews look better centerd at 180º
+  
+  if (par != "body") $(cfg.container).style.height = px(height);
+  
   var projection = Celestial.projection(cfg.projection).rotate(eulerAngles[trans]).translate([width/2, height/2]).scale([scale]);
   var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([scale]); //projected non moving outline
 
+  
   if (proj.clip) {
     projection.clipAngle(90);
     circle = d3.geo.circle().angle([90]);
@@ -34,17 +46,18 @@ Celestial.display = function(config) {
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
   var path = d3.geo.path().projection(projection);
-  var olP = d3.geo.path().projection(projOl);
+  var outline = d3.geo.path().projection(projOl);
       
   //div with id #map or body
   var svg = d3.select(par).append("svg").attr("width", width).attr("height", height);
+ 
   if (cfg.interactive) svg.call(zoom);
   else svg.attr("style", "cursor: default!important");
     
   if (circle) {
-    svg.append("path").datum(circle).attr("class", "outline").attr("d", olP).style("fill", cfg.background);
+    svg.append("path").datum(circle).attr("class", "outline").attr("d", outline).style("fill", cfg.background);
   } else {
-    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", olP).style("fill", cfg.background);
+    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", outline).style("fill", cfg.background);
   }
 
   if (cfg.lines.graticule) {
@@ -69,13 +82,11 @@ Celestial.display = function(config) {
   if (cfg.mw.show) { d3.json("data/mw.json", function(error, json) {
     if (error) { 
       window.alert("Your Browser doesn't support local file loading or the file doesn't exist. See readme.md");
-      return console.warn(error);
-       
+      return console.warn(error);  
     }
     svg.selectAll(".mway")
        .data(json.features)
-       .enter()
-       .append("path")
+       .enter().append("path")
        .attr("class", "mw")
        .attr("d", path);
   });}
@@ -86,8 +97,7 @@ Celestial.display = function(config) {
       if (error) return console.warn(error);
       svg.selectAll(".constnames")
          .data(json.features)
-         .enter()
-         .append("text")
+         .enter().append("text")
          .attr("class", "constname")
          .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
          .text( function(d) { if (cfg.constellations.names) { return cfg.constellations.desig?d.properties.desig:d.properties.name; }})
@@ -100,8 +110,7 @@ Celestial.display = function(config) {
         if (error) return console.warn(error);
         svg.selectAll(".bounds")
            .data(json.features)
-           .enter()
-           .append("path")
+           .enter().append("path")
            .attr("class", "boundaryline")
            .attr("d", path);
       });
@@ -113,8 +122,7 @@ Celestial.display = function(config) {
         if (error) return console.warn(error);
         svg.selectAll(".lines")
            .data(json.features)
-           .enter()
-           .append("path")
+           .enter().append("path")
            .attr("class", "constline")
            .attr("d", path);
       });
@@ -184,6 +192,18 @@ Celestial.display = function(config) {
     });
   }
 
+  d3.select(window).on('resize', function() {
+    if (cfg.width) return;
+    width = getWidth();
+    height = width/ratio;
+    scale = proj.scale * width/1024;
+    svg.attr("width", width).attr("height", height);
+    projection.translate([width/2, height/2]).scale([scale]);
+    projOl.translate([width/2, height/2]);
+    redraw();
+  });
+  
+  
   // Helper functions
   
   function clip(coords) {
@@ -202,11 +222,12 @@ Celestial.display = function(config) {
     base = 7 * adapt;
     center = [-rot[0], -rot[1]];
 
+    svg.selectAll(".outline").attr("d", outline);  
 
     svg.selectAll(".star")
        .attr("d", path.pointRadius( function(d) { return d.properties ? starSize(d.properties.mag) : 1; } ))
        .style("fill-opacity", function(d) { return starOpacity(d.properties.mag); }); 
-
+    
     svg.selectAll(".starname")   
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
        .style("fill-opacity", function(d) { return clip(d.geometry.coordinates) == 1 && starOpacity(d.properties.mag, true) == 1 ? 1 : 0; 
@@ -232,7 +253,6 @@ Celestial.display = function(config) {
     svg.selectAll(".galactic").attr("d", path);  
     svg.selectAll(".supergalactic").attr("d", path);  
     svg.selectAll(".gridline").attr("d", path);  
-    svg.selectAll(".outline").attr("d", olP);  
   }
 
   function dsoSymbol(prop) {
@@ -300,9 +320,11 @@ Celestial.display = function(config) {
     else return (mag > cfg.stars.limit * adapt) ? 0 : 1; 
   }
   
+  function getWidth() {
+    if (cfg.width) return cfg.width;
+    return parent ? parent.clientWidth - 16 : window.innerWidth - 24;
+  }
 };
 
-function $(id) {
-  return document.getElementById(id);
-}
-
+function $(id) { return document.getElementById(id); }
+function px(n) { return n + "px"; } 
