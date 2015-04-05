@@ -4,9 +4,8 @@ var Celestial = {
   svg: null
 };
 
-//var svg;
 
-// show it all, with the given config, otherwise with default settings
+// Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
   var circle, par, svg = Celestial.svg;
   
@@ -212,7 +211,7 @@ Celestial.display = function(config) {
     redraw();
   });
   
-  //Celestial.svg = svg;
+  Celestial.svg = svg;
   
   // Helper functions
   

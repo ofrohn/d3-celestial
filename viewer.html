@@ -12,54 +12,54 @@
 <form id="params" name="params" method="get" action="#">
   <div class="col">
   <!-- projection, transform, size, center?-->
-  <label>Width<input type="number" maxlength="4" name="width" value="1024" /> px</label>&nbsp;&nbsp;
+  <label>Width<input type="number" maxlength="4" name="width" value="" /> px</label>&nbsp;&nbsp;
   <label>Projection <select name="projection" id="projection"></select></label>&nbsp;&nbsp;
   <label>Coordinates <select name="transform" id="transform"></select></label>
   </div>
   <div class="col">
   <!-- stars -->
-  <label><strong>Stars</strong> <input type="checkbox" name="stars-show" value="true" checked="checked" /></label>
-  <label>down to magnitude<input type="number" name="stars-limit" value="6" max="6" min="-1" step="0.1"></label>
-  <label>with spectral colors<input type="checkbox" name="stars-colors" value="true" checked="checked"> </label>
-  <label>or default color <input type="color" name="stars-color" value="#ffffff"> </label><br>
-  <label>Show names<input type="checkbox" name="stars-names" value="true" checked="checked"> </label> 
+  <label><strong>Stars</strong> <input type="checkbox" name="stars-show" value="true" /></label>
+  <label>down to magnitude<input type="number" name="stars-limit" value="" max="6" min="-1" step="0.1"></label>
+  <label>with spectral colors<input type="checkbox" name="stars-colors" value="true"> </label>
+  <label>or default color <input type="color" name="stars-color" value=""> </label><br>
+  <label>Show names<input type="checkbox" name="stars-names" value="true"> </label> 
   <label>proper names (if any)<input type="checkbox" name="stars-proper" value="true"> </label> 
-  <label>or designations<input type="checkbox" name="stars-desig" value="true" checked="checked"> </label>
-  <label>down to mag<input type="number" name="stars-namelimit" value="2" max="6" min="-1" step="0.1"></label>
+  <label>or designations<input type="checkbox" name="stars-desig" value="true"> </label>
+  <label>down to mag<input type="number" name="stars-namelimit" value="" max="6" min="-1" step="0.1"></label>
   </div>  
   <div class="col">
   <!-- dsos -->
-  <label><strong>DSOs</strong> <input type="checkbox" name="dsos-show" value="true" checked="checked"> </label>
-  <label>down to mag<input type="number" name="dsos-limit" value="6" max="6" min="0" step="0.1"></label>
-  <label>with names<input type="checkbox" name="dsos-names" value="true" checked="checked"> </label>
-  <label>or designations<input type="checkbox" name="dsos-desig" value="true" checked="checked"> </label>
-  <label>down to mag<input type="number" name="dsos-namelimit" value="6" max="6" min="0" step="0.1"> mag </label>
+  <label><strong>DSOs</strong> <input type="checkbox" name="dsos-show" value="true"> </label>
+  <label>down to mag<input type="number" name="dsos-limit" value="" max="6" min="0" step="0.1"></label>
+  <label>with names<input type="checkbox" name="dsos-names" value="true"> </label>
+  <label>or designations<input type="checkbox" name="dsos-desig" value="true"> </label>
+  <label>down to mag<input type="number" name="dsos-namelimit" value="" max="6" min="0" step="0.1"> mag </label>
   </div>  
   <div class="col">
   <!-- constellations -->
-  <label><strong>Constellations</strong> <input type="checkbox" name="constellations-show" checked> </label>
-  <label>with names<input type="checkbox" name="constellations-names" value="true" checked="checked"> </label>
-  <label>abbreviated<input type="checkbox" name="constellations-desig" value="true" checked="checked"> </label>
-  <label>with lines<input type="checkbox" name="constellations-lines" value="true" checked="checked"> </label>
-  <label>with boundaries<input type="checkbox" name="constellations-bounds" value="1"> </label>
+  <label><strong>Constellations</strong> <input type="checkbox" name="constellations-show"> </label>
+  <label>with names<input type="checkbox" name="constellations-names" value="true"> </label>
+  <label>abbreviated<input type="checkbox" name="constellations-desig" value="true"> </label>
+  <label>with lines<input type="checkbox" name="constellations-lines" value="true"> </label>
+  <label>with boundaries<input type="checkbox" name="constellations-bounds" value="true"> </label>
   </div>  
   <div class="col">
   <!-- graticules & planes -->
   <strong>Lines</strong>
-  <label>Graticule<input type="checkbox" name="lines-graticule" value="true" checked="checked"> </label>&nbsp;&nbsp;
+  <label>Graticule<input type="checkbox" name="lines-graticule" value="true"> </label>&nbsp;&nbsp;
   <label>Equator<input type="checkbox" name="lines-equatorial" value="true"> </label>
-  <label>Ecliptic<input type="checkbox" name="lines-ecliptic" value="true" checked="checked"> </label>
+  <label>Ecliptic<input type="checkbox" name="lines-ecliptic" value="true"> </label>
   <label>Galactic plane<input type="checkbox" name="lines-galactic" value="true"> </label>
   <label>Supergal. plane<input type="checkbox" name="lines-supergalactic" value="true"> </label>
   </div>  
   <div class="col">
   <strong>Other</strong>&nbsp;&nbsp;
-  <label>Milky Way<input type="checkbox" name="mw-show" value="true" checked="checked"> </label>&nbsp;&nbsp;
-  <label> Background color <input type="color" name="background" value="#000"> </label>&nbsp;&nbsp;
+  <label>Milky Way<input type="checkbox" name="mw-show" value="true"> </label>&nbsp;&nbsp;
+  <label> Background color <input type="color" name="background" value=""> </label>&nbsp;&nbsp;
   <label> Adaptable sizes <input type="checkbox" name="adaptable" value="true"> </label>
   </div>
   <input type="submit" value="Show">&nbsp;&nbsp;
-  <input type="reset" value="Reset">
+  <input type="button" id="defaults" value="Defaults">
 </form>
 </div>
 
@@ -85,32 +85,22 @@ fillForm(cfg);
 Celestial.display(cfg);
 
 //On submit parse form and redisplay
-document.params.onsubmit = function() {
+document.params.onsubmit = function(e) {
   cfg = parseForm(cfg);
   Celestial.display(cfg);
+
+  return false;
+}
+
+$("defaults").onclick = function(e) {
+  cfg = Celestial.settings().set({width:0, projection:"aitoff"});
+  fillForm(cfg);
+
   return false;
 }
 
 
-//var cfg = parseQuery();
-//var cfg = parseForm();
-
-//fillOptions();
-/*if (cfg) {
-  cfg = fillForm(cfg);
-  cfg = Celestial.settings().set(objectify(cfg));
-} else {
-  cfg = Celestial.settings().set({width:0, projection:"aitoff"});
-}*/
-//enableForm();      
-
-//if (typeof stardata !== 'undefined') cfg.stars.data = stardata;
-//if (typeof dsodata !== 'undefined') cfg.dsos.data = dsodata;
-
- 
-//Celestial.display(cfg);
-
-//Form
+//Form field from cfg options
 function fillForm(cfg) {
   var key, form = document.params;
       conf = formify(cfg);
@@ -129,24 +119,8 @@ function fillForm(cfg) {
   }
   
   enableForm();
-
-/*  for (i=0; i<e.length; i++) {
-    if (e[i].type == "checkbox") { 
-      if (cfg.hasOwnProperty(e[i].name)) {
-        e[i].checked = true;
-        cfg[e[i].name] = true;
-      } else { 
-        e[i].checked = false;
-        cfg[e[i].name] = false;
-      } 
-    }
-    else if (e[i].type == "select-one") { selectOption(e[i], cfg[e[i].name]); }
-    else if (e[i].type == "number") { cfg[e[i].name] = parseFloat(cfg[e[i].name]); e[i].value = cfg[e[i].name];  }
-    else if (cfg.hasOwnProperty(e[i].name)) { e[i].value = cfg[e[i].name]; }
-  }    
-  return cfg;
-  */
 }
+
 
 function enableForm() {
   var t, i, key, f = document.forms[0],
@@ -189,8 +163,6 @@ function selectOption(e, opt) {
 
 function fillOptions() {
   var lim, i, key, e = document.forms[0].elements;
-      
-  //$("params").action = document.location.href.replace(/\?.*/, "");
   
   fillSelect("projection", Celestial.projections());
   fillSelect("transform", Celestial.eulerAngles());
@@ -243,6 +215,8 @@ function fillSelect(id, fill) {
   
   if (!elem || !fill) return;
         
+  elem.options.length = 0;
+  
   for (key in fill) {
     t = document.createElement("option");
     t.value = key;
@@ -272,17 +246,6 @@ function parseForm(cfg) {
   return objectify(conf);  
 }
 
-
-function parseQuery() {
-  if (!location.search) return;
-  var i, t, res = {}, cfg = location.search.replace(/^\?/, "").split('&');
-
-  for (i=0; i<cfg.length; i++) {
-    t = cfg[i].split('=', 2).map( function(str) { return decodeURIComponent(str) } );
-    res[t[0]] = t.length > 1 ? t[1] : null;
-  }
-  return res;
-}
 
 function formify(cfg) {
   var t, key, sub, res = {};

@@ -12,7 +12,7 @@ var settings = {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use "color"
-    color: "#fff", // Default color for stars
+    color: "#ffffff", // Default color for stars
     names: true,   // Show star names (css-class starname)
     proper: false, // Show proper names (if none shows designation)
     desig: true,   // Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)

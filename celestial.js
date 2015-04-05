@@ -5,11 +5,11 @@ var Celestial = {
   svg: null
 };
 
-var svg;
+//var svg;
 
 // show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
-  var circle, par; // svg = Celestial.svg;
+  var circle, par, svg = Celestial.svg;
   
   var cfg = settings.set(config); 
   
@@ -54,11 +54,12 @@ Celestial.display = function(config) {
   var path = d3.geo.path().projection(projection);
   var outline = d3.geo.path().projection(projOl);
    
+  //parent div with id #map or body
+
   if (svg) svg.selectAll("*").remove();
   else svg = d3.select(par).append("svg");
-  //div with id #map or body
+
   svg.attr("width", width).attr("height", height);
-  //svg.selectAll("*").remove();
  
   if (cfg.interactive) svg.call(zoom);
   else svg.attr("style", "cursor: default!important");
@@ -212,7 +213,7 @@ Celestial.display = function(config) {
     redraw();
   });
   
-  //Celestial.svg = svg;
+  Celestial.svg = svg;
   
   // Helper functions
   
@@ -503,7 +504,7 @@ var settings = {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use "color"
-    color: "#fff", // Default color for stars
+    color: "#ffffff", // Default color for stars
     names: true,   // Show star names (css-class starname)
     proper: false, // Show proper names (if none shows designation)
     desig: true,   // Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
