@@ -31,8 +31,8 @@ Celestial.display = function(config) {
       scale = proj.scale * width/1024,
       base = 7, exp = -0.3, //Object size base & exponent
       adapt = 1,
-      center = [-eulerAngles[trans][0], -eulerAngles[trans][1]];
-      //center = trans == "galactic" ? [0,0,0] : [180, 0, 0]; // most skyviews look better centerd at 180º
+      center = [-eulerAngles[trans][0], -eulerAngles[trans][1]],
+      path = cfg.datapath;
   
   if (par != "body") $(cfg.container).style.height = px(height);
   
@@ -49,7 +49,7 @@ Celestial.display = function(config) {
   
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
-  var path = d3.geo.path().projection(projection);
+  var map = d3.geo.path().projection(projection);
   var outline = d3.geo.path().projection(projOl);
    
   //parent div with id #map or body
@@ -70,9 +70,9 @@ Celestial.display = function(config) {
 
   if (cfg.lines.graticule) {
     if (trans == "equatorial") {
-      svg.append("path").datum(graticule).attr("class", "gridline").attr("d", path);
+      svg.append("path").datum(graticule).attr("class", "gridline").attr("d", map);
     } else {
-      Celestial.graticule(svg, path, trans);
+      Celestial.graticule(svg, map, trans);
     }
   }
 
@@ -82,12 +82,12 @@ Celestial.display = function(config) {
       svg.append("path")
          .datum(d3.geo.circle().angle([90]).origin(poles[key]) )
          .attr("class", key)
-         .attr("d", path);
+         .attr("d", map);
     }
   }
   
   //Milky way outline
-  if (cfg.mw.show) { d3.json("data/mw.json", function(error, json) {
+  if (cfg.mw.show) { d3.json(path + "data/mw.json", function(error, json) {
     if (error) { 
       window.alert("Your Browser doesn't support local file loading or the file doesn't exist. See readme.md");
       return console.warn(error);  
@@ -96,12 +96,12 @@ Celestial.display = function(config) {
        .data(json.features)
        .enter().append("path")
        .attr("class", "mw")
-       .attr("d", path);
+       .attr("d", map);
   });}
 
   //Constellation nemes or designation
   if (cfg.constellations.show) { 
-    d3.json("data/constellations.json", function(error, json) {
+    d3.json(path + "data/constellations.json", function(error, json) {
       if (error) return console.warn(error);
       svg.selectAll(".constnames")
          .data(json.features)
@@ -114,32 +114,32 @@ Celestial.display = function(config) {
 
     //Constellation boundaries
     if (cfg.constellations.bounds) { 
-      d3.json("data/constellations.bounds.json", function(error, json) {
+      d3.json(path + "data/constellations.bounds.json", function(error, json) {
         if (error) return console.warn(error);
         svg.selectAll(".bounds")
            .data(json.features)
            .enter().append("path")
            .attr("class", "boundaryline")
-           .attr("d", path);
+           .attr("d", map);
       });
     }
 
     //Constellation lines
     if (cfg.constellations.lines) { 
-      d3.json("data/constellations.lines.json", function(error, json) {
+      d3.json(path + "data/constellations.lines.json", function(error, json) {
         if (error) return console.warn(error);
         svg.selectAll(".lines")
            .data(json.features)
            .enter().append("path")
            .attr("class", "constline")
-           .attr("d", path);
+           .attr("d", map);
       });
     }
   }
   
   //Stars
   if (cfg.stars.show) { 
-    d3.json(cfg.stars.data, function(error, json) {
+    d3.json(path + cfg.stars.data, function(error, json) {
       if (error) return console.warn(error);
       svg.selectAll(".stars")
          .data(json.features.filter( function(d) {
@@ -147,7 +147,7 @@ Celestial.display = function(config) {
          }))
          .enter().append("path")
          .attr("class", "star")
-         .attr("d", path.pointRadius( function(d) {
+         .attr("d", map.pointRadius( function(d) {
            return d.properties ? starSize(d.properties.mag) : 1;
          }))
          .style("fill", function(d) {
@@ -171,7 +171,7 @@ Celestial.display = function(config) {
 
   //Deep space objects
   if (cfg.dsos.show) { 
-    d3.json(cfg.dsos.data, function(error, json) {
+    d3.json(path + cfg.dsos.data, function(error, json) {
       if (error) return console.warn(error);
       svg.selectAll(".dsos")
          .data(json.features.filter( function(d) {
@@ -234,7 +234,7 @@ Celestial.display = function(config) {
     svg.selectAll(".outline").attr("d", outline);  
 
     svg.selectAll(".star")
-       .attr("d", path.pointRadius( function(d) { return d.properties ? starSize(d.properties.mag) : 1; } ))
+       .attr("d", map.pointRadius( function(d) { return d.properties ? starSize(d.properties.mag) : 1; } ))
        .style("fill-opacity", function(d) { return starOpacity(d.properties.mag); }); 
     
     svg.selectAll(".starname")   
@@ -253,15 +253,15 @@ Celestial.display = function(config) {
     svg.selectAll(".constname")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
        .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); });
-    svg.selectAll(".constline").attr("d", path);  
-    svg.selectAll(".boundaryline").attr("d", path);  
+    svg.selectAll(".constline").attr("d", map);  
+    svg.selectAll(".boundaryline").attr("d", map);  
 
-    svg.selectAll(".mw").attr("d", path);  
-    svg.selectAll(".ecliptic").attr("d", path);  
-    svg.selectAll(".equatorial").attr("d", path);  
-    svg.selectAll(".galactic").attr("d", path);  
-    svg.selectAll(".supergalactic").attr("d", path);  
-    svg.selectAll(".gridline").attr("d", path);  
+    svg.selectAll(".mw").attr("d", map);  
+    svg.selectAll(".ecliptic").attr("d", map);  
+    svg.selectAll(".equatorial").attr("d", map);  
+    svg.selectAll(".galactic").attr("d", map);  
+    svg.selectAll(".supergalactic").attr("d", map);  
+    svg.selectAll(".gridline").attr("d", map);  
   }
 
   function dsoSymbol(prop) {
