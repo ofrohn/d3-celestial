@@ -19,21 +19,21 @@
   <div class="col">
   <!-- stars -->
   <label><strong>Stars</strong> <input type="checkbox" name="stars-show" value="true" checked="checked" /></label>
-  <label>down to magnitude<input type="number" name="stars-limit" value="6" max="6" min="-1"></label>
+  <label>down to magnitude<input type="number" name="stars-limit" value="6" max="6" min="-1" step="0.1"></label>
   <label>with spectral colors<input type="checkbox" name="stars-colors" value="true" checked="checked"> </label>
   <label>or default color <input type="color" name="stars-color" value="#ffffff"> </label><br>
   <label>Show names<input type="checkbox" name="stars-names" value="true" checked="checked"> </label> 
   <label>proper names (if any)<input type="checkbox" name="stars-proper" value="true"> </label> 
   <label>or designations<input type="checkbox" name="stars-desig" value="true" checked="checked"> </label>
-  <label>down to mag<input type="number" name="stars-namelimit" value="2" max="6" min="-1"></label>
+  <label>down to mag<input type="number" name="stars-namelimit" value="2" max="6" min="-1" step="0.1"></label>
   </div>  
   <div class="col">
   <!-- dsos -->
   <label><strong>DSOs</strong> <input type="checkbox" name="dsos-show" value="true" checked="checked"> </label>
-  <label>down to mag<input type="number" name="dsos-limit" value="6" max="6" min="-1"></label>
+  <label>down to mag<input type="number" name="dsos-limit" value="6" max="6" min="0" step="0.1"></label>
   <label>with names<input type="checkbox" name="dsos-names" value="true" checked="checked"> </label>
   <label>or designations<input type="checkbox" name="dsos-desig" value="true" checked="checked"> </label>
-  <label>down to mag<input type="number" name="dsos-namelimit" value="6" max="6" min="-1"> mag </label>
+  <label>down to mag<input type="number" name="dsos-namelimit" value="6" max="6" min="0" step="0.1"> mag </label>
   </div>  
   <div class="col">
   <!-- constellations -->
@@ -63,7 +63,6 @@
 </form>
 </div>
 
-<p>Schrieb</p>
 
 <script type="text/javascript">
 /* D3-Celestial sky map
@@ -73,28 +72,65 @@
 //var stardata = "data/stars.8.5.json";
 //var dsodata = "data/dsos.14.json";
 
-var cfg = parseQuery();
-
-fillOptions();
-if (cfg) {
-  cfg = fillForm(cfg);
-  cfg = Celestial.settings().set(objectify(cfg));
-} else {
-  cfg = Celestial.settings().set({width:0, projection:"aitoff"});
-}
-enableForm();      0
+//Default settings
+var cfg = Celestial.settings().set({width:0, projection:"aitoff"});
 
 if (typeof stardata !== 'undefined') cfg.stars.data = stardata;
 if (typeof dsodata !== 'undefined') cfg.dsos.data = dsodata;
 
- 
+//Fill form & enable
+fillForm(cfg);
+
+//Show map
 Celestial.display(cfg);
+
+//On submit parse form and redisplay
+document.params.onsubmit = function() {
+  cfg = parseForm(cfg);
+  Celestial.display(cfg);
+  return false;
+}
+
+
+//var cfg = parseQuery();
+//var cfg = parseForm();
+
+//fillOptions();
+/*if (cfg) {
+  cfg = fillForm(cfg);
+  cfg = Celestial.settings().set(objectify(cfg));
+} else {
+  cfg = Celestial.settings().set({width:0, projection:"aitoff"});
+}*/
+//enableForm();      
+
+//if (typeof stardata !== 'undefined') cfg.stars.data = stardata;
+//if (typeof dsodata !== 'undefined') cfg.dsos.data = dsodata;
+
+ 
+//Celestial.display(cfg);
 
 //Form
 function fillForm(cfg) {
-  var i, e = document.forms[0].elements;
+  var key, form = document.params;
+      conf = formify(cfg);
 
-  for (i=0; i<e.length; i++) {
+  fillOptions();
+  
+  for (key in conf) {
+    if (!conf.hasOwnProperty(key) || !form.hasOwnProperty(key)) continue;
+    if (form[key].type == "checkbox") { 
+      form[key].checked = conf[key];
+    } else if (form[key].type == "select-one") { 
+      selectOption(form[key], conf[key]); 
+    } else {
+      form[key].value = conf[key];
+    }
+  }
+  
+  enableForm();
+
+/*  for (i=0; i<e.length; i++) {
     if (e[i].type == "checkbox") { 
       if (cfg.hasOwnProperty(e[i].name)) {
         e[i].checked = true;
@@ -109,6 +145,7 @@ function fillForm(cfg) {
     else if (cfg.hasOwnProperty(e[i].name)) { e[i].value = cfg[e[i].name]; }
   }    
   return cfg;
+  */
 }
 
 function enableForm() {
@@ -153,7 +190,7 @@ function selectOption(e, opt) {
 function fillOptions() {
   var lim, i, key, e = document.forms[0].elements;
       
-  $("params").action = document.location.href.replace(/\?.*/, "");
+  //$("params").action = document.location.href.replace(/\?.*/, "");
   
   fillSelect("projection", Celestial.projections());
   fillSelect("transform", Celestial.eulerAngles());
@@ -216,6 +253,26 @@ function fillSelect(id, fill) {
 
 }
 
+function parseForm(cfg) {
+  var key, form = document.params;
+      conf = formify(cfg);
+  
+  for (key in conf) {
+    if (!conf.hasOwnProperty(key) || !form.hasOwnProperty(key)) continue;
+    if (form[key].type == "checkbox") { 
+      conf[key] = form[key].checked;
+    //} else if (form[key].type == "select-one") { 
+    //  conf[key] = form[key]; 
+    } else if (form[key].type == "number") { 
+      conf[key] = parseFloat(form[key].value); 
+    } else {
+      conf[key] = form[key].value; 
+    }
+  }
+  return objectify(conf);  
+}
+
+
 function parseQuery() {
   if (!location.search) return;
   var i, t, res = {}, cfg = location.search.replace(/^\?/, "").split('&');
@@ -223,6 +280,23 @@ function parseQuery() {
   for (i=0; i<cfg.length; i++) {
     t = cfg[i].split('=', 2).map( function(str) { return decodeURIComponent(str) } );
     res[t[0]] = t.length > 1 ? t[1] : null;
+  }
+  return res;
+}
+
+function formify(cfg) {
+  var t, key, sub, res = {};
+  for (key in cfg) {
+    if (!cfg.hasOwnProperty(key)) continue;
+    if (cfg[key] !== null && typeof cfg[key] == 'object') {
+      t = key + "-";
+      for (sub in cfg[key]) {
+        if (!cfg[key].hasOwnProperty(sub)) continue;
+        res[t + sub] = cfg[key][sub];
+      }
+    } else if (typeof cfg[key] != 'function') {
+      res[key] = cfg[key]
+    }
   }
   return res;
 }

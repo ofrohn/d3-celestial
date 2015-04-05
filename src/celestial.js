@@ -1,9 +1,14 @@
 /* global settings, symbols, bvcolor, projections, poles, eulerAngles, halfπ */
-var Celestial = {};
+var Celestial = {
+  version: '0.3.2',
+  svg: null
+};
+
+//var svg;
 
 // show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
-  var circle, par;
+  var circle, par, svg = Celestial.svg;
   
   var cfg = settings.set(config); 
   
@@ -47,9 +52,13 @@ Celestial.display = function(config) {
   
   var path = d3.geo.path().projection(projection);
   var outline = d3.geo.path().projection(projOl);
-      
-  //div with id #map or body
-  var svg = d3.select(par).append("svg").attr("width", width).attr("height", height);
+   
+  //parent div with id #map or body
+
+  if (svg) svg.selectAll("*").remove();
+  else svg = d3.select(par).append("svg");
+
+  svg.attr("width", width).attr("height", height);
  
   if (cfg.interactive) svg.call(zoom);
   else svg.attr("style", "cursor: default!important");
@@ -203,6 +212,7 @@ Celestial.display = function(config) {
     redraw();
   });
   
+  //Celestial.svg = svg;
   
   // Helper functions
   
