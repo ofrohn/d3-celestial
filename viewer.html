@@ -12,9 +12,9 @@
 <form id="params" name="params" method="get" action="#">
   <div class="col">
   <!-- projection, transform, size, center?-->
-  <label>Width<input type="number" maxlength="4" name="width" value="" /> px</label>&nbsp;&nbsp;
-  <label>Projection <select name="projection" id="projection"></select></label>&nbsp;&nbsp;
-  <label>Coordinates <select name="transform" id="transform"></select></label>
+  <label title="Map width, 0 indicates full width">Width<input type="number" maxlength="4" name="width" value="" /> px</label>&nbsp;&nbsp;
+  <label title="Map projection, (hemi) indicates hemispherical projection">Projection <select name="projection" id="projection"></select></label>&nbsp;&nbsp;
+  <label title="Coordinate space in which the map is displayed">Coordinates <select name="transform" id="transform"></select></label>
   </div>
   <div class="col">
   <!-- stars -->
@@ -29,7 +29,7 @@
   </div>  
   <div class="col">
   <!-- dsos -->
-  <label><strong>DSOs</strong> <input type="checkbox" name="dsos-show" value="true"> </label>
+  <label title="Deep Space Objects"><strong>DSOs</strong> <input type="checkbox" name="dsos-show" value="true"> </label>
   <label>down to mag<input type="number" name="dsos-limit" value="" max="6" min="0" step="0.1"></label>
   <label>with names<input type="checkbox" name="dsos-names" value="true"> </label>
   <label>or designations<input type="checkbox" name="dsos-desig" value="true"> </label>
@@ -46,7 +46,7 @@
   <div class="col">
   <!-- graticules & planes -->
   <strong>Lines</strong>
-  <label>Graticule<input type="checkbox" name="lines-graticule" value="true"> </label>&nbsp;&nbsp;
+  <label title="X/Y grid lines">Graticule<input type="checkbox" name="lines-graticule" value="true"> </label>&nbsp;&nbsp;
   <label>Equator<input type="checkbox" name="lines-equatorial" value="true"> </label>
   <label>Ecliptic<input type="checkbox" name="lines-ecliptic" value="true"> </label>
   <label>Galactic plane<input type="checkbox" name="lines-galactic" value="true"> </label>
@@ -58,7 +58,7 @@
   <label> Background color <input type="color" name="background" value=""> </label>&nbsp;&nbsp;
   <label> Adaptable sizes <input type="checkbox" name="adaptable" value="true"> </label>
   </div>
-  <input type="submit" value="Show">&nbsp;&nbsp;
+  <input type="button" id="show" value="Show">&nbsp;&nbsp;
   <input type="button" id="defaults" value="Defaults">
 </form>
 </div>
@@ -69,8 +69,8 @@
    Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 */
 /*  Uncomment for deeper data files */
-//var stardata = "data/stars.8.5.json";
-//var dsodata = "data/dsos.14.json";
+//var stardata = "stars.8.json";
+//var dsodata = "dsos.14.json";
 
 //Default settings
 var cfg = Celestial.settings().set({width:0, projection:"aitoff"});
@@ -84,8 +84,8 @@ fillForm(cfg);
 //Show map
 Celestial.display(cfg);
 
-//On submit parse form and redisplay
-document.params.onsubmit = function(e) {
+//On click parse form and redisplay
+$("show").onclick = function(e) {
   cfg = parseForm(cfg);
   Celestial.display(cfg);
 
@@ -210,7 +210,7 @@ function getLimits() {
 }
 
 function fillSelect(id, fill) {
-  var t, key, elem = document.params[id],
+  var t, txt, key, elem = document.params[id],
       cfg = Celestial.settings();
   
   if (!elem || !fill) return;
@@ -220,7 +220,11 @@ function fillSelect(id, fill) {
   for (key in fill) {
     t = document.createElement("option");
     t.value = key;
-    t.innerHTML = key;
+    txt = key;
+    txt = txt.replace(/^([a-z])/, function(s, m) { return m.toUpperCase(); } );
+    txt = txt.replace(/(?!\b)([A-Z0-9])/g, " $1");
+    if (fill[key].hasOwnProperty("clip") && fill[key].clip == true) txt += " (hemi)";
+    t.innerHTML = txt;
     if (key == cfg[id]) t.selected = "selected";
     elem.appendChild(t);
   }
@@ -235,8 +239,6 @@ function parseForm(cfg) {
     if (!conf.hasOwnProperty(key) || !form.hasOwnProperty(key)) continue;
     if (form[key].type == "checkbox") { 
       conf[key] = form[key].checked;
-    //} else if (form[key].type == "select-one") { 
-    //  conf[key] = form[key]; 
     } else if (form[key].type == "number") { 
       conf[key] = parseFloat(form[key].value); 
     } else {

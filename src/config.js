@@ -8,17 +8,17 @@ var settings = {
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   container: "map",   // ID of parent element, e.g. div
-  datapath: "",           // Path to data files, empty = subfolder 'data'
+  datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use "color"
-    color: "#ffffff", // Default color for stars
+    color: "#fff", // Default color for stars
     names: true,   // Show star names (css-class starname)
     proper: false, // Show proper names (if none shows designation)
     desig: true,   // Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
-    data: 'data/stars.6.json' // Data source for stellar data
+    data: 'stars.6.json' // Data source for stellar data
   },
   dsos: {
     show: true,    // Show Deep Space Objects (css-class per type)
@@ -26,7 +26,7 @@ var settings = {
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
     namelimit: 4,  // Show only names for DSOs brighter than namelimit
-    data: 'data/dsos.bright.json'  // Data source for DSOs
+    data: 'dsos.bright.json'  // Data source for DSOs
   },
   constellations: {
     show: true,    // Show constellations 

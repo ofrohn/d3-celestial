@@ -12,12 +12,16 @@ Simply edit the default options and display the map with `Celestial.display(conf
 
 ```js
 var config = { 
-  width: 1024,     // Default width; height is determined by projection
+  width: 0,           // Default width, 0 = full parent element width; 
+                      // height is determined by projection
   projection: "aitoff",    //Map projection used: see below
   transform: "equatorial", // Coordinate transformation euler angles: euler.ecliptic, 
                            // euler.galactic, euler.supergalactic, [0,0,0]
-  background: "#000", //Background color or gradient  
-  adaptable: true,    //Magnitude limits are relaxed with higher zoom-levels
+  background: "#000", // Background color or gradient  
+  adaptable: true,    // Sizes are increased with higher zoom-levels
+  interactive: true,  // Enable zooming and rotation with mousewheel and dragging
+  container: "map",   // ID of parent element, e.g. div
+  datapath: "data/",       // Path/URL to data files, empty = subfolder 'data'
   stars: {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude
@@ -28,7 +32,7 @@ var config = {
     desig: true,   // Show designation (Bayer, Flamsteed, variable star, Gliese, Draper,
                    // Hipparcos, whichever applies first in the given order)
     namelimit: 2.5,  // Show only names/designations for stars brighter than namelimit
-    data: 'data/stars.6.json' // Data source for stellar data, number indicates limit mag
+    data: 'stars.6.json' // Data source for stellar data, number indicates limit magnitude
   },
   dsos: {
     show: true,    // Show Deep Space Objects (css-classes per object type)
@@ -36,7 +40,7 @@ var config = {
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
     namelimit: 6,  // Show only names for DSOs brighter than namelimit
-    data: 'data/dsos.bright.json'  // Data source for DSOs, opt. number indicates limit mag
+    data: 'dsos.bright.json'  // Data source for DSOs, pt. number indicates limit magnitude
   },
   constellations: {
     show: true,    // Show constellations 
@@ -69,7 +73,7 @@ most of these need the extension [d3.geo.projections](https://github.com/d3/d3-g
 __GeoJSON data files__
 
 * `stars.6.json` Stars down to 6th magnitude \[1\]
-* `stars.8.5.json` Stars down to 8.5th magnitude \[1\]
+* `stars.8.json` Stars down to 8.5th magnitude \[1\]
   
 * `dsos.6.json` Deep space objects down to 6th magnitude \[2\]
 * `dsos.14.json` Deep space objects down to 14th magnitude \[2\]
