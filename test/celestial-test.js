@@ -16,4 +16,6 @@ includes.forEach(function(file) {
 //console.log(Object.getPrototypeOf(Celestial));
 assert.ok( Object.getPrototypeOf(Celestial) === Object.prototype);
 
+//TODO: figure out how to test d3-apps with node
+
 exit(123);

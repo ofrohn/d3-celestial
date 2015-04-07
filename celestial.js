@@ -204,8 +204,9 @@ Celestial.display = function(config) {
     if (cfg.width) return;
     width = getWidth();
     height = width/ratio;
-    scale = proj.scale * width/1024;
+    var scale = proj.scale * width/1024;
     svg.attr("width", width).attr("height", height);
+    zoom.scale([scale]);
     projection.translate([width/2, height/2]).scale([scale]);
     projOl.translate([width/2, height/2]);
     if (parent) parent.style.height = px(height);
@@ -304,7 +305,7 @@ Celestial.display = function(config) {
   function starSize(mag) {
     if (mag === null) return 0.2; 
     var d = base * Math.exp(exp * (mag+2));
-    return d>0.2 ? d : 0.2;
+    return Math.max(d, 0.2);
   }
   
   function starColor(prop) {
