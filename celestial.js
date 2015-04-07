@@ -33,7 +33,8 @@ Celestial.display = function(config) {
       base = 7, exp = -0.3, //Object size base & exponent
       adapt = 1,
       center = [-eulerAngles[trans][0], -eulerAngles[trans][1]],
-      path = cfg.datapath;
+      path = cfg.datapath || "";
+      path = path.replace(/([^\/]$)/, "$1\/");
   
   if (par != "body") $(cfg.container).style.height = px(height);
   
@@ -54,7 +55,6 @@ Celestial.display = function(config) {
   var outline = d3.geo.path().projection(projOl);
    
   //parent div with id #map or body
-
   if (svg) svg.selectAll("*").remove();
   else svg = d3.select(par).append("svg");
 
