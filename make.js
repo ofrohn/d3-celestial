@@ -76,7 +76,7 @@ target.build = function() {
        entries: ['viewer.html', 'style.css', 'readme.md', 'LICENSE', 'celestial.min.js', 'data', 'lib/d3.min.js', 'lib/d3.geo.projection.min.js'] 
      })
      .pipe(zlib.createGzip())
-     .pipe(fs.createWriteStream('./celestial-data.tar.gz'))
+     .pipe(fs.createWriteStream('./celestial.tar.gz'))
 
   echo('Done');
 };
