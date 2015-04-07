@@ -2,9 +2,9 @@
 
 Interactive, adaptable celestial map done with the [D3.js](http://d3js.org/) visualization library. So, GeoJSON for sky stuff. Which surprisingly nobody has done yet, it seems.  
 
-Features display of stars and deep sky objects up to selectable magnitude limit up to 6, or choose different GeoJSON data source for higher magnitudes. Also shows constellations with names, lines and/or boundaries, the Milky Way band and graticules. Alternate coordinate spaces e.g. ecliptc, galactic or supergalactic are also possible. Full support for zoom and rotation with mouse or gestures.
+Features display of stars and deep sky objects (DSOs) with a selectable magnitude limit up to 6, or choose different GeoJSON data source for higher magnitudes. Also shows constellations with names, lines and/or boundaries, the Milky Way band and grid lines. Alternate coordinate spaces e.g. ecliptc, galactic or supergalactic are also possible. Full support for zoom and rotation with mouse or gestures.
 
-Since it uses D3, it needs a modern browser with svg support, so any recent flavor of Chrome/Firefox/Safari/Opera and IE 9 and above should suffice. Check out the demo at &lt;insert link here> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment.
+Since it uses D3 and therefore SVG, it needs a modern browser with svg support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at &lt;insert link here> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment.
 
 ### Usage
 
@@ -112,9 +112,7 @@ __Other files__
 * `style.css` stylesheet
 * `map.html` simple map viewer with editable configuration
 * `viewer.html` interactive map viewer/demo
-* `lib/d3.min.js`  necessary libraries
-* `lib/d3.geo.projection.min.js`
-* `lib/d3.geo.zoom.js`
+* `lib/d3.*.js`  necessary d3 libraries
 * `src/*.js` source code for all modules
 
 Thanks to Mike Bostock and Jason Davies for [D3.js](http://d3js.org/) and [d3.geo.projections](https://github.com/d3/d3-geo-projection).

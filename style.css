@@ -1,16 +1,19 @@
 /* Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE */
 svg { cursor: move!important; }
-#map { width:100%; margin:0; padding:0; display: inline-block; position:relative; }
+#map { width: 100%; margin: 0; padding: 0; display: inline-block; position: relative; overflow: hidden; }
 text { stroke: none; fill: #fff; font: 11px Helvetica, Arial, sans-serif; }
 .stroke { fill: none; stroke: #fff; stroke-width: 3px; }
 .fill { fill: none; }
 .gridline { fill: none; stroke: #ccc; stroke-width: .5px; stroke-opacity: .8; }
 .outline { }
+/* Constellations */
+.boundaryline { fill: none; stroke: #cc0; stroke-width: .5px; stroke-opacity: .8; stroke-dasharray: 6,3; }
 .constline { fill: none; stroke: #999; stroke-width: 1px; stroke-opacity: .8; }
 .constname { fill: #cc9; font: 12px Helvetica, Arial, sans-serif; text-anchor: middle }
+/* Names */
 .starname { stroke: none; fill: #ddb; font: 11px Georgia, Times, 'Times Roman', serif; }
 .dsoname { stroke: none; fill: #ccc; font: 11px Helvetica, Arial, serif; }
-.boundaryline { fill: none; stroke: #cc0; stroke-width: .5px; stroke-opacity: .8; stroke-dasharray: 6,3; }
+/* Diverse equatorial planes */
 .equatorial, .ecliptic, .galactic, .supergalactic { fill: none; stroke-width: 1.3px; stroke-opacity: .7; }
 .equatorial { stroke: #aaa; }
 .ecliptic { stroke: #6c6; }
@@ -18,27 +21,44 @@ text { stroke: none; fill: #fff; font: 11px Helvetica, Arial, sans-serif; }
 .supergalactic { stroke: #c6c; }
 .mars { stroke: #c00; }
 .mw { fill: #fff; fill-opacity: 0.12; }
-/* DSO-blanks to override standard styles, always with !important */
-.gg  { }  /* Galaxy cluster */
-.g   { }  /* Generic galaxy */
-.s   { }  /* Spiral galaxy */
-.s0  { }  /* Lenticular galaxy */
-.sd  { }  /* Dwarf (spiral) galaxy */
-.e   { }  /* Elliptical galaxy */
-.i   { }  /* Irregular galaxy */
-.oc  { }  /* Open cluster */
-.gc  { }  /* Globular cluster */
-.en  { }  /* Emission nebula */
-.bn  { }  /* Generic bright nebula */
-.sfr { }  /* Star forming region */
-.rn  { }  /* Reflection nebula */
-.pn  { }  /* Planetary nebula */
-.snr { }  /* Supernova remnant */
-.dn  { }  /* Dark nebula */
-.pos { }  /* Generic marker */
+/* DSO standard styles */
+.gg { stroke: #f00; fill: #f00 }  /* Galaxy cluster */
+text.gg { stroke: none; fill: #f00 }
+.g { stroke: #f00; fill: #f00 }  /* Generic galaxy */
+text.g { stroke: none; fill: #f00 }
+.s { stroke: #f00; fill: #f00 }  /* Spiral galaxy */
+text.s { stroke: none; fill: #f00 }
+.s0 { stroke: #f00; fill: #f00 }  /* Lenticular galaxy */
+text.s0 { stroke: none; fill: #f00 }
+.sd { stroke: #f00; fill: #f00 }  /* Dwarf (spiral) galaxy */
+text.sd { stroke: none; fill: #f00 }
+.e { stroke: #f00; fill: #f00 }  /* Elliptical galaxy */
+text.e { stroke: none; fill: #f00 }
+.i { stroke: #f00; fill: #f00 }  /* Irregular galaxy */
+text.i { stroke: none; fill: #f00 }
+.oc { stroke: #fc0; fill: none }  /* Open cluster */
+text.oc { stroke: none; fill: #fc0 }
+.gc { stroke: #f90; fill: #f90 }  /* Globular cluster */
+text.gc { stroke: none; fill: #f90 }
+.en { stroke: #f0c; fill: #f0c }  /* Emission nebula */
+text.en { stroke: none; fill: #f0c }
+.bn { stroke: #f0c; fill: none }  /* Generic bright nebula */
+text.bn { stroke: none; fill: #c0f }
+.sfr { stroke: #c0f; fill: none }  /* Star forming region */
+text.sfr { stroke: none; fill: #c0f }
+.rn { stroke: #00f; fill: #00f }  /* Reflection nebula */
+text.rn { stroke: none; fill: #00f }
+.pn { stroke: #0cc; fill: #0cc }  /* Planetary nebula */
+text.pn { stroke: none; fill: #0cc }
+.snr { stroke: #f0c; fill: #f0c }  /* Supernova remnant */
+text.snr { stroke: none; fill: #f0c }
+.dn { stroke: #999; fill: none }  /* Dark nebula */
+text.dn { stroke: none; fill: #999 }
+.pos { stroke: #ccc; fill: none }  /* Generic marker */
+text.pos { stroke: none; fill: #ccc }
 
 /* Form */
-#param-wrap { display: inline-block; position:relative; }
+#param-wrap { display: inline-block; position: relative; }
 input { vertical-align: -1px; }
 input[type='number'] { width:34px; text-align:right; margin-left:4px; padding-right:0 }
 input[type='checkbox'] { vertical-align: -2px; }

@@ -16,47 +16,49 @@
    or roll your own with the format template in templ.json
 */
 var config = { 
-  width: 1024,       //Default width
-  projection: "aitoff",  //Map projections supported: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
-  transform: "equatorial",   //Coordinate transformation euler angles: equatorial, ecliptic, galactic, supergalactic
-  background: "#000", //Background color or gradient  
-  adaptable: true,    //Magnitude limits are relaxed with higher zoom
+  width: 0,     // Default width, 0 = full parent width; height is determined by projection
+  projection: "aitoff",  // Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
+  transform: "equatorial", // Coordinate transformation euler angles; equatorial, ecliptic, galactic, supergalactic
+  background: "#000", // Background color or gradient  
+  adaptable: true,    // Sizes are increased with higher zoom-levels
+  interactive: true,  // Enable zooming and rotation with mousewheel and dragging
+  container: "map",   // ID of parent element, e.g. div
+  datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
-    show: true,    //Show stars
-    limit: 6,      //up to maximum stellar magnitude
-    colors: true,  //Show stars spectral colors, if not use "color"
-    color: "#fff", //Default color for stars
-    names: true,   //Show star names (css-class starname)
-    proper: false, //Show proper names (if none shows designation)
-    desig: true,   //Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
-    namelimit: 2,   //Maximum magnitude with name
-    data: 'stars.6.json' // Data source for stellar data, files named data/stars.*.json
+    show: true,    // Show stars
+    limit: 6,      // Show only stars brighter than limit magnitude
+    colors: true,  // Show stars in spectral colors, if not use "color"
+    color: "#fff", // Default color for stars
+    names: true,   // Show star names (css-class starname)
+    proper: false, // Show proper names (if none shows designation)
+    desig: true,   // Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
+    namelimit: 2.5,  // Show only names for stars brighter than namelimit
+    data: 'stars.6.json' // Data source for stellar data
   },
   dsos: {
-    show: true,    //Show Deep Space Objects
-    limit: 6,      //up to maximum magnitude
-    names: true,   //Show DSO names
-    desig: true,   //Show short DSO names
-    namelimit: 4   //Maximum magnitude with name
-    data: 'dsos.bright.json'  // Data source for DSOs, files named data/dsos.*.json
+    show: true,    // Show Deep Space Objects (css-class per type)
+    limit: 6,      // Show only DSOs brighter than limit magnitude
+    names: true,   // Show DSO names
+    desig: true,   // Show short DSO names
+    namelimit: 4,  // Show only names for DSOs brighter than namelimit
+    data: 'dsos.bright.json'  // Data source for DSOs
   },
   constellations: {
-    show: true,    //Show constellations 
-    names: true,   //Show constellation names (css-class constname)
-    desig: true,   //Show short constellation names (3 letter designations)
-    lines: true,   //Show constellation lines (css-class constline)
-    bounds: false  //Show constellation boundaries (css-class boundaryline)
+    show: true,    // Show constellations 
+    names: true,   // Show constellation names (css-class: constname)
+    desig: true,   // Show short constellation names (3 letter designations)
+    lines: true,   // Show constellation lines (css-class: constline)
+    bounds: false  // Show constellation boundaries (css-class: boundaryline)
   },
   mw: {
-    show: true,    //Show Milky Way outlines
+    show: true,    // Show Milky Way as filled polygons (css-class: mw)
   },
   lines: {
-    graticule: true,  //Show graticule lines
-    ecliptic: true,   //Show ecliptic plane
-    galactic: false,  //Show galactic plane
-    equatorial: true,  //Show equatorial plane
-    supergalactic: false  //Show supergalactic plane
-  }
+    graticule: true,    // Show graticule lines (css-class: gridline)
+    equatorial: true,   // Show equatorial plane (css-class: equatorial)
+    ecliptic: true,     // Show ecliptic plane (css-class: ecliptic)
+    galactic: false,    // Show galactic plane (css-class: galactic)
+    supergalactic: false  // Show supergalactic plane (css-class: supergalactic)
 };
   
 Celestial.display(config);

@@ -182,7 +182,7 @@ Celestial.display = function(config) {
          .attr("class", function(d) { return "dso " + d.properties.type; } )
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .attr("d", function(d) { return dsoSymbol(d.properties); })
-         .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates, d.properties); });
+         .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates); });
     
       if (cfg.dsos.names) { 
         svg.selectAll(".dsonames")
@@ -195,7 +195,7 @@ Celestial.display = function(config) {
            .attr("transform", function(d) { return point(d.geometry.coordinates); })
            .text( function(d) { return dsoName(d.properties); } )
            .attr({dy: "-.5em", dx: ".35em"})
-           .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates, d.properties, true); });
+           .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates); });
       }
     });
   }
@@ -243,10 +243,10 @@ Celestial.display = function(config) {
     svg.selectAll(".dso")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
        .attr("d", function(d) { return dsoSymbol(d.properties); })
-       .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates, d.properties); });
+       .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates); });
     svg.selectAll(".dsoname")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates, d.properties, true); });
+       .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates); });
 
     svg.selectAll(".constname")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
@@ -274,30 +274,19 @@ Celestial.display = function(config) {
 
   function dsoShape(type) {
     if (!type || !symbols.hasOwnProperty(type)) return "circle"; 
-    else return symbols[type].shape; 
+    else return symbols[type]; 
   }
 
-
-  function dsoColor(prop, text) {
-    if (!prop.type || !symbols.hasOwnProperty(prop.type) ) return ''; 
-    if (text) {
-      return 'fill:' + symbols[prop.type].stroke; 
-    } else {
-      return 'stroke:' + symbols[prop.type].stroke + '; fill:' + symbols[prop.type].fill; 
-    }
-  }
-
-  function dsoOpacity(coords, prop, text) {
-    var fld = text ? "namelimit" : "limit", opa = 0;
-    if (clip(coords) == 1) opa = 1;
-
-    return dsoColor(prop, text) + ';stroke-opacity:' + opa + ';fill-opacity:' + opa; 
-  }
-  
   function dsoSize(mag, dim) {
     if (!mag || mag == 999) return Math.pow(parseInt(dim)*base/7, 0.5); 
     return Math.pow(2*base-mag, 1.4);
   }
+
+  function dsoOpacity(coords) {
+    var opa = clip(coords);
+    return 'stroke-opacity:' + opa + ';fill-opacity:' + opa; 
+  }
+  
 
   function dsoName(prop) {
     if (prop.name === "") return; 
@@ -557,25 +546,25 @@ var settings = {
 
 Celestial.settings = function() { return settings; };
 
-//DSO symbol definitions
+//DSO symbol shapes
 var symbols = {
-  gg: {shape:"circle", stroke:"#f00", fill:"#f00"},   // Galaxy cluster red circle
-  g:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Generic galaxy red ellipse
-  s:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Spiral galaxy red ellipse
-  s0: {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Lenticular galaxy red ellipse
-  sd: {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Dwarf galaxy red ellipse
-  e:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Elliptical galaxy red ellipse
-  i:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Irregular galaxy red ellipse
-  oc: {shape:"circle", stroke:"#fc0", fill:"none"},   // Open cluster orange open circle
-  gc: {shape:"circle", stroke:"#f90", fill:"#f90"},   // Globular cluster dark orange circle
-  en: {shape:"square", stroke:"#f0c", fill:"#f0c"},   // Emission nebula pink square
-  bn: {shape:"square", stroke:"#f0c", fill:"none"},   // Generic bright nebula pink open square
-  sfr: {shape:"square", stroke:"#c0f", fill:"none"},  // Star forming region purple open square
-  rn: {shape:"square", stroke:"#00f", fill:"#00f"},   // Reflection nebula blue square
-  pn: {shape:"diamond", stroke:"#0cc", fill:"#0cc"},  // Planetary nebula cyan diamond
-  snr: {shape:"diamond", stroke:"#f0c", fill:"#f0c"}, // Supernova remnant pink diamond
-  dn: {shape:"square", stroke:"#999", fill:"none"},   // Dark nebula grey open square
-  pos: {shape:"marker", stroke:"#ccc", fill:"none"}   // Generic marker light grey open cross
+  gg: "circle",   // Galaxy cluster
+  g:  "ellipse",  // Generic galaxy
+  s:  "ellipse",  // Spiral galaxy
+  s0: "ellipse",  // Lenticular galaxy
+  sd: "ellipse",  // Dwarf galaxy
+  e:  "ellipse",  // Elliptical galaxy
+  i:  "ellipse",  // Irregular galaxy
+  oc: "circle",   // Open cluster
+  gc: "circle",   // Globular cluster
+  en: "square",   // Emission nebula
+  bn: "square",   // Generic bright nebula
+  sfr: "square",  // Star forming region
+  rn: "square",   // Reflection nebula
+  pn: "diamond",  // Planetary nebula 
+  snr: "diamond", // Supernova remnant
+  dn: "square",   // Dark nebula grey
+  pos: "marker"   // Generic marker
 };
 
 //b-v color index to rgb color value scale

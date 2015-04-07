@@ -74,25 +74,25 @@ var settings = {
 
 Celestial.settings = function() { return settings; };
 
-//DSO symbol definitions
+//DSO symbol shapes
 var symbols = {
-  gg: {shape:"circle", stroke:"#f00", fill:"#f00"},   // Galaxy cluster red circle
-  g:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Generic galaxy red ellipse
-  s:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Spiral galaxy red ellipse
-  s0: {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Lenticular galaxy red ellipse
-  sd: {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Dwarf galaxy red ellipse
-  e:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Elliptical galaxy red ellipse
-  i:  {shape:"ellipse", stroke:"#f00", fill:"#f00"},  // Irregular galaxy red ellipse
-  oc: {shape:"circle", stroke:"#fc0", fill:"none"},   // Open cluster orange open circle
-  gc: {shape:"circle", stroke:"#f90", fill:"#f90"},   // Globular cluster dark orange circle
-  en: {shape:"square", stroke:"#f0c", fill:"#f0c"},   // Emission nebula pink square
-  bn: {shape:"square", stroke:"#f0c", fill:"none"},   // Generic bright nebula pink open square
-  sfr: {shape:"square", stroke:"#c0f", fill:"none"},  // Star forming region purple open square
-  rn: {shape:"square", stroke:"#00f", fill:"#00f"},   // Reflection nebula blue square
-  pn: {shape:"diamond", stroke:"#0cc", fill:"#0cc"},  // Planetary nebula cyan diamond
-  snr: {shape:"diamond", stroke:"#f0c", fill:"#f0c"}, // Supernova remnant pink diamond
-  dn: {shape:"square", stroke:"#999", fill:"none"},   // Dark nebula grey open square
-  pos: {shape:"marker", stroke:"#ccc", fill:"none"}   // Generic marker light grey open cross
+  gg: "circle",   // Galaxy cluster
+  g:  "ellipse",  // Generic galaxy
+  s:  "ellipse",  // Spiral galaxy
+  s0: "ellipse",  // Lenticular galaxy
+  sd: "ellipse",  // Dwarf galaxy
+  e:  "ellipse",  // Elliptical galaxy
+  i:  "ellipse",  // Irregular galaxy
+  oc: "circle",   // Open cluster
+  gc: "circle",   // Globular cluster
+  en: "square",   // Emission nebula
+  bn: "square",   // Generic bright nebula
+  sfr: "square",  // Star forming region
+  rn: "square",   // Reflection nebula
+  pn: "diamond",  // Planetary nebula 
+  snr: "diamond", // Supernova remnant
+  dn: "square",   // Dark nebula grey
+  pos: "marker"   // Generic marker
 };
 
 //b-v color index to rgb color value scale
