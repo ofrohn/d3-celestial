@@ -207,6 +207,7 @@ Celestial.display = function(config) {
     svg.attr("width", width).attr("height", height);
     projection.translate([width/2, height/2]).scale([scale]);
     projOl.translate([width/2, height/2]);
+    if (parent) parent.style.height = px(height);
     redraw();
   });
   

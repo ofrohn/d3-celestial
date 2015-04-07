@@ -63,5 +63,4 @@ input { vertical-align: -1px; }
 input[type='number'] { width:34px; text-align:right; margin-left:4px; padding-right:0 }
 input[type='checkbox'] { vertical-align: -2px; }
 input[name='width'], input[type='color'] { width:48px; }
-div.fullwindow {position: absolute; top: 0; left: 0; width: 100%}
 .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }
