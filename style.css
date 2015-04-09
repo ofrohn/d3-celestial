@@ -1,10 +1,6 @@
 /* Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE */
 svg { cursor: move!important; }
-<<<<<<< HEAD
 #map { width: 100%; height:auto; margin: 0; padding: 0; display: inline-block; position: relative;  }
-=======
-#map { width: 100%; height:auto; margin: 0; padding: 0; display: inline-block; position: relative; overflow: hidden; }
->>>>>>> 953200ade7b9258dceaf3f5379b3932cd3f050d0
 text { stroke: none; fill: #fff; font: 11px Helvetica, Arial, sans-serif; }
 .stroke { fill: none; stroke: #fff; stroke-width: 3px; }
 .fill { fill: none; }
