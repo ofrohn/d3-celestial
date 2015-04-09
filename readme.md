@@ -8,7 +8,7 @@ Since it uses D3 and therefore SVG, it needs a modern browser with svg support, 
 
 ### Usage
 
-Simply edit the default options and display the map with `Celestial.display(config)`.
+Include the necessary scripts d3.min.js, d3.geo.projection.min.js and celestial.js from the `lib` subfolder or the first two from the official d3.js server `http://d3js.org/`, and then simply edit the default options and display the map with `Celestial.display(config)`.
 
 ```js
 var config = { 
