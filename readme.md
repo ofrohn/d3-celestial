@@ -32,7 +32,8 @@ var config = {
     desig: true,   // Show designation (Bayer, Flamsteed, variable star, Gliese, Draper,
                    // Hipparcos, whichever applies first in the given order)
     namelimit: 2.5,  // Show only names/designations for stars brighter than namelimit
-    data: 'stars.6.json' // Data source for stellar data, number indicates limit magnitude
+    data: 'stars.6.json' // Data source for stellar data, 
+                         // number indicates limit magnitude
   },
   dsos: {
     show: true,    // Show Deep Space Objects (css-classes per object type)
@@ -40,7 +41,8 @@ var config = {
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
     namelimit: 6,  // Show only names for DSOs brighter than namelimit
-    data: 'dsos.bright.json'  // Data source for DSOs, pt. number indicates limit magnitude
+    data: 'dsos.bright.json'  // Data source for DSOs, 
+                              // opt. number indicates limit magnitude
   },
   constellations: {
     show: true,    // Show constellations 
