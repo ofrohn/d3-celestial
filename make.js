@@ -1,12 +1,15 @@
 var shell = require('shelljs/make'),
     ug = require('uglify-js'),
     fs = require('fs'),
+    vm = require('vm'),
     tar = require('tar-fs'),
     zlib = require('zlib'),
     copy = "// Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE\n",
     begin = "!(function() {",
-    end = "this.Celestial = Celestial;\n})();";
- 
+    end = "this.Celestial = Celestial;\n})();",
+    filename = './celestial';
+
+    
 target.all = function() {
   target.test()
   target.build()
@@ -42,6 +45,10 @@ target.test = function() {
 
 target.build = function() {
 
+  vm.runInThisContext(fs.readFileSync('./src/celestial.js', 'utf-8'), './src/celestial.js');
+  echo('V' + Celestial.version);
+  filename += Celestial.version;
+  
   var file = cat([
     './src/celestial.js', 
     './src/projection.js', 
@@ -51,13 +58,13 @@ target.build = function() {
     './lib/d3.geo.zoom.js'
   ]);
   file = copy + begin + file.replace(/\/\* global.*/g, '') + end;
-  file.to('./celestial.js');
+  file.to(filename + '.js');
 
   echo('Minifying');
 
-  var out = ug.minify('./celestial.js');
-  fs.writeFileSync('./celestial.min.js', copy + out.code);
-  /*var read = ug.parse(fs.readFileSync('./celestial.js', "utf8"));
+  var out = ug.minify(filename + '.js');
+  fs.writeFileSync(filename + '.min.js', copy + out.code);
+  /*var read = ug.parse(fs.readFileSync(filename + '.js', "utf8"));
   read.figure_out_scope();
 
   var comp = read.transform( UglifyJS.Compressor(); );
@@ -66,7 +73,7 @@ target.build = function() {
   comp.mangle_names();
 
   var out = comp.print_to_string();
-  fs.writeFileSync('./celestial.min.js', out);
+  fs.writeFileSync(filename + '.min.js', out);
   */
 
   echo('Writing data');
@@ -76,7 +83,7 @@ target.build = function() {
        entries: ['viewer.html', 'style.css', 'readme.md', 'LICENSE', 'celestial.min.js', 'data', 'lib/d3.min.js', 'lib/d3.geo.projection.min.js'] 
      })
      .pipe(zlib.createGzip())
-     .pipe(fs.createWriteStream('./celestial.tar.gz'))
+     .pipe(fs.createWriteStream(filename + '.tar.gz'))
 
   echo('Done');
 };

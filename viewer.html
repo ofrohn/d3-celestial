@@ -4,7 +4,7 @@
   <title>D3 Starmap</title>
   <script type="text/javascript" src="lib/d3.min.js"></script>
   <script type="text/javascript" src="lib/d3.geo.projection.min.js"></script>
-  <script type="text/javascript" src="celestial.min.js"></script>
+  <script type="text/javascript" src="celestial0.4.2.js"></script>
   <link rel="stylesheet" href="style.css">
 </head><body>
 <div style="overflow:hidden;"><div id="map"></div></div>
@@ -12,9 +12,10 @@
 <form id="params" name="params" method="get" action="#">
   <div class="col">
   <!-- projection, transform, size, center?-->
-  <label title="Map width, 0 indicates full width">Width<input type="number" maxlength="4" name="width" value="" /> px</label>&nbsp;&nbsp;
-  <label title="Map projection, (hemi) indicates hemispherical projection">Projection <select name="projection" id="projection"></select></label>&nbsp;&nbsp;
-  <label title="Coordinate space in which the map is displayed">Coordinates <select name="transform" id="transform"></select></label>
+  <label title="Map width, 0 indicates full width">Width<input type="number" maxlength="4" name="width" value="" /> px</label>&nbsp;
+  <label title="Map projection, (hemi) indicates hemispherical projection">Projection <select name="projection" id="projection"></select></label>&nbsp;
+  <label title="Coordinate space in which the map is displayed">Coordinates <select name="transform" id="transform"></select></label><br>
+  <label title="Center coordinates in selected coordinate space">Center <input type="number" name="centerx" id="centerx" value="" max="24" min="0"> <span id="cxunit">h</span><input type="number" name="centery" id="centery" value="" max="90" min="-90"> &deg;</select></label>
   </div>
   <div class="col">
   <!-- stars -->
@@ -102,10 +103,10 @@ $("defaults").onclick = function(e) {
 
 //Form field from cfg options
 function fillForm(cfg) {
-  var key, form = document.params;
+  var key, form = document.params,
       conf = formify(cfg);
 
-  fillOptions();
+  fillOptions(cfg);
   
   for (key in conf) {
     if (!conf.hasOwnProperty(key) || !form.hasOwnProperty(key)) continue;
@@ -139,20 +140,29 @@ function enableForm() {
     "constellations-names": "constellations-show",
     "constellations-desig": "constellations-show,constellations-names",
     "constellations-lines": "constellations-show",
-    "constellations-bounds": "constellations-show"
+    "constellations-bounds": "constellations-show",
+    "centerx": "transform=equatorial",
+    "centery": "transform=equatorial"
   };
 
   for (key in deps) {
     if (!deps.hasOwnProperty(key)) continue;
-    t = deps[key].split(",");
-    f[key].disabled = t.some( function(d) { return !f[d].checked; } );
+    if (deps[key].search(/\=/) !== -1) {
+      t = deps[key].split("=");    
+      f[key].disabled = (f[t[0]].value !== t[1]);
+    } else {
+      t = deps[key].split(",");
+      f[key].disabled = t.some( function(d) { return !f[d].checked; } );
+    }
     f[key].parentNode.style.color = f[key].disabled ? "#999" : "#000";
   }
+  
 }
 
 
 function selectOption(e, opt) {
   var i;
+  //if (!opt) return e.options[e.selectedIndex].value
   for (i=0; i<e.options.length; i++) {
     if (e.options[i].value == opt) {
       e.selectedIndex = i;
@@ -161,7 +171,7 @@ function selectOption(e, opt) {
   }
 }
 
-function fillOptions() {
+function fillOptions(cfg) {
   var lim, i, key, e = document.forms[0].elements;
   
   fillSelect("projection", Celestial.projections());
@@ -178,6 +188,16 @@ function fillOptions() {
     document.params["dsos-limit"].max = lim.d;
     document.params["dsos-namelimit"].max = lim.d;
   };
+  
+  if (cfg.transform === 'equatorial') {
+    document.params["centerx"].min = "0";
+    document.params["centerx"].max = "24";
+    $('cxunit').innerHTML = "h";
+  } else {
+    document.params["centerx"].min = "-180";
+    document.params["centerx"].max = "180";
+    //$('cxunit').innerHTML = "\u00b0";
+  }
   
   for (i=0; i<e.length; i++) {
     e[i].onchange = enableForm;
@@ -259,6 +279,15 @@ function formify(cfg) {
         if (!cfg[key].hasOwnProperty(sub)) continue;
         res[t + sub] = cfg[key][sub];
       }
+    } else if (key === 'center') {
+      if (cfg.center === null || cfg.center.length < 2) {
+        res.centerx = null;
+        res.centery = null;
+      } else {      
+        res.centerx = cfg.center[0];
+        res.centery = cfg.center[1];
+        if (res.transform === 'equatorial') res.centerx = res.centerx < 0 ? res.centerx / 15 + 24 : res.centerx / 15;
+      }
     } else if (typeof cfg[key] != 'function') {
       res[key] = cfg[key]
     }
@@ -278,6 +307,11 @@ function objectify(cfg) {
       if (!res[prop]) { res[prop] = {}; }
       res[prop][t[1]] = cfg[key]; 
     }
+  }
+  if (!res.hasOwnProperty('centerx') || isNaN(res.centerx) || !res.hasOwnProperty('centery') || isNaN(res.centery)) res.center = null;
+  else {
+    if (res.transform === 'equatorial') res.centerx = res.centerx >= 12 ? res.centerx * 15 : res.centerx * 15 - 360;
+    res.center = [res.centerx, res.centery];
   }
   return res;
 }

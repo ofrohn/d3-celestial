@@ -4,6 +4,7 @@ var settings = {
   width: 0,     // Default width; height is determined by projection
   projection: "aitoff",  // Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
   transform: "equatorial", // Coordinate transformation euler angles; equatorial, ecliptic, galactic, supergalactic
+  center: null,          // Initial center coordinates in the selected transformation; [degrees, degrees]; null = default center
   background: "#000000", // Background color or gradient  
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
@@ -51,10 +52,10 @@ var settings = {
     if (!cfg) return this; 
     for (prop in this) {
       if (!this.hasOwnProperty(prop)) continue; 
-      if (typeof(this[prop]) == 'function') continue; 
+      if (typeof(this[prop]) === 'function') continue; 
       if (!cfg.hasOwnProperty(prop) || cfg[prop] === null) { 
         res[prop] = this[prop]; 
-      } else if (this[prop].constructor != Object ) {
+      } else if (this[prop] === null || this[prop].constructor != Object ) {
         res[prop] = cfg[prop];
       } else {
         res[prop] = {};

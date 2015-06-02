@@ -80,10 +80,10 @@ function transform(c, euler) {
 var euler = {
   "ecliptic": [-90.0, 23.4393, 90.0],
   "inverse ecliptic": [90.0, 23.4393, -90.0],
-  "galactic": [192.8595, 62.8717, 122.9319], 
-  "inverse galactic": [238.9319, 62.8717, 192.8595],
+  "galactic": [-167.1405, 62.8717, 122.9319], 
+  "inverse galactic": [122.9319, 62.8717, -167.1405],
   "supergalactic": [283.7542, 74.2911, 26.4504],
-  "inverse supergalactic": [334.4504, 74.2911, 283.7542],
+  "inverse supergalactic": [26.4504, 74.2911, 283.7542],
   "init": function() {
     for (var key in this) {
       if (this[key].constructor == Array) { 

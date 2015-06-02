@@ -1,6 +1,6 @@
 /* global settings, symbols, bvcolor, projections, poles, eulerAngles, halfπ */
 var Celestial = {
-  version: '0.3.2',
+  version: '0.4.2',
   svg: null
 };
 
@@ -31,13 +31,15 @@ Celestial.display = function(config) {
       scale = proj.scale * width/1024,
       base = 7, exp = -0.3, //Object size base & exponent
       adapt = 1,
-      center = [-eulerAngles[trans][0], -eulerAngles[trans][1]],
+      rotation = getAngles(cfg.center),
+      center = [-rotation[0], -rotation[1]],
       path = cfg.datapath || "";
       path = path.replace(/([^\/]$)/, "$1\/");
   
+      
   if (par != "body") $(cfg.container).style.height = px(height);
   
-  var projection = Celestial.projection(cfg.projection).rotate(eulerAngles[trans]).translate([width/2, height/2]).scale([scale]);
+  var projection = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale([scale]);
   var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([scale]); //projected non moving outline
 
   
@@ -317,6 +319,16 @@ Celestial.display = function(config) {
   function getWidth() {
     if (cfg.width) return cfg.width;
     return parent ? parent.clientWidth - 16 : window.innerWidth - 24;
+  }
+  
+  function getAngles(coords) {
+    var rot = eulerAngles[trans];    
+    if (!coords || trans !== 'equatorial') {
+      if (trans === 'equatorial' || trans === 'ecliptic') rot[0] = 180;
+      return rot;
+    }
+    //ctr = transformDeg(coords, euler["inverse " + trans]);
+    return [rot[0] - coords[0], rot[1] - coords[1], rot[2]];
   }
 };
 
