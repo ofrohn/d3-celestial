@@ -8,20 +8,22 @@ Since it uses D3 and therefore SVG, it needs a modern browser with svg support, 
 
 ### Usage
 
-Include the necessary scripts d3.min.js, d3.geo.projection.min.js and celestial.js from the `lib` subfolder or the first two from the official d3.js server `http://d3js.org/`, and then simply edit the default options and display the map with `Celestial.display(config)`.
+Include the necessary scripts d3.min.js, d3.geo.projection.min.js and celestial.js from the `lib` subfolder or the first two alternatively from the official d3.js server `http://d3js.org/`, and then simply edit the default options and display the map with `Celestial.display(config)`.
 
 ```js
 var config = { 
   width: 0,           // Default width, 0 = full parent element width; 
                       // height is determined by projection
-  projection: "aitoff",    //Map projection used: see below
-  transform: "equatorial", // Coordinate transformation euler angles: euler.ecliptic, 
-                           // euler.galactic, euler.supergalactic, [0,0,0]
+  projection: "aitoff",    // Map projection used: see below
+  transform: "equatorial", // Coordinate transformation: equatorial (default),
+                           // ecliptic, galactic, supergalactic
+  center: null,       // Initial center coordinates in equatorial transformation only
+                      // [hours, degrees], null = default center
   background: "#000", // Background color or gradient  
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   container: "map",   // ID of parent element, e.g. div
-  datapath: "data/",       // Path/URL to data files, empty = subfolder 'data'
+  datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude
