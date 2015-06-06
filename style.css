@@ -59,6 +59,7 @@ text.pos { stroke: none; fill: #ccc }
 
 /* Form */
 #param-wrap { display: inline-block; position: relative; }
+#error { color:#f00; font-weight:bold; display:none; }
 input { vertical-align: -1px; }
 input[type='number'] { width:34px; text-align:right; margin-left:4px; padding-right:0 }
 input[type='checkbox'] { vertical-align: -2px; }

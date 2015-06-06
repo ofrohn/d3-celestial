@@ -9,6 +9,7 @@
 </head><body>
 <div style="overflow:hidden;"><div id="map"></div></div>
 <div id="param-wrap">
+<div id="error"></div>
 <form id="params" name="params" method="get" action="#">
   <div class="col">
   <!-- projection, transform, size, center?-->
@@ -34,7 +35,7 @@
   <label>down to mag<input type="number" name="dsos-limit" value="" max="6" min="0" step="0.1"></label>
   <label>with names<input type="checkbox" name="dsos-names" value="true"> </label>
   <label>or designations<input type="checkbox" name="dsos-desig" value="true"> </label>
-  <label>down to mag<input type="number" name="dsos-namelimit" value="" max="6" min="0" step="0.1"> mag </label>
+  <label>down to mag<input type="number" name="dsos-namelimit" value="" max="6" min="0" step="0.1"> </label>
   </div>  
   <div class="col">
   <!-- constellations -->
@@ -51,13 +52,13 @@
   <label>Equator<input type="checkbox" name="lines-equatorial" value="true"> </label>
   <label>Ecliptic<input type="checkbox" name="lines-ecliptic" value="true"> </label>
   <label>Galactic plane<input type="checkbox" name="lines-galactic" value="true"> </label>
-  <label>Supergal. plane<input type="checkbox" name="lines-supergalactic" value="true"> </label>
+  <label>Supergalactic plane<input type="checkbox" name="lines-supergalactic" value="true"> </label>
   </div>  
   <div class="col">
   <strong>Other</strong>&nbsp;&nbsp;
   <label>Milky Way<input type="checkbox" name="mw-show" value="true"> </label>&nbsp;&nbsp;
   <label> Background color <input type="color" name="background" value=""> </label>&nbsp;&nbsp;
-  <label> Adaptable sizes <input type="checkbox" name="adaptable" value="true"> </label>
+  <label title="Sizes are increased with higher zoom-levels"> Adaptable sizes <input type="checkbox" name="adaptable" value="true"> </label>
   </div>
   <input type="button" id="show" value="Show">&nbsp;&nbsp;
   <input type="button" id="defaults" value="Defaults">
@@ -79,6 +80,17 @@ var cfg = Celestial.settings().set({width:0, projection:"aitoff"});
 if (typeof stardata !== 'undefined') cfg.stars.data = stardata;
 if (typeof dsodata !== 'undefined') cfg.dsos.data = dsodata;
 
+//Field names
+var fnames = {
+  //"width": "Map width",
+  "centerx": "Center right ascension",
+  "centery": "Center declination",
+  "stars-limit": "Star display limit",
+  "stars-namelimit": "Star name display limit",
+  "dsos-limit": "DSO display limit",
+  "dsos-namelimit": "DSO name display limit"
+}
+
 //Fill form & enable
 fillForm(cfg);
 
@@ -87,16 +99,28 @@ Celestial.display(cfg);
 
 //On click parse form and redisplay
 $("show").onclick = function(e) {
-  cfg = parseForm(cfg);
-  Celestial.display(cfg);
-
+  var err = [], key, t, form = document.params;
+  
+  //Test params
+  if (!isNumber(cfg.width)) err.push("Check Width setting");
+  for (key in fnames) {
+    t = testNumber(form[key]);
+    if (t !== 0) err.push(t);
+  }
+  if (err.length > 0) {
+    $("error").innerHTML = err.join("<br>");
+    $("error").style.display = "block";
+  } else {
+    $("error").style.display = "none";
+    cfg = parseForm(cfg);
+    Celestial.display(cfg);
+  }
   return false;
 }
 
 $("defaults").onclick = function(e) {
   cfg = Celestial.settings().set({width:0, projection:"aitoff"});
   fillForm(cfg);
-
   return false;
 }
 
@@ -121,7 +145,6 @@ function fillForm(cfg) {
   
   enableForm();
 }
-
 
 function enableForm() {
   var t, i, key, f = document.forms[0],
@@ -156,13 +179,10 @@ function enableForm() {
     }
     f[key].parentNode.style.color = f[key].disabled ? "#999" : "#000";
   }
-  
 }
-
 
 function selectOption(e, opt) {
   var i;
-  //if (!opt) return e.options[e.selectedIndex].value
   for (i=0; i<e.options.length; i++) {
     if (e.options[i].value == opt) {
       e.selectedIndex = i;
@@ -196,7 +216,7 @@ function fillOptions(cfg) {
   } else {
     document.params["centerx"].min = "-180";
     document.params["centerx"].max = "180";
-    //$('cxunit').innerHTML = "\u00b0";
+    $('cxunit').innerHTML = "\u00b0";
   }
   
   for (i=0; i<e.length; i++) {
@@ -211,7 +231,7 @@ function getLimits() {
   if (typeof dsodata !== 'undefined') d = dsodata;
   else d = cfg.dsos.data;
   
-  //test d
+  //test dso limit
   t = d.match(rx);
   if (t !== null) {
     res.d = parseFloat(t[t.length-1]);
@@ -221,7 +241,7 @@ function getLimits() {
   if (typeof stardata !== 'undefined') s = stardata;
   else s = cfg.stars.data;
   
-  //test s
+  //test star limit
   t = s.match(rx);
   if (t !== null) {
     res.s = parseFloat(t[t.length-1]);
@@ -260,6 +280,7 @@ function parseForm(cfg) {
     if (form[key].type == "checkbox") { 
       conf[key] = form[key].checked;
     } else if (form[key].type == "number") { 
+      if (form[key].value === "") continue;
       conf[key] = parseFloat(form[key].value); 
     } else {
       conf[key] = form[key].value; 
@@ -267,7 +288,6 @@ function parseForm(cfg) {
   }
   return objectify(conf);  
 }
-
 
 function formify(cfg) {
   var t, key, sub, res = {};
@@ -316,10 +336,17 @@ function objectify(cfg) {
   return res;
 }
 
-
-function $(id) {
-  return document.getElementById(id);
+function testNumber(p) {
+  var v = p.value;
+  if (v === "") return 0;
+  if (!isNumber(v)) return fnames[p.name] + ": check field value";
+  v = parseFloat(v);
+  if (v < p.min || v > p.max ) return fnames[p.name] + " must be between " + p.min + " and " + p.max;
+  return 0;
 }
+
+function $(id) { return document.getElementById(id); }
+function isNumber(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
 
   </script>
   </body>
