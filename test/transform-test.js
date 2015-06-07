@@ -21,7 +21,7 @@ includes.forEach(function(file) {
 
 
 //Euler angles in radians
-assert.deepEqual(euler.galactic.map(Round), [3.366, 1.097, 2.146]);
+assert.deepEqual(euler.galactic.map(Round), [-2.917, 1.097, 2.146]);
 
 assert.deepEqual(euler.add("test", [10,10,10]).map(Round), [10*deg2rad, 10*deg2rad, 10*deg2rad].map(Round));
 

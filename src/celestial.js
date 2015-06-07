@@ -322,10 +322,10 @@ Celestial.display = function(config) {
   }
   
   function getAngles(coords) {
-    var rot = eulerAngles[trans];    
+    var rot = eulerAngles[trans], ctr = 0;
     if (!coords || trans !== 'equatorial') {
-      if (trans === 'equatorial' || trans === 'ecliptic') rot[0] = 180;
-      return rot;
+      if (trans === 'equatorial' || trans === 'ecliptic') ctr = 180;
+      return [rot[0] - ctr, rot[1], rot[2]];
     }
     //ctr = transformDeg(coords, euler["inverse " + trans]);
     return [rot[0] - coords[0], rot[1] - coords[1], rot[2]];
