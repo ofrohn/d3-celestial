@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.3.2',
+  version: '0.4.2',
   svg: null
 };
 
@@ -32,13 +32,15 @@ Celestial.display = function(config) {
       scale = proj.scale * width/1024,
       base = 7, exp = -0.3, //Object size base & exponent
       adapt = 1,
-      center = [-eulerAngles[trans][0], -eulerAngles[trans][1]],
+      rotation = getAngles(cfg.center),
+      center = [-rotation[0], -rotation[1]],
       path = cfg.datapath || "";
       path = path.replace(/([^\/]$)/, "$1\/");
   
+      
   if (par != "body") $(cfg.container).style.height = px(height);
   
-  var projection = Celestial.projection(cfg.projection).rotate(eulerAngles[trans]).translate([width/2, height/2]).scale([scale]);
+  var projection = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale([scale]);
   var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([scale]); //projected non moving outline
 
   
@@ -319,6 +321,16 @@ Celestial.display = function(config) {
     if (cfg.width) return cfg.width;
     return parent ? parent.clientWidth - 16 : window.innerWidth - 24;
   }
+  
+  function getAngles(coords) {
+    var rot = eulerAngles[trans], ctr = 0;
+    if (!coords || trans !== 'equatorial') {
+      if (trans === 'equatorial' || trans === 'ecliptic') ctr = 180;
+      return [rot[0] - ctr, rot[1], rot[2]];
+    }
+    //ctr = transformDeg(coords, euler["inverse " + trans]);
+    return [rot[0] - coords[0], rot[1] - coords[1], rot[2]];
+  }
 };
 
 function $(id) { return document.getElementById(id); }
@@ -353,8 +365,8 @@ Celestial.projection = function(projection) {
 };
 
 var eulerAngles = {
-  "equatorial": [180.0, 0.0, 0.0],
-  "ecliptic": [180.0, 0.0, 23.4393],
+  "equatorial": [0.0, 0.0, 0.0],
+  "ecliptic": [0.0, 0.0, 23.4393],
   "galactic": [93.5949, 28.9362, -58.5988],
   "supergalactic": [137.3100, 59.5283, 57.7303]
 //  "mars": [97.5,23.5,29]
@@ -453,10 +465,10 @@ function transform(c, euler) {
 var euler = {
   "ecliptic": [-90.0, 23.4393, 90.0],
   "inverse ecliptic": [90.0, 23.4393, -90.0],
-  "galactic": [192.8595, 62.8717, 122.9319], 
-  "inverse galactic": [238.9319, 62.8717, 192.8595],
+  "galactic": [-167.1405, 62.8717, 122.9319], 
+  "inverse galactic": [122.9319, 62.8717, -167.1405],
   "supergalactic": [283.7542, 74.2911, 26.4504],
-  "inverse supergalactic": [334.4504, 74.2911, 283.7542],
+  "inverse supergalactic": [26.4504, 74.2911, 283.7542],
   "init": function() {
     for (var key in this) {
       if (this[key].constructor == Array) { 
@@ -479,7 +491,8 @@ Celestial.euler = function() { return euler; };
 var settings = { 
   width: 0,     // Default width; height is determined by projection
   projection: "aitoff",  // Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
-  transform: "equatorial", // Coordinate transformation euler angles; equatorial, ecliptic, galactic, supergalactic
+  transform: "equatorial", // Coordinate transformation: equatorial (default), ecliptic, galactic, supergalactic
+  center: null,       // Initial center coordinates in equatorial transformation only [hours, degrees], null = default center
   background: "#000000", // Background color or gradient  
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
@@ -527,10 +540,10 @@ var settings = {
     if (!cfg) return this; 
     for (prop in this) {
       if (!this.hasOwnProperty(prop)) continue; 
-      if (typeof(this[prop]) == 'function') continue; 
+      if (typeof(this[prop]) === 'function') continue; 
       if (!cfg.hasOwnProperty(prop) || cfg[prop] === null) { 
         res[prop] = this[prop]; 
-      } else if (this[prop].constructor != Object ) {
+      } else if (this[prop] === null || this[prop].constructor != Object ) {
         res[prop] = cfg[prop];
       } else {
         res[prop] = {};
