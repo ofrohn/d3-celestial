@@ -7,7 +7,8 @@ var shell = require('shelljs/make'),
     copy = "// Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE\n",
     begin = "!(function() {",
     end = "this.Celestial = Celestial;\n})();",
-    filename = './celestial';
+    filename = './celestial',
+    FINAL = false;
 
     
 target.all = function() {
@@ -47,7 +48,7 @@ target.build = function() {
 
   vm.runInThisContext(fs.readFileSync('./src/celestial.js', 'utf-8'), './src/celestial.js');
   echo('V' + Celestial.version);
-  filename += Celestial.version;
+  if (!FINAL) filename += Celestial.version;
   
   var file = cat([
     './src/celestial.js', 
