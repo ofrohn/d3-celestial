@@ -16,7 +16,7 @@
   <label title="Map width, 0 indicates full width">Width<input type="number" maxlength="4" name="width" value="" /> px</label>&nbsp;
   <label title="Map projection, (hemi) indicates hemispherical projection">Projection <select name="projection" id="projection"></select></label>&nbsp;
   <label title="Coordinate space in which the map is displayed">Coordinates <select name="transform" id="transform"></select></label><br>
-  <label title="Center coordinates in selected coordinate space">Center <input type="number" name="centerx" id="centerx" value="" max="24" min="0"> <span id="cxunit">h</span><input type="number" name="centery" id="centery" value="" max="90" min="-90"> &deg;</select></label>
+  <label title="Center coordinates in selected coordinate space">Center <input type="number" name="centerx" id="centerx" value="" max="24" min="0" step="0.1"> <span id="cxunit">h</span><input type="number" name="centery" id="centery" value="" max="90" min="-90" step="0.1"> &deg;</select></label>
   </div>
   <div class="col">
   <!-- stars -->
@@ -107,6 +107,11 @@ $("show").onclick = function(e) {
     t = testNumber(form[key]);
     if (t !== 0) err.push(t);
   }
+
+  if (form.centerx.value === "" && form.centery.value !== "" || form.centery.value === "" && form.centerx.value !== "") {
+    err.push("Both center coordinates need to be given");
+  }
+
   if (err.length > 0) {
     $("error").innerHTML = err.join("<br>");
     $("error").style.display = "block";
@@ -328,10 +333,11 @@ function objectify(cfg) {
       res[prop][t[1]] = cfg[key]; 
     }
   }
-  if (!res.hasOwnProperty('centerx') || isNaN(res.centerx) || !res.hasOwnProperty('centery') || isNaN(res.centery)) res.center = null;
-  else {
-    if (res.transform === 'equatorial') res.centerx = res.centerx >= 12 ? res.centerx * 15 : res.centerx * 15 - 360;
+  if (res.hasOwnProperty('centerx') && isNumber(res.centerx) && res.hasOwnProperty('centery') && isNumber(res.centery)) {
+    if (res.transform === 'equatorial') res.centerx = res.centerx > 12 ? res.centerx * 15 - 360 : res.centerx * 15;
     res.center = [res.centerx, res.centery];
+  } else {
+    res.center = null;
   }
   return res;
 }
