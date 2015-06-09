@@ -4,7 +4,7 @@
   <title>D3 Starmap</title>
   <script type="text/javascript" src="lib/d3.min.js"></script>
   <script type="text/javascript" src="lib/d3.geo.projection.min.js"></script>
-  <script type="text/javascript" src="celestial0.4.2.min.js"></script>
+  <script type="text/javascript" src="celestial.min.js"></script>
   <link rel="stylesheet" href="style.css">
 </head><body>
 <div style="overflow:hidden;"><div id="map"></div></div>
@@ -277,7 +277,7 @@ function fillSelect(id, fill) {
 }
 
 function parseForm(cfg) {
-  var key, form = document.params;
+  var key, form = document.params,
       conf = formify(cfg);
   
   for (key in conf) {

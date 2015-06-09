@@ -8,7 +8,7 @@ var shell = require('shelljs/make'),
     begin = "!(function() {",
     end = "this.Celestial = Celestial;\n})();",
     filename = './celestial',
-    FINAL = true;
+    FINAL = false;
 
     
 target.all = function() {
