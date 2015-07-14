@@ -1,5 +1,6 @@
 /* Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE */
-svg * { cursor: crosshair!important; }
+svg * { cursor:hand; cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; /*cursor: crosshair!important;*/ }
+svg *:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing; }
 #map { width: 100%; height:auto; margin: 0; padding: 0; display: inline-block; position: relative; }
 text { stroke: none; fill: #fff; font: 11px Helvetica, Arial, sans-serif; }
 .stroke { fill: none; stroke: #fff; stroke-width: 3px; }
@@ -23,39 +24,28 @@ text { stroke: none; fill: #fff; font: 11px Helvetica, Arial, sans-serif; }
 .mw { fill: #fff; fill-opacity: 0.12; }
 /* DSO standard styles */
 .gg { stroke: #f00; fill: #f00 }  /* Galaxy cluster */
-text.gg { stroke: none; fill: #f00 }
 .g { stroke: #f00; fill: #f00 }  /* Generic galaxy */
-text.g { stroke: none; fill: #f00 }
 .s { stroke: #f00; fill: #f00 }  /* Spiral galaxy */
-text.s { stroke: none; fill: #f00 }
 .s0 { stroke: #f00; fill: #f00 }  /* Lenticular galaxy */
-text.s0 { stroke: none; fill: #f00 }
 .sd { stroke: #f00; fill: #f00 }  /* Dwarf (spiral) galaxy */
-text.sd { stroke: none; fill: #f00 }
 .e { stroke: #f00; fill: #f00 }  /* Elliptical galaxy */
-text.e { stroke: none; fill: #f00 }
 .i { stroke: #f00; fill: #f00 }  /* Irregular galaxy */
-text.i { stroke: none; fill: #f00 }
 .oc { stroke: #fc0; fill: none }  /* Open cluster */
 text.oc { stroke: none; fill: #fc0 }
 .gc { stroke: #f90; fill: #f90 }  /* Globular cluster */
-text.gc { stroke: none; fill: #f90 }
 .en { stroke: #f0c; fill: #f0c }  /* Emission nebula */
-text.en { stroke: none; fill: #f0c }
 .bn { stroke: #f0c; fill: none }  /* Generic bright nebula */
 text.bn { stroke: none; fill: #c0f }
 .sfr { stroke: #c0f; fill: none }  /* Star forming region */
 text.sfr { stroke: none; fill: #c0f }
 .rn { stroke: #00f; fill: #00f }  /* Reflection nebula */
-text.rn { stroke: none; fill: #00f }
 .pn { stroke: #0cc; fill: #0cc }  /* Planetary nebula */
-text.pn { stroke: none; fill: #0cc }
 .snr { stroke: #f0c; fill: #f0c }  /* Supernova remnant */
-text.snr { stroke: none; fill: #f0c }
 .dn { stroke: #999; fill: none }  /* Dark nebula */
 text.dn { stroke: none; fill: #999 }
 .pos { stroke: #ccc; fill: none }  /* Generic marker */
 text.pos { stroke: none; fill: #ccc }
+text.gg, text.g, text.s, text.s0, text.sd, text.e, text.i, text.gc, text.en, text.rn, text.pn, text.snr { stroke: none; }
 
 /* Form */
 #param-wrap { display: inline-block; position: relative; }

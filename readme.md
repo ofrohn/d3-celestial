@@ -4,7 +4,7 @@ Interactive, adaptable celestial map done with the [D3.js](http://d3js.org/) vis
 
 Features display of stars and deep sky objects (DSOs) with a selectable magnitude limit up to 6, or choose different GeoJSON data source for higher magnitudes. Also shows constellations with names, lines and/or boundaries, the Milky Way band and grid lines. Alternate coordinate spaces e.g. ecliptc, galactic or supergalactic are also possible. Full support for zoom and rotation with mouse or gestures.
 
-Since it uses D3 and therefore SVG, it needs a modern browser with svg support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at &lt;insert link here> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment.
+Since it uses D3 and therefore SVG, it needs a modern browser with svg support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at <a href="http://armchairastronautics.blogspot.com/p/skymap.html">armchairastronautics.blogspot.com</a> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment.
 
 ### Usage
 
@@ -72,6 +72,28 @@ Celestial.display(config);
 __Supported projections:__ airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3  
 most of these need the extension [d3.geo.projections](https://github.com/d3/d3-geo-projection/)  
 
+
+### Adding Data
+
+__Exposed functions & objects__  
+* `Celestial.add(file, callback, redraw)`  
+   Function to add data in json-format to the display
+   _file_: complete path to json data file  
+   _callback_: callback function to call when json is loaded  
+   _redraw_: for interactive display, call when view changes  
+  
+* `Celestial.svg`  
+   The svg object to add data to in the callback  
+  
+* `Celestial.projection`  
+   The projection object for access to its properties and functions  
+  
+* `Celestial.point(coordinates)`  
+ `Celestial.clip(coordinates)`  
+ `Celestial.opacity(coordinates)`  
+   Functions to transform coordinates and check if the object is visible, and set its visiblility  
+   _coordinates_: object coordinates in radians, normally supplied by D3 as geometry.coordinates array
+   
 ### Files
 
 __GeoJSON data files__
@@ -82,6 +104,7 @@ __GeoJSON data files__
 * `dsos.6.json` Deep space objects down to 6th magnitude \[2\]
 * `dsos.14.json` Deep space objects down to 14th magnitude \[2\]
 * `dsos.bright.json` Some of the brightest showpiece DSOs of my own choosing
+* `lg.json` Local group and Milky Way halo galaxies/globiular clusters. My own compilation \[6\]
   
 * `constellations.json` Constellation data  \[3\]
 * `constellations.bounds.json` Constellation boundaries \[4\]
@@ -103,6 +126,7 @@ __Sources__
 * \[3\] [IAU Constellation page](http://www.iau.org/public/themes/constellations/), name positions and some line modifications by me  
 * \[4\] Catalogue of Constellation Boundary Data; Davenhall A.C., Leggett S.K. (1989) [VizieR VI/49/](http://vizier.cfa.harvard.edu/viz-bin/Cat?VI/49)  
 * \[5\] [Milky Way Outline Catalog](http://www.skymap.com/milkyway_cat.htm), Jose R. Vieira  
+* \[6\] Lot`s of sources, see [blog](http://armchairastronautics.blogspot.com/p/milky-way-halo.html) [pages](http://armchairastronautics.blogspot.com/p/local-group.html) for complete list
 
 All data converted to GeoJSON at J2000 epoch, positions converted from 0...24h right ascension to -180...180 degrees longitude as per GeoJSON requirements, 0...12h -> 0...180º; 12...24h -> -180...0º
 

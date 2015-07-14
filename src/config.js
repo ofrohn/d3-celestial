@@ -19,6 +19,7 @@ var settings = {
     proper: false, // Show proper names (if none shows designation)
     desig: true,   // Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
+    size: 7,       // Maximum size (radius) of star circle in pixels
     data: 'stars.6.json' // Data source for stellar data
   },
   dsos: {

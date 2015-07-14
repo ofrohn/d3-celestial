@@ -1,7 +1,8 @@
-/* global settings, symbols, bvcolor, projections, poles, eulerAngles, halfπ */
+/* global settings, symbols, bvcolor, projections, poles, eulerAngles, halfπ, $, px, has */
 var Celestial = {
-  version: '0.4.2',
-  svg: null
+  version: '0.4.3',
+  svg: null,
+  data: []
 };
 
 
@@ -21,7 +22,7 @@ Celestial.display = function(config) {
     parent = null; 
   }
   
-  if (!projections.hasOwnProperty(cfg.projection)) return; 
+  if (!has(projections, cfg.projection)) return; 
   
   var proj = projections[cfg.projection],
       trans = cfg.transform || "equatorial",
@@ -29,7 +30,8 @@ Celestial.display = function(config) {
       width = getWidth(),
       height = width / ratio,
       scale = proj.scale * width/1024,
-      base = 7, exp = -0.3, //Object size base & exponent
+      base = cfg.stars.size || 7, 
+      exp = -0.3, //Object size base & exponent
       adapt = 1,
       rotation = getAngles(cfg.center),
       center = [-rotation[0], -rotation[1]],
@@ -48,7 +50,7 @@ Celestial.display = function(config) {
     circle = d3.geo.circle().angle([90]);
   }
 
-  var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([scale, scale*4]).on("zoom.redraw", redraw);
+  var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([scale, scale*5]).on("zoom.redraw", redraw);
   
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
@@ -183,7 +185,7 @@ Celestial.display = function(config) {
          .attr("class", function(d) { return "dso " + d.properties.type; } )
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .attr("d", function(d) { return dsoSymbol(d.properties); })
-         .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates); });
+         .attr("style", function(d) { return opacity(d.geometry.coordinates); });
     
       if (cfg.dsos.names) { 
         svg.selectAll(".dsonames")
@@ -196,11 +198,17 @@ Celestial.display = function(config) {
            .attr("transform", function(d) { return point(d.geometry.coordinates); })
            .text( function(d) { return dsoName(d.properties); } )
            .attr({dy: "-.5em", dx: ".35em"})
-           .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates); });
+           .attr("style", function(d) { return opacity(d.geometry.coordinates); });
       }
     });
   }
 
+  if (Celestial.data.length > 0) { 
+    Celestial.data.every( function(d) {
+       d3.json(d.file, d.callback);
+    });
+  }
+  
   d3.select(window).on('resize', function() {
     if (cfg.width) return;
     width = getWidth();
@@ -226,6 +234,16 @@ Celestial.display = function(config) {
     return "translate(" + projection(coords) + ")";
   }
     
+  function opacity(coords) {
+    var opa = clip(coords);
+    return 'stroke-opacity:' + opa + ';fill-opacity:' + opa; 
+  }
+
+  Celestial.clip = clip;
+  Celestial.point = point;
+  Celestial.opacity = opacity;
+  Celestial.projection = projection;
+
   function redraw() {
     if (!d3.event) return; 
     //d3.event.preventDefault();
@@ -248,10 +266,10 @@ Celestial.display = function(config) {
     svg.selectAll(".dso")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
        .attr("d", function(d) { return dsoSymbol(d.properties); })
-       .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates); });
+       .attr("style", function(d) { return opacity(d.geometry.coordinates); });
     svg.selectAll(".dsoname")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates); });
+       .attr("style", function(d) { return opacity(d.geometry.coordinates); });
 
     svg.selectAll(".constname")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
@@ -265,6 +283,13 @@ Celestial.display = function(config) {
     svg.selectAll(".galactic").attr("d", map);  
     svg.selectAll(".supergalactic").attr("d", map);  
     svg.selectAll(".gridline").attr("d", map);  
+    
+    if (Celestial.data.length > 0) { 
+      Celestial.data.every( function(d) {
+         d.redraw();
+      });
+    }
+    
   }
 
   function dsoSymbol(prop) {
@@ -286,12 +311,7 @@ Celestial.display = function(config) {
     if (!mag || mag == 999) return Math.pow(parseInt(dim)*base/7, 0.5); 
     return Math.pow(2*base-mag, 1.4);
   }
-
-  function dsoOpacity(coords) {
-    var opa = clip(coords);
-    return 'stroke-opacity:' + opa + ';fill-opacity:' + opa; 
-  }
-  
+ 
 
   function dsoName(prop) {
     if (prop.name === "") return; 
@@ -306,9 +326,9 @@ Celestial.display = function(config) {
   }
   
   function starSize(mag) {
-    if (mag === null) return 0.2; 
+    if (mag === null) return 0.1; 
     var d = base * Math.exp(exp * (mag+2));
-    return Math.max(d, 0.2);
+    return Math.max(d, 0.1);
   }
   
   function starColor(prop) {
@@ -331,6 +351,3 @@ Celestial.display = function(config) {
     return [rot[0] - coords[0], rot[1] - coords[1], rot[2]];
   }
 };
-
-function $(id) { return document.getElementById(id); }
-function px(n) { return n + "px"; } 

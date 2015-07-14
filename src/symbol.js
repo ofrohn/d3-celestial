@@ -15,7 +15,28 @@ var customSymbolTypes = d3.map({
            ' M 0 ' + (-r) + ' v ' + l + 
            ' M ' + r + ' 0 h ' + (-l) +  
            ' M 0 ' + r + ' v ' + (-l);
-  }
+  },
+  'cross-circle': function(size) {
+    var s = Math.sqrt(size), 
+        r = s/2, ri = s/4;
+    return 'M' + (-r) + ',' + (-r) +
+    ' m' + (-r) + ',0' +
+    ' a' + r + ',' + r + ' 0 1,0' + (r * 2) + ',0' +
+    ' a' + r + ',' + r + ' 0 1,0' + (-(r * 2)) + ',0' +
+    ' M ' + (-r-2) + ' 0 h ' + (r*2+4) + 
+    ' M 0 ' + (-r-2) + ' v ' + (r*2+4);
+        
+  },
+  'stroke-circle': function(size) {
+    var s = Math.sqrt(size), 
+        r = s/2;
+    return 'M' + (-r) + ',' + (-r) +
+    ' m' + (-r) + ',0' +
+    ' a' + r + ',' + r + ' 0 1,0' + (r * 2) + ',0' +
+    ' a' + r + ',' + r + ' 0 1,0' + (-(r * 2)) + ',0' +
+    ' M ' + (-r-2) + ' 0 h ' + (r*2+4);
+
+  } 
 });
 
 d3.svg.customSymbol = function() {

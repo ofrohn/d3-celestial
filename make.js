@@ -8,7 +8,7 @@ var shell = require('shelljs/make'),
     begin = "!(function() {",
     end = "this.Celestial = Celestial;\n})();",
     filename = './celestial',
-    FINAL = true;
+    FINAL = false;
 
     
 target.all = function() {
@@ -54,8 +54,10 @@ target.build = function() {
     './src/celestial.js', 
     './src/projection.js', 
     './src/transform.js', 
+    './src/add.js',
     './src/config.js', 
     './src/symbol.js',
+    './src/util.js',
     './lib/d3.geo.zoom.js'
   ]);
   file = copy + begin + file.replace(/\/\* global.*/g, '') + end;
