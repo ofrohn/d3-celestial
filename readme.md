@@ -83,14 +83,14 @@ __Exposed functions & objects__
    _redraw_: for interactive display, call when view changes  
   
 * `Celestial.svg`  
-   The svg object to add data to in the callback  
+   The svg object to add data to in the callback. See D3.js documentation 
   
 * `Celestial.projection`  
-   The projection object for access to its properties and functions  
+   The projection object for access to its properties and functions. Also D3.js documentation
   
 * `Celestial.point(coordinates)`  
- `Celestial.clip(coordinates)`  
- `Celestial.opacity(coordinates)`  
+  `Celestial.clip(coordinates)`  
+  `Celestial.opacity(coordinates)`  
    Functions to transform coordinates and check if the object is visible, and set its visiblility  
    _coordinates_: object coordinates in radians, normally supplied by D3 as geometry.coordinates array
    

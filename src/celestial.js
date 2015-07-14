@@ -11,6 +11,7 @@ Celestial.display = function(config) {
   var circle, par, svg = Celestial.svg;
   
   var cfg = settings.set(config); 
+  cfg.stars.size = cfg.stars.size || 7;
   
   var parent = $(cfg.container);
   if (parent) { 
@@ -30,7 +31,7 @@ Celestial.display = function(config) {
       width = getWidth(),
       height = width / ratio,
       scale = proj.scale * width/1024,
-      base = cfg.stars.size || 7, 
+      base = cfg.stars.size, 
       exp = -0.3, //Object size base & exponent
       adapt = 1,
       rotation = getAngles(cfg.center),
@@ -250,7 +251,7 @@ Celestial.display = function(config) {
     var rot = projection.rotate();
     projOl.scale(projection.scale());
     if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/scale);
-    base = 7 * adapt;
+    base = cfg.stars.size * adapt;
     center = [-rot[0], -rot[1]];
 
     //All different types of objects need separate updates
