@@ -12,6 +12,7 @@ Celestial.display = function(config) {
   var circle, par, svg = Celestial.svg;
   
   var cfg = settings.set(config); 
+  cfg.stars.size = cfg.stars.size || 7;
   
   var parent = $(cfg.container);
   if (parent) { 
@@ -31,7 +32,7 @@ Celestial.display = function(config) {
       width = getWidth(),
       height = width / ratio,
       scale = proj.scale * width/1024,
-      base = cfg.stars.size || 7, 
+      base = cfg.stars.size, 
       exp = -0.3, //Object size base & exponent
       adapt = 1,
       rotation = getAngles(cfg.center),
@@ -83,7 +84,7 @@ Celestial.display = function(config) {
 
   //Celestial planes
   for (var key in cfg.lines) {
-    if (cfg.lines.hasOwnProperty(key) && key != "graticule" && cfg.lines[key] !== false) { 
+    if (has(cfg.lines, "key") && key != "graticule" && cfg.lines[key] !== false) { 
       svg.append("path")
          .datum(d3.geo.circle().angle([90]).origin(poles[key]) )
          .attr("class", key)
@@ -251,7 +252,7 @@ Celestial.display = function(config) {
     var rot = projection.rotate();
     projOl.scale(projection.scale());
     if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/scale);
-    base = 7 * adapt;
+    base = cfg.stars.size * adapt;
     center = [-rot[0], -rot[1]];
 
     //All different types of objects need separate updates
@@ -304,7 +305,7 @@ Celestial.display = function(config) {
   }
 
   function dsoShape(type) {
-    if (!type || !symbols.hasOwnProperty(type)) return "circle"; 
+    if (!type || !has(symbols, "type")) return "circle"; 
     else return symbols[type]; 
   }
 
@@ -358,7 +359,7 @@ Celestial.display = function(config) {
 Celestial.projection = function(projection) {
   var p, trans, raw, forward;
   
-  if (!projections.hasOwnProperty(projection)) { throw new Error("Projection not supported: " + projection); }
+  if (!has(projections, projection)) { throw new Error("Projection not supported: " + projection); }
   p = projections[projection];
     
   if (p.arg !== null) {
@@ -573,16 +574,16 @@ var settings = {
     var prop, key, res = {};
     if (!cfg) return this; 
     for (prop in this) {
-      if (!this.hasOwnProperty(prop)) continue; 
+      if (!has(this, prop)) continue; 
       if (typeof(this[prop]) === 'function') continue; 
-      if (!cfg.hasOwnProperty(prop) || cfg[prop] === null) { 
+      if (!has(cfg, prop) || cfg[prop] === null) { 
         res[prop] = this[prop]; 
       } else if (this[prop] === null || this[prop].constructor != Object ) {
         res[prop] = cfg[prop];
       } else {
         res[prop] = {};
         for (key in this[prop]) {
-          if (cfg[prop].hasOwnProperty(key)) {
+          if (has(cfg[prop], key)) {
             res[prop][key] = cfg[prop][key];
           } else {
             res[prop][key] = this[prop][key];
@@ -723,13 +724,13 @@ var customSymbolTypes = d3.map({
   },
   'cross-circle': function(size) {
     var s = Math.sqrt(size), 
-        r = s/2, ri = s/4;
+        r = s/2;
     return 'M' + (-r) + ',' + (-r) +
     ' m' + (-r) + ',0' +
     ' a' + r + ',' + r + ' 0 1,0' + (r * 2) + ',0' +
     ' a' + r + ',' + r + ' 0 1,0' + (-(r * 2)) + ',0' +
-    ' M ' + (-r-2) + ' 0 h ' + (r*2+4) + 
-    ' M 0 ' + (-r-2) + ' v ' + (r*2+4);
+    ' M' + (-r) + ' 0 h ' + (s) + 
+    ' M 0 ' + (-r) + ' v ' + (s);
         
   },
   'stroke-circle': function(size) {
@@ -739,7 +740,7 @@ var customSymbolTypes = d3.map({
     ' m' + (-r) + ',0' +
     ' a' + r + ',' + r + ' 0 1,0' + (r * 2) + ',0' +
     ' a' + r + ',' + r + ' 0 1,0' + (-(r * 2)) + ',0' +
-    ' M ' + (-r-2) + ' 0 h ' + (r*2+4);
+    ' M' + (-s-2) + ',' + (-s-2) + ' l' + (s+4) + ',' + (s+4);
 
   } 
 });

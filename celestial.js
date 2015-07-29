@@ -1,8 +1,9 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.4.2',
-  svg: null
+  version: '0.4.3',
+  svg: null,
+  data: []
 };
 
 
@@ -11,6 +12,7 @@ Celestial.display = function(config) {
   var circle, par, svg = Celestial.svg;
   
   var cfg = settings.set(config); 
+  cfg.stars.size = cfg.stars.size || 7;
   
   var parent = $(cfg.container);
   if (parent) { 
@@ -22,7 +24,7 @@ Celestial.display = function(config) {
     parent = null; 
   }
   
-  if (!projections.hasOwnProperty(cfg.projection)) return; 
+  if (!has(projections, cfg.projection)) return; 
   
   var proj = projections[cfg.projection],
       trans = cfg.transform || "equatorial",
@@ -30,7 +32,8 @@ Celestial.display = function(config) {
       width = getWidth(),
       height = width / ratio,
       scale = proj.scale * width/1024,
-      base = 7, exp = -0.3, //Object size base & exponent
+      base = cfg.stars.size, 
+      exp = -0.3, //Object size base & exponent
       adapt = 1,
       rotation = getAngles(cfg.center),
       center = [-rotation[0], -rotation[1]],
@@ -49,7 +52,7 @@ Celestial.display = function(config) {
     circle = d3.geo.circle().angle([90]);
   }
 
-  var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([scale, scale*4]).on("zoom.redraw", redraw);
+  var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([scale, scale*5]).on("zoom.redraw", redraw);
   
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
@@ -81,7 +84,7 @@ Celestial.display = function(config) {
 
   //Celestial planes
   for (var key in cfg.lines) {
-    if (cfg.lines.hasOwnProperty(key) && key != "graticule" && cfg.lines[key] !== false) { 
+    if (has(cfg.lines, "key") && key != "graticule" && cfg.lines[key] !== false) { 
       svg.append("path")
          .datum(d3.geo.circle().angle([90]).origin(poles[key]) )
          .attr("class", key)
@@ -184,7 +187,7 @@ Celestial.display = function(config) {
          .attr("class", function(d) { return "dso " + d.properties.type; } )
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .attr("d", function(d) { return dsoSymbol(d.properties); })
-         .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates); });
+         .attr("style", function(d) { return opacity(d.geometry.coordinates); });
     
       if (cfg.dsos.names) { 
         svg.selectAll(".dsonames")
@@ -197,11 +200,17 @@ Celestial.display = function(config) {
            .attr("transform", function(d) { return point(d.geometry.coordinates); })
            .text( function(d) { return dsoName(d.properties); } )
            .attr({dy: "-.5em", dx: ".35em"})
-           .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates); });
+           .attr("style", function(d) { return opacity(d.geometry.coordinates); });
       }
     });
   }
 
+  if (Celestial.data.length > 0) { 
+    Celestial.data.every( function(d) {
+       d3.json(d.file, d.callback);
+    });
+  }
+  
   d3.select(window).on('resize', function() {
     if (cfg.width) return;
     width = getWidth();
@@ -227,13 +236,23 @@ Celestial.display = function(config) {
     return "translate(" + projection(coords) + ")";
   }
     
+  function opacity(coords) {
+    var opa = clip(coords);
+    return 'stroke-opacity:' + opa + ';fill-opacity:' + opa; 
+  }
+
+  Celestial.clip = clip;
+  Celestial.point = point;
+  Celestial.opacity = opacity;
+  Celestial.projection = projection;
+
   function redraw() {
     if (!d3.event) return; 
     //d3.event.preventDefault();
     var rot = projection.rotate();
     projOl.scale(projection.scale());
     if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/scale);
-    base = 7 * adapt;
+    base = cfg.stars.size * adapt;
     center = [-rot[0], -rot[1]];
 
     //All different types of objects need separate updates
@@ -249,10 +268,10 @@ Celestial.display = function(config) {
     svg.selectAll(".dso")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
        .attr("d", function(d) { return dsoSymbol(d.properties); })
-       .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates); });
+       .attr("style", function(d) { return opacity(d.geometry.coordinates); });
     svg.selectAll(".dsoname")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .attr("style", function(d) { return dsoOpacity(d.geometry.coordinates); });
+       .attr("style", function(d) { return opacity(d.geometry.coordinates); });
 
     svg.selectAll(".constname")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
@@ -266,6 +285,13 @@ Celestial.display = function(config) {
     svg.selectAll(".galactic").attr("d", map);  
     svg.selectAll(".supergalactic").attr("d", map);  
     svg.selectAll(".gridline").attr("d", map);  
+    
+    if (Celestial.data.length > 0) { 
+      Celestial.data.every( function(d) {
+         d.redraw();
+      });
+    }
+    
   }
 
   function dsoSymbol(prop) {
@@ -279,7 +305,7 @@ Celestial.display = function(config) {
   }
 
   function dsoShape(type) {
-    if (!type || !symbols.hasOwnProperty(type)) return "circle"; 
+    if (!type || !has(symbols, "type")) return "circle"; 
     else return symbols[type]; 
   }
 
@@ -287,12 +313,7 @@ Celestial.display = function(config) {
     if (!mag || mag == 999) return Math.pow(parseInt(dim)*base/7, 0.5); 
     return Math.pow(2*base-mag, 1.4);
   }
-
-  function dsoOpacity(coords) {
-    var opa = clip(coords);
-    return 'stroke-opacity:' + opa + ';fill-opacity:' + opa; 
-  }
-  
+ 
 
   function dsoName(prop) {
     if (prop.name === "") return; 
@@ -307,9 +328,9 @@ Celestial.display = function(config) {
   }
   
   function starSize(mag) {
-    if (mag === null) return 0.2; 
+    if (mag === null) return 0.1; 
     var d = base * Math.exp(exp * (mag+2));
-    return Math.max(d, 0.2);
+    return Math.max(d, 0.1);
   }
   
   function starColor(prop) {
@@ -333,15 +354,12 @@ Celestial.display = function(config) {
   }
 };
 
-function $(id) { return document.getElementById(id); }
-function px(n) { return n + "px"; } 
-
 
 //Flipped projection generated on the fly
 Celestial.projection = function(projection) {
   var p, trans, raw, forward;
   
-  if (!projections.hasOwnProperty(projection)) { throw new Error("Projection not supported: " + projection); }
+  if (!has(projections, projection)) { throw new Error("Projection not supported: " + projection); }
   p = projections[projection];
     
   if (p.arg !== null) {
@@ -487,6 +505,22 @@ euler.init();
 Celestial.euler = function() { return euler; };
 
 
+//Add more JSON data to the map
+
+Celestial.add = function(dat) {
+  var res = {};
+  //dat: {file:dat.file, callback:dat.callback, size:null, shape:null, color:null} );
+  //callback func. || size:"prop=val:result;.." etc. || size:function(prop) { } etc.
+
+  if (!has(dat, "file") || !has(dat, "type")) return console.log("Cant add no file");
+  
+  res.file = dat.file;
+  res.type = dat.type;
+  if (has(dat, "callback")) res.callback = dat.callback;
+  if (has(dat, "redraw")) res.redraw = dat.redraw;
+  Celestial.data.push(res);
+};
+
 //Defaults
 var settings = { 
   width: 0,     // Default width; height is determined by projection
@@ -507,6 +541,7 @@ var settings = {
     proper: false, // Show proper names (if none shows designation)
     desig: true,   // Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
+    size: 7,       // Maximum size (radius) of star circle in pixels
     data: 'stars.6.json' // Data source for stellar data
   },
   dsos: {
@@ -539,16 +574,16 @@ var settings = {
     var prop, key, res = {};
     if (!cfg) return this; 
     for (prop in this) {
-      if (!this.hasOwnProperty(prop)) continue; 
+      if (!has(this, prop)) continue; 
       if (typeof(this[prop]) === 'function') continue; 
-      if (!cfg.hasOwnProperty(prop) || cfg[prop] === null) { 
+      if (!has(cfg, prop) || cfg[prop] === null) { 
         res[prop] = this[prop]; 
       } else if (this[prop] === null || this[prop].constructor != Object ) {
         res[prop] = cfg[prop];
       } else {
         res[prop] = {};
         for (key in this[prop]) {
-          if (cfg[prop].hasOwnProperty(key)) {
+          if (has(cfg[prop], key)) {
             res[prop][key] = cfg[prop][key];
           } else {
             res[prop][key] = this[prop][key];
@@ -686,7 +721,28 @@ var customSymbolTypes = d3.map({
            ' M 0 ' + (-r) + ' v ' + l + 
            ' M ' + r + ' 0 h ' + (-l) +  
            ' M 0 ' + r + ' v ' + (-l);
-  }
+  },
+  'cross-circle': function(size) {
+    var s = Math.sqrt(size), 
+        r = s/2;
+    return 'M' + (-r) + ',' + (-r) +
+    ' m' + (-r) + ',0' +
+    ' a' + r + ',' + r + ' 0 1,0' + (r * 2) + ',0' +
+    ' a' + r + ',' + r + ' 0 1,0' + (-(r * 2)) + ',0' +
+    ' M' + (-r) + ' 0 h ' + (s) + 
+    ' M 0 ' + (-r) + ' v ' + (s);
+        
+  },
+  'stroke-circle': function(size) {
+    var s = Math.sqrt(size), 
+        r = s/2;
+    return 'M' + (-r) + ',' + (-r) +
+    ' m' + (-r) + ',0' +
+    ' a' + r + ',' + r + ' 0 1,0' + (r * 2) + ',0' +
+    ' a' + r + ',' + r + ' 0 1,0' + (-(r * 2)) + ',0' +
+    ' M' + (-s-2) + ',' + (-s-2) + ' l' + (s+4) + ',' + (s+4);
+
+  } 
 });
 
 d3.svg.customSymbol = function() {
@@ -708,6 +764,30 @@ d3.svg.customSymbol = function() {
   return symbol;
 };
 
+
+
+
+function $(id) { return document.getElementById(id); }
+function px(n) { return n + "px"; } 
+function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
+function sign(x) { return x ? x < 0 ? -1 : 1 : 0; }
+
+function has(o, key) { return o !== null && hasOwnProperty.call(o, key); }
+function isNumber(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
+function isArray(o) { return Object.prototype.toString.call(o) === "[object Array]"; }
+function isObject(o) { var type = typeof o;  return type === 'function' || type === 'object' && !!o; }
+function isFunction(o) { return typeof o == 'function' || false; }
+
+
+function attach(node, event, func) {
+  if (node.addEventListener) node.addEventListener(event, func, false);
+  else node.attachEvent("on" + event, func); 
+}
+
+function stopPropagation(e) {
+  if (typeof e.stopPropagation != "undefined") e.stopPropagation();
+  else e.cancelBubble = true;
+}
 
 
 // Copyright 2014, Jason Davies, http://www.jasondavies.com

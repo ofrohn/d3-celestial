@@ -18,13 +18,13 @@ var customSymbolTypes = d3.map({
   },
   'cross-circle': function(size) {
     var s = Math.sqrt(size), 
-        r = s/2, ri = s/4;
+        r = s/2;
     return 'M' + (-r) + ',' + (-r) +
     ' m' + (-r) + ',0' +
     ' a' + r + ',' + r + ' 0 1,0' + (r * 2) + ',0' +
     ' a' + r + ',' + r + ' 0 1,0' + (-(r * 2)) + ',0' +
-    ' M ' + (-r-2) + ' 0 h ' + (r*2+4) + 
-    ' M 0 ' + (-r-2) + ' v ' + (r*2+4);
+    ' M' + (-r) + ' 0 h ' + (s) + 
+    ' M 0 ' + (-r) + ' v ' + (s);
         
   },
   'stroke-circle': function(size) {
@@ -34,7 +34,7 @@ var customSymbolTypes = d3.map({
     ' m' + (-r) + ',0' +
     ' a' + r + ',' + r + ' 0 1,0' + (r * 2) + ',0' +
     ' a' + r + ',' + r + ' 0 1,0' + (-(r * 2)) + ',0' +
-    ' M ' + (-r-2) + ' 0 h ' + (r*2+4);
+    ' M' + (-s-2) + ',' + (-s-2) + ' l' + (s+4) + ',' + (s+4);
 
   } 
 });

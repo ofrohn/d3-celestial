@@ -1,9 +1,9 @@
-/* global Celestial, projections */
+/* global Celestial, projections, has */
 //Flipped projection generated on the fly
 Celestial.projection = function(projection) {
   var p, trans, raw, forward;
   
-  if (!projections.hasOwnProperty(projection)) { throw new Error("Projection not supported: " + projection); }
+  if (!has(projections, projection)) { throw new Error("Projection not supported: " + projection); }
   p = projections[projection];
     
   if (p.arg !== null) {

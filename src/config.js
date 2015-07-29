@@ -1,4 +1,4 @@
-/* global d3, Celestial */
+/* global d3, Celestial, has */
 //Defaults
 var settings = { 
   width: 0,     // Default width; height is determined by projection
@@ -52,16 +52,16 @@ var settings = {
     var prop, key, res = {};
     if (!cfg) return this; 
     for (prop in this) {
-      if (!this.hasOwnProperty(prop)) continue; 
+      if (!has(this, prop)) continue; 
       if (typeof(this[prop]) === 'function') continue; 
-      if (!cfg.hasOwnProperty(prop) || cfg[prop] === null) { 
+      if (!has(cfg, prop) || cfg[prop] === null) { 
         res[prop] = this[prop]; 
       } else if (this[prop] === null || this[prop].constructor != Object ) {
         res[prop] = cfg[prop];
       } else {
         res[prop] = {};
         for (key in this[prop]) {
-          if (cfg[prop].hasOwnProperty(key)) {
+          if (has(cfg[prop], key)) {
             res[prop][key] = cfg[prop][key];
           } else {
             res[prop][key] = this[prop][key];
