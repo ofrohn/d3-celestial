@@ -10,6 +10,7 @@ var Celestial = {
 Celestial.display = function(config) {
   var circle, par, svg = Celestial.svg;
   
+  //Mash config with default settings
   var cfg = settings.set(config); 
   cfg.stars.size = cfg.stars.size || 7;
   
@@ -243,7 +244,8 @@ Celestial.display = function(config) {
   Celestial.clip = clip;
   Celestial.point = point;
   Celestial.opacity = opacity;
-  Celestial.projection = projection;
+  Celestial.map = map;
+  Celestial.mapProjection = projection;
 
   function redraw() {
     if (!d3.event) return; 

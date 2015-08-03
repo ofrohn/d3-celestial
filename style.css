@@ -6,7 +6,7 @@ text { stroke: none; fill: #fff; font: 11px Helvetica, Arial, sans-serif; }
 .stroke { fill: none; stroke: #fff; stroke-width: 3px; }
 .fill { fill: none; }
 .gridline { fill: none; stroke: #ccc; stroke-width: .5px; stroke-opacity: .8; }
-.outline { }
+.outline { stroke:#000; }
 /* Constellations */
 .boundaryline { fill: none; stroke: #cc0; stroke-width: .5px; stroke-opacity: .8; stroke-dasharray: 6,3; }
 .constline { fill: none; stroke: #999; stroke-width: 1px; stroke-opacity: .8; }
@@ -24,7 +24,7 @@ text { stroke: none; fill: #fff; font: 11px Helvetica, Arial, sans-serif; }
 .mw { fill: #fff; fill-opacity: 0.12; }
 /* DSO standard styles */
 .gg { stroke: #f00; fill: #f00 }  /* Galaxy cluster */
-.g { stroke: #f00; fill: #f00 }  /* Generic galaxy */
+.g { stroke: #f00; fill: #f00 }  /* Generic galaxy  */
 .s { stroke: #f00; fill: #f00 }  /* Spiral galaxy */
 .s0 { stroke: #f00; fill: #f00 }  /* Lenticular galaxy */
 .sd { stroke: #f00; fill: #f00 }  /* Dwarf (spiral) galaxy */

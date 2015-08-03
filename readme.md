@@ -84,10 +84,13 @@ __Exposed functions & objects__
   
 * `Celestial.svg`  
    The svg object to add data to in the callback. See D3.js documentation 
+
+* `Celestial.map` 
+   The svg path object to add svg-objects to in the callback. Also see D3.js documentation 
   
-* `Celestial.projection`  
+* `Celestial.mapProjection`  
    The projection object for access to its properties and functions. Also D3.js documentation
-  
+
 * `Celestial.point(coordinates)`  
   `Celestial.clip(coordinates)`  
   `Celestial.opacity(coordinates)`  
