@@ -11,6 +11,7 @@ var Celestial = {
 Celestial.display = function(config) {
   var circle, par, svg = Celestial.svg;
   
+  //Mash config with default settings
   var cfg = settings.set(config); 
   cfg.stars.size = cfg.stars.size || 7;
   
@@ -84,7 +85,7 @@ Celestial.display = function(config) {
 
   //Celestial planes
   for (var key in cfg.lines) {
-    if (has(cfg.lines, "key") && key != "graticule" && cfg.lines[key] !== false) { 
+    if (has(cfg.lines, key) && key != "graticule" && cfg.lines[key] !== false) { 
       svg.append("path")
          .datum(d3.geo.circle().angle([90]).origin(poles[key]) )
          .attr("class", key)
@@ -244,7 +245,8 @@ Celestial.display = function(config) {
   Celestial.clip = clip;
   Celestial.point = point;
   Celestial.opacity = opacity;
-  Celestial.projection = projection;
+  Celestial.map = map;
+  Celestial.mapProjection = projection;
 
   function redraw() {
     if (!d3.event) return; 
@@ -305,7 +307,7 @@ Celestial.display = function(config) {
   }
 
   function dsoShape(type) {
-    if (!type || !has(symbols, "type")) return "circle"; 
+    if (!type || !has(symbols, type)) return "circle"; 
     else return symbols[type]; 
   }
 
