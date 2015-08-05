@@ -558,7 +558,7 @@
     "type": "SBm V pec",
     "sub": "MW",
     "pop": "",
-    "str": "Mag"
+    "str": "<b class='Mag'>Mag</b>"
    },
    "geometry": {
     "type": "Point",
@@ -642,7 +642,7 @@
     "type": "dSph",
     "sub": "MW",
     "pop": "",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -915,7 +915,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "",
-    "str": "Sgr"
+    "str": "<b class='Sgr'>Sgr</b>"
    },
    "geometry": {
     "type": "Point",
@@ -936,7 +936,7 @@
     "type": "GC/UFD",
     "sub": "MW",
     "pop": "",
-    "str": "Sgr?"
+    "str": "<b class='Sgr'>Sgr</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -952,12 +952,12 @@
    "properties": {
     "name": "Eridanus III",
     "desig": "",
-    "mag": "",
-    "dim": "",
+    "mag": "18.4",
+    "dim": "1.1x0.8",
     "type": "GC/UFD",
     "sub": "MW",
     "pop": "",
-    "str": "Mag?"
+    "str": "<b class='Mag'>Mag</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -978,7 +978,7 @@
     "type": "dSph",
     "sub": "MW",
     "pop": "",
-    "str": "FLS Mag?"
+    "str": "<b class='FLS'>FLS</b> <b class='Mag'>Mag</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -994,12 +994,12 @@
    "properties": {
     "name": "Horologium I",
     "desig": "",
-    "mag": "",
-    "dim": "",
+    "mag": "16.8",
+    "dim": "2.6x1.8",
     "type": "GC/UFD",
     "sub": "MW",
     "pop": "",
-    "str": "Mag?"
+    "str": "<b class='Mag'>Mag</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -1041,7 +1041,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1062,7 +1062,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "BD",
-    "str": "CMa?"
+    "str": "<b class='CMa'>CMa</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -1078,12 +1078,12 @@
    "properties": {
     "name": "Reticulum II",
     "desig": "",
-    "mag": "",
-    "dim": "",
+    "mag": "15.4",
+    "dim": "7.2x3.0",
     "type": "GC/UFD",
     "sub": "MW",
     "pop": "",
-    "str": "Mag?"
+    "str": "<b class='Mag'>Mag</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -1099,8 +1099,8 @@
    "properties": {
     "name": "Eridanus II",
     "desig": "",
-    "mag": "",
-    "dim": "",
+    "mag": "17.0",
+    "dim": "3.1x1.9",
     "type": "UFD",
     "sub": "MW",
     "pop": "",
@@ -1125,7 +1125,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1167,7 +1167,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1204,8 +1204,8 @@
    "properties": {
     "name": "Pictoris I",
     "desig": "",
-    "mag": "",
-    "dim": "",
+    "mag": "17.7",
+    "dim": "1.8x1.0",
     "type": "GC/UFD",
     "sub": "MW?",
     "pop": "",
@@ -1230,7 +1230,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "Sgr?"
+    "str": "<b class='Sgr'>Sgr</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -1251,7 +1251,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "OH",
-    "str": "CMa"
+    "str": "<b class='CMa'>CMa</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1272,7 +1272,7 @@
     "type": "SBm V",
     "sub": "MW",
     "pop": "",
-    "str": "Mag"
+    "str": "<b class='Mag'>Mag</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1293,7 +1293,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "OH",
-    "str": "CMa"
+    "str": "<b class='CMa'>CMa</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1314,7 +1314,7 @@
     "type": "dSph",
     "sub": "MW",
     "pop": "",
-    "str": "Mag"
+    "str": "<b class='Mag'>Mag</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1335,7 +1335,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "OH",
-    "str": "CMa"
+    "str": "<b class='CMa'>CMa</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1356,7 +1356,7 @@
     "type": "dIrr",
     "sub": "MW",
     "pop": "",
-    "str": "CMa"
+    "str": "<b class='CMa'>CMa</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1461,7 +1461,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "OH",
-    "str": "CMa (N)"
+    "str": "<b class='CMa'>CMa</b> (N)"
    },
    "geometry": {
     "type": "Point",
@@ -1629,7 +1629,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1650,7 +1650,7 @@
     "type": "GC/UFD",
     "sub": "MW",
     "pop": "",
-    "str": "FLS? Sgr?"
+    "str": "<b class='FLS'>FLS</b>? <b class='Sgr'>Sgr</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -1671,7 +1671,7 @@
     "type": "dSph",
     "sub": "MW",
     "pop": "",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1713,7 +1713,7 @@
     "type": "dSph",
     "sub": "MW",
     "pop": "",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1771,7 +1771,7 @@
    "properties": {
     "name": "UMa I",
     "desig": "",
-    "mag": "",
+    "mag": "15.3",
     "dim": "23.0x12.0",
     "type": "UFD",
     "sub": "MW",
@@ -1818,7 +1818,7 @@
     "type": "dSph pec",
     "sub": "MW",
     "pop": "",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1839,7 +1839,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1860,7 +1860,7 @@
     "type": "UFD",
     "sub": "MW",
     "pop": "",
-    "str": "FLS?"
+    "str": "<b class='FLS'>FLS</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -1881,7 +1881,7 @@
     "type": "UFD",
     "sub": "MW",
     "pop": "",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1923,7 +1923,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "Sgr?"
+    "str": "<b class='Sgr'>Sgr</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -1944,7 +1944,7 @@
     "type": "dSph(t)",
     "sub": "MW",
     "pop": "",
-    "str": "Sgr"
+    "str": "<b class='Sgr'>Sgr</b>"
    },
    "geometry": {
     "type": "Point",
@@ -1986,7 +1986,7 @@
     "type": "GC/UFD",
     "sub": "MW",
     "pop": "",
-    "str": "FLS Sgr?"
+    "str": "<b class='FLS'>FLS</b> <b class='Sgr'>Sgr</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -2007,7 +2007,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "CMa?"
+    "str": "<b class='CMa'>CMa</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -2028,7 +2028,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "CMa?"
+    "str": "<b class='CMa'>CMa</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -2049,7 +2049,7 @@
     "type": "UFD",
     "sub": "MW",
     "pop": "",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -2112,7 +2112,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "OH",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -2133,7 +2133,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "FLS Sgr?"
+    "str": "<b class='FLS'>FLS</b> <b class='Sgr'>Sgr</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -2154,7 +2154,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "",
-    "str": "(R) (N)"
+    "str": "(N) (R)"
    },
    "geometry": {
     "type": "Point",
@@ -2175,7 +2175,7 @@
     "type": "dSph",
     "sub": "MW",
     "pop": "",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -2238,7 +2238,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "",
-    "str": "Sgr?"
+    "str": "<b class='Sgr'>Sgr</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -2280,7 +2280,7 @@
     "type": "GC/UFD",
     "sub": "MW",
     "pop": "",
-    "str": "Sgr?"
+    "str": "<b class='Sgr'>Sgr</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -2343,7 +2343,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "OH",
-    "str": "Sgr"
+    "str": "<b class='Sgr'>Sgr</b>"
    },
    "geometry": {
     "type": "Point",
@@ -2427,7 +2427,7 @@
     "type": "dSph",
     "sub": "MW",
     "pop": "",
-    "str": "Mag"
+    "str": "<b class='Mag'>Mag</b>"
    },
    "geometry": {
     "type": "Point",
@@ -2616,7 +2616,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -2973,7 +2973,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "OH",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -3204,7 +3204,7 @@
     "type": "dSph pec",
     "sub": "MW",
     "pop": "",
-    "str": "Mag"
+    "str": "<b class='Mag'>Mag</b>"
    },
    "geometry": {
     "type": "Point",
@@ -3666,7 +3666,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -4611,7 +4611,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "Sgr (N)"
+    "str": "<b class='Sgr'>Sgr</b> (N)"
    },
    "geometry": {
     "type": "Point",
@@ -4653,7 +4653,7 @@
     "type": "dSph(t)",
     "sub": "MW",
     "pop": "",
-    "str": "Sgr"
+    "str": "<b class='Sgr'>Sgr</b>"
    },
    "geometry": {
     "type": "Point",
@@ -4779,7 +4779,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "Sgr"
+    "str": "<b class='Sgr'>Sgr</b>"
    },
    "geometry": {
     "type": "Point",
@@ -4821,7 +4821,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "Sgr"
+    "str": "<b class='Sgr'>Sgr</b>"
    },
    "geometry": {
     "type": "Point",
@@ -4884,7 +4884,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "OH",
-    "str": "Sgr"
+    "str": "<b class='Sgr'>Sgr</b>"
    },
    "geometry": {
     "type": "Point",
@@ -4968,7 +4968,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "OH",
-    "str": "FLS"
+    "str": "<b class='FLS'>FLS</b>"
    },
    "geometry": {
     "type": "Point",
@@ -5068,8 +5068,8 @@
    "properties": {
     "name": "Indus I",
     "desig": "",
-    "mag": "",
-    "dim": "",
+    "mag": "17.2",
+    "dim": "2.5x1.6",
     "type": "GC/UFD",
     "sub": "MW",
     "pop": "",
@@ -5178,7 +5178,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "Sgr"
+    "str": "<b class='Sgr'>Sgr</b>"
    },
    "geometry": {
     "type": "Point",
@@ -5257,12 +5257,12 @@
    "properties": {
     "name": "Tucana II",
     "desig": "",
-    "mag": "",
-    "dim": "",
+    "mag": "15.7",
+    "dim": "19.7x12.0",
     "type": "UFD",
     "sub": "MW",
     "pop": "",
-    "str": "Mag?"
+    "str": "<b class='Mag'>Mag</b>?"
    },
    "geometry": {
     "type": "Point",
@@ -5278,8 +5278,8 @@
    "properties": {
     "name": "Grus I",
     "desig": "",
-    "mag": "",
-    "dim": "",
+    "mag": "17.7",
+    "dim": "3.5x2.1",
     "type": "GC/UFD",
     "sub": "MW",
     "pop": "",
@@ -5300,7 +5300,7 @@
     "name": "Lac I",
     "desig": "And XXXI",
     "mag": "12.7",
-    "dim": "",
+    "dim": "8.4x4.9",
     "type": "dSph",
     "sub": "M31",
     "pop": "",
@@ -5346,7 +5346,7 @@
     "type": "GC",
     "sub": "MW",
     "pop": "YH",
-    "str": "Mag (R)"
+    "str": "<b class='Mag'>Mag</b> (R)"
    },
    "geometry": {
     "type": "Point",
@@ -5446,12 +5446,12 @@
    "properties": {
     "name": "Phoenix II",
     "desig": "",
-    "mag": "",
-    "dim": "",
+    "mag": "17.5",
+    "dim": "2.2x1.2",
     "type": "GC/UFD",
     "sub": "MW",
     "pop": "",
-    "str": "Mag?"
+    "str": "<b class='Mag'>Mag</b>?"
    },
    "geometry": {
     "type": "Point",
