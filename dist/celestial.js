@@ -2,13 +2,14 @@
 !(function() {
 var Celestial = {
   version: '0.4.3',
+  svg: null,
   data: []
 };
 
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
-  var circle, par, svg;
+  var circle, par, svg = Celestial.svg;
   
   //Mash config with default settings
   var cfg = settings.set(config); 

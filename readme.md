@@ -76,11 +76,13 @@ most of these need the extension [d3.geo.projections](https://github.com/d3/d3-g
 ### Adding Data
 
 __Exposed functions & objects__  
-* `Celestial.add(file, callback, redraw)`  
-   Function to add data in json-format to the display
-   _file_: complete path to json data file  
-   _callback_: callback function to call when json is loaded  
-   _redraw_: for interactive display, call when view changes  
+* `Celestial.add({file:string, type:dso|line, callback:function, redraw:function)`  
+   Function to add data in json-format (dso) or directly (line) to the display
+   _file_: complete url/path to json data file (type:dso)
+   _type_: type of data being added
+   _callback_: callback function to call when json is loaded (dso)
+               or to directly add elements to the path (line)
+   _redraw_: for interactive display, call when view changes (optional) 
   
 * `Celestial.svg`  
    The svg object to add data to in the callback. See D3.js documentation 
