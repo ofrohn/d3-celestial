@@ -1,14 +1,13 @@
 /* global settings, symbols, bvcolor, projections, poles, eulerAngles, halfπ, $, px, has */
 var Celestial = {
   version: '0.4.3',
-  svg: null,
   data: []
 };
 
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
-  var circle, par, svg = Celestial.svg;
+  var circle, par, svg;
   
   //Mash config with default settings
   var cfg = settings.set(config); 
@@ -205,10 +204,11 @@ Celestial.display = function(config) {
     });
   }
 
-  if (Celestial.data.length > 0) { 
-    Celestial.data.every( function(d) {
-       d3.json(d.file, d.callback);
-    });
+  if (this.data.length > 0) { 
+    this.data.forEach( function(d) {
+      if (has(d, "file")) d3.json(d.file, d.callback);
+      else setTimeout(d.callback, 0);
+    }, this);
   }
   
   d3.select(window).on('resize', function() {
@@ -224,7 +224,13 @@ Celestial.display = function(config) {
     redraw();
   });
   
-  Celestial.svg = svg;
+  // Exported objects for adding data
+  this.svg = svg;
+  this.clip = clip;
+  this.point = point;
+  this.opacity = opacity;
+  this.map = map;
+  this.mapProjection = projection;
   
   // Helper functions
   
@@ -240,12 +246,6 @@ Celestial.display = function(config) {
     var opa = clip(coords);
     return 'stroke-opacity:' + opa + ';fill-opacity:' + opa; 
   }
-
-  Celestial.clip = clip;
-  Celestial.point = point;
-  Celestial.opacity = opacity;
-  Celestial.map = map;
-  Celestial.mapProjection = projection;
 
   function redraw() {
     if (!d3.event) return; 
@@ -288,8 +288,8 @@ Celestial.display = function(config) {
     svg.selectAll(".gridline").attr("d", map);  
     
     if (Celestial.data.length > 0) { 
-      Celestial.data.every( function(d) {
-         d.redraw();
+      Celestial.data.forEach( function(d) {
+        d.redraw();
       });
     }
     
