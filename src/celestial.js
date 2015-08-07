@@ -235,7 +235,7 @@ Celestial.display = function(config) {
   this.opacity = opacity;
   this.map = map;
   this.mapProjection = projection;
-  this.resize = function() { resize(); };
+  this.resize = function() { resize(); }; 
   
   // Helper functions
   
