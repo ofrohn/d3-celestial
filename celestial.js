@@ -217,7 +217,7 @@ Celestial.display = function(config) {
   
   
   function resize() {
-    if (cfg.width) return;
+    if (cfg.width && cfg.width > 0) return;
     width = getWidth();
     height = width/ratio;
     var scale = proj.scale * width/1024;
@@ -236,7 +236,7 @@ Celestial.display = function(config) {
   this.opacity = opacity;
   this.map = map;
   this.mapProjection = projection;
-  this.resize = function() { resize(); };
+  this.resize = function() { resize(); }; 
   
   // Helper functions
   
@@ -254,7 +254,7 @@ Celestial.display = function(config) {
   }
 
   function redraw() {
-    if (!d3.event) return; 
+    //if (!d3.event) return; 
     //d3.event.preventDefault();
     var rot = projection.rotate();
     projOl.scale(projection.scale());
@@ -346,7 +346,7 @@ Celestial.display = function(config) {
   }
   
   function getWidth() {
-    if (cfg.width) return cfg.width;
+    if (cfg.width && cfg.width > 0) return cfg.width;
     return parent ? parent.clientWidth - 16 : window.innerWidth - 24;
   }
   
