@@ -212,7 +212,10 @@ Celestial.display = function(config) {
     }, this);
   }
   
-  d3.select(window).on('resize', function() {
+  d3.select(window).on('resize', resize);
+  
+  
+  function resize() {
     if (cfg.width) return;
     width = getWidth();
     height = width/ratio;
@@ -223,15 +226,16 @@ Celestial.display = function(config) {
     projOl.translate([width/2, height/2]);
     if (parent) parent.style.height = px(height);
     redraw();
-  });
+  }
   
-  // Exported objects for adding data
+  // Exported objects and functions for adding data
   this.svg = svg;
   this.clip = clip;
   this.point = point;
   this.opacity = opacity;
   this.map = map;
   this.mapProjection = projection;
+  this.resize = function() { resize(); };
   
   // Helper functions
   
