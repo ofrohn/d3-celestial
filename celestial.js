@@ -256,8 +256,10 @@ Celestial.display = function(config) {
   function redraw() {
     //if (!d3.event) return; 
     //d3.event.preventDefault();
+    
     var rot = projection.rotate();
     projOl.scale(projection.scale());
+    
     if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/scale);
     base = cfg.stars.size * adapt;
     center = [-rot[0], -rot[1]];
