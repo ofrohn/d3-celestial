@@ -12,13 +12,13 @@ Celestial.display = function(config) {
   
   //Mash config with default settings
   var cfg = settings.set(config); 
-  cfg.stars.size = cfg.stars.size || 7;
+  cfg.stars.size = cfg.stars.size || 7;  //Nothung works without starsize
   
   var parent = $(cfg.container);
   if (parent) { 
     par = "#"+cfg.container;
     var stl = window.getComputedStyle(parent, null);
-    if (!stl.width && !cfg.width) parent.style.width = px(parent.parentNode.clientWidth);    
+    if (!parseInt(stl.width) && !cfg.width) parent.style.width = px(window.innerWidth);    
   } else { 
     par = "body"; 
     parent = null; 
