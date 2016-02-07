@@ -39,10 +39,10 @@
   "type": "FeatureCollection",
   "features": [{
     "type": "Feature",
-    "id": "",           // 3-letter designator of contellation
+    "id": "",           // 3-letter designator of constellation
     "geometry": {  
       "type": "MultiLineString",
-      "coordinates": [[[],[]],[[],[]]]
+      "coordinates": [[[],[],..],[[],[],..],..]
     }
   }, { } ]
 }
@@ -55,7 +55,7 @@
     "id": "",           // 3-letter designator of contellation
     "geometry": {  
       "type": "Polygon",
-      "coordinates": [[[],[]]]
+      "coordinates": [[[],[],..]]
     },
   }, { } ]
 }
@@ -87,7 +87,7 @@
     "properties": {},
     "geometry": {
       "type": "MultiPolygon",
-      "coordinates":[[[[],[]],[[],[]]]]
+      "coordinates":[[[[],[],..],[[],[],..],..]]
     }
   }, { } ]
 }

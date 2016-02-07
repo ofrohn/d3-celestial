@@ -109,6 +109,9 @@ Celestial.display = function(config) {
   if (cfg.constellations.show) { 
     d3.json(path + "constellations.json", function(error, json) {
       if (error) return console.warn(error);
+      
+      con = getData(json);
+      
       svg.selectAll(".constnames")
          .data(json.features)
          .enter().append("text")
