@@ -1,11 +1,13 @@
 //load data and transform coordinates
 
-function getData(d) {
+function getData(d, trans) {
   if (trans === "equatorial") return d;
 
-  var le = euler[trans];
+  var le = euler[trans],
+      coll = d.features;
 
-  d.geometry.coordinates = translate(d, le);
+  for (var i=0; i<coll.length; i++)
+    coll[i].geometry.coordinates = translate(coll[i], le);
   
   return d;
 }
@@ -17,27 +19,27 @@ function translate(d, le) {
     case "LineString": res.push(transLine(d.geometry.coordinates, le)); break;
     case "MultiLineString": res = transMultiLine(d.geometry.coordinates, le); break;
     case "Polygon": res.push(transLine(d.geometry.coordinates, le)); break;
-    case "MultiPolygon": res.push(transMultiLine(d.geometry.coordinates, le)); break;
+    case "MultiPolygon": res.push(transMultiLine(d.geometry.coordinates[0], le)); break;
   }
   
   return res;
 }
 
-function transLine(c, trans) {
+function transLine(c, le) {
   res = [];
   
   for (var i=0; i<c.length; i++)
-  res.push(transformDeg(c[i], euler[trans]));
+    res.push(transformDeg(c[i], le));
   
   return res;
 }
 
-function transMultiLine(c, trans) {
+function transMultiLine(c, le) {
   res = [];
   
   for (var i=0; i<c.length; i++)
-  res.push(transLine(c[i], trans));
+    res.push(transLine(c[i], le));
   
-  return res;
+  return [res];
 }
 

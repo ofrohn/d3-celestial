@@ -34,7 +34,7 @@
   }, { } ]
 }
 
-//Lines
+//Constellation lines
 {
   "type": "FeatureCollection",
   "features": [{
@@ -47,7 +47,7 @@
   }, { } ]
 }
 
-//Boundaries
+//Constellation boundaries
 {
   "type": "FeatureCollection",
   "features": [{

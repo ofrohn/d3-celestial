@@ -75,11 +75,11 @@ Celestial.display = function(config) {
   }
 
   if (cfg.lines.graticule) {
-    if (trans == "equatorial") {
+    //if (trans == "equatorial") {
       svg.append("path").datum(graticule).attr("class", "gridline").attr("d", map);
-    } else {
-      Celestial.graticule(svg, map, trans);
-    }
+    //} else {
+    //  Celestial.graticule(svg, map, trans);
+    //}
   }
 
   //Celestial planes
@@ -98,8 +98,11 @@ Celestial.display = function(config) {
       window.alert("Your Browser doesn't support local file loading or the file doesn't exist. See readme.md");
       return console.warn(error);  
     }
+
+    mw = getData(json, trans);
+
     svg.selectAll(".mway")
-       .data(json.features)
+       .data(mw.features)
        .enter().append("path")
        .attr("class", "mw")
        .attr("d", map);
@@ -110,10 +113,10 @@ Celestial.display = function(config) {
     d3.json(path + "constellations.json", function(error, json) {
       if (error) return console.warn(error);
       
-      con = getData(json);
+      con = getData(json, trans);
       
       svg.selectAll(".constnames")
-         .data(json.features)
+         .data(con.features)
          .enter().append("text")
          .attr("class", "constname")
          .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
@@ -125,8 +128,11 @@ Celestial.display = function(config) {
     if (cfg.constellations.bounds) { 
       d3.json(path + "constellations.bounds.json", function(error, json) {
         if (error) return console.warn(error);
+
+        conb = getData(json, trans);
+
         svg.selectAll(".bounds")
-           .data(json.features)
+           .data(conb.features)
            .enter().append("path")
            .attr("class", "boundaryline")
            .attr("d", map);
@@ -137,8 +143,11 @@ Celestial.display = function(config) {
     if (cfg.constellations.lines) { 
       d3.json(path + "constellations.lines.json", function(error, json) {
         if (error) return console.warn(error);
+
+        conl = getData(json, trans);
+
         svg.selectAll(".lines")
-           .data(json.features)
+           .data(conl.features)
            .enter().append("path")
            .attr("class", "constline")
            .attr("d", map);
@@ -150,8 +159,11 @@ Celestial.display = function(config) {
   if (cfg.stars.show) { 
     d3.json(path + cfg.stars.data, function(error, json) {
       if (error) return console.warn(error);
+
+      st = getData(json, trans);
+
       svg.selectAll(".stars")
-         .data(json.features.filter( function(d) {
+         .data(st.features.filter( function(d) {
            return d.properties.mag <= cfg.stars.limit; 
          }))
          .enter().append("path")
@@ -165,7 +177,7 @@ Celestial.display = function(config) {
 
       if (cfg.stars.names) { 
         svg.selectAll(".starnames")
-           .data(json.features.filter( function(d) {
+           .data(st.features.filter( function(d) {
              return d.properties.mag <= cfg.stars.namelimit; 
            }))
            .enter().append("text")
@@ -355,7 +367,7 @@ Celestial.display = function(config) {
   }
   
   function getAngles(coords) {
-    var rot = eulerAngles[trans], ctr = 0;
+    var rot = eulerAngles['equatorial'], ctr = 0;
     if (!coords || trans !== 'equatorial') {
       if (trans === 'equatorial' || trans === 'ecliptic') ctr = 180;
       return [rot[0] - ctr, rot[1], rot[2]];
