@@ -86,7 +86,7 @@ Celestial.display = function(config) {
   for (var key in cfg.lines) {
     if (has(cfg.lines, key) && key != "graticule" && cfg.lines[key] !== false) { 
       svg.append("path")
-         .datum(d3.geo.circle().angle([90]).origin(poles[key]) )
+         .datum(d3.geo.circle().angle([90]).origin(transformDeg(poles[key], euler[trans])) )
          .attr("class", key)
          .attr("d", map);
     }

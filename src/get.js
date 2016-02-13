@@ -18,7 +18,7 @@ function translate(d, le) {
     case "Point": res = transformDeg(d.geometry.coordinates, le); break;
     case "LineString": res.push(transLine(d.geometry.coordinates, le)); break;
     case "MultiLineString": res = transMultiLine(d.geometry.coordinates, le); break;
-    case "Polygon": res.push(transLine(d.geometry.coordinates, le)); break;
+    case "Polygon": res.push(transLine(d.geometry.coordinates[0], le)); break;
     case "MultiPolygon": res.push(transMultiLine(d.geometry.coordinates[0], le)); break;
   }
   
@@ -26,20 +26,20 @@ function translate(d, le) {
 }
 
 function transLine(c, le) {
-  res = [];
+  line = [];
   
   for (var i=0; i<c.length; i++)
-    res.push(transformDeg(c[i], le));
+    line.push(transformDeg(c[i], le));
   
-  return res;
+  return line;
 }
 
 function transMultiLine(c, le) {
-  res = [];
+  lines = [];
   
   for (var i=0; i<c.length; i++)
-    res.push(transLine(c[i], le));
+    lines.push(transLine(c[i], le));
   
-  return [res];
+  return lines;
 }
 
