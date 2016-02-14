@@ -48,10 +48,12 @@ text.pos { stroke: none; fill: #ccc }
 text.gg, text.g, text.s, text.s0, text.sd, text.e, text.i, text.gc, text.en, text.rn, text.pn, text.snr { stroke: none; }
 
 /* Form */
-#param-wrap { display: inline-block; position: relative; }
+#form { display: inline-block; position: relative; }
 #error { color:#f00; font-weight:bold; display:none; }
 input { vertical-align: -1px; }
-input[type='number'] { width:48px; text-align:right; margin-left:4px; padding-right:0 }
+input[type='number'] { width:48px; text-align:right; padding-right:0 }
 input[type='checkbox'] { vertical-align: -2px; }
 input[name='width'], input[type='color'] { width:48px; }
 .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }
+label { margin:0 4px 0 8px; }
+label:first-child { margin-left:0; }
