@@ -56,4 +56,6 @@ input[type='checkbox'] { vertical-align: -2px; }
 input[name='width'], input[type='color'] { width:48px; }
 .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }
 label { margin:0 4px 0 8px; }
-label:first-child { margin-left:0; }
+label.header { font-weight:bold; }
+input + span { margin:0 4px 0 2px; }
+label:first-child, br + label { margin-left:0; }
