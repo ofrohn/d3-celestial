@@ -49,11 +49,12 @@ text.gg, text.g, text.s, text.s0, text.sd, text.e, text.i, text.gc, text.en, tex
 
 /* Form */
 #form { display: inline-block; position: relative; }
-#error { color:#f00; font-weight:bold; display:none; }
-input { vertical-align: -1px; }
+#error { position:absolute; min-width:100px; height:auto; padding: 2px 4px; color:#f00; background:#fff; border:2px solid #f00; border-radius:3px; font-weight:normal; display:block; top:-9999px; left:-9999px; opacity:0; transition:opacity 1s linear; }
+input { vertical-align: 0px; }
 input[type='number'] { width:48px; text-align:right; padding-right:0 }
 input[type='checkbox'] { vertical-align: -2px; }
 input[name='width'], input[type='color'] { width:48px; }
+input[type='button'] { width:64px; margin:0 0 0 8px; vertical-align: 2px; }
 .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }
 label { margin:0 4px 0 8px; }
 label.header { font-weight:bold; }
