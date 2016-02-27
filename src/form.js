@@ -28,7 +28,7 @@ function form(cfg) {
   
   selected = 0;
   col.append("label").attr("title", "Coordinate space in which the map is displayed").attr("for", "transform").html("Coordinates");
-  var sel = col.append("select").attr("id", "transform").on("change", function() { cfg.projection = this.options[this.selectedIndex].value });
+  var sel = col.append("select").attr("id", "transform").on("change", function() { cfg.transform = this.options[this.selectedIndex].value });
   var list = Object.keys(leo).map(function (key, i) {
     if (key === cfg.transform) selected = i;    
     return {o:key, n:key.replace(/^([a-z])/, function(s, m) { return m.toUpperCase(); } )} 
@@ -40,8 +40,22 @@ function form(cfg) {
   col.append("br");
   
   col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
-  col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/lngitude").attr("value", cfg.center[0]).attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", function() { if (testNumber(this)) cfg.center[0] = this.value; });
+  col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/lngitude").attr("value", function() { 
+    var cx = cfg.center[0]; 
+    if (cfg.transform !== "equatorial") return cx; 
+    return cx < 0 ? cx / 15 + 24 : cx / 15; 
+  })
+  .attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", function() {
+    var cx = this.value; 
+    if (testNumber(this)) { 
+      if (cfg.transform !== "equatorial") cfg.center[0] = cx; 
+      else { 
+        cfg.center[0] = cx > 12 ? cx * 15 - 360 : cx * 15; 
+      } 
+    }
+  });
   col.append("span").attr("id", "cxunit").html("h");
+  
   col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("value", cfg.center[1]).attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", function() { if (testNumber(this)) cfg.center[1] = this.value; });
   col.append("span").html("\u00b0");
 
@@ -152,18 +166,22 @@ function form(cfg) {
   ctrl.append("div").attr("id", "error");
   
   $("show").onclick = function(e) {
-    
+    var x = $("centerx"),
+        y = $("centery");
     //Test params
-    if (test()) {
-      cfg = parseForm(cfg);
+    if (x.value === "" && y.value !== "" || y.value === "" && x.value !== "") {
+      poErrorh(x, "Both center coordinates need to be given");
+    } else
+    //if (test()) {
+      //cfg = parseForm(cfg);
       Celestial.display(cfg);
-    }
+    //}
     return false;
   }
 
   $("defaults").onclick = function(e) {
     cfg = Celestial.settings().set({width:0, projection:"aitoff"});
-    fillForm(cfg);
+    //fillForm(cfg);
     return false;
   }
   
@@ -175,7 +193,8 @@ var depends = {
   "dsos-show": ["dsos-limit", "dsos-names"],
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
   "constellations-show": ["constellations-names", "constellations-desig", "constellations-lines", "constellations-bounds"]
-}, numeric = ["centerx", "centery", "stars-limit", "Star display limit", "stars-namelimit", "dsos-limit", "dsos-namelimit"];
+};
+//, numeric = ["centerx", "centery", "stars-limit", "Star display limit", "stars-namelimit", "dsos-limit", "dsos-namelimit"];
 
 function enable(source) {
   var fld = source.id, off;
