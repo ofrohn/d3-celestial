@@ -28,7 +28,10 @@ function form(cfg) {
   
   selected = 0;
   col.append("label").attr("title", "Coordinate space in which the map is displayed").attr("for", "transform").html("Coordinates");
-  var sel = col.append("select").attr("id", "transform").on("change", function() { cfg.transform = this.options[this.selectedIndex].value });
+  var sel = col.append("select").attr("id", "transform").on("change", function() { 
+    cfg.transform = this.options[this.selectedIndex].value 
+    setUnit(cfg.transform);    
+ });
   var list = Object.keys(leo).map(function (key, i) {
     if (key === cfg.transform) selected = i;    
     return {o:key, n:key.replace(/^([a-z])/, function(s, m) { return m.toUpperCase(); } )} 
@@ -161,7 +164,7 @@ function form(cfg) {
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", cfg.adaptable).on("change", function() { cfg.adaptable = this.value; });
   
   col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
-  col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
+  //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
 
   ctrl.append("div").attr("id", "error");
   
@@ -169,24 +172,29 @@ function form(cfg) {
     var x = $("centerx"),
         y = $("centery");
     //Test params
+    if (!isNumber(cfg.width)) { popError($("width"), "Check Width setting"); return false; }
+
     if (x.value === "" && y.value !== "" || y.value === "" && x.value !== "") {
-      poErrorh(x, "Both center coordinates need to be given");
-    } else
-    //if (test()) {
-      //cfg = parseForm(cfg);
-      Celestial.display(cfg);
-    //}
+      popError(x, "Both center coordinates need to be given");
+      return false; 
+    } 
+  
+    Celestial.display(cfg);
+
     return false;
   }
 
+  setLimits();
+  setUnit(cfg.transform);
+  /* descoped
   $("defaults").onclick = function(e) {
     cfg = Celestial.settings().set({width:0, projection:"aitoff"});
     //fillForm(cfg);
     return false;
-  }
-  
+  }*/
 }
 
+// Dependend fields relations
 var depends = {
   "stars-show": ["stars-limit", "stars-colors", "stars-color", "stars-names"],
   "stars-names": ["stars-proper", "stars-desig", "stars-namelimit"],
@@ -194,8 +202,8 @@ var depends = {
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
   "constellations-show": ["constellations-names", "constellations-desig", "constellations-lines", "constellations-bounds"]
 };
-//, numeric = ["centerx", "centery", "stars-limit", "Star display limit", "stars-namelimit", "dsos-limit", "dsos-namelimit"];
 
+// De/activate fields depending on selection of dependencies
 function enable(source) {
   var fld = source.id, off;
   
@@ -221,41 +229,20 @@ function enable(source) {
   }  
 }
 
+// Enable/disable field d to status off
 function fldEnable(d, off) {
   var node = $(d);
   node.disabled = off;
-  node.previousSibling.style.color = off ? "#999" : "#000";
-  
+  node.previousSibling.style.color = off ? "#999" : "#000";  
 }
 
-function test() {
-  var err = [], key, t;
-  
-  //Test params
-  if (!isNumber(cfg.width)) err.push("Check Width setting");
-  for (var i = 0; i < numeric.lemgth; i++) {
-    t = testNumber($(numeric[i]));
-    if (t !== 0) err.push(t);
-  }
-
-  if ($("centerx").value === "" && $("centery").value !== "" || $("centery").value === "" && $("centerx").value !== "") {
-    err.push("Both center coordinates need to be given");
-  }
-
-  if (err.length > 0) {
-    $("error").innerHTML = err.join("<br>");
-    $("error").style.display = "block";
-    return false;  
-  }
-  return true;
-}
-
+// Error notification
 function popError(nd, err) {
   //var p = nd.getBoundingClientRect();
   d3.select("#error").html(err).style( {top:px(nd.offsetTop+nd.offsetHeight+1), left:px(nd.offsetLeft), opacity:1} );
 }
 
-
+//Check nmueric field
 function testNumber(nd) {
   var v = nd.value;
   //if (v === "") return true;
@@ -266,27 +253,50 @@ function testNumber(nd) {
   return true;
 }
 
-function getLimits() {
+function setUnit(trans) {
+  var cx = $("centerx");
+  if (trans === 'equatorial') {
+    cx.min = "0";
+    cx.max = "24";
+    $("cxunit").innerHTML = "h";
+  } else {
+    cx.min = "-180";
+    cx.max = "180";
+    $("cxunit").innerHTML = "\u00b0";
+  }
+}
+
+// Set max input limits depending on data
+function setLimits() {
   var t, rx = /\d+(\.\d+)?/g,
       s, d, res = {s:6, d:6},
       cfg =  Celestial.settings();
-  if (typeof dsodata !== 'undefined') d = dsodata;
-  else d = cfg.dsos.data;
+
+  d = cfg.dsos.data;
   
   //test dso limit
   t = d.match(rx);
   if (t !== null) {
     res.d = parseFloat(t[t.length-1]);
   }
-   
 
-  if (typeof stardata !== 'undefined') s = stardata;
-  else s = cfg.stars.data;
+  if (res.d != 6) {
+    $("dsos-limit").max = res.d;
+    $("dsos-namelimit").max = res.d;
+  };
+   
+   s = cfg.stars.data;
   
   //test star limit
   t = s.match(rx);
   if (t !== null) {
     res.s = parseFloat(t[t.length-1]);
   }
+
+  if (res.s != 6) {
+    $("stars-limit").max = res.s;
+    $("stars-namelimit").max = res.s;
+  };
+
   return res;
 }

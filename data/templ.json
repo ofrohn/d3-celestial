@@ -24,8 +24,9 @@
     "id": "",           // 3-letter designator
     "properties": {
       "name": "",       // full name
-      "genitive": ""    // for naming stars, not yet used
+      "genitive": "",   // for naming stars, not yet used
       "desig": "",      // 3-letter designator again
+      "display": []     // [ra,dec,scale]
     },
     "geometry": {  
       "type": "Point",
