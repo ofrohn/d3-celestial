@@ -158,7 +158,7 @@ function form(cfg) {
   col.append("input").attr("type", "checkbox").attr("id", "mw-show").property("checked", cfg.mw.show).on("change", function() { mw.show = this.checked; });
   
   col.append("label").attr("for", "background").html("Background color");
-  col.append("input").attr("type", "color").attr("id", "background").attr("value", cfg.background).on("change", function() { cfg.background = this.value; });
+  col.append("input").attr("type", "color").attr("id", "background").attr("value", cfg.background.fill).on("change", function() { cfg.background.fill = this.value; });
   
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", cfg.adaptable).on("change", function() { cfg.adaptable = this.value; });

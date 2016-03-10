@@ -5,48 +5,80 @@ var settings = {
   projection: "aitoff",  // Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
   transform: "equatorial", // Coordinate transformation: equatorial (default), ecliptic, galactic, supergalactic
   center: null,       // Initial center coordinates in equatorial transformation only [hours, degrees], null = default center
-  background: "#000000", // Background color or gradient  
+  background: { fill:"#000000", stroke:null }, // Background color  
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
+  form: true,
   container: "map",   // ID of parent element, e.g. div
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude
-    colors: true,  // Show stars in spectral colors, if not use "color"
-    color: "#ffffff", // Default color for stars
-    names: true,   // Show star names (css-class starname)
+    colors: true,  // Show stars in spectral colors, if not use fill-style
+    style: { fill:"#ffffff", opacity:1 }, // Default style for stars
+    names: true,   // Show star names 
     proper: false, // Show proper names (if none shows designation)
     desig: true,   // Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
+    namestyle: { stroke:null, fill:"#ddddbb", font:"11px Georgia, Times, 'Times Roman', serif", align:"left", baseline:"top" },
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
     size: 7,       // Maximum size (radius) of star circle in pixels
-    data: 'stars.6.json' // Data source for stellar data
+    data: "stars.6.json" // Data source for stellar data
   },
   dsos: {
-    show: true,    // Show Deep Space Objects (css-class per type)
+    show: true,    // Show Deep Space Objects 
     limit: 6,      // Show only DSOs brighter than limit magnitude
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
+    namestyle: { stroke:null, fill:"#cccccc", font:"11px Helvetica, Arial, serif", align:"left", baseline:"top" },
     namelimit: 4,  // Show only names for DSOs brighter than namelimit
-    data: 'dsos.bright.json'  // Data source for DSOs
+    data: "dsos.bright.json",  // Data source for DSOs
+    symbols: {  //DSO symbol styles
+      gg: {shape: "circle", stroke:"#ff0000", fill:"#ff0000"},   // Galaxy cluster
+      g:  {shape: "ellipse", stroke:"#ff0000", fill:"#ff0000"},  // Generic galaxy
+      s:  {shape: "ellipse", stroke:"#ff0000", fill:"#ff0000"},  // Spiral galaxy
+      s0: {shape: "ellipse", stroke:"#ff0000", fill:"#ff0000"},  // Lenticular galaxy
+      sd: {shape: "ellipse", stroke:"#ff0000", fill:"#ff0000"},  // Dwarf galaxy
+      e:  {shape: "ellipse", stroke:"#ff0000", fill:"#ff0000"},  // Elliptical galaxy
+      i:  {shape: "ellipse", stroke:"#ff0000", fill:"#ff0000"},  // Irregular galaxy
+      oc: {shape: "circle", stroke:"#ffcc00", fill: null},       // Open cluster
+      gc: {shape: "circle", stroke:"#ff9900", fill:"#ff9900"},   // Globular cluster
+      en: {shape: "square", stroke:"#ff00cc", fill:"#ff00cc"},   // Emission nebula
+      bn: {shape: "square", stroke:"#ff00cc", fill: null},       // Generic bright nebula
+      sfr:{shape: "square", stroke:"#cc00ff", fill: null},       // Star forming region
+      rn: {shape: "square", stroke:"#0000ff", fill:"#00ooff"},   // Reflection nebula
+      pn: {shape: "diamond", stroke:"#00cccc", fill:"#00cccc"},  // Planetary nebula 
+      snr:{shape: "diamond", stroke:"#ff00cc", fill:"#ff00cc"},  // Supernova remnant
+      dn: {shape: "square", stroke:"#999999", fill: null},       // Dark nebula grey
+      pos:{shape: "marker", stroke:"#cccccc", fill: null}        // Generic marker
+    }
   },
   constellations: {
     show: true,    // Show constellations 
-    names: true,   // Show constellation names (css-class: constname)
+    names: true,   // Show constellation names 
     desig: true,   // Show short constellation names (3 letter designations)
-    lines: true,   // Show constellation lines (css-class: constline)
-    bounds: false  // Show constellation boundaries (css-class: boundaryline)
+    namestyle: { fill:"#cccc99", font:"12px Helvetica, Arial, sans-serif", align:"center", baseline:"middle" },
+    lines: true,   // Show constellation lines 
+    linestyle: { fill:null, stroke:"#cccccc", width:1, opacity:.6 },
+    bounds: false,  // Show constellation boundaries 
+    boundstyle: { fill:null, stroke:"#cccc00", width:.5, opacity:.8, dash:[2,4] }
   },
   mw: {
     show: true,    // Show Milky Way as filled polygons (css-class: mw)
+    style: { fill:"#ffffff", opacity:"0.15" }
   },
   lines: {
-    graticule: true,    // Show graticule lines (css-class: gridline)
-    equatorial: true,  // Show equatorial plane (css-class: equatorial)
-    ecliptic: true,     // Show ecliptic plane (css-class: ecliptic)
-    galactic: false,    // Show galactic plane (css-class: galactic)
-    supergalactic: false,  // Show supergalactic plane (css-class: supergalactic)
-    mars: false
+    graticule: true,    // Show graticule lines 
+    graticulestyle: { fill:null, stroke:"#cccccc", width:.5, opacity:.8 },
+    equatorial: true,  // Show equatorial plane 
+    equatorialstyle: { fill:null, stroke:"#aaaaaa", width:1.3, opacity:.7 },
+    ecliptic: true,     // Show ecliptic plane 
+    eclipticstyle: { fill:null, stroke:"#66cc66", width:1.3, opacity:.7 },
+    galactic: false,    // Show galactic plane 
+    galacticstyle: { fill:null, stroke:"#cc6666", width:1.3, opacity:.7 },
+    supergalactic: false,  // Show supergalactic plane 
+    supergalacticstyle: { fill:null, stroke:"#cc66cc", width:1.3, opacity:.7 },
+    mars: false,
+    marsstyle: { fill:null, stroke:"#cc0000", width:1.3, opacity:.7 }
   },
   set: function(cfg) {  // Override defaults with values of cfg
     var prop, key, res = {};
@@ -75,27 +107,6 @@ var settings = {
 };
 
 Celestial.settings = function() { return settings; };
-
-//DSO symbol shapes
-var symbols = {
-  gg: "circle",   // Galaxy cluster
-  g:  "ellipse",  // Generic galaxy
-  s:  "ellipse",  // Spiral galaxy
-  s0: "ellipse",  // Lenticular galaxy
-  sd: "ellipse",  // Dwarf galaxy
-  e:  "ellipse",  // Elliptical galaxy
-  i:  "ellipse",  // Irregular galaxy
-  oc: "circle",   // Open cluster
-  gc: "circle",   // Globular cluster
-  en: "square",   // Emission nebula
-  bn: "square",   // Generic bright nebula
-  sfr: "square",  // Star forming region
-  rn: "square",   // Reflection nebula
-  pn: "diamond",  // Planetary nebula 
-  snr: "diamond", // Supernova remnant
-  dn: "square",   // Dark nebula grey
-  pos: "marker"   // Generic marker
-};
 
 //b-v color index to rgb color value scale
 var bvcolor = 

@@ -1,14 +1,14 @@
 /* global settings, symbols, bvcolor, projections, poles, eulerAngles, halfπ, $, px, has */
 var Celestial = {
-  version: '0.4.3',
-  svg: null,
+  version: '0.5.0',
+  container: null,
   data: []
 };
 
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
-  var circle, par, svg = Celestial.svg;
+  var circle, par, container = Celestial.container;
   
   //Mash config with default settings
   var cfg = settings.set(config); 
@@ -18,6 +18,7 @@ Celestial.display = function(config) {
   if (parent) { 
     par = "#"+cfg.container;
     var stl = window.getComputedStyle(parent, null);
+    //parent.style.width = stl.width;
     if (!parseInt(stl.width) && !cfg.width) parent.style.width = px(window.innerWidth);    
   } else { 
     par = "body"; 
@@ -45,38 +46,42 @@ Celestial.display = function(config) {
   
   var projection = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale([scale]);
   var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([scale]); //projected non moving outline
-
   
   if (proj.clip) {
     projection.clipAngle(90);
     circle = d3.geo.circle().angle([90]);
   }
-
+  
   var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([scale, scale*5]).on("zoom.redraw", redraw);
+
+  var canvas = d3.select(par).append("canvas").attr("width", width).attr("height", height);
+  var context = canvas.node().getContext("2d");  
   
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
-  var map = d3.geo.path().projection(projection);
-  var outline = d3.geo.path().projection(projOl);
+  var map = d3.geo.path().projection(projection).context(context);
+  var outline = d3.geo.path().projection(projOl).context(context);
    
   //parent div with id #map or body
-  if (svg) svg.selectAll("*").remove();
-  else svg = d3.select(par).append("svg");
+  if (container) container.selectAll("*").remove();
+  else container = d3.select(par).append("container");
 
-  svg.attr("width", width).attr("height", height);
- 
-  if (cfg.interactive) svg.call(zoom);
-  else svg.attr("style", "cursor: default!important");
-    
+  //svg.attr("width", width).attr("height", height);
+  
+  if (cfg.interactive) canvas.call(zoom);
+  else canvas.attr("style", "cursor: default!important");
+  
   if (circle) {
-    svg.append("path").datum(circle).attr("class", "outline").attr("d", outline).style("fill", cfg.background);
+    //outline(circle);
+    container.append("path").datum(circle).attr("class", "outline"); //.attr("d", outline).style("fill", cfg.background);
   } else {
-    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", outline).style("fill", cfg.background);
+    //outline(graticule.outline);
+    container.append("path").datum(graticule.outline).attr("class", "outline"); //.attr("d", outline).style("fill", cfg.background);
   }
 
   if (cfg.lines.graticule) {
     //if (trans == "equatorial") {
-      svg.append("path").datum(graticule).attr("class", "gridline").attr("d", map);
+      container.append("path").datum(graticule).attr("class", "gridline"); //.attr("d", map);
     //} else {
     //  Celestial.graticule(svg, map, trans);
     //}
@@ -84,12 +89,11 @@ Celestial.display = function(config) {
 
   //Celestial planes
   for (var key in cfg.lines) {
-    if (has(cfg.lines, key) && key != "graticule" && cfg.lines[key] !== false) { 
-      svg.append("path")
-         .datum(d3.geo.circle().angle([90]).origin(transformDeg(poles[key], euler[trans])) )
-         .attr("class", key)
-         .attr("d", map);
-    }
+    if (!has(cfg.lines, key) || key.search(/style|graticule/) !== -1 || cfg.lines[key] === false) continue;
+    container.append("path")
+       .datum(d3.geo.circle().angle([90]).origin(transformDeg(poles[key], euler[trans])) )
+       .attr("class", key);
+       //.attr("d", map);
   }
   
   //Milky way outline
@@ -101,27 +105,33 @@ Celestial.display = function(config) {
 
     mw = getData(json, trans);
 
-    svg.selectAll(".mway")
+    //context.globalCompositeOperation = "source-atop"
+    
+    container.selectAll(".mway")
        .data(mw.features)
        .enter().append("path")
-       .attr("class", "mw")
-       .attr("d", map);
+       .attr("class", "mw");
+       //.attr("d", map);
+    redraw();
   });}
 
-  //Constellation nemes or designation
+  //Constellation names or designation
   if (cfg.constellations.show) { 
     d3.json(path + "constellations.json", function(error, json) {
       if (error) return console.warn(error);
       
       con = getData(json, trans);
       
-      svg.selectAll(".constnames")
-         .data(con.features)
-         .enter().append("text")
-         .attr("class", "constname")
-         .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-         .text( function(d) { if (cfg.constellations.names) { return cfg.constellations.desig?d.properties.desig:d.properties.name; }})
-         .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
+      if (cfg.constellations.names) { 
+        container.selectAll(".constnames")
+           .data(con.features)
+           .enter().append("text")
+           .attr("class", "constname")
+           //.attr("transform", function(d, i) { return point(d.geometry.coordinates); })
+           .attr("text", function(d) { if (cfg.constellations.names) { return cfg.constellations.desig?d.properties.desig:d.properties.name; }});
+           //.style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
+        redraw();
+      }
     });
 
     //Constellation boundaries
@@ -131,11 +141,12 @@ Celestial.display = function(config) {
 
         conb = getData(json, trans);
 
-        svg.selectAll(".bounds")
+        container.selectAll(".bounds")
            .data(conb.features)
            .enter().append("path")
-           .attr("class", "boundaryline")
-           .attr("d", map);
+           .attr("class", "boundaryline");
+           //.attr("d", map);
+        redraw();
       });
     }
 
@@ -146,11 +157,12 @@ Celestial.display = function(config) {
 
         conl = getData(json, trans);
 
-        svg.selectAll(".lines")
+        container.selectAll(".lines")
            .data(conl.features)
            .enter().append("path")
-           .attr("class", "constline")
-           .attr("d", map);
+           .attr("class", "constline");
+           //.attr("d", map);
+        redraw();
       });
     }
   }
@@ -162,21 +174,22 @@ Celestial.display = function(config) {
 
       st = getData(json, trans);
 
-      svg.selectAll(".stars")
-         .data(st.features.filter( function(d) {
-           return d.properties.mag <= cfg.stars.limit; 
-         }))
+      container.selectAll(".stars")
+         .data(st.features)
+         //.data(st.features.filter( function(d) {
+         //  return d.properties.mag <= cfg.stars.limit; 
+         //}))
          .enter().append("path")
          .attr("class", "star")
-         .attr("d", map.pointRadius( function(d) {
-           return d.properties ? starSize(d.properties.mag) : 1;
-         }))
-         .style("fill", function(d) {
-           return starColor(d.properties);
-         });
+         //.attr("d", map.pointRadius( function(d) {
+         //  return d.properties ? starSize(d.properties.mag) : 1;
+         //}))
+         .attr("text", starName)
+         .attr("fill", starColor)
+         .attr("radius", starSize);
 
-      if (cfg.stars.names) { 
-        svg.selectAll(".starnames")
+/*      if (cfg.stars.names) { 
+        container.selectAll(".starnames")
            .data(st.features.filter( function(d) {
              return d.properties.mag <= cfg.stars.namelimit; 
            }))
@@ -185,7 +198,8 @@ Celestial.display = function(config) {
            .text( function(d) { return starName(d.properties); })
            .attr({dy: "-.5em", dx: ".35em", class: "starname"})
            .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); });
-      }
+      }*/
+      redraw();
     });
   }
 
@@ -193,7 +207,7 @@ Celestial.display = function(config) {
   if (cfg.dsos.show) { 
     d3.json(path + cfg.dsos.data, function(error, json) {
       if (error) return console.warn(error);
-      svg.selectAll(".dsos")
+      container.selectAll(".dsos")
          .data(json.features.filter( function(d) {
            return d.properties.mag == 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.limit ||
                   d.properties.mag != 999 && d.properties.mag <= cfg.dsos.limit; 
@@ -205,7 +219,7 @@ Celestial.display = function(config) {
          .attr("style", function(d) { return opacity(d.geometry.coordinates); });
     
       if (cfg.dsos.names) { 
-        svg.selectAll(".dsonames")
+        container.selectAll(".dsonames")
            .data(json.features.filter( function(d) {
              return d.properties.mag == 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.namelimit ||
                     d.properties.mag != 999 && d.properties.mag <= cfg.dsos.namelimit; 
@@ -232,10 +246,11 @@ Celestial.display = function(config) {
   
   function resize() {
     if (cfg.width && cfg.width > 0) return;
+    //context.clearRect(0,0,width,height);
     width = getWidth();
     height = width/ratio;
     var scale = proj.scale * width/1024;
-    svg.attr("width", width).attr("height", height);
+    canvas.attr("width", width).attr("height", height);
     zoom.scale([scale]);
     projection.translate([width/2, height/2]).scale([scale]);
     projOl.translate([width/2, height/2]);
@@ -244,7 +259,7 @@ Celestial.display = function(config) {
   }
   
   // Exported objects and functions for adding data
-  this.svg = svg;
+  this.container = container;
   this.clip = clip;
   this.point = point;
   this.opacity = opacity;
@@ -261,12 +276,30 @@ Celestial.display = function(config) {
   function point(coords) {
     return "translate(" + projection(coords) + ")";
   }
-    
+
   function opacity(coords) {
     var opa = clip(coords);
     return 'stroke-opacity:' + opa + ';fill-opacity:' + opa; 
   }
 
+  function setStyle(s) {
+    context.fillStyle = s.fill;
+    context.strokeStyle = s.stroke || null;
+    context.lineWidth = s.width || null;
+    context.globalAlpha = s.opacity || 1;  
+    context.font = s.font;
+    s.dash ? context.setLineDash(s.dash) : context.setLineDash([]);
+    context.beginPath();
+  }
+
+  function setTextStyle(s) {
+    context.fillStyle = s.fill;
+    context.textAlign = s.align || "left";
+    context.textBaseline = s.baseline || "bottom";
+    context.globalAlpha = s.opacity || 1;  
+    context.font = s.font;
+  }
+    
   function redraw() {
     //if (!d3.event) return; 
     //d3.event.preventDefault();
@@ -277,44 +310,89 @@ Celestial.display = function(config) {
     if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/scale);
     base = cfg.stars.size * adapt;
     center = [-rot[0], -rot[1]];
-
-    //All different types of objects need separate updates
-    svg.selectAll(".outline").attr("d", outline);  
-
-    svg.selectAll(".star")
-       .attr("d", map.pointRadius( function(d) { return d.properties ? starSize(d.properties.mag) : 1; } ));
     
-    svg.selectAll(".starname")   
+    context.clearRect(0,0,width,height);
+
+    setStyle(cfg.background);
+    container.selectAll(".outline").attr("d", outline);      
+    context.fill();
+    //context.sroke();
+    
+    //All different types of objects need separate updates
+    container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
+
+    setStyle(cfg.lines.graticulestyle);
+    container.selectAll(".gridline").attr("d", map);  
+    context.stroke();    
+
+    setStyle(cfg.lines.eclipticstyle);
+    container.selectAll(".ecliptic").attr("d", map);  
+    context.stroke();
+
+    setStyle(cfg.lines.equatorialstyle);
+    container.selectAll(".equatorial").attr("d", map);  
+    context.stroke();
+
+    setStyle(cfg.lines.galacticstyle);
+    container.selectAll(".galactic").attr("d", map);  
+    context.stroke();
+
+    setStyle(cfg.lines.supergalacticstyle);
+    container.selectAll(".supergalactic").attr("d", map);  
+    context.stroke();
+    
+    setTextStyle(cfg.constellations.namestyle);
+    container.selectAll(".constname").each( function(d) { 
+      if (clip(d.geometry.coordinates)) {
+        var node = d3.select(this),
+            pt = projection(d.geometry.coordinates);
+        context.fillText(node.attr("text"), pt[0], pt[1]); 
+      }
+    });
+    /*container.selectAll(".constname")
+       .attr("transform", function(d) { return point(d.geometry.coordinates); })
+       .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); });*/
+    container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
+    container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
+    //container.selectAll(".constline").attr("d", map);  
+    //container.selectAll(".boundaryline").attr("d", map);  
+    
+    container.selectAll(".star").each(function(d) {
+      if (clip(d.geometry.coordinates) && d.properties.mag <= cfg.stars.limit) {
+        var node = d3.select(this),
+            pt = projection(d.geometry.coordinates),
+            r = starSize(d);//node.attr("radius");
+        context.fillStyle = node.attr("fill");
+        context.beginPath();
+        context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
+        context.closePath();
+        context.fill();
+        if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit) {
+          setTextStyle(cfg.stars.namestyle);
+          context.fillText(node.attr("text"), pt[0], pt[1]);         
+        }
+      }
+    });
+
+    /*container.selectAll(".starname")   
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
        .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
-
-    svg.selectAll(".dso")
+    */
+    container.selectAll(".dso")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
        .attr("d", function(d) { return dsoSymbol(d.properties); })
        .attr("style", function(d) { return opacity(d.geometry.coordinates); });
-    svg.selectAll(".dsoname")
+    container.selectAll(".dsoname")
        .attr("transform", function(d) { return point(d.geometry.coordinates); })
        .attr("style", function(d) { return opacity(d.geometry.coordinates); });
 
-    svg.selectAll(".constname")
-       .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); });
-    svg.selectAll(".constline").attr("d", map);  
-    svg.selectAll(".boundaryline").attr("d", map);  
 
-    svg.selectAll(".mw").attr("d", map);  
-    svg.selectAll(".ecliptic").attr("d", map);  
-    svg.selectAll(".equatorial").attr("d", map);  
-    svg.selectAll(".galactic").attr("d", map);  
-    svg.selectAll(".supergalactic").attr("d", map);  
-    svg.selectAll(".gridline").attr("d", map);  
-    
     if (Celestial.data.length > 0) { 
       Celestial.data.forEach( function(d) {
         d.redraw();
       });
     }
-    
+    //context.stroke();
   }
 
   function dsoSymbol(prop) {
@@ -344,26 +422,30 @@ Celestial.display = function(config) {
     return prop.name;
   }
   
-  function starName(prop) {
-    if (cfg.stars.desig === false && prop.name === "") return; 
-    if (cfg.stars.proper && prop.name !== "") return prop.name; 
-    if (cfg.stars.desig)  return prop.desig; 
+  function starName(d) {
+    var name = d.properties.name;
+    if (cfg.stars.desig === false && name === "") return; 
+    if (cfg.stars.proper && name !== "") return name; 
+    if (cfg.stars.desig)  return d.properties.desig; 
   }
   
-  function starSize(mag) {
+  function starSize(d) {
+    var mag = d.properties.mag;
     if (mag === null) return 0.1; 
     var d = base * Math.exp(exp * (mag+2));
     return Math.max(d, 0.1);
   }
   
-  function starColor(prop) {
-    if (!cfg.stars.colors || isNaN(prop.bv)) {return cfg.stars.color; }
-    return bvcolor(prop.bv);
+  function starColor(d) {
+    var bv = d.properties.bv;
+    if (!cfg.stars.colors || isNaN(bv)) {return cfg.stars.style.fill; }
+    return bvcolor(bv);
   }
   
   function getWidth() {
     if (cfg.width && cfg.width > 0) return cfg.width;
-    return parent ? parent.clientWidth - 16 : window.innerWidth - 24;
+    if (parent && parent.style.width !== "100%") return parent.clientWidth - 16;
+    return window.innerWidth - 32;
   }
   
   function getAngles(coords) {
