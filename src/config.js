@@ -5,7 +5,7 @@ var settings = {
   projection: "aitoff",  // Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
   transform: "equatorial", // Coordinate transformation: equatorial (default), ecliptic, galactic, supergalactic
   center: null,       // Initial center coordinates in equatorial transformation only [hours, degrees], null = default center
-  background: { fill:"#000000", stroke:null }, // Background color  
+  background: { fill:"#000000", stroke:"#000000" }, // Background color  
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: true,
@@ -67,18 +67,12 @@ var settings = {
     style: { fill:"#ffffff", opacity:"0.15" }
   },
   lines: {
-    graticule: true,    // Show graticule lines 
-    graticulestyle: { fill:null, stroke:"#cccccc", width:.5, opacity:.8 },
-    equatorial: true,  // Show equatorial plane 
-    equatorialstyle: { fill:null, stroke:"#aaaaaa", width:1.3, opacity:.7 },
-    ecliptic: true,     // Show ecliptic plane 
-    eclipticstyle: { fill:null, stroke:"#66cc66", width:1.3, opacity:.7 },
-    galactic: false,    // Show galactic plane 
-    galacticstyle: { fill:null, stroke:"#cc6666", width:1.3, opacity:.7 },
-    supergalactic: false,  // Show supergalactic plane 
-    supergalacticstyle: { fill:null, stroke:"#cc66cc", width:1.3, opacity:.7 },
-    mars: false,
-    marsstyle: { fill:null, stroke:"#cc0000", width:1.3, opacity:.7 }
+    graticule: { show: true, stroke:"#cccccc", width:.6, opacity:.8 },   // Show graticule lines 
+    equatorial: { show: true, stroke:"#aaaaaa", width:1.3, opacity:.7 }, // Show equatorial plane 
+    ecliptic: { show: true, stroke:"#66cc66", width:1.3, opacity:.7 },   // Show ecliptic plane 
+    galactic: { show: false, stroke:"#cc6666", width:1.3, opacity:.7 },  // Show galactic plane 
+    supergalactic: { show: false, stroke:"#cc66cc", width:1.3, opacity:.7 } // Show supergalactic plane 
+   //mars: { show: false, stroke:"#cc0000", width:1.3, opacity:.7 }
   },
   set: function(cfg) {  // Override defaults with values of cfg
     var prop, key, res = {};
