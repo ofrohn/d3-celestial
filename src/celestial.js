@@ -205,7 +205,8 @@ Celestial.display = function(config) {
                   d.properties.mag != 999 && d.properties.mag <= cfg.dsos.limit; 
          }))*/
          .enter().append("path")
-         .attr("class", "dso" );
+         .attr("class", "dso" )
+         .attr("text", dsoName);
          //.attr("class", function(d) { return "dso " + d.properties.type; } );
          //.attr("transform", function(d) { return point(d.geometry.coordinates); })
          //.attr("d", function(d) { return dsoSymbol(d.properties); })
@@ -329,13 +330,8 @@ Celestial.display = function(config) {
         context.fillText(node.attr("text"), pt[0], pt[1]); 
       }
     });
-    /*container.selectAll(".constname")
-       .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); });*/
     container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
     container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
-    //container.selectAll(".constline").attr("d", map);  
-    //container.selectAll(".boundaryline").attr("d", map);  
     
     setStyle(cfg.stars.style);
     container.selectAll(".star").each(function(d) {
@@ -350,53 +346,62 @@ Celestial.display = function(config) {
         context.fill();
         if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit) {
           setTextStyle(cfg.stars.namestyle);
-          context.fillText(node.attr("text"), pt[0], pt[1]);         
+          context.fillText(node.attr("text"), pt[0]+2, pt[1]+2);         
         }
       }
     });
 
-    /*container.selectAll(".starname")   
-       .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
-    */
-    container.selectAll(".dso")
-       .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .attr("d", function(d) { return dsoSymbol(d.properties); })
-       .attr("style", function(d) { return opacity(d.geometry.coordinates); });
-    container.selectAll(".dsoname")
-       .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .attr("style", function(d) { return opacity(d.geometry.coordinates); });
-
+    container.selectAll(".dso").each(function(d) {
+      if (clip(d.geometry.coordinates) && dsoDisplay(d.properties, cfg.dsos.limit)) {
+        var node = d3.select(this),
+            pt = projection(d.geometry.coordinates),
+            type = d.properties.type;
+        setStyle(cfg.dsos.symbols[type]);
+        var r = dsoSymbol(d, pt);
+        if (has(cfg.dsos.symbols[type], "stroke")) context.stroke();
+        else context.fill();
+        
+        if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.namelimit)) {
+          setTextStyle(cfg.dsos.namestyle);
+          context.fillStyle = cfg.dsos.symbols[type].fill;
+          context.fillText(node.attr("text"), pt[0]+r, pt[1]+r);         
+        }
+       
+      }
+    });
+  
     if (Celestial.data.length > 0) { 
       Celestial.data.forEach( function(d) {
         d.redraw();
       });
     }
-    //setStyle(cfg.background);
-    //container.selectAll(".outline").attr("d", outline);      
-    //context.sroke();
+    setStyle(cfg.background);
+    container.selectAll(".outline").attr("d", outline);      
+    context.stroke();
   }
 
-  function dsoSymbol(d) {
+  
+  function dsoDisplay(prop, limit) {
+    return prop.mag === 999 && Math.sqrt(parseInt(prop.dim)) > limit ||
+           prop.mag !== 999 && prop.mag <= limit;
+  }
+  
+  function dsoSymbol(d, pt) {
     var prop = d.properties;
-    var size = dsoSize(prop.mag, prop.dim) || 9,
+    var size = dsoSize(prop) || 9,
         type = dsoShape(prop.type);
-    if (d3.svg.symbolTypes.indexOf(type) !== -1) {
-      return d3.svg.symbol().type(type).size(size)();
-    } else {
-      return d3.svg.customSymbol().type(type).size(size)();
-    }
+    Canvas.symbol().type(type).size(size).position(pt)(context);
+    return Math.sqrt(size)/2;
   }
 
   function dsoShape(type) {
-    if (!type || !has(symbols, type)) return "circle"; 
-    else return symbols[type]; 
+    if (!type || !has(cfg.dsos.symbols, type)) return "circle"; 
+    else return cfg.dsos.symbols[type].shape; 
   }
 
-  function dsoSize(d) {
-    var prop = d.properties;
-    if (!prop.mag || prop.mag == 999) return Math.pow(parseInt(prop.dim)*base/7, 0.5); 
-    return Math.pow(2*base-prop.mag, 1.4);
+  function dsoSize(prop) {
+    if (!prop.mag || prop.mag == 999) return Math.pow(parseInt(prop.dim) * base / 7, 0.5); 
+    return Math.pow(2 * base-prop.mag, 1.4);
   }
  
 

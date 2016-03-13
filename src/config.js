@@ -19,7 +19,7 @@ var settings = {
     names: true,   // Show star names 
     proper: false, // Show proper names (if none shows designation)
     desig: true,   // Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
-    namestyle: { stroke:null, fill:"#ddddbb", font:"11px Georgia, Times, 'Times Roman', serif", align:"left", baseline:"top" },
+    namestyle: { fill:"#ddddbb", font:"11px Georgia, Times, 'Times Roman', serif", align:"left", baseline:"top" },
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
     size: 7,       // Maximum size (radius) of star circle in pixels
     data: "stars.6.json" // Data source for stellar data
@@ -29,27 +29,27 @@ var settings = {
     limit: 6,      // Show only DSOs brighter than limit magnitude
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
-    namestyle: { stroke:null, fill:"#cccccc", font:"11px Helvetica, Arial, serif", align:"left", baseline:"top" },
+    namestyle: { fill:"#cccccc", font:"11px Helvetica, Arial, serif", align:"left", baseline:"top" },
     namelimit: 4,  // Show only names for DSOs brighter than namelimit
     data: "dsos.bright.json",  // Data source for DSOs
     symbols: {  //DSO symbol styles
-      gg: {shape: "circle", stroke:"#ff0000", fill:"#ff0000"},   // Galaxy cluster
-      g:  {shape: "ellipse", stroke:"#ff0000", fill:"#ff0000"},  // Generic galaxy
-      s:  {shape: "ellipse", stroke:"#ff0000", fill:"#ff0000"},  // Spiral galaxy
-      s0: {shape: "ellipse", stroke:"#ff0000", fill:"#ff0000"},  // Lenticular galaxy
-      sd: {shape: "ellipse", stroke:"#ff0000", fill:"#ff0000"},  // Dwarf galaxy
-      e:  {shape: "ellipse", stroke:"#ff0000", fill:"#ff0000"},  // Elliptical galaxy
-      i:  {shape: "ellipse", stroke:"#ff0000", fill:"#ff0000"},  // Irregular galaxy
-      oc: {shape: "circle", stroke:"#ffcc00", fill: null},       // Open cluster
-      gc: {shape: "circle", stroke:"#ff9900", fill:"#ff9900"},   // Globular cluster
-      en: {shape: "square", stroke:"#ff00cc", fill:"#ff00cc"},   // Emission nebula
-      bn: {shape: "square", stroke:"#ff00cc", fill: null},       // Generic bright nebula
-      sfr:{shape: "square", stroke:"#cc00ff", fill: null},       // Star forming region
-      rn: {shape: "square", stroke:"#0000ff", fill:"#00ooff"},   // Reflection nebula
-      pn: {shape: "diamond", stroke:"#00cccc", fill:"#00cccc"},  // Planetary nebula 
-      snr:{shape: "diamond", stroke:"#ff00cc", fill:"#ff00cc"},  // Supernova remnant
-      dn: {shape: "square", stroke:"#999999", fill: null},       // Dark nebula grey
-      pos:{shape: "marker", stroke:"#cccccc", fill: null}        // Generic marker
+      gg: {shape: "circle", fill:"#ff0000"},                               // Galaxy cluster
+      g:  {shape: "ellipse", fill:"#ff0000"},                              // Generic galaxy
+      s:  {shape: "ellipse", fill:"#ff0000"},                              // Spiral galaxy
+      s0: {shape: "ellipse", fill:"#ff0000"},                              // Lenticular galaxy
+      sd: {shape: "ellipse", fill:"#ff0000"},                              // Dwarf galaxy
+      e:  {shape: "ellipse", fill:"#ff0000"},                              // Elliptical galaxy
+      i:  {shape: "ellipse", fill:"#ff0000"},                              // Irregular galaxy
+      oc: {shape: "circle", stroke:"#ffcc00", fill:"#ffcc00", width:1.5},  // Open cluster
+      gc: {shape: "circle", fill:"#ff9900"},                               // Globular cluster
+      en: {shape: "square", fill:"#ff00cc"},                               // Emission nebula
+      bn: {shape: "square", stroke:"#ff00cc", fill: "#ff00cc", width:2}, // Generic bright nebula
+      sfr:{shape: "square", stroke:"#cc00ff", fill:"#cc00ff",width:2},   // Star forming region
+      rn: {shape: "square", fill:"#00ooff"},                               // Reflection nebula
+      pn: {shape: "diamond", fill:"#00cccc"},                              // Planetary nebula 
+      snr:{shape: "diamond", fill:"#ff00cc"},                              // Supernova remnant
+      dn: {shape: "square", stroke:"#999999", fill:"#999999", width:2},  // Dark nebula grey
+      pos:{shape: "marker", stroke:"#cccccc", fill:"#cccccc", width:1.5}   // Generic marker
     }
   },
   constellations: {

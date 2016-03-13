@@ -3,7 +3,7 @@
   {"type": "Feature",
    "id": "GC",
    "properties": {
-     "name": "GC",
+     "name": "Galactic Center",
      "desig": "GC",
      "type": "pos",
      "mag": 1,
