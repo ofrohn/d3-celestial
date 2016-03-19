@@ -56,7 +56,7 @@ target.build = function() {
     './src/transform.js', 
     './src/add.js',
     './src/config.js', 
-    './src/symbol.js',
+    './src/canvas.js',
     './src/util.js',
     './lib/d3.geo.zoom.js'
   ]);

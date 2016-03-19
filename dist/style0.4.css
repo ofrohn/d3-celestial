@@ -1,0 +1,65 @@
+/* Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE */
+body {  }
+svg * { cursor:hand; cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; /*cursor: crosshair!important;*/ }
+svg *:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing; }
+#map { width: 100%; height: auto; margin: 0; padding: 0; display: inline-block; position: relative; }
+canvas { display: inline-block; position:absolute; z-index:0; cursor:hand; cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; }
+canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing; }
+text { stroke: none; fill: #fff; font: 11px Helvetica, Arial, sans-serif; z-index:100; }
+.stroke { fill: none; stroke: #fff; stroke-width: 3px; }
+.fill { fill: none; }
+.gridline { fill: none; stroke: #ccc; stroke-width: .5px; stroke-opacity: .8; }
+.outline { stroke:#000; }
+/* Constellations */
+.boundaryline { fill: none; stroke: #cc0; stroke-width: .5px; stroke-opacity: .8; stroke-dasharray: 6,3; }
+.constline { fill: none; stroke: #999; stroke-width: 1px; stroke-opacity: .8; }
+.constname { fill: #cc9; font: 12px Helvetica, Arial, sans-serif; text-anchor: middle }
+/* Names */
+.starname { stroke: none; fill: #ddb; font: 11px Georgia, Times, 'Times Roman', serif; }
+.dsoname { stroke: none; fill: #ccc; font: 11px Helvetica, Arial, serif; }
+/* Diverse equatorial planes */
+.equatorial, .ecliptic, .galactic, .supergalactic { fill: none; stroke-width: 1.3px; stroke-opacity: .7; }
+.equatorial { stroke: #aaa; }
+.ecliptic { stroke: #6c6; }
+.galactic { stroke: #c66; }
+.supergalactic { stroke: #c6c; }
+.mars { stroke: #c00; }
+.mw { fill: #fff; fill-opacity: 0.12; }
+/* DSO standard styles */
+.gg { stroke: #f00; fill: #f00 }  /* Galaxy cluster */
+.g { stroke: #f00; fill: #f00 }  /* Generic galaxy  */
+.s { stroke: #f00; fill: #f00 }  /* Spiral galaxy */
+.s0 { stroke: #f00; fill: #f00 }  /* Lenticular galaxy */
+.sd { stroke: #f00; fill: #f00 }  /* Dwarf (spiral) galaxy */
+.e { stroke: #f00; fill: #f00 }  /* Elliptical galaxy */
+.i { stroke: #f00; fill: #f00 }  /* Irregular galaxy */
+.oc { stroke: #fc0; fill: none }  /* Open cluster */
+text.oc { stroke: none; fill: #fc0 }
+.gc { stroke: #f90; fill: #f90 }  /* Globular cluster */
+.en { stroke: #f0c; fill: #f0c }  /* Emission nebula */
+.bn { stroke: #f0c; fill: none }  /* Generic bright nebula */
+text.bn { stroke: none; fill: #c0f }
+.sfr { stroke: #c0f; fill: none }  /* Star forming region */
+text.sfr { stroke: none; fill: #c0f }
+.rn { stroke: #00f; fill: #00f }  /* Reflection nebula */
+.pn { stroke: #0cc; fill: #0cc }  /* Planetary nebula */
+.snr { stroke: #f0c; fill: #f0c }  /* Supernova remnant */
+.dn { stroke: #999; fill: none }  /* Dark nebula */
+text.dn { stroke: none; fill: #999 }
+.pos { stroke: #ccc; fill: none }  /* Generic marker */
+text.pos { stroke: none; fill: #ccc }
+text.gg, text.g, text.s, text.s0, text.sd, text.e, text.i, text.gc, text.en, text.rn, text.pn, text.snr { stroke: none; }
+
+/* Form */
+#form { display: inline-block; position: relative; }
+#error { position:absolute; min-width:100px; height:auto; padding: 2px 4px; color:#f00; background:#fff; border:2px solid #f00; border-radius:3px; font-weight:normal; display:block; top:-9999px; left:-9999px; opacity:0; transition:opacity 1s linear; }
+input { vertical-align: 0px; }
+input[type='number'] { width:48px; text-align:right; padding-right:0 }
+input[type='checkbox'] { vertical-align: -2px; }
+input[name='width'], input[type='color'] { width:48px; }
+input[type='button'] { width:64px; margin:0 0 0 8px; vertical-align: 2px; }
+.col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }
+label { margin:0 4px 0 8px; }
+label.header { font-weight:bold; }
+input + span { margin:0 4px 0 2px; }
+label:first-child, br + label { margin-left:0; }

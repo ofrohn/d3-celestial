@@ -1,3 +1,4 @@
+/* global redraw, interval, projection, container, width, height */
 function animate() {
   var reqAnimFrame = window.mozRequestAnimationFrame  || window.webkitRequestAnimationFrame || 
                      window.msRequestAnimationFrame || window.oRequestAnimationFrame;
@@ -6,15 +7,15 @@ function animate() {
     redraw();
 }
 
-function change() {
+function change(projection) {
   clearInterval(interval);
-  update(options[this.selectedIndex]);
+  update(projection);
 }
 
-function update(option) {
-  svg.selectAll("path").transition()
+function update(toProjection) {
+  container.selectAll("path").transition()
       .duration(750)
-      .attrTween("d", projectionTween(projection, projection = option.projection));
+      .attrTween("d", projectionTween(projection, toProjection));
 }
 
 function projectionTween(projection0, projection1) {
@@ -29,7 +30,7 @@ function projectionTween(projection0, projection1) {
         .projection(projection);
 
     function project(λ, φ) {
-      λ *= 180 / Math.PI, φ *= 180 / Math.PI;
+      λ *= 180 / Math.PI; φ *= 180 / Math.PI;
       var p0 = projection0([λ, φ]), p1 = projection1([λ, φ]);
       return [(1 - t) * p0[0] + t * p1[0], (1 - t) * -p0[1] + t * -p1[1]];
     }

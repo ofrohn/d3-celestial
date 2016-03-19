@@ -1,3 +1,4 @@
+/* global euler, transformDeg */
 //load data and transform coordinates
 
 function getData(d, trans) {
@@ -26,7 +27,7 @@ function translate(d, leo) {
 }
 
 function transLine(c, leo) {
-  line = [];
+  var line = [];
   
   for (var i=0; i<c.length; i++)
     line.push(transformDeg(c[i], leo));
@@ -35,7 +36,7 @@ function transLine(c, leo) {
 }
 
 function transMultiLine(c, leo) {
-  lines = [];
+  var lines = [];
   
   for (var i=0; i<c.length; i++)
     lines.push(transLine(c[i], leo));

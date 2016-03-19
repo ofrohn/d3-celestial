@@ -1,15 +1,15 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.4.3',
-  svg: null,
+  version: '0.5.0',
+  container: null,
   data: []
 };
 
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
-  var circle, par, svg = Celestial.svg;
+  var circle, par, container = Celestial.container;
   
   //Mash config with default settings
   var cfg = settings.set(config); 
@@ -18,8 +18,9 @@ Celestial.display = function(config) {
   var parent = $(cfg.container);
   if (parent) { 
     par = "#"+cfg.container;
-    var stl = window.getComputedStyle(parent, null);
-    if (!parseInt(stl.width) && !cfg.width) parent.style.width = px(window.innerWidth);    
+    var st = window.getComputedStyle(parent, null);
+    //parent.style.width = stl.width;
+    if (!parseInt(st.width) && !cfg.width) parent.style.width = px(window.innerWidth);    
   } else { 
     par = "body"; 
     parent = null; 
@@ -30,6 +31,7 @@ Celestial.display = function(config) {
   var proj = projections[cfg.projection],
       trans = cfg.transform || "equatorial",
       ratio = proj.ratio || 2,
+      margin = [16,16],
       width = getWidth(),
       height = width / ratio,
       scale = proj.scale * width/1024,
@@ -46,50 +48,48 @@ Celestial.display = function(config) {
   
   var projection = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale([scale]);
   var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([scale]); //projected non moving outline
-
   
   if (proj.clip) {
     projection.clipAngle(90);
     circle = d3.geo.circle().angle([90]);
   }
-
+  
   var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([scale, scale*5]).on("zoom.redraw", redraw);
+
+  var canvas = d3.selectAll("canvas");
+  if (canvas[0].length === 0) canvas = d3.select(par).append("canvas");
+  canvas.attr("width", width).attr("height", height);
+  var context = canvas.node().getContext("2d");  
   
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
-  var map = d3.geo.path().projection(projection);
-  var outline = d3.geo.path().projection(projOl);
+  var map = d3.geo.path().projection(projection).context(context);
+  var outline = d3.geo.path().projection(projOl).context(context);
    
   //parent div with id #map or body
-  if (svg) svg.selectAll("*").remove();
-  else svg = d3.select(par).append("svg");
+  if (container) container.selectAll("*").remove();
+  else container = d3.select(par).append("container");
 
-  svg.attr("width", width).attr("height", height);
- 
-  if (cfg.interactive) svg.call(zoom);
-  else svg.attr("style", "cursor: default!important");
-    
+  if (cfg.interactive) canvas.call(zoom);
+  else canvas.attr("style", "cursor: default!important");
+  
   if (circle) {
-    svg.append("path").datum(circle).attr("class", "outline").attr("d", outline).style("fill", cfg.background);
+    container.append("path").datum(circle).attr("class", "outline"); 
   } else {
-    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", outline).style("fill", cfg.background);
+    container.append("path").datum(graticule.outline).attr("class", "outline"); 
   }
 
-  if (cfg.lines.graticule) {
-    if (trans == "equatorial") {
-      svg.append("path").datum(graticule).attr("class", "gridline").attr("d", map);
-    } else {
-      Celestial.graticule(svg, map, trans);
-    }
+  if (cfg.lines.graticule.show) {
+      container.append("path").datum(graticule).attr("class", "graticule"); 
   }
 
   //Celestial planes
   for (var key in cfg.lines) {
-    if (has(cfg.lines, key) && key != "graticule" && cfg.lines[key] !== false) { 
-      svg.append("path")
-         .datum(d3.geo.circle().angle([90]).origin(poles[key]) )
-         .attr("class", key)
-         .attr("d", map);
+    if (has(cfg.lines, key)) {
+      if (key === "graticule" || cfg.lines[key].show === false) continue;
+      container.append("path")
+        .datum(d3.geo.circle().angle([90]).origin(transformDeg(poles[key], euler[trans])) )
+        .attr("class", key);
     }
   }
   
@@ -99,35 +99,45 @@ Celestial.display = function(config) {
       window.alert("Your Browser doesn't support local file loading or the file doesn't exist. See readme.md");
       return console.warn(error);  
     }
-    svg.selectAll(".mway")
-       .data(json.features)
+
+    var mw = getData(json, trans);
+
+    container.selectAll(".mway")
+       .data(mw.features)
        .enter().append("path")
-       .attr("class", "mw")
-       .attr("d", map);
+       .attr("class", "mw");
+    redraw();
   });}
 
-  //Constellation nemes or designation
+  //Constellation names or designation
   if (cfg.constellations.show) { 
     d3.json(path + "constellations.json", function(error, json) {
       if (error) return console.warn(error);
-      svg.selectAll(".constnames")
-         .data(json.features)
-         .enter().append("text")
-         .attr("class", "constname")
-         .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-         .text( function(d) { if (cfg.constellations.names) { return cfg.constellations.desig?d.properties.desig:d.properties.name; }})
-         .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
+      
+      var con = getData(json, trans);
+      
+      if (cfg.constellations.names) { 
+        container.selectAll(".constnames")
+           .data(con.features)
+           .enter().append("text")
+           .attr("class", "constname")
+           .attr("text", function(d) { if (cfg.constellations.names) { return cfg.constellations.desig?d.properties.desig:d.properties.name; }});
+        redraw();
+      }
     });
 
     //Constellation boundaries
     if (cfg.constellations.bounds) { 
       d3.json(path + "constellations.bounds.json", function(error, json) {
         if (error) return console.warn(error);
-        svg.selectAll(".bounds")
-           .data(json.features)
+
+        var conb = getData(json, trans);
+
+        container.selectAll(".bounds")
+           .data(conb.features)
            .enter().append("path")
-           .attr("class", "boundaryline")
-           .attr("d", map);
+           .attr("class", "boundaryline");
+        redraw();
       });
     }
 
@@ -135,11 +145,15 @@ Celestial.display = function(config) {
     if (cfg.constellations.lines) { 
       d3.json(path + "constellations.lines.json", function(error, json) {
         if (error) return console.warn(error);
-        svg.selectAll(".lines")
-           .data(json.features)
+
+        var conl = getData(json, trans);
+
+        container.selectAll(".lines")
+           .data(conl.features)
            .enter().append("path")
-           .attr("class", "constline")
-           .attr("d", map);
+           .attr("class", "constline");
+           //.attr("d", map);
+        redraw();
       });
     }
   }
@@ -148,30 +162,17 @@ Celestial.display = function(config) {
   if (cfg.stars.show) { 
     d3.json(path + cfg.stars.data, function(error, json) {
       if (error) return console.warn(error);
-      svg.selectAll(".stars")
-         .data(json.features.filter( function(d) {
-           return d.properties.mag <= cfg.stars.limit; 
-         }))
+
+      var st = getData(json, trans);
+
+      container.selectAll(".stars")
+         .data(st.features)
          .enter().append("path")
          .attr("class", "star")
-         .attr("d", map.pointRadius( function(d) {
-           return d.properties ? starSize(d.properties.mag) : 1;
-         }))
-         .style("fill", function(d) {
-           return starColor(d.properties);
-         });
+         .attr("text", starName)
+         .attr("fill", starColor);
 
-      if (cfg.stars.names) { 
-        svg.selectAll(".starnames")
-           .data(json.features.filter( function(d) {
-             return d.properties.mag <= cfg.stars.namelimit; 
-           }))
-           .enter().append("text")
-           .attr("transform", function(d) { return point(d.geometry.coordinates); })
-           .text( function(d) { return starName(d.properties); })
-           .attr({dy: "-.5em", dx: ".35em", class: "starname"})
-           .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); });
-      }
+      redraw();
     });
   }
 
@@ -179,30 +180,16 @@ Celestial.display = function(config) {
   if (cfg.dsos.show) { 
     d3.json(path + cfg.dsos.data, function(error, json) {
       if (error) return console.warn(error);
-      svg.selectAll(".dsos")
-         .data(json.features.filter( function(d) {
-           return d.properties.mag == 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.limit ||
-                  d.properties.mag != 999 && d.properties.mag <= cfg.dsos.limit; 
-         }))
+      
+      var ds = getData(json, trans);
+  
+      container.selectAll(".dsos")
+         .data(ds.features)
          .enter().append("path")
-         .attr("class", function(d) { return "dso " + d.properties.type; } )
-         .attr("transform", function(d) { return point(d.geometry.coordinates); })
-         .attr("d", function(d) { return dsoSymbol(d.properties); })
-         .attr("style", function(d) { return opacity(d.geometry.coordinates); });
-    
-      if (cfg.dsos.names) { 
-        svg.selectAll(".dsonames")
-           .data(json.features.filter( function(d) {
-             return d.properties.mag == 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.namelimit ||
-                    d.properties.mag != 999 && d.properties.mag <= cfg.dsos.namelimit; 
-           }))
-           .enter().append("text")
-           .attr("class", function(d) { return "dsoname " + d.properties.type; } )
-           .attr("transform", function(d) { return point(d.geometry.coordinates); })
-           .text( function(d) { return dsoName(d.properties); } )
-           .attr({dy: "-.5em", dx: ".35em"})
-           .attr("style", function(d) { return opacity(d.geometry.coordinates); });
-      }
+         .attr("class", "dso" )
+         .attr("text", dsoName);
+
+      redraw();
     });
   }
 
@@ -218,10 +205,11 @@ Celestial.display = function(config) {
   
   function resize() {
     if (cfg.width && cfg.width > 0) return;
+    //context.clearRect(0,0,width,height);
     width = getWidth();
     height = width/ratio;
     var scale = proj.scale * width/1024;
-    svg.attr("width", width).attr("height", height);
+    canvas.attr("width", width).attr("height", height);
     zoom.scale([scale]);
     projection.translate([width/2, height/2]).scale([scale]);
     projOl.translate([width/2, height/2]);
@@ -230,7 +218,7 @@ Celestial.display = function(config) {
   }
   
   // Exported objects and functions for adding data
-  this.svg = svg;
+  this.container = container;
   this.clip = clip;
   this.point = point;
   this.opacity = opacity;
@@ -247,12 +235,30 @@ Celestial.display = function(config) {
   function point(coords) {
     return "translate(" + projection(coords) + ")";
   }
-    
+
   function opacity(coords) {
     var opa = clip(coords);
     return 'stroke-opacity:' + opa + ';fill-opacity:' + opa; 
   }
 
+  function setStyle(s) {
+    context.fillStyle = s.fill;
+    context.strokeStyle = s.stroke || null;
+    context.lineWidth = s.width || null;
+    context.globalAlpha = s.opacity || 1;  
+    context.font = s.font;
+    if (has(s, "dash")) context.setLineDash(s.dash); else context.setLineDash([]);
+    context.beginPath();
+  }
+
+  function setTextStyle(s) {
+    context.fillStyle = s.fill;
+    context.textAlign = s.align || "left";
+    context.textBaseline = s.baseline || "bottom";
+    context.globalAlpha = s.opacity || 1;  
+    context.font = s.font;
+  }
+    
   function redraw() {
     //if (!d3.event) return; 
     //d3.event.preventDefault();
@@ -263,97 +269,146 @@ Celestial.display = function(config) {
     if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/scale);
     base = cfg.stars.size * adapt;
     center = [-rot[0], -rot[1]];
-
+    
+    clear();
+    
+    setStyle(cfg.background);
+    container.selectAll(".outline").attr("d", outline);      
+    context.fill();
+    //context.sroke();
+    
     //All different types of objects need separate updates
-    svg.selectAll(".outline").attr("d", outline);  
+    container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
 
-    svg.selectAll(".star")
-       .attr("d", map.pointRadius( function(d) { return d.properties ? starSize(d.properties.mag) : 1; } ));
+    for (var key in cfg.lines) {
+      if (!has(cfg.lines, key)) continue;
+      setStyle(cfg.lines[key]);
+      container.selectAll("."+key).attr("d", map);  
+      context.stroke();    
+    }
+
+    setTextStyle(cfg.constellations.namestyle);
+    container.selectAll(".constname").each( function(d) { 
+      if (clip(d.geometry.coordinates)) {
+        var node = d3.select(this),
+            pt = projection(d.geometry.coordinates);
+        context.fillText(node.attr("text"), pt[0], pt[1]); 
+      }
+    });
+    container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
+    container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
     
-    svg.selectAll(".starname")   
-       .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
+    setStyle(cfg.stars.style);
+    container.selectAll(".star").each(function(d) {
+      if (clip(d.geometry.coordinates) && d.properties.mag <= cfg.stars.limit) {
+        var node = d3.select(this),
+            pt = projection(d.geometry.coordinates),
+            r = starSize(d);//node.attr("radius");
+        context.fillStyle = node.attr("fill");
+        context.beginPath();
+        context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
+        context.closePath();
+        context.fill();
+        if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit) {
+          setTextStyle(cfg.stars.namestyle);
+          context.fillText(node.attr("text"), pt[0]+2, pt[1]+2);         
+        }
+      }
+    });
 
-    svg.selectAll(".dso")
-       .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .attr("d", function(d) { return dsoSymbol(d.properties); })
-       .attr("style", function(d) { return opacity(d.geometry.coordinates); });
-    svg.selectAll(".dsoname")
-       .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .attr("style", function(d) { return opacity(d.geometry.coordinates); });
-
-    svg.selectAll(".constname")
-       .attr("transform", function(d) { return point(d.geometry.coordinates); })
-       .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); });
-    svg.selectAll(".constline").attr("d", map);  
-    svg.selectAll(".boundaryline").attr("d", map);  
-
-    svg.selectAll(".mw").attr("d", map);  
-    svg.selectAll(".ecliptic").attr("d", map);  
-    svg.selectAll(".equatorial").attr("d", map);  
-    svg.selectAll(".galactic").attr("d", map);  
-    svg.selectAll(".supergalactic").attr("d", map);  
-    svg.selectAll(".gridline").attr("d", map);  
-    
+    container.selectAll(".dso").each(function(d) {
+      if (clip(d.geometry.coordinates) && dsoDisplay(d.properties, cfg.dsos.limit)) {
+        var node = d3.select(this),
+            pt = projection(d.geometry.coordinates),
+            type = d.properties.type;
+        setStyle(cfg.dsos.symbols[type]);
+        var r = dsoSymbol(d, pt);
+        if (has(cfg.dsos.symbols[type], "stroke")) context.stroke();
+        else context.fill();
+        
+        if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.namelimit)) {
+          setTextStyle(cfg.dsos.namestyle);
+          context.fillStyle = cfg.dsos.symbols[type].fill;
+          context.fillText(node.attr("text"), pt[0]+r, pt[1]+r);         
+        }
+       
+      }
+    });
+  
     if (Celestial.data.length > 0) { 
       Celestial.data.forEach( function(d) {
         d.redraw();
       });
     }
-    
+    setStyle(cfg.background);
+    container.selectAll(".outline").attr("d", outline);      
+    context.stroke();
   }
 
-  function dsoSymbol(prop) {
-    var size = dsoSize(prop.mag, prop.dim) || 9,
+  
+  function dsoDisplay(prop, limit) {
+    return prop.mag === 999 && Math.sqrt(parseInt(prop.dim)) > limit ||
+           prop.mag !== 999 && prop.mag <= limit;
+  }
+  
+  function dsoSymbol(d, pt) {
+    var prop = d.properties;
+    var size = dsoSize(prop) || 9,
         type = dsoShape(prop.type);
-    if (d3.svg.symbolTypes.indexOf(type) !== -1) {
-      return d3.svg.symbol().type(type).size(size)();
-    } else {
-      return d3.svg.customSymbol().type(type).size(size)();
-    }
+    Canvas.symbol().type(type).size(size).position(pt)(context);
+    return Math.sqrt(size)/2;
   }
 
   function dsoShape(type) {
-    if (!type || !has(symbols, type)) return "circle"; 
-    else return symbols[type]; 
+    if (!type || !has(cfg.dsos.symbols, type)) return "circle"; 
+    else return cfg.dsos.symbols[type].shape; 
   }
 
-  function dsoSize(mag, dim) {
-    if (!mag || mag == 999) return Math.pow(parseInt(dim)*base/7, 0.5); 
-    return Math.pow(2*base-mag, 1.4);
+  function dsoSize(prop) {
+    if (!prop.mag || prop.mag == 999) return Math.pow(parseInt(prop.dim) * base / 7, 0.5); 
+    return Math.pow(2 * base-prop.mag, 1.4);
   }
  
 
-  function dsoName(prop) {
+  function dsoName(d) {
+    var prop = d.properties;
     if (prop.name === "") return; 
     if (cfg.dsos.desig && prop.desig) return prop.desig; 
     return prop.name;
   }
   
-  function starName(prop) {
-    if (cfg.stars.desig === false && prop.name === "") return; 
-    if (cfg.stars.proper && prop.name !== "") return prop.name; 
-    if (cfg.stars.desig)  return prop.desig; 
+  function starName(d) {
+    var name = d.properties.name;
+    if (cfg.stars.desig === false && name === "") return; 
+    if (cfg.stars.proper && name !== "") return name; 
+    if (cfg.stars.desig)  return d.properties.desig; 
   }
   
-  function starSize(mag) {
+  function starSize(d) {
+    var mag = d.properties.mag;
     if (mag === null) return 0.1; 
-    var d = base * Math.exp(exp * (mag+2));
-    return Math.max(d, 0.1);
+    var r = base * Math.exp(exp * (mag+2));
+    return Math.max(r, 0.1);
   }
   
-  function starColor(prop) {
-    if (!cfg.stars.colors || isNaN(prop.bv)) {return cfg.stars.color; }
-    return bvcolor(prop.bv);
+  function starColor(d) {
+    var bv = d.properties.bv;
+    if (!cfg.stars.colors || isNaN(bv)) {return cfg.stars.style.fill; }
+    return bvcolor(bv);
+  }
+  
+  function clear() {
+    context.clearRect(0,0,width+margin[0],height+margin[1]);
   }
   
   function getWidth() {
     if (cfg.width && cfg.width > 0) return cfg.width;
-    return parent ? parent.clientWidth - 16 : window.innerWidth - 24;
+    if (parent && parent.style.width !== "" && parent.style.width !== "100%") return parent.clientWidth - margin[0];
+    return window.innerWidth - margin[0]*2;
   }
   
   function getAngles(coords) {
-    var rot = eulerAngles[trans], ctr = 0;
+    var rot = eulerAngles.equatorial, ctr = 0;
     if (!coords || trans !== 'equatorial') {
       if (trans === 'equatorial' || trans === 'ecliptic') ctr = 180;
       return [rot[0] - ctr, rot[1], rot[2]];
@@ -539,48 +594,74 @@ var settings = {
   projection: "aitoff",  // Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
   transform: "equatorial", // Coordinate transformation: equatorial (default), ecliptic, galactic, supergalactic
   center: null,       // Initial center coordinates in equatorial transformation only [hours, degrees], null = default center
-  background: "#000000", // Background color or gradient  
+  background: { fill: "#000000", stroke: "#000000", opacity: 1 }, // Background style
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
+  form: true,
   container: "map",   // ID of parent element, e.g. div
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude
-    colors: true,  // Show stars in spectral colors, if not use "color"
-    color: "#ffffff", // Default color for stars
-    names: true,   // Show star names (css-class starname)
+    colors: true,  // Show stars in spectral colors, if not use fill-style
+    style: { fill: "#ffffff", opacity: 1 }, // Default style for stars
+    names: true,   // Show star names 
     proper: false, // Show proper names (if none shows designation)
     desig: true,   // Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
+    namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
     size: 7,       // Maximum size (radius) of star circle in pixels
-    data: 'stars.6.json' // Data source for stellar data
+    data: "stars.6.json" // Data source for stellar data
   },
   dsos: {
-    show: true,    // Show Deep Space Objects (css-class per type)
+    show: true,    // Show Deep Space Objects 
     limit: 6,      // Show only DSOs brighter than limit magnitude
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
+    namestyle: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", align: "left", baseline: "top" },
     namelimit: 4,  // Show only names for DSOs brighter than namelimit
-    data: 'dsos.bright.json'  // Data source for DSOs
+    data: "dsos.bright.json",  // Data source for DSOs
+    symbols: {  //DSO symbol styles
+      gg: {shape: "circle", fill: "#ff0000"},                                 // Galaxy cluster
+      g:  {shape: "ellipse", fill: "#ff0000"},                                // Generic galaxy
+      s:  {shape: "ellipse", fill: "#ff0000"},                                // Spiral galaxy
+      s0: {shape: "ellipse", fill: "#ff0000"},                                // Lenticular galaxy
+      sd: {shape: "ellipse", fill: "#ff0000"},                                // Dwarf galaxy
+      e:  {shape: "ellipse", fill: "#ff0000"},                                // Elliptical galaxy
+      i:  {shape: "ellipse", fill: "#ff0000"},                                // Irregular galaxy
+      oc: {shape: "circle", fill: "#ffcc00", stroke: "#ffcc00", width: 1.5},  // Open cluster
+      gc: {shape: "circle", fill: "#ff9900"},                                 // Globular cluster
+      en: {shape: "square", fill: "#ff00cc"},                                 // Emission nebula
+      bn: {shape: "square", fill: "#ff00cc", stroke: "#ff00cc", width: 2},    // Generic bright nebula
+      sfr:{shape: "square", fill: "#cc00ff", stroke: "#cc00ff", width: 2},    // Star forming region
+      rn: {shape: "square", fill: "#00ooff"},                                 // Reflection nebula
+      pn: {shape: "diamond", fill: "#00cccc"},                                // Planetary nebula 
+      snr:{shape: "diamond", fill: "#ff00cc"},                                // Supernova remnant
+      dn: {shape: "square", fill: "#999999", stroke: "#999999", width: 2},    // Dark nebula grey
+      pos:{shape: "marker", fill: "#cccccc", stroke: "#cccccc", width: 1.5}   // Generic marker
+    }
   },
   constellations: {
     show: true,    // Show constellations 
-    names: true,   // Show constellation names (css-class: constname)
+    names: true,   // Show constellation names 
     desig: true,   // Show short constellation names (3 letter designations)
-    lines: true,   // Show constellation lines (css-class: constline)
-    bounds: false  // Show constellation boundaries (css-class: boundaryline)
+    namestyle: { fill:"#cccc99", font: "12px Helvetica, Arial, sans-serif", align: "center", baseline: "middle" },
+    lines: true,   // Show constellation lines 
+    linestyle: { stroke: "#cccccc", width: 1, opacity: 0.6 },
+    bounds: false,  // Show constellation boundaries 
+    boundstyle: { stroke: "#cccc00", width: 0.5, opacity: 0.8, dash: [2, 4] }
   },
   mw: {
-    show: true,    // Show Milky Way as filled polygons (css-class: mw)
+    show: true,    // Show Milky Way as filled polygons 
+    style: { fill: "#ffffff", opacity: "0.15" }
   },
   lines: {
-    graticule: true,    // Show graticule lines (css-class: gridline)
-    equatorial: true,  // Show equatorial plane (css-class: equatorial)
-    ecliptic: true,     // Show ecliptic plane (css-class: ecliptic)
-    galactic: false,    // Show galactic plane (css-class: galactic)
-    supergalactic: false,  // Show supergalactic plane (css-class: supergalactic)
-    mars: false
+    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8 },     // Show graticule lines 
+    equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },    // Show equatorial plane 
+    ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane 
+    galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 
+    supergalactic: { show: false, stroke: "#cc66cc", width: 1.3, opacity: 0.7 } // Show supergalactic plane 
+   //mars: { show: false, stroke:"#cc0000", width:1.3, opacity:.7 }
   },
   set: function(cfg) {  // Override defaults with values of cfg
     var prop, key, res = {};
@@ -610,27 +691,6 @@ var settings = {
 
 Celestial.settings = function() { return settings; };
 
-//DSO symbol shapes
-var symbols = {
-  gg: "circle",   // Galaxy cluster
-  g:  "ellipse",  // Generic galaxy
-  s:  "ellipse",  // Spiral galaxy
-  s0: "ellipse",  // Lenticular galaxy
-  sd: "ellipse",  // Dwarf galaxy
-  e:  "ellipse",  // Elliptical galaxy
-  i:  "ellipse",  // Irregular galaxy
-  oc: "circle",   // Open cluster
-  gc: "circle",   // Globular cluster
-  en: "square",   // Emission nebula
-  bn: "square",   // Generic bright nebula
-  sfr: "square",  // Star forming region
-  rn: "square",   // Reflection nebula
-  pn: "diamond",  // Planetary nebula 
-  snr: "diamond", // Supernova remnant
-  dn: "square",   // Dark nebula grey
-  pos: "marker"   // Generic marker
-};
-
 //b-v color index to rgb color value scale
 var bvcolor = 
   d3.scale.quantize().domain([3.347, -0.335]) //main sequence <= 1.7
@@ -643,141 +703,286 @@ var bvcolor =
      clip: projection clipped to 90 degrees from center
 */
 var projections = {
-  "airy": {arg:Math.PI/2, scale:360, ratio:1.0, clip:true},
-  "aitoff": {arg:null, scale:162},
-  "armadillo": {arg:0, scale:250}, 
-  "august": {arg:null, scale:94, ratio:1.4},
-  "azimuthalEqualArea": {arg:null, scale:340, ratio:1.0, clip:true},
-  "azimuthalEquidistant": {arg:null, scale:320, ratio:1.0, clip:true},
-  "baker": {arg:null, scale:160, ratio:1.4},
-  "berghaus": {arg:1, scale:320, ratio:1.0, clip:true},
-  "boggs": {arg:null, scale:170},
-  "bonne": {arg:Math.PI/4, scale:230, ratio:0.88},
-  "bromley": {arg:null, scale:162},
-  "collignon": {arg:null, scale:100, ratio:2.6},
-  "craig": {arg:0, scale:310, ratio:1.5, clip:true},
-  "craster": {arg:null, scale:160},
-  "cylindricalEqualArea": {arg:Math.PI/6, scale:190, ratio:2.3},
-  "cylindricalStereographic": {arg:Math.PI/4, scale:230, ratio:1.3},
-  "eckert1": {arg:null, scale:175},
-  "eckert2": {arg:null, scale:175},
-  "eckert3": {arg:null, scale:190},
-  "eckert4": {arg:null, scale:190},
-  "eckert5": {arg:null, scale:182},
-  "eckert6": {arg:null, scale:182},
-  "eisenlohr": {arg:null, scale:102},
-  "equirectangular": {arg:null, scale:165},
-  "fahey": {arg:null, scale:196, ratio:1.4},
-  "foucaut": {arg:null, scale:142},
-  "ginzburg4": {arg:null, scale:180, ratio:1.7},
-  "ginzburg5": {arg:null, scale:196, ratio:1.55},
-  "ginzburg6": {arg:null, scale:190, ratio:1.4},
-  "ginzburg8": {arg:null, scale:205, ratio:1.3},
-  "ginzburg9": {arg:null, scale:190, ratio:1.4},
-//  "gringorten": {arg:null, scale:360, ratio:1.0, clip:true},
-  "hammer": {arg:2, scale:180},
-  "hatano": {arg:null, scale:186},
-  "healpix": {arg:1, scale:320, ratio:1.2},
-  "hill": {arg:2, scale:195, ratio:1.5},
-  "homolosine": {arg:null, scale:160, ratio:2.2},
-  "kavrayskiy7": {arg:null, scale:185, ratio:1.75},
-  "lagrange": {arg:Math.PI/4, scale:88, ratio:2, clip:false},
-  "larrivee": {arg:null, scale:160, ratio:1.25},
-  "laskowski": {arg:null, scale:165, ratio:1.7},
-  "loximuthal": {arg:Math.PI/4, scale:175, ratio:1.8},
-  "mercator": {arg:null, scale:160, ratio:1.3},
-  "miller": {arg:null, scale:160, ratio:1.5},
-  "mollweide": {arg:null, scale:180},
-  "mtFlatPolarParabolic": {arg:null, scale:175},
-  "mtFlatPolarQuartic": {arg:null, scale:230, ratio:1.65},
-  "mtFlatPolarSinusoidal": {arg:null, scale:175, ratio:1.9},
-  "naturalEarth": {arg:null, scale:185, ratio:1.85},
-  "nellHammer": {arg:null, scale:160, ratio:2.6},
-  "orthographic": {arg:null, scale:480, ratio:1.0, clip:true},
-  "patterson": {arg:null, scale:160, ratio:1.75},
-  "polyconic": {arg:null, scale:160, ratio:1.3},
-  "rectangularPolyconic": {arg:0, scale:160, ratio:1.65},
-  "robinson": {arg:null, scale:160},
-  "sinusoidal": {arg:null, scale:160, ratio:2},
-  "stereographic": {arg:null, scale:500, ratio:1.0, clip:true},
-  "times": {arg:null, scale:210, ratio:1.4}, 
-  "twoPointEquidistant": {arg:Math.PI/2, scale:320, ratio:1.15, clip:true},
-  "vanDerGrinten": {arg:null, scale:160, ratio:1.0}, 
-  "vanDerGrinten2": {arg:null, scale:160, ratio:1.0},
-  "vanDerGrinten3": {arg:null, scale:160, ratio:1.0},
-  "vanDerGrinten4": {arg:null, scale:160, ratio:1.6},
-  "wagner4": {arg:null, scale:185},
-  "wagner6": {arg:null, scale:160},
-  "wagner7": {arg:null, scale:190, ratio:1.8},
-  "wiechel": {arg:null, scale:360, ratio:1.0, clip:true},
-  "winkel3": {arg:null, scale:196, ratio:1.7}
+  "airy": {n:"Airy", arg:Math.PI/2, scale:360, ratio:1.0, clip:true},
+  "aitoff": {n:"Aitoff", arg:null, scale:162},
+  "armadillo": {n:"Armadillo", arg:0, scale:250}, 
+  "august": {n:"August", arg:null, scale:94, ratio:1.4},
+  "azimuthalEqualArea": {n:"Azimuthal Equal Area", arg:null, scale:340, ratio:1.0, clip:true},
+  "azimuthalEquidistant": {n:"Azimuthal Equidistant", arg:null, scale:320, ratio:1.0, clip:true},
+  "baker": {n:"Baker", arg:null, scale:160, ratio:1.4},
+  "berghaus": {n:"Berghaus", arg:1, scale:320, ratio:1.0, clip:true},
+  "boggs": {n:"Boggs", arg:null, scale:170},
+  "bonne": {n:"Bonne", arg:Math.PI/4, scale:230, ratio:0.88},
+  "bromley": {n:"Bromley", arg:null, scale:162},
+  "collignon": {n:"Collignon", arg:null, scale:100, ratio:2.6},
+  "craig": {n:"Craig", arg:0, scale:310, ratio:1.5, clip:true},
+  "craster": {n:"Craster", arg:null, scale:160},
+  "cylindricalEqualArea": {n:"Cylindrical Equal Area", arg:Math.PI/6, scale:190, ratio:2.3},
+  "cylindricalStereographic": {n:"Cylindrical Stereographic", arg:Math.PI/4, scale:230, ratio:1.3},
+  "eckert1": {n:"Eckert 1", arg:null, scale:175},
+  "eckert2": {n:"Eckert 2", arg:null, scale:175},
+  "eckert3": {n:"Eckert 3", arg:null, scale:190},
+  "eckert4": {n:"Eckert 4", arg:null, scale:190},
+  "eckert5": {n:"Eckert 5", arg:null, scale:182},
+  "eckert6": {n:"Eckert 6", arg:null, scale:182},
+  "eisenlohr": {n:"Eisenlohr", arg:null, scale:102},
+  "equirectangular": {n:"Equirectangular", arg:null, scale:165},
+  "fahey": {n:"Fahey", arg:null, scale:196, ratio:1.4},
+  "foucaut": {n:"Foucaut", arg:null, scale:142},
+  "ginzburg4": {n:"Ginzburg 4", arg:null, scale:180, ratio:1.7},
+  "ginzburg5": {n:"Ginzburg 5", arg:null, scale:196, ratio:1.55},
+  "ginzburg6": {n:"Ginzburg 6", arg:null, scale:190, ratio:1.4},
+  "ginzburg8": {n:"Ginzburg 8", arg:null, scale:205, ratio:1.3},
+  "ginzburg9": {n:"Ginzburg 9", arg:null, scale:190, ratio:1.4},
+  "hammer": {n:"Hammer", arg:2, scale:180},
+  "hatano": {n:"Hatano", arg:null, scale:186},
+  "healpix": {n:"HEALPix", arg:1, scale:320, ratio:1.2},
+  "hill": {n:"Hill", arg:2, scale:195, ratio:1.5},
+  "homolosine": {n:"Homolosine", arg:null, scale:160, ratio:2.2},
+  "kavrayskiy7": {n:"Kavrayskiy 7", arg:null, scale:185, ratio:1.75},
+  "lagrange": {n:"Lagrange", arg:Math.PI/4, scale:88, ratio:2, clip:false},
+  "larrivee": {n:"l'Arrivee", arg:null, scale:160, ratio:1.25},
+  "laskowski": {n:"Laskowski", arg:null, scale:165, ratio:1.7},
+  "loximuthal": {n:"Loximuthal", arg:Math.PI/4, scale:175, ratio:1.8},
+  "mercator": {n:"Mercator", arg:null, scale:160, ratio:1.3},
+  "miller": {n:"Miller", arg:null, scale:160, ratio:1.5},
+  "mollweide": {n:"Mollweide", arg:null, scale:180},
+  "mtFlatPolarParabolic": {n:"Flat Polar Parabolic", arg:null, scale:175},
+  "mtFlatPolarQuartic": {n:"Flat Polar Quartic", arg:null, scale:230, ratio:1.65},
+  "mtFlatPolarSinusoidal": {n:"Flat Polar Sinusoidal", arg:null, scale:175, ratio:1.9},
+  "naturalEarth": {n:"Natural Earth", arg:null, scale:185, ratio:1.85},
+  "nellHammer": {n:"Nell Hammer", arg:null, scale:160, ratio:2.6},
+  "orthographic": {n:"Orthographic", arg:null, scale:480, ratio:1.0, clip:true},
+  "patterson": {n:"Patterson", arg:null, scale:160, ratio:1.75},
+  "polyconic": {n:"Polyconic", arg:null, scale:160, ratio:1.3},
+  "rectangularPolyconic": {n:"Rectangular Polyconic", arg:0, scale:160, ratio:1.65},
+  "robinson": {n:"Robinson", arg:null, scale:160},
+  "sinusoidal": {n:"Sinusoidal", arg:null, scale:160, ratio:2},
+  "stereographic": {n:"Stereographic", arg:null, scale:500, ratio:1.0, clip:true},
+  "times": {n:"Times", arg:null, scale:210, ratio:1.4}, 
+  "twoPointEquidistant": {n:"2 Point Equidistant", arg:Math.PI/2, scale:320, ratio:1.15, clip:true},
+  "vanDerGrinten": {n:"van Der Grinten", arg:null, scale:160, ratio:1.0}, 
+  "vanDerGrinten2": {n:"van Der Grinten 2", arg:null, scale:160, ratio:1.0},
+  "vanDerGrinten3": {n:"van Der Grinten 3", arg:null, scale:160, ratio:1.0},
+  "vanDerGrinten4": {n:"van Der Grinten 4", arg:null, scale:160, ratio:1.6},
+  "wagner4": {n:"Wagner 4", arg:null, scale:185},
+  "wagner6": {n:"Wagner 6", arg:null, scale:160},
+  "wagner7": {n:"Wagner 7", arg:null, scale:190, ratio:1.8},
+  "wiechel": {n:"Wiechel", arg:null, scale:360, ratio:1.0, clip:true},
+  "winkel3": {n:"Winkel Tripel", arg:null, scale:196, ratio:1.7}
 };
 
 Celestial.projections = function() { return projections; };
 
 
-//Thanks to stackoverflow user jshanley for the custom symbol class
-var customSymbolTypes = d3.map({
-  'ellipse': function(size) {
-    var s = Math.sqrt(size), 
-        rx = s*0.666, ry = s/3;
-    return 'M' + (-rx) + ',' + (-ry) +
-    ' m' + (-rx) + ',0' +
-    ' a' + rx + ',' + ry + ' 0 1,0' + (rx * 2) + ',0' +
-    ' a' + rx + ',' + ry + ' 0 1,0' + (-(rx * 2)) + ',0';
-  },
-  'marker': function(size) {
-    var s =  size > 48 ? size / 4 : 12,
-        r = s/2, l = r-3;
-    return 'M ' + (-r) + ' 0 h ' + l + 
-           ' M 0 ' + (-r) + ' v ' + l + 
-           ' M ' + r + ' 0 h ' + (-l) +  
-           ' M 0 ' + r + ' v ' + (-l);
-  },
-  'cross-circle': function(size) {
-    var s = Math.sqrt(size), 
-        r = s/2;
-    return 'M' + (-r) + ',' + (-r) +
-    ' m' + (-r) + ',0' +
-    ' a' + r + ',' + r + ' 0 1,0' + (r * 2) + ',0' +
-    ' a' + r + ',' + r + ' 0 1,0' + (-(r * 2)) + ',0' +
-    ' M' + (-r) + ' 0 h ' + (s) + 
-    ' M 0 ' + (-r) + ' v ' + (s);
-        
-  },
-  'stroke-circle': function(size) {
-    var s = Math.sqrt(size), 
-        r = s/2;
-    return 'M' + (-r) + ',' + (-r) +
-    ' m' + (-r) + ',0' +
-    ' a' + r + ',' + r + ' 0 1,0' + (r * 2) + ',0' +
-    ' a' + r + ',' + r + ' 0 1,0' + (-(r * 2)) + ',0' +
-    ' M' + (-s-2) + ',' + (-s-2) + ' l' + (s+4) + ',' + (s+4);
+var Canvas = {}; 
 
-  } 
-});
-
-d3.svg.customSymbol = function() {
-  var type, size = 64;
+Canvas.symbol = function() {
+  var type = d3.functor("circle"), 
+      size = d3.functor(64), 
+      color = d3.functor("#fff"),  
+      text = d3.functor(""),  
+      padding = d3.functor([2,2]),  
+      pos;
   
-  function symbol(d,i) {
-    return customSymbolTypes.get(type.call(this,d,i))(size.call(this,d,i));
+  function canvas_symbol(context) {
+    draw_symbol[type()](context);
   }
-  symbol.type = function(_) {
+  
+  var draw_symbol = {
+    "circle": function(ctx) {
+      var s = Math.sqrt(size()), 
+          r = s/2;
+      ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);
+      return r;
+    },
+    "square": function(ctx) {
+      var s = Math.sqrt(size()), 
+          r = s/2;
+      ctx.moveTo(pos[0]-r, pos[1]-r);
+      ctx.lineTo(pos[0]+r, pos[1]-r);
+      ctx.lineTo(pos[0]+r, pos[1]+r);
+      ctx.lineTo(pos[0]-r, pos[1]+r);
+      ctx.closePath();
+      return r;
+    },
+    "diamond": function(ctx) {
+      var s = Math.sqrt(size()), 
+          r = s/2;
+      ctx.moveTo(pos[0], pos[1]-r);
+      ctx.lineTo(pos[0]+r, pos[1]);
+      ctx.lineTo(pos[0], pos[1]+r);
+      ctx.lineTo(pos[0]-r, pos[1]);
+      ctx.closePath();
+      return r;
+    },
+    "ellipse": function(ctx) {
+      var s = Math.sqrt(size()), 
+          r = s/2;
+      ctx.save();
+      ctx.translate(pos[0], pos[1]);
+      ctx.scale(1.6, 0.8); 
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 2 * Math.PI); 
+      ctx.closePath();
+      ctx.restore();      
+      return r;
+    },
+    "marker": function(ctx) {
+      var s = Math.sqrt(size()), 
+          r = s/2;
+      ctx.moveTo(pos[0], pos[1]-s);
+      ctx.lineTo(pos[0], pos[1]+s);
+      ctx.moveTo(pos[0]-s, pos[1]);
+      ctx.lineTo(pos[0]+s, pos[1]);
+      ctx.closePath();
+      return r;
+    },
+    "cross-circle": function(ctx) {
+      var s = Math.sqrt(size()), 
+          r = s/2;
+      ctx.moveTo(pos[0], pos[1]-s);
+      ctx.lineTo(pos[0], pos[1]+s);
+      ctx.moveTo(pos[0]-s, pos[1]);
+      ctx.lineTo(pos[0]+s, pos[1]);
+      ctx.moveTo(pos[0], pos[1]);
+      ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    
+      ctx.closePath();
+      return r;
+    },
+    "stroke-circle": function(ctx) {
+      var s = Math.sqrt(size()), 
+          r = s/2;
+      ctx.moveTo(pos[0], pos[1]-s);
+      ctx.lineTo(pos[0], pos[1]+s);
+      ctx.moveTo(pos[0], pos[1]);
+      ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    
+      ctx.closePath();
+      return r;
+    } 
+  };
+
+  
+  canvas_symbol.type = function(_) {
     if (!arguments.length) return type; 
     type = d3.functor(_);
-    return symbol;
+    return canvas_symbol;
   };
-  symbol.size = function(_) {
+  canvas_symbol.size = function(_) {
     if (!arguments.length) return size; 
     size = d3.functor(_);
-    return symbol;
+    return canvas_symbol;
   };
-  return symbol;
+  canvas_symbol.text = function(_) {
+    if (!arguments.length) return text; 
+    text = d3.functor(_);
+    return canvas_symbol;
+  };
+  canvas_symbol.position = function(_) {
+    if (!arguments.length) return; 
+    pos = _;
+    return canvas_symbol;
+  };
+
+  return canvas_symbol;
 };
 
 
 
+
+/*var color = "#fff", angle = 0, align = "center", baseline = "middle", font = "10px sans-serif", padding = [0,0], aPos, sText;
+
+canvas.text = function() {
+
+  function txt(ctx){
+    ctx.fillStyle = color;
+    ctx.textAlign = align;
+    ctx.textBaseline = baseline;
+    
+    //var pt = projection(d.geometry.coordinates);
+    if (angle) {
+      canvas.save();     
+      canvas.translate(aPos[0], aPos[1]);
+      canvas.rotate(angle); 
+      canvas.fillText(sText, 0, 0);
+      canvas.restore();     
+    } else
+      canvas.fillText(sText, aPos[0], aPos[1]);
+  }
+  
+  txt.angle = function(x) {
+    if (!arguments.length) return angle * 180 / Math.PI;
+    color = x  * Math.PI / 180;
+    return txt;
+  };  
+  txt.color = function(s) {
+    if (!arguments.length) return color;
+    color = s;
+    return txt;
+  };  
+  txt.align = function(s) {
+    if (!arguments.length) return align;
+    align = s;
+    return txt;
+  };
+  txt.baseline = function(s) {
+    if (!arguments.length) return baseline;
+    baseline = s;
+    return txt;
+  };
+  txt.padding = function(a) {
+    if (!arguments.length) return padding;
+    padding = a;
+    return txt;
+  };
+  txt.text = function(s) {
+    if (!arguments.length) return sText;
+    sText = s;
+    return txt;
+  };
+  txt.font = function(s) {
+    if (!arguments.length) return font;
+    font = s;
+    return txt;
+  };
+  txt.style = function(o) {
+    if (!arguments.length) return;
+    if (o.fill) color = o.fill;
+    if (o.font) font = o.font;
+    return txt;
+  }; 
+  
+}
+
+  function ctxPath(d) {
+    var pt;
+    //d.map( function(axe, i) {
+    context.beginPath();
+    for (var i = 0; i < d.length; i++) {
+      pt = projection(d[i]);
+      if (i === 0)
+        context.moveTo(pt[0], pt[1]);
+      else
+        context.lineTo(pt[0], pt[1]);
+    }
+    context.fill();
+  }
+  
+
+  function ctxText(d, ang) {
+    var pt = projection(d.geometry.coordinates);
+    if (ang) {
+      canvas.save();     
+      canvas.translate(pt[0], pt[1]);
+      canvas.rotate(Math.PI/2); 
+      canvas.fillText(txt, 0, 0);
+      canvas.restore();     
+    } else
+      canvas.fillText(d.properties.txt, pt[0], pt[1]);
+  }
+  
+
+*/
 
 function $(id) { return document.getElementById(id); }
 function px(n) { return n + "px"; } 
@@ -785,6 +990,7 @@ function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
 function sign(x) { return x ? x < 0 ? -1 : 1 : 0; }
 
 function has(o, key) { return o !== null && hasOwnProperty.call(o, key); }
+function when(o, key, val) { return o !== null && hasOwnProperty.call(o, key) ? o[key] : val; }
 function isNumber(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
 function isArray(o) { return Object.prototype.toString.call(o) === "[object Array]"; }
 function isObject(o) { var type = typeof o;  return type === 'function' || type === 'object' && !!o; }

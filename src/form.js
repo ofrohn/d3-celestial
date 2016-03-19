@@ -1,3 +1,4 @@
+/* global Celestial, $, px, isNumber */
 //display settings form
 
 //test with onchange and set cfg
@@ -9,17 +10,17 @@ function form(cfg) {
   //Map parameters    
   var col = frm.append("div").attr("class", "col");
   
-  col.append("label").attr("title", "Map width, 0 indicates full width").attr("for", "width").html("Width")
+  col.append("label").attr("title", "Map width, 0 indicates full width").attr("for", "width").html("Width");
   col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "9999").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", cfg.width).on("change", function() { if (testNumber(this)) cfg.width = this.value; });
   col.append("span").html("px");
 
   col.append("label").attr("title", "Map projection, (hemi) indicates hemispherical projection").attr("for", "projection").html("Projection");
-  var sel = col.append("select").attr("id", "projection").on("change", function() { cfg.projection = this.options[this.selectedIndex].value });
+  var sel = col.append("select").attr("id", "projection").on("change", function() { cfg.projection = this.options[this.selectedIndex].value; });
   var selected = 0;
   var list = Object.keys(prj).map( function (key, i) { 
     var n = prj[key].clip && prj[key].clip === true ? prj[key].n + " (hemi)" : prj[key].n; 
     if (key === cfg.projection) selected = i;
-    return {o:key, n:n} 
+    return {o:key, n:n};
   });
   sel.selectAll('option').data(list).enter().append('option')
      .attr("value", function (d) { return d.o; })
@@ -28,13 +29,13 @@ function form(cfg) {
   
   selected = 0;
   col.append("label").attr("title", "Coordinate space in which the map is displayed").attr("for", "transform").html("Coordinates");
-  var sel = col.append("select").attr("id", "transform").on("change", function() { 
-    cfg.transform = this.options[this.selectedIndex].value 
-    setUnit(cfg.transform);    
- });
-  var list = Object.keys(leo).map(function (key, i) {
+  sel = col.append("select").attr("id", "transform").on("change", function() { 
+    cfg.transform = this.options[this.selectedIndex].value;
+    setUnit(cfg.transform);
+  });
+  list = Object.keys(leo).map(function (key, i) {
     if (key === cfg.transform) selected = i;    
-    return {o:key, n:key.replace(/^([a-z])/, function(s, m) { return m.toUpperCase(); } )} 
+    return {o:key, n:key.replace(/^([a-z])/, function(s, m) { return m.toUpperCase(); } )}; 
   });
   sel.selectAll("option").data(list).enter().append('option')
      .attr("value", function (d) { return d.o; })
@@ -63,9 +64,9 @@ function form(cfg) {
   col.append("span").html("\u00b0");
 
   // Stars 
-  var col = frm.append("div").attr("class", "col");
+  col = frm.append("div").attr("class", "col");
   
-  col.append("label").attr("class", "header").attr("for", "stars-show").html("Stars")
+  col.append("label").attr("class", "header").attr("for", "stars-show").html("Stars");
   col.append("input").attr("type", "checkbox").attr("id", "stars-show").property("checked", cfg.stars.show).on("change", function() { cfg.stars.show = this.checked; enable(this); });
   
   col.append("label").attr("for", "stars-limit").html("down to magnitude");
@@ -88,11 +89,12 @@ function form(cfg) {
   col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", cfg.stars.desig).on("change", function() { cfg.stars.desig = this.checked; });
   
   col.append("label").attr("for", "stars-namelimit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star name display limit").attr("value", cfg.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", function() { if (testNumber(this)) cfg.stars.namelimit = this.value; });;
+  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star name display limit").attr("value", cfg.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", function() { if (testNumber(this)) cfg.stars.namelimit = this.value; });
 
   enable($("stars-show"));
+  
   // DSOs 
-  var col = frm.append("div").attr("class", "col");
+  col = frm.append("div").attr("class", "col");
   
   col.append("label").attr("class", "header").attr("title", "Deep Space Objects").attr("for", "dsos-show").html("DSOs");
   col.append("input").attr("type", "checkbox").attr("id", "dsos-show").property("checked", cfg.dsos.show).on("change", function() { cfg.dsos.show = this.checked; enable(this); });
@@ -112,7 +114,7 @@ function form(cfg) {
   enable($("dsos-show"));
 
   // Constellations 
-  var col = frm.append("div").attr("class", "col");
+  col = frm.append("div").attr("class", "col");
   
   col.append("label").attr("class", "header").attr("for", "constellations-show").html("Constellations");
   col.append("input").attr("type", "checkbox").attr("id", "constellations-show").property("checked", cfg.constellations.show).on("change", function() { cfg.constellations.show = this.checked; enable(this); });
@@ -132,7 +134,7 @@ function form(cfg) {
   enable($("constellations-show"));
 
   // graticules & planes 
-  var col = frm.append("div").attr("class", "col");
+  col = frm.append("div").attr("class", "col");
   col.append("label").attr("class", "header").html("Lines");
   
   col.append("label").attr("title", "X/Y grid lines").attr("for", "lines-graticule").html("Graticule");
@@ -151,11 +153,11 @@ function form(cfg) {
   col.append("input").attr("type", "checkbox").attr("id", "lines-supergalactic").property("checked", cfg.lines.supergalactic).on("change", function() { cfg.lines.supergalactic = this.checked; });
 
   // Other
-  var col = frm.append("div").attr("class", "col");
+  col = frm.append("div").attr("class", "col");
   col.append("label").attr("class", "header").html("Other");
   
   col.append("label").attr("for", "mw-show").html("Milky Way");
-  col.append("input").attr("type", "checkbox").attr("id", "mw-show").property("checked", cfg.mw.show).on("change", function() { mw.show = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "mw-show").property("checked", cfg.mw.show).on("change", function() { cfg.mw.show = this.checked; });
   
   col.append("label").attr("for", "background").html("Background color");
   col.append("input").attr("type", "color").attr("id", "background").attr("value", cfg.background.fill).on("change", function() { cfg.background.fill = this.value; });
@@ -182,7 +184,7 @@ function form(cfg) {
     Celestial.display(cfg);
 
     return false;
-  }
+  };
 
   setLimits();
   setUnit(cfg.transform);
@@ -210,21 +212,23 @@ function enable(source) {
   switch (fld) {
     case "stars-show": 
       off = !$(fld).checked;
-      for (var i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off) };
+      for (var i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
+      /* falls through */
     case "stars-names": 
       off = !$("stars-names").checked || !$("stars-show").checked;      
-      for (var i=0; i< depends["stars-names"].length; i++) { fldEnable(depends["stars-names"][i], off) };
+      for (i=0; i< depends["stars-names"].length; i++) { fldEnable(depends["stars-names"][i], off); }
       break;
     case "dsos-show": 
       off = !$(fld).checked;
-      for (var i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off) };
+      for (i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
+      /* falls through */
     case "dsos-names": 
       off = !$("dsos-names").checked || !$("dsos-show").checked;      
-      for (var i=0; i< depends["dsos-names"].length; i++) { fldEnable(depends["dsos-names"][i], off) };
+      for (i=0; i< depends["dsos-names"].length; i++) { fldEnable(depends["dsos-names"][i], off); }
       break;
     case "constellations-show": 
       off = !$(fld).checked;
-      for (var i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off) };
+      for (i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
       break;
   }  
 }
@@ -283,7 +287,7 @@ function setLimits() {
   if (res.d != 6) {
     $("dsos-limit").max = res.d;
     $("dsos-namelimit").max = res.d;
-  };
+  }
    
    s = cfg.stars.data;
   
@@ -296,7 +300,7 @@ function setLimits() {
   if (res.s != 6) {
     $("stars-limit").max = res.s;
     $("stars-namelimit").max = res.s;
-  };
+  }
 
   return res;
 }
