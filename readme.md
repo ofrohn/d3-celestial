@@ -4,7 +4,7 @@ Interactive, adaptable celestial map done with the [D3.js](http://d3js.org/) vis
 
 Features display of stars and deep sky objects (DSOs) with a selectable magnitude limit up to 6, or choose different GeoJSON data source for higher magnitudes. Also shows constellations with names, lines and/or boundaries, the Milky Way band and grid lines. Alternate coordinate spaces e.g. ecliptc, galactic or supergalactic are also possible. Full support for zoom and rotation with mouse or gestures.
 
-Since it uses D3 and therefore SVG, it needs a modern browser with svg support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at <a href="http://armchairastronautics.blogspot.com/p/skymap.html">armchairastronautics.blogspot.com</a> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment.
+Since it uses D3.js and HTML5 camvas, it needs a modern browser with canvas support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at <a href="http://armchairastronautics.blogspot.com/p/skymap.html">armchairastronautics.blogspot.com</a> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment, quite easy to do with node.js.
 
 ### Usage
 
@@ -19,49 +19,84 @@ var config = {
                            // ecliptic, galactic, supergalactic
   center: null,       // Initial center coordinates in equatorial transformation only
                       // [hours, degrees], null = default center
-  background: "#000", // Background color or gradient  
+  background:  { fill: "#000000", stroke: "#000000", opacity: 1 }, // Background style  
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
-  container: "map",   // ID of parent element, e.g. div
+  form: true,         // Show form for interactive settings
+  container: "map",   // ID of parent element, e.g. div, null = html-body
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use default color
-    color: "#fff", // Default color for stars
-    names: true,   // Show star names (css-class starname)
+    style: { fill: "#ffffff", opacity: 1 }, // Style for stars
+    names: true,   // Show star names 
     proper: false, // Show proper names (if none shows designation)
     desig: true,   // Show designation (Bayer, Flamsteed, variable star, Gliese, Draper,
                    // Hipparcos, whichever applies first in the given order)
     namelimit: 2.5,  // Show only names/designations for stars brighter than namelimit
+    namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", 
+                 align: "left", baseline: "top" },  // Style for star names
+    size: 7,       // Maximum size (radius) of star circle in pixels
     data: 'stars.6.json' // Data source for stellar data, 
                          // number indicates limit magnitude
   },
   dsos: {
-    show: true,    // Show Deep Space Objects (css-classes per object type)
+    show: true,    // Show Deep Space Objects 
     limit: 6,      // Show only DSOs brighter than limit magnitude
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
+    namestyle: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", 
+                 align: "left", baseline: "top" }, // Style for DSO names
     namelimit: 6,  // Show only names for DSOs brighter than namelimit
     data: 'dsos.bright.json'  // Data source for DSOs, 
                               // opt. number indicates limit magnitude
+    symbols: {  //DSO symbol styles, 'stroke'-parameter present = outline
+      gg: {shape: "circle", fill: "#ff0000"},          // Galaxy cluster
+      g:  {shape: "ellipse", fill: "#ff0000"},         // Generic galaxy
+      s:  {shape: "ellipse", fill: "#ff0000"},         // Spiral galaxy
+      s0: {shape: "ellipse", fill: "#ff0000"},         // Lenticular galaxy
+      sd: {shape: "ellipse", fill: "#ff0000"},         // Dwarf galaxy
+      e:  {shape: "ellipse", fill: "#ff0000"},         // Elliptical galaxy
+      i:  {shape: "ellipse", fill: "#ff0000"},         // Irregular galaxy
+      oc: {shape: "circle", fill: "#ffcc00", 
+           stroke: "#ffcc00", width: 1.5},             // Open cluster
+      gc: {shape: "circle", fill: "#ff9900"},          // Globular cluster
+      en: {shape: "square", fill: "#ff00cc"},          // Emission nebula
+      bn: {shape: "square", fill: "#ff00cc", 
+           stroke: "#ff00cc", width: 2},               // Generic bright nebula
+      sfr:{shape: "square", fill: "#cc00ff", 
+           stroke: "#cc00ff", width: 2},               // Star forming region
+      rn: {shape: "square", fill: "#00ooff"},          // Reflection nebula
+      pn: {shape: "diamond", fill: "#00cccc"},         // Planetary nebula 
+      snr:{shape: "diamond", fill: "#ff00cc"},         // Supernova remnant
+      dn: {shape: "square", fill: "#999999", 
+           stroke: "#999999", width: 2},               // Dark nebula grey
+      pos:{shape: "marker", fill: "#cccccc", 
+           stroke: "#cccccc", width: 1.5}              // Generic marker
+    }
   },
   constellations: {
     show: true,    // Show constellations 
-    names: true,   // Show constellation names (css-class: constname)
+    names: true,   // Show constellation names 
     desig: true,   // Show short constellation names (3 letter designations)
-    lines: true,   // Show constellation lines (css-class: constline)
-    bounds: false  // Show constellation boundaries (css-class: boundaryline)
+    namestyle: { fill:"#cccc99", font: "12px Helvetica, Arial, sans-serif", 
+                 align: "center", baseline: "middle" }, // Style for constellations
+    lines: true,   // Show constellation lines, style below
+    linestyle: { stroke: "#cccccc", width: 1, opacity: 0.6 }, 
+    bounds: false  // Show constellation boundaries, style below
+    boundstyle: { stroke: "#cccc00", width: 0.5, opacity: 0.8, dash: [2, 4] }
   },
   mw: {
-    show: true     // Show Milky Way as filled multi-polygon outlines (css-class: mw)
+    show: true     // Show Milky Way as filled multi-polygon outlines 
+    style: { fill: "#ffffff", opacity: 0.15 }  // Style for MW
   },
-  lines: {
-    graticule: true,   // Show graticule lines (css-class: gridline)
-    equatorial: false, // Show equatorial plane (css-class: equatorial)
-    ecliptic: true,    // Show ecliptic plane (css-class: ecliptic)
-    galactic: false,   // Show galactic plane (css-class: galactic)
-    supergalactic: false  // Show supergalactic plane (css-class: supergalactic)
+  lines: {  // Display & styles for graticule & some planes
+    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8 },   
+    equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },  
+    ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },     
+    galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },    
+    supergalactic: { show: false, stroke: "#cc66cc", width: 1.3, opacity: 0.7 }
   }
 };
 
@@ -69,12 +104,11 @@ var config = {
 Celestial.display(config);
 ```
 
-__Supported projections:__ airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3  
-most of these need the extension [d3.geo.projections](https://github.com/d3/d3-geo-projection/)  
+__Supported projections:__ Airy, Aitoff, Armadillo, August, Azimuthal Equal Area, Azimuthal Equidistant, Baker, Berghaus, Boggs, Bonne, Bromley, Collignon, Craig, Craster, Cylindrical Equal Area, Cylindrical Stereographic, Eckert 1, Eckert 2, Eckert 3, Eckert 4, Eckert 5, Eckert 6, Eisenlohr, Equirectangular, Fahey, Foucaut, Ginzburg 4, Ginzburg 5, Ginzburg 6, Ginzburg 8, Ginzburg 9, Hammer, Hatano, HEALPix, Hill, Homolosine, Kavrayskiy 7, Lagrange, l'Arrivee, Laskowski, Loximuthal, Mercator, Miller, Mollweide, Flat Polar Parabolic, Flat Polar Quartic, Flat Polar Sinusoidal, Natural Earth, Nell Hammer, Orthographic, Patterson, Polyconic, Rectangular Polyconic, Robinson, Sinusoidal, Stereographic, Times, 2 Point Equidistant, van Der Grinten, van Der Grinten 2, van Der Grinten 3, van Der Grinten 4, Wagner 4, Wagner 6, Wagner 7, Wiechel and Winkel Tripel. Most of these need the extension [d3.geo.projections](https://github.com/d3/d3-geo-projection/)  
 
 
 ### Adding Data
-
+  (To be implemented)
 __Exposed functions & objects__  
 * `Celestial.add({file:string, type:dso|line, callback:function, redraw:function)`  
    Function to add data in json-format (dso) or directly (line) to the display
@@ -84,19 +118,17 @@ __Exposed functions & objects__
                or to directly add elements to the path (line)
    _redraw_: for interactive display, call when view changes (optional) 
   
-* `Celestial.svg`  
-   The svg object to add data to in the callback. See D3.js documentation 
+* `Celestial.container`  
+   The object to add data to in the callback. See D3.js documentation 
 
-* `Celestial.map` 
-   The svg path object to add svg-objects to in the callback. Also see D3.js documentation 
+* `Celestial.context` 
+   The HTML5-canvas context object to draw on in the callback. Also see D3.js documentation 
   
 * `Celestial.mapProjection`  
    The projection object for access to its properties and functions. Also D3.js documentation
 
-* `Celestial.point(coordinates)`  
-  `Celestial.clip(coordinates)`  
-  `Celestial.opacity(coordinates)`  
-   Functions to transform coordinates and check if the object is visible, and set its visiblility  
+* `Celestial.clip(coordinates)`  
+   Function to check if the object is visible, and set its visiblility  
    _coordinates_: object coordinates in radians, normally supplied by D3 as geometry.coordinates array
    
 ### Files

@@ -35,7 +35,7 @@ Celestial.display = function(config) {
       height = width / ratio,
       scale = proj.scale * width/1024,
       base = cfg.stars.size, 
-      exp = -0.3, //Object size base & exponent
+      exp = -0.28, //Object size base & exponent
       adapt = 1,
       rotation = getAngles(cfg.center),
       center = [-rotation[0], -rotation[1]],
@@ -201,6 +201,7 @@ Celestial.display = function(config) {
   
   d3.select(window).on('resize', resize);
   
+  if (cfg.form === true) form(cfg);
   
   function resize() {
     if (cfg.width && cfg.width > 0) return;
@@ -219,20 +220,14 @@ Celestial.display = function(config) {
   // Exported objects and functions for adding data
   this.container = container;
   this.clip = clip;
-  this.point = point;
-  this.opacity = opacity;
   this.map = map;
   this.mapProjection = projection;
   this.resize = function() { resize(); }; 
   
-  // Helper functions
+  // Helper functions -------------------------------------------------
   
   function clip(coords) {
     return proj.clip && d3.geo.distance(center, coords) > halfπ ? 0 : 1;
-  }
-
-  function point(coords) {
-    return "translate(" + projection(coords) + ")";
   }
 
   function setStyle(s) {
