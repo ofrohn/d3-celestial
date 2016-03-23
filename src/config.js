@@ -8,7 +8,7 @@ var settings = {
   background: { fill: "#000000", stroke: "#000000", opacity: 1 }, // Background style
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
-  form: false,        // Disply settings form
+  form: false,        // Display settings form
   container: "map",   // ID of parent element, e.g. div
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {

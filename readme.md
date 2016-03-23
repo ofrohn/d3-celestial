@@ -49,7 +49,7 @@ var config = {
     namestyle: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", 
                  align: "left", baseline: "top" }, // Style for DSO names
     namelimit: 6,  // Show only names for DSOs brighter than namelimit
-    data: 'dsos.bright.json'  // Data source for DSOs, 
+    data: 'dsos.bright.json', // Data source for DSOs, 
                               // opt. number indicates limit magnitude
     symbols: {  //DSO symbol styles, 'stroke'-parameter present = outline
       gg: {shape: "circle", fill: "#ff0000"},          // Galaxy cluster
@@ -84,7 +84,7 @@ var config = {
                  align: "center", baseline: "middle" }, // Style for constellations
     lines: true,   // Show constellation lines, style below
     linestyle: { stroke: "#cccccc", width: 1, opacity: 0.6 }, 
-    bounds: false  // Show constellation boundaries, style below
+    bounds: false, // Show constellation boundaries, style below
     boundstyle: { stroke: "#cccc00", width: 0.5, opacity: 0.8, dash: [2, 4] }
   },
   mw: {

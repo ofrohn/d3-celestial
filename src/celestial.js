@@ -201,7 +201,11 @@ Celestial.display = function(config) {
   
   d3.select(window).on('resize', resize);
   
-  if (cfg.form === true) form(cfg);
+  if (cfg.form === true && $("params") === null) form(cfg);
+
+  function reformat() {
+    
+  }
   
   function resize() {
     if (cfg.width && cfg.width > 0) return;
@@ -223,6 +227,7 @@ Celestial.display = function(config) {
   this.map = map;
   this.mapProjection = projection;
   this.resize = function() { resize(); }; 
+  this.reformat = function() { reformat(); }; 
   
   // Helper functions -------------------------------------------------
   
