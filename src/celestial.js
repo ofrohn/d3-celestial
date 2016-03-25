@@ -198,10 +198,15 @@ Celestial.display = function(config) {
       else setTimeout(d.callback, 0);
     }, this);
   }
-  
+    
   d3.select(window).on('resize', resize);
   
   if (cfg.form === true && $("params") === null) form(cfg);
+
+  if (cfg.controls === true && $("zoomin") === null) {
+    d3.select(par).append("input").attr("type", "button").attr("id", "zoomin").attr("value", "\u002b").on("click", function() { projection.scale(projection.scale()*1.1); redraw(); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "zoomout").attr("value", "\u2212").on("click", function() { projection.scale(projection.scale()/1.1); redraw(); });
+  }
 
   function reformat() {
     
@@ -303,7 +308,7 @@ Celestial.display = function(config) {
         context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
         context.closePath();
         context.fill();
-        if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit) {
+        if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit*adapt) {
           setTextStyle(cfg.stars.namestyle);
           context.fillText(node.attr("text"), pt[0]+2, pt[1]+2);         
         }
@@ -341,8 +346,8 @@ Celestial.display = function(config) {
 
   
   function dsoDisplay(prop, limit) {
-    return prop.mag === 999 && Math.sqrt(parseInt(prop.dim)) > limit ||
-           prop.mag !== 999 && prop.mag <= limit;
+    return prop.mag === 999 && Math.sqrt(parseInt(prop.dim)) > limit/adapt ||
+           prop.mag !== 999 && prop.mag <= limit*adapt;
   }
   
   function dsoSymbol(d, pt) {

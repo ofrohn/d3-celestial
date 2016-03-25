@@ -16,7 +16,7 @@ text { stroke: none; fill: #fff; font: 11px Helvetica, Arial, sans-serif; z-inde
 .constname { fill: #cc9; font: 12px Helvetica, Arial, sans-serif; text-anchor: middle }
 /* Names */
 .starname { stroke: none; fill: #ddb; font: 11px Georgia, Times, 'Times Roman', serif; }
-.dsoname { stroke: none; fill: #ccc; font: 11px Helvetica, Arial, serif; }
+.dsoname { stroke: none; fill: #ccc; font: 11px Helvetica, Arial, sans-serif; }
 /* Diverse equatorial planes */
 .equatorial, .ecliptic, .galactic, .supergalactic { fill: none; stroke-width: 1.3px; stroke-opacity: .7; }
 .equatorial { stroke: #aaa; }
@@ -58,6 +58,9 @@ input[type='number'] { width:48px; text-align:right; padding-right:0 }
 input[type='checkbox'] { vertical-align: -2px; }
 input[name='width'], input[type='color'] { width:48px; }
 input[type='button'] { width:64px; margin:0 0 0 8px; vertical-align: 2px; }
+input#zoomin, input#zoomout { width:32px; height:32px; left:8px; top:12px; background: rgba(255,255,255,0.5); border:1px solid #000; border-radius:3px; position:absolute; font: normal bold 24px/1 Consolas, Courier, 'Courier New', monospace ; }
+input#zoomout { top: 48px; }
+input#zoomin:hover, input#zoomout:hover { background: rgba(255,255,255,0.7); }
 .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }
 label { margin:0 4px 0 8px; }
 label.header { font-weight:bold; }

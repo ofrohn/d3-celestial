@@ -22,7 +22,8 @@ var config = {
   background:  { fill: "#000000", stroke: "#000000", opacity: 1 }, // Background style  
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
-  form: true,         // Show form for interactive settings
+  form: true,         // Display form for interactive settings
+  contols: true,      // Display zoom controls
   container: "map",   // ID of parent element, e.g. div, null = html-body
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
@@ -106,6 +107,7 @@ Celestial.display(config);
 
 __Supported projections:__ Airy, Aitoff, Armadillo, August, Azimuthal Equal Area, Azimuthal Equidistant, Baker, Berghaus, Boggs, Bonne, Bromley, Collignon, Craig, Craster, Cylindrical Equal Area, Cylindrical Stereographic, Eckert 1, Eckert 2, Eckert 3, Eckert 4, Eckert 5, Eckert 6, Eisenlohr, Equirectangular, Fahey, Foucaut, Ginzburg 4, Ginzburg 5, Ginzburg 6, Ginzburg 8, Ginzburg 9, Hammer, Hatano, HEALPix, Hill, Homolosine, Kavrayskiy 7, Lagrange, l'Arrivee, Laskowski, Loximuthal, Mercator, Miller, Mollweide, Flat Polar Parabolic, Flat Polar Quartic, Flat Polar Sinusoidal, Natural Earth, Nell Hammer, Orthographic, Patterson, Polyconic, Rectangular Polyconic, Robinson, Sinusoidal, Stereographic, Times, 2 Point Equidistant, van Der Grinten, van Der Grinten 2, van Der Grinten 3, van Der Grinten 4, Wagner 4, Wagner 6, Wagner 7, Wiechel and Winkel Tripel. Most of these need the extension [d3.geo.projections](https://github.com/d3/d3-geo-projection/)  
 
+__Style settings__ 
 
 ### Adding Data
   (To be implemented)
