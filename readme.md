@@ -110,7 +110,7 @@ __Supported projections:__ Airy, Aitoff, Armadillo, August, Azimuthal Equal Area
 __Style settings__ 
 
 ### Adding Data
-  (To be implemented)
+  (To be implemented)  
 __Exposed functions & objects__  
 * `Celestial.add({file:string, type:dso|line, callback:function, redraw:function)`  
    Function to add data in json-format (dso) or directly (line) to the display
@@ -135,7 +135,8 @@ __Exposed functions & objects__
    
 ### Files
 
-__GeoJSON data files__
+__GeoJSON data files__  
+(See format specification in readme.md for the [data folder](./data/)  
 
 * `stars.6.json` Stars down to 6th magnitude \[1\]
 * `stars.8.json` Stars down to 8.5th magnitude \[1\]
