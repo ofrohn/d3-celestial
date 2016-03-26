@@ -23,7 +23,7 @@ var config = {
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: true,         // Display form for interactive settings
-  contols: true,      // Display zoom controls
+  controls: true,      // Display zoom controls
   container: "map",   // ID of parent element, e.g. div, null = html-body
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {

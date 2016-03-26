@@ -1,6 +1,7 @@
 var Canvas = {}; 
 
 Canvas.symbol = function() {
+  // parameters and default values
   var type = d3.functor("circle"), 
       size = d3.functor(64), 
       color = d3.functor("#fff"),  

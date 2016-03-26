@@ -78,22 +78,22 @@ Celestial.display = function(config) {
     container.append("path").datum(graticule.outline).attr("class", "outline"); 
   }
 
-  if (cfg.lines.graticule.show) {
-      container.append("path").datum(graticule).attr("class", "graticule"); 
-  }
 
   //Celestial planes
   for (var key in cfg.lines) {
-    if (has(cfg.lines, key)) {
-      if (key === "graticule" || cfg.lines[key].show === false) continue;
-      container.append("path")
-        .datum(d3.geo.circle().angle([90]).origin(transformDeg(poles[key], euler[trans])) )
-        .attr("class", key);
+    if (!has(cfg.lines, key)) continue;
+    if (key === "graticule"/* || cfg.lines[key].show === false*/) {
+      container.append("path").datum(graticule).attr("class", "graticule"); 
+    } else {
+    container.append("path")
+      .datum(d3.geo.circle().angle([90]).origin(transformDeg(poles[key], euler[trans])) )
+      .attr("class", key);
     }
   }
   
   //Milky way outline
-  if (cfg.mw.show) { d3.json(path + "mw.json", function(error, json) {
+  //if (cfg.mw.show) { 
+  d3.json(path + "mw.json", function(error, json) {
     if (error) { 
       window.alert("Your Browser doesn't support local file loading or the file doesn't exist. See readme.md");
       return console.warn(error);  
@@ -106,27 +106,27 @@ Celestial.display = function(config) {
        .enter().append("path")
        .attr("class", "mw");
     redraw();
-  });}
+  }); //}
 
   //Constellation names or designation
-  if (cfg.constellations.show) { 
+  //if (cfg.constellations.show) { 
     d3.json(path + "constellations.json", function(error, json) {
       if (error) return console.warn(error);
       
       var con = getData(json, trans);
       
-      if (cfg.constellations.names) { 
+      //if (cfg.constellations.names) { 
         container.selectAll(".constnames")
            .data(con.features)
            .enter().append("text")
            .attr("class", "constname")
            .attr("text", function(d) { if (cfg.constellations.names) { return cfg.constellations.desig?d.properties.desig:d.properties.name; }});
         redraw();
-      }
+      //}
     });
 
     //Constellation boundaries
-    if (cfg.constellations.bounds) { 
+    //if (cfg.constellations.bounds) { 
       d3.json(path + "constellations.bounds.json", function(error, json) {
         if (error) return console.warn(error);
 
@@ -138,10 +138,10 @@ Celestial.display = function(config) {
            .attr("class", "boundaryline");
         redraw();
       });
-    }
+    //}
 
     //Constellation lines
-    if (cfg.constellations.lines) { 
+    //if (cfg.constellations.lines) { 
       d3.json(path + "constellations.lines.json", function(error, json) {
         if (error) return console.warn(error);
 
@@ -151,14 +151,13 @@ Celestial.display = function(config) {
            .data(conl.features)
            .enter().append("path")
            .attr("class", "constline");
-           //.attr("d", map);
         redraw();
       });
-    }
-  }
+    //}
+  //}
   
   //Stars
-  if (cfg.stars.show) { 
+  //if (cfg.stars.show) { 
     d3.json(path + cfg.stars.data, function(error, json) {
       if (error) return console.warn(error);
 
@@ -173,10 +172,10 @@ Celestial.display = function(config) {
 
       redraw();
     });
-  }
+  //}
 
   //Deep space objects
-  if (cfg.dsos.show) { 
+  //if (cfg.dsos.show) { 
     d3.json(path + cfg.dsos.data, function(error, json) {
       if (error) return console.warn(error);
       
@@ -190,7 +189,7 @@ Celestial.display = function(config) {
 
       redraw();
     });
-  }
+  //}
 
   if (this.data.length > 0) { 
     this.data.forEach( function(d) {
@@ -200,13 +199,13 @@ Celestial.display = function(config) {
   }
     
   d3.select(window).on('resize', resize);
-  
-  if (cfg.form === true && $("params") === null) form(cfg);
 
   if (cfg.controls === true && $("zoomin") === null) {
-    d3.select(par).append("input").attr("type", "button").attr("id", "zoomin").attr("value", "\u002b").on("click", function() { projection.scale(projection.scale()*1.1); redraw(); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "zoomin").attr("value", "\u002b").on("click", function() { projection.scale(projection.scale()*1.1); redraw();  });
     d3.select(par).append("input").attr("type", "button").attr("id", "zoomout").attr("value", "\u2212").on("click", function() { projection.scale(projection.scale()/1.1); redraw(); });
   }
+  
+  if (cfg.form === true && $("params") === null) form(cfg);
 
   function reformat() {
     
@@ -276,64 +275,77 @@ Celestial.display = function(config) {
     context.fill();
     //context.sroke();
     
-    //All different types of objects need separate updates
-    container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
-
+    //Draw all types of objects on the canvas
+    if (cfg.mw.show) { 
+      container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
+    }
+    
     for (var key in cfg.lines) {
-      if (!has(cfg.lines, key)) continue;
+      if (!has(cfg.lines, key) || cfg.lines[key].show !== true) continue;
       setStyle(cfg.lines[key]);
       container.selectAll("."+key).attr("d", map);  
       context.stroke();    
     }
 
-    setTextStyle(cfg.constellations.namestyle);
-    container.selectAll(".constname").each( function(d) { 
-      if (clip(d.geometry.coordinates)) {
-        var node = d3.select(this),
-            pt = projection(d.geometry.coordinates);
-        context.fillText(node.attr("text"), pt[0], pt[1]); 
-      }
-    });
-    container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
-    container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
-    
-    setStyle(cfg.stars.style);
-    container.selectAll(".star").each(function(d) {
-      if (clip(d.geometry.coordinates) && d.properties.mag <= cfg.stars.limit) {
-        var node = d3.select(this),
-            pt = projection(d.geometry.coordinates),
-            r = starSize(d);//node.attr("radius");
-        context.fillStyle = node.attr("fill");
-        context.beginPath();
-        context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
-        context.closePath();
-        context.fill();
-        if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit*adapt) {
-          setTextStyle(cfg.stars.namestyle);
-          context.fillText(node.attr("text"), pt[0]+2, pt[1]+2);         
+    if (cfg.constellations.names) { 
+      setTextStyle(cfg.constellations.namestyle);
+      container.selectAll(".constname").each( function(d) { 
+        if (clip(d.geometry.coordinates)) {
+          var node = d3.select(this),
+              pt = projection(d.geometry.coordinates);
+          context.fillText(node.attr("text"), pt[0], pt[1]); 
         }
-      }
-    });
+      });
+    }
 
-    container.selectAll(".dso").each(function(d) {
-      if (clip(d.geometry.coordinates) && dsoDisplay(d.properties, cfg.dsos.limit)) {
-        var node = d3.select(this),
-            pt = projection(d.geometry.coordinates),
-            type = d.properties.type;
-        setStyle(cfg.dsos.symbols[type]);
-        var r = dsoSymbol(d, pt);
-        if (has(cfg.dsos.symbols[type], "stroke")) context.stroke();
-        else context.fill();
-        
-        if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.namelimit)) {
-          setTextStyle(cfg.dsos.namestyle);
-          context.fillStyle = cfg.dsos.symbols[type].fill;
-          context.fillText(node.attr("text"), pt[0]+r, pt[1]+r);         
+    if (cfg.constellations.lines) { 
+      container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
+    }
+    
+    if (cfg.constellations.bounds) { 
+      container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
+    }
+    
+    if (cfg.stars.show) { 
+      setStyle(cfg.stars.style);
+      container.selectAll(".star").each(function(d) {
+        if (clip(d.geometry.coordinates) && d.properties.mag <= cfg.stars.limit) {
+          var node = d3.select(this),
+              pt = projection(d.geometry.coordinates),
+              r = starSize(d);//node.attr("radius");
+          context.fillStyle = node.attr("fill");
+          context.beginPath();
+          context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
+          context.closePath();
+          context.fill();
+          if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit*adapt) {
+            setTextStyle(cfg.stars.namestyle);
+            context.fillText(node.attr("text"), pt[0]+2, pt[1]+2);         
+          }
         }
-       
-      }
-    });
-  
+      });
+    }
+    
+    if (cfg.dsos.show) { 
+      container.selectAll(".dso").each(function(d) {
+        if (clip(d.geometry.coordinates) && dsoDisplay(d.properties, cfg.dsos.limit)) {
+          var node = d3.select(this),
+              pt = projection(d.geometry.coordinates),
+              type = d.properties.type;
+          setStyle(cfg.dsos.symbols[type]);
+          var r = dsoSymbol(d, pt);
+          if (has(cfg.dsos.symbols[type], "stroke")) context.stroke();
+          else context.fill();
+          
+          if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.namelimit)) {
+            setTextStyle(cfg.dsos.namestyle);
+            context.fillStyle = cfg.dsos.symbols[type].fill;
+            context.fillText(node.attr("text"), pt[0]+r, pt[1]+r);         
+          }         
+        }
+      });
+    }
+    
     if (Celestial.data.length > 0) { 
       Celestial.data.forEach( function(d) {
         d.redraw();
@@ -342,12 +354,20 @@ Celestial.display = function(config) {
     setStyle(cfg.background);
     container.selectAll(".outline").attr("d", outline);      
     context.stroke();
+    
+    if (cfg.controls) { 
+      zoomState(projection.scale());
+    }
   }
 
+  function zoomState(sc) {
+    $("zoomin").disabled = sc > scale*4.54;
+    $("zoomout").disabled = sc < scale*1.1;    
+  }
   
   function dsoDisplay(prop, limit) {
-    return prop.mag === 999 && Math.sqrt(parseInt(prop.dim)) > limit/adapt ||
-           prop.mag !== 999 && prop.mag <= limit*adapt;
+    return prop.mag === 999 && Math.sqrt(parseInt(prop.dim)) > limit ||
+           prop.mag !== 999 && prop.mag <= limit;
   }
   
   function dsoSymbol(d, pt) {

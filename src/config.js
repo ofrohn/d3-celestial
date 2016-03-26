@@ -9,7 +9,7 @@ var settings = {
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
-  contols: true,      // Display zoom controls
+  controls: true,      // Display zoom controls
   container: "map",   // ID of parent element, e.g. div
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
@@ -44,8 +44,8 @@ var settings = {
       oc: {shape: "circle", fill: "#ffcc00", stroke: "#ffcc00", width: 1.5},  // Open cluster
       gc: {shape: "circle", fill: "#ff9900"},                                 // Globular cluster
       en: {shape: "square", fill: "#ff00cc"},                                 // Emission nebula
-      bn: {shape: "square", fill: "#ff00cc", stroke: "#ff00cc", width: 2},    // Generic bright nebula
-      sfr:{shape: "square", fill: "#cc00ff", stroke: "#cc00ff", width: 2},    // Star forming region
+      bn: {shape: "square", fill: "#ff00cc", stroke: "#ff00cc", width: 2.5},    // Generic bright nebula
+      sfr:{shape: "square", fill: "#cc00ff", stroke: "#cc00ff", width: 2.5},    // Star forming region
       rn: {shape: "square", fill: "#00ooff"},                                 // Reflection nebula
       pn: {shape: "diamond", fill: "#00cccc"},                                // Planetary nebula 
       snr:{shape: "diamond", fill: "#ff00cc"},                                // Supernova remnant

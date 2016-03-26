@@ -61,8 +61,13 @@ input[type='button'] { width:64px; margin:0 0 0 8px; vertical-align: 2px; }
 input#zoomin, input#zoomout { width:32px; height:32px; left:8px; top:12px; background: rgba(255,255,255,0.5); border:1px solid #000; border-radius:3px; position:absolute; font: normal bold 24px/1 Consolas, Courier, 'Courier New', monospace ; }
 input#zoomout { top: 48px; }
 input#zoomin:hover, input#zoomout:hover { background: rgba(255,255,255,0.7); }
+input#zoomin:disabled, input#zoomout:disabled { background: rgba(255,255,255,0.0); border:1px solid #ccc; color:#ccc; }
 .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }
 label { margin:0 4px 0 8px; }
 label.header { font-weight:bold; }
 input + span { margin:0 4px 0 2px; }
 label:first-child, br + label { margin-left:0; }
+
+@media print {
+  #zoomin, #zoomout, #form { display: none; }
+}
