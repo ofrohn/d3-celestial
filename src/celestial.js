@@ -207,8 +207,9 @@ Celestial.display = function(config) {
   
   if (cfg.form === true && $("params") === null) form(cfg);
 
-  function reformat() {
-    
+  function apply(config) {
+    cfg = settings.set(config); 
+    redraw();
   }
   
   function resize() {
@@ -231,7 +232,7 @@ Celestial.display = function(config) {
   this.map = map;
   this.mapProjection = projection;
   this.resize = function() { resize(); }; 
-  this.reformat = function() { reformat(); }; 
+  this.apply = function(config) { apply(config); }; 
   
   // Helper functions -------------------------------------------------
   
