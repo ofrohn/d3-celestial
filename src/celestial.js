@@ -119,8 +119,8 @@ Celestial.display = function(config) {
         container.selectAll(".constnames")
            .data(con.features)
            .enter().append("text")
-           .attr("class", "constname")
-           .attr("text", function(d) { if (cfg.constellations.names) { return cfg.constellations.desig?d.properties.desig:d.properties.name; }});
+           .attr("class", "constname");
+           //.attr("text", constName);
         redraw();
       //}
     });
@@ -166,9 +166,9 @@ Celestial.display = function(config) {
       container.selectAll(".stars")
          .data(st.features)
          .enter().append("path")
-         .attr("class", "star")
-         .attr("text", starName)
-         .attr("fill", starColor);
+         .attr("class", "star");
+         //.attr("text", starName)
+         //.attr("fill", starColor);
 
       redraw();
     });
@@ -184,8 +184,8 @@ Celestial.display = function(config) {
       container.selectAll(".dsos")
          .data(ds.features)
          .enter().append("path")
-         .attr("class", "dso" )
-         .attr("text", dsoName);
+         .attr("class", "dso" );
+         //.attr("text", dsoName);
 
       redraw();
     });
@@ -201,12 +201,20 @@ Celestial.display = function(config) {
   d3.select(window).on('resize', resize);
 
   if (cfg.controls === true && $("zoomin") === null) {
-    d3.select(par).append("input").attr("type", "button").attr("id", "zoomin").attr("value", "\u002b").on("click", function() { projection.scale(projection.scale()*1.1); redraw();  });
-    d3.select(par).append("input").attr("type", "button").attr("id", "zoomout").attr("value", "\u2212").on("click", function() { projection.scale(projection.scale()/1.1); redraw(); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "zoomin").attr("value", "\u002b").on("click", function() { zoomBy(1.111); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
   }
   
   if (cfg.form === true && $("params") === null) form(cfg);
 
+  
+  function zoomBy(factor) {
+    var scale = projection.scale() * factor; 
+    projection.scale([scale]); 
+    zoom.scale([scale]); 
+    redraw(); 
+  }  
+  
   function apply(config) {
     cfg = settings.set(config); 
     redraw();
@@ -226,6 +234,108 @@ Celestial.display = function(config) {
     redraw();
   }
   
+  function redraw() {
+    //if (!d3.event) return; 
+    //d3.event.preventDefault();
+    
+    var rot = projection.rotate();
+    projOl.scale(projection.scale());
+    
+    if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/scale);
+    base = cfg.stars.size * adapt;
+    center = [-rot[0], -rot[1]];
+    
+    clear();
+    
+    setStyle(cfg.background);
+    container.selectAll(".outline").attr("d", outline);      
+    context.fill();
+    
+    //Draw all types of objects on the canvas
+    if (cfg.mw.show) { 
+      container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
+    }
+    
+    for (var key in cfg.lines) {
+      if (!has(cfg.lines, key) || cfg.lines[key].show !== true) continue;
+      setStyle(cfg.lines[key]);
+      container.selectAll("."+key).attr("d", map);  
+      context.stroke();    
+    }
+
+    if (cfg.constellations.names) { 
+      setTextStyle(cfg.constellations.namestyle);
+      container.selectAll(".constname").each( function(d) { 
+        if (clip(d.geometry.coordinates)) {
+          var //node = d3.select(this),
+              pt = projection(d.geometry.coordinates);
+          context.fillText(constName(d), pt[0], pt[1]); 
+        }
+      });
+    }
+
+    if (cfg.constellations.lines) { 
+      container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
+    }
+    
+    if (cfg.constellations.bounds) { 
+      container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
+    }
+    
+    if (cfg.stars.show) { 
+      setStyle(cfg.stars.style);
+      container.selectAll(".star").each(function(d) {
+        if (clip(d.geometry.coordinates) && d.properties.mag <= cfg.stars.limit) {
+          var //node = d3.select(this),
+              pt = projection(d.geometry.coordinates),
+              r = starSize(d);//node.attr("radius");
+          context.fillStyle = starColor(d); //node.attr("fill");
+          context.beginPath();
+          context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
+          context.closePath();
+          context.fill();
+          if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit*adapt) {
+            setTextStyle(cfg.stars.namestyle);
+            context.fillText(starName(d), pt[0]+2, pt[1]+2);         
+          }
+        }
+      });
+    }
+    
+    if (cfg.dsos.show) { 
+      container.selectAll(".dso").each(function(d) {
+        if (clip(d.geometry.coordinates) && dsoDisplay(d.properties, cfg.dsos.limit)) {
+          var node = d3.select(this),
+              pt = projection(d.geometry.coordinates),
+              type = d.properties.type;
+          setStyle(cfg.dsos.symbols[type]);
+          var r = dsoSymbol(d, pt);
+          if (has(cfg.dsos.symbols[type], "stroke")) context.stroke();
+          else context.fill();
+          
+          if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.namelimit)) {
+            setTextStyle(cfg.dsos.namestyle);
+            context.fillStyle = cfg.dsos.symbols[type].fill;
+            context.fillText(dsoName(d), pt[0]+r, pt[1]+r);         
+          }         
+        }
+      });
+    }
+    
+    if (Celestial.data.length > 0) { 
+      Celestial.data.forEach( function(d) {
+        d.redraw();
+      });
+    }
+    setStyle(cfg.background);
+    container.selectAll(".outline").attr("d", outline);      
+    context.stroke();
+    
+    if (cfg.controls) { 
+      zoomState(projection.scale());
+    }
+  }
+    
   // Exported objects and functions for adding data
   this.container = container;
   this.clip = clip;
@@ -258,109 +368,6 @@ Celestial.display = function(config) {
     context.font = s.font;
   }
     
-  function redraw() {
-    //if (!d3.event) return; 
-    //d3.event.preventDefault();
-    
-    var rot = projection.rotate();
-    projOl.scale(projection.scale());
-    
-    if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/scale);
-    base = cfg.stars.size * adapt;
-    center = [-rot[0], -rot[1]];
-    
-    clear();
-    
-    setStyle(cfg.background);
-    container.selectAll(".outline").attr("d", outline);      
-    context.fill();
-    //context.sroke();
-    
-    //Draw all types of objects on the canvas
-    if (cfg.mw.show) { 
-      container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
-    }
-    
-    for (var key in cfg.lines) {
-      if (!has(cfg.lines, key) || cfg.lines[key].show !== true) continue;
-      setStyle(cfg.lines[key]);
-      container.selectAll("."+key).attr("d", map);  
-      context.stroke();    
-    }
-
-    if (cfg.constellations.names) { 
-      setTextStyle(cfg.constellations.namestyle);
-      container.selectAll(".constname").each( function(d) { 
-        if (clip(d.geometry.coordinates)) {
-          var node = d3.select(this),
-              pt = projection(d.geometry.coordinates);
-          context.fillText(node.attr("text"), pt[0], pt[1]); 
-        }
-      });
-    }
-
-    if (cfg.constellations.lines) { 
-      container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
-    }
-    
-    if (cfg.constellations.bounds) { 
-      container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
-    }
-    
-    if (cfg.stars.show) { 
-      setStyle(cfg.stars.style);
-      container.selectAll(".star").each(function(d) {
-        if (clip(d.geometry.coordinates) && d.properties.mag <= cfg.stars.limit) {
-          var node = d3.select(this),
-              pt = projection(d.geometry.coordinates),
-              r = starSize(d);//node.attr("radius");
-          context.fillStyle = node.attr("fill");
-          context.beginPath();
-          context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
-          context.closePath();
-          context.fill();
-          if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit*adapt) {
-            setTextStyle(cfg.stars.namestyle);
-            context.fillText(node.attr("text"), pt[0]+2, pt[1]+2);         
-          }
-        }
-      });
-    }
-    
-    if (cfg.dsos.show) { 
-      container.selectAll(".dso").each(function(d) {
-        if (clip(d.geometry.coordinates) && dsoDisplay(d.properties, cfg.dsos.limit)) {
-          var node = d3.select(this),
-              pt = projection(d.geometry.coordinates),
-              type = d.properties.type;
-          setStyle(cfg.dsos.symbols[type]);
-          var r = dsoSymbol(d, pt);
-          if (has(cfg.dsos.symbols[type], "stroke")) context.stroke();
-          else context.fill();
-          
-          if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.namelimit)) {
-            setTextStyle(cfg.dsos.namestyle);
-            context.fillStyle = cfg.dsos.symbols[type].fill;
-            context.fillText(node.attr("text"), pt[0]+r, pt[1]+r);         
-          }         
-        }
-      });
-    }
-    
-    if (Celestial.data.length > 0) { 
-      Celestial.data.forEach( function(d) {
-        d.redraw();
-      });
-    }
-    setStyle(cfg.background);
-    container.selectAll(".outline").attr("d", outline);      
-    context.stroke();
-    
-    if (cfg.controls) { 
-      zoomState(projection.scale());
-    }
-  }
-
   function zoomState(sc) {
     $("zoomin").disabled = sc > scale*4.54;
     $("zoomout").disabled = sc < scale*1.1;    
@@ -415,6 +422,10 @@ Celestial.display = function(config) {
     var bv = d.properties.bv;
     if (!cfg.stars.colors || isNaN(bv)) {return cfg.stars.style.fill; }
     return bvcolor(bv);
+  }
+  
+  function constName(d) { 
+    return cfg.constellations.desig ? d.properties.desig : d.properties.name; 
   }
   
   function clear() {

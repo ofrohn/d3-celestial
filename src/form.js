@@ -10,7 +10,7 @@ function form(cfg) {
   //Map parameters    
   var col = frm.append("div").attr("class", "col");
   
-  col.append("label").attr("title", "Map width, 0 indicates full width").attr("for", "width").html("Width");
+  col.append("label").attr("title", "Map width, 0 indicates full width").attr("for", "width").html("Width ");
   col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "9999").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", cfg.width).on("change", function() { if (testNumber(this)) cfg.width = this.value; });
   col.append("span").html("px");
 
