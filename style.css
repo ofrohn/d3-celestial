@@ -55,13 +55,19 @@ text.gg, text.g, text.s, text.s0, text.sd, text.e, text.i, text.gc, text.en, tex
 #error { position:absolute; min-width:100px; height:auto; padding: 2px 4px; color:#f00; background:#fff; border:2px solid #f00; border-radius:3px; font-weight:normal; display:block; top:-9999px; left:-9999px; opacity:0; transition:opacity 1s linear; }
 input { vertical-align: 0px; }
 input[type='number'] { width:48px; text-align:right; padding-right:0 }
-input[type='checkbox'] { vertical-align: -2px; }
+input[type='checkbox'], input[type='color'] { vertical-align: -2px; }
 input[name='width'], input[type='color'] { width:48px; }
-input[type='button'] { width:64px; margin:0 0 0 8px; vertical-align: 2px; }
-input#zoomin, input#zoomout { width:32px; height:32px; left:8px; top:12px; background: rgba(255,255,255,0.5); border:1px solid #000; border-radius:3px; position:absolute; font: normal bold 24px/1 Consolas, Courier, 'Courier New', monospace ; }
+input[type='button'] { width:64px; margin:0 0 0 8px; margin-top:4px; }
+input#zoomin, input#zoomout { width:32px; height:32px; left:8px; top:12px; background: rgba(255,255,255,0.5); border:1px solid #000; border-radius:3px; position:absolute; font: normal bold 24px/1 Consolas, Courier, 'Courier New', monospace ; cursor:pointer; }
 input#zoomout { top: 48px; }
 input#zoomin:hover, input#zoomout:hover { background: rgba(255,255,255,0.7); }
-input#zoomin:disabled, input#zoomout:disabled { background: rgba(255,255,255,0.0); border:1px solid rgba(153,153,153,0.7); color:rgba(153,153,153,0.7); }
+input#zoomin:disabled, input#zoomout:disabled { background: rgba(255,255,255,0.0); border:1px solid rgba(153,153,153,0.7); color:rgba(153,153,153,0.7); cursor:default; }
+input#show { float:right;  background: #f7f7f7; }
+input#show:hover { background:#eee; }
+input[type='number'], input[type='color'], select, input#show { border: 1px solid #000; border-radius:3px; height:24px; }
+input[type='color'] { height:22px;  background:#fff; }
+input[type='number'] { height:18px; }
+input[type='number']:disabled, input[type='color']:disabled { border: 1px solid #ccc; background:#eee }
 .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }
 label { margin:0 4px 0 8px; }
 label.header { font-weight:bold; }

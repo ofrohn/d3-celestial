@@ -62,34 +62,36 @@ function form(cfg) {
   
   col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("value", cfg.center[1]).attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", function() { if (testNumber(this)) cfg.center[1] = this.value; });
   col.append("span").html("\u00b0");
+  col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
+  //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
 
   // Stars 
   col = frm.append("div").attr("class", "col");
   
   col.append("label").attr("class", "header").attr("for", "stars-show").html("Stars");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-show").property("checked", cfg.stars.show).on("change", function() { cfg.stars.show = this.checked; enable(this); });
+  col.append("input").attr("type", "checkbox").attr("id", "stars-show").property("checked", cfg.stars.show).on("change", apply);
   
   col.append("label").attr("for", "stars-limit").html("down to magnitude");
-  col.append("input").attr("type", "number").attr("id", "stars-limit").attr("title", "Star display limit").attr("value", cfg.stars.limit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", function() { if (testNumber(this)) cfg.stars.limit = this.value; });
+  col.append("input").attr("type", "number").attr("id", "stars-limit").attr("title", "Star display limit").attr("value", cfg.stars.limit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
   
   col.append("label").attr("for", "stars-colors").html("with spectral colors");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-colors").property("checked", cfg.stars.colors).on("change", function() { cfg.stars.colors = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "stars-colors").property("checked", cfg.stars.colors).on("change", apply);
   
   col.append("label").attr("for", "stars-color").html("or default color ");
-  col.append("input").attr("type", "color").attr("id", "stars-color").property("value", cfg.stars.color).on("change", function() { cfg.stars.color = this.value; });
+  col.append("input").attr("type", "color").attr("id", "stars-style-fill").property("value", cfg.stars.style.fill).on("change", apply);
   col.append("br");
   
   col.append("label").attr("for", "stars-names").html("Show names");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-names").on("change", function() { cfg.stars.names = this.checked; enable(this); });
+  col.append("input").attr("type", "checkbox").attr("id", "stars-names").on("change", apply);
   
   col.append("label").attr("for", "stars-proper").html("proper names (if any)");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-proper").property("checked", cfg.stars.proper).on("change", function() { cfg.stars.proper = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "stars-proper").property("checked", cfg.stars.proper).on("change", apply);
   
   col.append("label").attr("for", "stars-desig").html("or designations");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", cfg.stars.desig).on("change", function() { cfg.stars.desig = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", cfg.stars.desig).on("change", apply);
   
   col.append("label").attr("for", "stars-namelimit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star name display limit").attr("value", cfg.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", function() { if (testNumber(this)) cfg.stars.namelimit = this.value; });
+  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star name display limit").attr("value", cfg.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
 
   enable($("stars-show"));
   
@@ -97,77 +99,73 @@ function form(cfg) {
   col = frm.append("div").attr("class", "col");
   
   col.append("label").attr("class", "header").attr("title", "Deep Space Objects").attr("for", "dsos-show").html("DSOs");
-  col.append("input").attr("type", "checkbox").attr("id", "dsos-show").property("checked", cfg.dsos.show).on("change", function() { cfg.dsos.show = this.checked; enable(this); });
+  col.append("input").attr("type", "checkbox").attr("id", "dsos-show").property("checked", cfg.dsos.show).on("change", apply);
   
   col.append("label").attr("for", "dsos-limit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "dsos-limit").attr("title", "DSO display limit").attr("value", cfg.dsos.limit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", function() { if (testNumber(this)) cfg.dsos.limit = this.value; });
+  col.append("input").attr("type", "number").attr("id", "dsos-limit").attr("title", "DSO display limit").attr("value", cfg.dsos.limit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
   
   col.append("label").attr("for", "dsos-names").html("with names");
-  col.append("input").attr("type", "checkbox").attr("id", "dsos-names").property("checked", cfg.dsos.names).on("change", function() { cfg.dsos.names = this.checked; enable(this); });
+  col.append("input").attr("type", "checkbox").attr("id", "dsos-names").property("checked", cfg.dsos.names).on("change", apply);
   
   col.append("label").attr("for", "dsos-desig").html("or designations");
-  col.append("input").attr("type", "checkbox").attr("id", "dsos-desig").property("checked", cfg.dsos.desig).on("change", function() { cfg.dsos.desig = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "dsos-desig").property("checked", cfg.dsos.desig).on("change", apply);
   
   col.append("label").attr("for", "dsos-namelimit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "dsos-namelimit").attr("title", "DSO name display limit").attr("value", cfg.dsos.namelimit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", function() { if (testNumber(this)) cfg.dsos.namelimit = this.value; });
+  col.append("input").attr("type", "number").attr("id", "dsos-namelimit").attr("title", "DSO name display limit").attr("value", cfg.dsos.namelimit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
 
   enable($("dsos-show"));
 
   // Constellations 
   col = frm.append("div").attr("class", "col");
+  col.append("label").attr("class", "header").html("Constellations");
+  //col.append("input").attr("type", "checkbox").attr("id", "constellations-show").property("checked", cfg.constellations.show).on("change", apply);
   
-  col.append("label").attr("class", "header").attr("for", "constellations-show").html("Constellations");
-  col.append("input").attr("type", "checkbox").attr("id", "constellations-show").property("checked", cfg.constellations.show).on("change", function() { cfg.constellations.show = this.checked; enable(this); });
-  
-  col.append("label").attr("for", "constellations-names").html("with names");
-  col.append("input").attr("type", "checkbox").attr("id", "constellations-names").property("checked", cfg.constellations.names).on("change", function() { cfg.constellations.names = this.checked; });
+  col.append("label").attr("for", "constellations-names").html("Show names");
+  col.append("input").attr("type", "checkbox").attr("id", "constellations-names").property("checked", cfg.constellations.names).on("change", apply);
   
   col.append("label").attr("for", "constellations-desig").html("abbreviated");
-  col.append("input").attr("type", "checkbox").attr("id", "constellations-desig").property("checked", cfg.constellations.desig).on("change", function() { cfg.constellations.desig = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "constellations-desig").property("checked", cfg.constellations.desig).on("change", apply);
   
   col.append("label").attr("for", "constellations-lines").html("with lines");
-  col.append("input").attr("type", "checkbox").attr("id", "constellations-lines").property("checked", cfg.constellations.lines).on("change", function() { cfg.constellations.lines = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "constellations-lines").property("checked", cfg.constellations.lines).on("change", apply);
   
   col.append("label").attr("for", "constellations-bounds").html("with boundaries");
-  col.append("input").attr("type", "checkbox").attr("id", "constellations-bounds").property("checked", cfg.constellations.bounds).on("change", function() { cfg.constellations.bounds = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "constellations-bounds").property("checked", cfg.constellations.bounds).on("change", apply);
 
-  enable($("constellations-show"));
+  enable($("constellations-names"));
 
   // graticules & planes 
   col = frm.append("div").attr("class", "col");
   col.append("label").attr("class", "header").html("Lines");
   
   col.append("label").attr("title", "X/Y grid lines").attr("for", "lines-graticule").html("Graticule");
-  col.append("input").attr("type", "checkbox").attr("id", "lines-graticule").property("checked", cfg.lines.graticule).on("change", function() { cfg.lines.graticule = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "lines-graticule-show").property("checked", cfg.lines.graticule.show).on("change", apply);
   
   col.append("label").attr("for", "lines-equatorial").html("Equator");
-  col.append("input").attr("type", "checkbox").attr("id", "lines-equatorial").property("checked", cfg.lines.equatorial).on("change", function() { cfg.lines.equatorial = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "lines-equatorial-show").property("checked", cfg.lines.equatorial.show).on("change", apply);
   
   col.append("label").attr("for", "lines-ecliptic").html("Ecliptic");
-  col.append("input").attr("type", "checkbox").attr("id", "lines-ecliptic").property("checked", cfg.lines.ecliptic).on("change", function() { cfg.lines.ecliptic = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "lines-ecliptic-show").property("checked", cfg.lines.ecliptic.show).on("change", apply);
   
   col.append("label").attr("for", "lines-galactic").html("Galactic plane");
-  col.append("input").attr("type", "checkbox").attr("id", "lines-galactic").property("checked", cfg.lines.galactic).on("change", function() { cfg.lines.galactic = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "lines-galactic-show").property("checked", cfg.lines.galactic.show).on("change", apply);
   
   col.append("label").attr("for", "lines-supergalactic").html("Supergalactic plane");
-  col.append("input").attr("type", "checkbox").attr("id", "lines-supergalactic").property("checked", cfg.lines.supergalactic).on("change", function() { cfg.lines.supergalactic = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "lines-supergalactic-show").property("checked", cfg.lines.supergalactic.show).on("change", apply);
 
   // Other
   col = frm.append("div").attr("class", "col");
   col.append("label").attr("class", "header").html("Other");
   
   col.append("label").attr("for", "mw-show").html("Milky Way");
-  col.append("input").attr("type", "checkbox").attr("id", "mw-show").property("checked", cfg.mw.show).on("change", function() { cfg.mw.show = this.checked; });
+  col.append("input").attr("type", "checkbox").attr("id", "mw-show").property("checked", cfg.mw.show).on("change", apply);
   
   col.append("label").attr("for", "background").html("Background color");
-  col.append("input").attr("type", "color").attr("id", "background").attr("value", cfg.background.fill).on("change", function() { cfg.background.fill = this.value; });
+  col.append("input").attr("type", "color").attr("id", "background-fill").attr("value", cfg.background.fill).on("change", apply);
   
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
-  col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", cfg.adaptable).on("change", function() { cfg.adaptable = this.value; });
-  
-  col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
-  //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
-
+  col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", cfg.adaptable).on("change", apply);
+ 
   ctrl.append("div").attr("id", "error");
   
   $("show").onclick = function(e) {
@@ -181,7 +179,7 @@ function form(cfg) {
       return false; 
     } 
   
-    Celestial.display(cfg);
+    Celestial.apply(cfg); //Celestial.display(cfg);
 
     return false;
   };
@@ -194,15 +192,51 @@ function form(cfg) {
     //fillForm(cfg);
     return false;
   }*/
-}
 
+  function redraw() {
+    var value, src = this;
+
+    case (src.id) {
+      "width": break;
+      "projection": break;
+      "transform": break;
+      "centerx": break;
+      "centery": break;
+    }
+    
+  }
+
+  function apply() {
+    var value, src = this;
+
+    switch (src.type) {
+      case "checkbox": value = src.checked; enable(src); break;
+      case "number": if (testNumber(src) === false) return; value = src.value; break;
+      case "color": value = src.value; break;
+    }
+    set(src.id, value);
+    
+    Celestial.apply(cfg);
+  }
+
+  function set(prop, val) {
+    var a = prop.split("-");
+    switch (a.length) {
+      case 1: cfg[a[0]] = val; break;
+      case 2: cfg[a[0]][a[1]] = val; break;
+      case 3: cfg[a[0]][a[1]][a[2]] = val; break;
+      default: return;
+    }
+    
+  }
+}
 // Dependend fields relations
 var depends = {
-  "stars-show": ["stars-limit", "stars-colors", "stars-color", "stars-names"],
+  "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-names"],
   "stars-names": ["stars-proper", "stars-desig", "stars-namelimit"],
   "dsos-show": ["dsos-limit", "dsos-names"],
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
-  "constellations-show": ["constellations-names", "constellations-desig", "constellations-lines", "constellations-bounds"]
+  "constellations-names": ["constellations-desig"]
 };
 
 // De/activate fields depending on selection of dependencies
