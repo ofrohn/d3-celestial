@@ -5,13 +5,14 @@ var Celestial = {
   data: []
 };
 
+var cfg, projection, projOl, zoom, map, outline;
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
   var circle, par, container = Celestial.container;
   
   //Mash config with default settings
-  var cfg = settings.set(config); 
+  cfg = settings.set(config); 
   cfg.stars.size = cfg.stars.size || 7;  //Nothung works without starsize
   
   var parent = $(cfg.container);
@@ -45,15 +46,15 @@ Celestial.display = function(config) {
       
   if (par != "body") $(cfg.container).style.height = px(height);
   
-  var projection = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale([scale]);
-  var projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([scale]); //projected non moving outline
+  projection = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale([scale]);
+  projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([scale]); //projected non moving outline
   
   if (proj.clip) {
     projection.clipAngle(90);
     circle = d3.geo.circle().angle([90]);
   }
   
-  var zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([scale, scale*5]).on("zoom.redraw", redraw);
+  zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([scale, scale*5]).on("zoom.redraw", redraw);
 
   var canvas = d3.selectAll("canvas");
   if (canvas[0].length === 0) canvas = d3.select(par).append("canvas");
@@ -62,8 +63,8 @@ Celestial.display = function(config) {
   
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
-  var map = d3.geo.path().projection(projection).context(context);
-  var outline = d3.geo.path().projection(projOl).context(context);
+  map = d3.geo.path().projection(projection).context(context);
+  outline = d3.geo.path().projection(projOl).context(context);
    
   //parent div with id #map or body
   if (container) container.selectAll("*").remove();
@@ -273,7 +274,7 @@ Celestial.display = function(config) {
           context.fill();
           if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit*adapt) {
             setTextStyle(cfg.stars.namestyle);
-            context.fillText(starName(d), pt[0]+2, pt[1]+2);         
+            context.fillText(starName(d), pt[0]+r, pt[1]+r);         
           }
         }
       });
@@ -381,11 +382,24 @@ Celestial.display = function(config) {
     return prop.name;
   }
   
-  function starName(d) {
+/*  function starName(d) {
     var name = d.properties.name;
     if (cfg.stars.desig === false && name === "") return; 
     if (cfg.stars.proper && name !== "") return name; 
-    if (cfg.stars.desig)  return d.properties.desig; 
+    if (cfg.stars.desig) return d.properties.desig; 
+  }
+*/
+  /*n=true, p=false, d=false non-hd/hip desig
+            p=true,  d=false proper name || non-hd/hip desig
+            p=false, d=true  any desig
+            p=true,  d=true  proper name || any desig
+  */
+  function starName(d) {
+    var name = d.properties.desig;
+    if (cfg.stars.proper && d.properties.name !== "") name = d.properties.name;
+    if (!cfg.stars.desig) return name.replace(/^H(D|IP).+/, ""); 
+    
+    return name; 
   }
   
   function starSize(d) {

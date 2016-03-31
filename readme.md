@@ -31,10 +31,10 @@ var config = {
     limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use default color
     style: { fill: "#ffffff", opacity: 1 }, // Style for stars
-    names: true,   // Show star names 
-    proper: false, // Show proper names (if none shows designation)
-    desig: true,   // Show designation (Bayer, Flamsteed, variable star, Gliese, Draper,
-                   // Hipparcos, whichever applies first in the given order)
+    names: true,   // Show star names (Bayer, Flamsteed, Variable star, Gliese, 
+                      whichever applies first in that order)
+    proper: false, // Show proper name (if present, above name otherwise)
+    desig: false,  // Show all names, including Draper and Hipparcos
     namelimit: 2.5,  // Show only names/designations for stars brighter than namelimit
     namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", 
                  align: "left", baseline: "top" },  // Style for star names

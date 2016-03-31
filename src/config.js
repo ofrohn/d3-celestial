@@ -17,9 +17,9 @@ var settings = {
     limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use fill-style
     style: { fill: "#ffffff", opacity: 1 }, // Default style for stars
-    names: true,   // Show star names 
-    proper: false, // Show proper names (if none shows designation)
-    desig: true,   // Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
+    names: true,   // Show star names (Bayer, Flamsteed, Variable star, Gliese, whichever applies first)
+    proper: false, // Show proper name (if present)
+    desig: false,   // Show all names, including Draper and Hipparcos
     namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
     size: 7,       // Maximum size (radius) of star circle in pixels
@@ -41,7 +41,7 @@ var settings = {
       sd: {shape: "ellipse", fill: "#ff0000"},                                // Dwarf galaxy
       e:  {shape: "ellipse", fill: "#ff0000"},                                // Elliptical galaxy
       i:  {shape: "ellipse", fill: "#ff0000"},                                // Irregular galaxy
-      oc: {shape: "circle", fill: "#ffcc00", stroke: "#ffcc00", width: 2},  // Open cluster
+      oc: {shape: "circle", fill: "#ff9900", stroke: "#ff9900", width: 2},    // Open cluster
       gc: {shape: "circle", fill: "#ff9900"},                                 // Globular cluster
       en: {shape: "square", fill: "#ff00cc"},                                 // Emission nebula
       bn: {shape: "square", fill: "#ff00cc"},                                 // Generic bright nebula
@@ -59,9 +59,9 @@ var settings = {
     desig: true,   // Show short constellation names (3 letter designations)
     namestyle: { fill:"#cccc99", font: "12px Helvetica, Arial, sans-serif", align: "center", baseline: "middle" },
     lines: true,   // Show constellation lines 
-    linestyle: { stroke: "#cccccc", width: 1, opacity: 0.6 },
+    linestyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries 
-    boundstyle: { stroke: "#cccc00", width: 0.5, opacity: 0.8, dash: [2, 4] }
+    boundstyle: { stroke: "#ccff00", width: 1, opacity: 0.8, dash: [2, 4] }
   },
   mw: {
     show: true,    // Show Milky Way as filled polygons 

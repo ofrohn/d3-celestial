@@ -11,11 +11,11 @@ function form(cfg) {
   var col = frm.append("div").attr("class", "col");
   
   col.append("label").attr("title", "Map width, 0 indicates full width").attr("for", "width").html("Width ");
-  col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "9999").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", cfg.width).on("change", function() { if (testNumber(this)) cfg.width = this.value; });
+  col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "9999").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", cfg.width).on("change", redraw);
   col.append("span").html("px");
 
   col.append("label").attr("title", "Map projection, (hemi) indicates hemispherical projection").attr("for", "projection").html("Projection");
-  var sel = col.append("select").attr("id", "projection").on("change", function() { cfg.projection = this.options[this.selectedIndex].value; });
+  var sel = col.append("select").attr("id", "projection").on("change", redraw);
   var selected = 0;
   var list = Object.keys(prj).map( function (key, i) { 
     var n = prj[key].clip && prj[key].clip === true ? prj[key].n + " (hemi)" : prj[key].n; 
@@ -29,10 +29,7 @@ function form(cfg) {
   
   selected = 0;
   col.append("label").attr("title", "Coordinate space in which the map is displayed").attr("for", "transform").html("Coordinates");
-  sel = col.append("select").attr("id", "transform").on("change", function() { 
-    cfg.transform = this.options[this.selectedIndex].value;
-    setUnit(cfg.transform);
-  });
+  sel = col.append("select").attr("id", "transform").on("change", redraw);
   list = Object.keys(leo).map(function (key, i) {
     if (key === cfg.transform) selected = i;    
     return {o:key, n:key.replace(/^([a-z])/, function(s, m) { return m.toUpperCase(); } )}; 
@@ -87,7 +84,7 @@ function form(cfg) {
   col.append("label").attr("for", "stars-proper").html("proper names (if any)");
   col.append("input").attr("type", "checkbox").attr("id", "stars-proper").property("checked", cfg.stars.proper).on("change", apply);
   
-  col.append("label").attr("for", "stars-desig").html("or designations");
+  col.append("label").attr("for", "stars-desig").attr("title", "include HD/HIP designations").html("all designations");
   col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", cfg.stars.desig).on("change", apply);
   
   col.append("label").attr("for", "stars-namelimit").html("down to mag");
@@ -179,7 +176,7 @@ function form(cfg) {
       return false; 
     } 
   
-    Celestial.apply(cfg); //Celestial.display(cfg);
+    Celestial.display(cfg);
 
     return false;
   };
@@ -196,14 +193,25 @@ function form(cfg) {
   function redraw() {
     var value, src = this;
 
-    case (src.id) {
-      "width": break;
-      "projection": break;
-      "transform": break;
-      "centerx": break;
-      "centery": break;
+    switch (src.id) {
+      case "width": if (testNumber(src) === false) return; 
+                    cfg.width = src.value; break;
+      case "projection": cfg.projection = src.options[src.selectedIndex].value; break;
+      case "transform": var old = cfg.transform;
+                        cfg.transform = src.options[src.selectedIndex].value;
+                        setUnit(cfg.transform, old); break;
+      case "centerx": if (testNumber(src) === false) return;
+                      if (cfg.transform !== "equatorial") cfg.center[0] = src.value; 
+                      else cfg.center[0] = src.value > 12 ? src.value * 15 - 360 : src.value * 15; 
+                      if ($("centery") === "") return; 
+                      break;
+      case "centery": if (testNumber(src) === false) return;
+                      cfg.center[1] = src.value; 
+                      if ($("centerx") === "") return; 
+                      break;
     }
     
+    Celestial.display(cfg);
   }
 
   function apply() {
@@ -291,8 +299,12 @@ function testNumber(nd) {
   return true;
 }
 
-function setUnit(trans) {
+function setUnit(trans, old) {
   var cx = $("centerx");
+  
+  if (old) {
+    
+  }
   if (trans === 'equatorial') {
     cx.min = "0";
     cx.max = "24";
