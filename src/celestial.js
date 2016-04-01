@@ -1,4 +1,4 @@
-/* global settings, bvcolor, projections, poles, eulerAngles, euler, transformDeg, getData, Canvas, halfπ, $, px, has */
+/* global settings, bvcolor, projections, poles, eulerAngles, euler, transformDeg, getData, Canvas, halfπ, $, px, has, form */
 var Celestial = {
   version: '0.5.0',
   container: null,
@@ -236,7 +236,8 @@ Celestial.display = function(config) {
     }
     
     for (var key in cfg.lines) {
-      if (!has(cfg.lines, key) || cfg.lines[key].show !== true) continue;
+      if (!has(cfg.lines, key)) continue;
+      if (cfg.lines[key].show !== true) continue;
       setStyle(cfg.lines[key]);
       container.selectAll("."+key).attr("d", map);  
       context.stroke();    
@@ -246,8 +247,7 @@ Celestial.display = function(config) {
       setTextStyle(cfg.constellations.namestyle);
       container.selectAll(".constname").each( function(d) { 
         if (clip(d.geometry.coordinates)) {
-          var //node = d3.select(this),
-              pt = projection(d.geometry.coordinates);
+          var pt = projection(d.geometry.coordinates);
           context.fillText(constName(d), pt[0], pt[1]); 
         }
       });
@@ -430,12 +430,14 @@ Celestial.display = function(config) {
   }
   
   function getAngles(coords) {
-    var rot = eulerAngles.equatorial, ctr = 0;
+    if (coords === null) return [0,0];
+    return coords;
+    /*var rot = eulerAngles.equatorial, ctr = 0;
     if (!coords || trans !== 'equatorial') {
       if (trans === 'equatorial' || trans === 'ecliptic') ctr = 180;
       return [rot[0] - ctr, rot[1], rot[2]];
     }
     //ctr = transformDeg(coords, euler["inverse " + trans]);
-    return [rot[0] - coords[0], rot[1] - coords[1], rot[2]];
+    return [rot[0] - coords[0], rot[1] - coords[1], rot[2]];*/
   }
 };

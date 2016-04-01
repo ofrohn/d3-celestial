@@ -41,23 +41,16 @@ function form(cfg) {
   col.append("br");
   
   col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
-  col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/lngitude").attr("value", function() { 
+  col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/lngitude").attr("value", function() {
+    if (cfg.center === null) cfg.center = [0,0];    
     var cx = cfg.center[0]; 
     if (cfg.transform !== "equatorial") return cx; 
     return cx < 0 ? cx / 15 + 24 : cx / 15; 
   })
-  .attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", function() {
-    var cx = this.value; 
-    if (testNumber(this)) { 
-      if (cfg.transform !== "equatorial") cfg.center[0] = cx; 
-      else { 
-        cfg.center[0] = cx > 12 ? cx * 15 - 360 : cx * 15; 
-      } 
-    }
-  });
+  .attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", redraw);
   col.append("span").attr("id", "cxunit").html("h");
   
-  col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("value", cfg.center[1]).attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", function() { if (testNumber(this)) cfg.center[1] = this.value; });
+  col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("value", cfg.center[1]).attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", redraw);
   col.append("span").html("\u00b0");
   col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
   //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
@@ -199,15 +192,16 @@ function form(cfg) {
       case "projection": cfg.projection = src.options[src.selectedIndex].value; break;
       case "transform": var old = cfg.transform;
                         cfg.transform = src.options[src.selectedIndex].value;
-                        setUnit(cfg.transform, old); break;
+                        setUnit(cfg.transform, old); 
+                        cfg.center[0] = $("centerx").value; break;
       case "centerx": if (testNumber(src) === false) return;
                       if (cfg.transform !== "equatorial") cfg.center[0] = src.value; 
                       else cfg.center[0] = src.value > 12 ? src.value * 15 - 360 : src.value * 15; 
-                      if ($("centery") === "") return; 
+                      if ($("centery").value === "") return; 
                       break;
       case "centery": if (testNumber(src) === false) return;
                       cfg.center[1] = src.value; 
-                      if ($("centerx") === "") return; 
+                      if ($("centerx").value === "") return; 
                       break;
     }
     
@@ -303,7 +297,13 @@ function setUnit(trans, old) {
   var cx = $("centerx");
   
   if (old) {
-    
+    if (trans === "equatorial" && old !== "equatorial") {
+      cx.value /= 15;
+      if (cx.value < 0) cx.value += 24;
+    } else if (trans !== "equatorial" && old === "equatorial") {
+      cx.value *= 15;
+      if (cx.value > 180) cx.value -= 360;
+    }
   }
   if (trans === 'equatorial') {
     cx.min = "0";
