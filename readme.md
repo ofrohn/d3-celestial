@@ -4,7 +4,7 @@ Interactive, adaptable celestial map done with the [D3.js](http://d3js.org/) vis
 
 Features display of stars and deep sky objects (DSOs) with a selectable magnitude limit up to 6, or choose different GeoJSON data source for higher magnitudes. Also shows constellations with names, lines and/or boundaries, the Milky Way band and grid lines. Alternate coordinate spaces e.g. ecliptc, galactic or supergalactic are also possible. Full support for zoom and rotation with mouse or gestures.
 
-Since it uses D3.js and HTML5 camvas, it needs a modern browser with canvas support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at <a href="http://armchairastronautics.blogspot.com/p/skymap.html">armchairastronautics.blogspot.com</a> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment, quite easy to do with node.js.
+Since it uses D3.js and HTML5 canvas, it needs a modern browser with canvas support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at <a href="http://armchairastronautics.blogspot.com/p/skymap.html">armchairastronautics.blogspot.com</a> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment, quite easy to do with node.js.
 
 ### Usage
 

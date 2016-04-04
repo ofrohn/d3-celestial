@@ -202,6 +202,15 @@ Celestial.display = function(config) {
     cfg = settings.set(config); 
     redraw();
   }
+
+
+  function rotate(config) {
+    cfg = settings.set(config); 
+    rotation = getAngles(cfg.center);
+    center = [-rotation[0], -rotation[1]];
+    projection.rotate(rotation);
+    redraw();
+  }
   
   function resize() {
     if (cfg.width && cfg.width > 0) return;
@@ -321,6 +330,7 @@ Celestial.display = function(config) {
   this.mapProjection = projection;
   this.resize = function() { resize(); }; 
   this.apply = function(config) { apply(config); }; 
+  this.rotate = function(config) { rotate(config); }; 
   
   // Helper functions -------------------------------------------------
   
