@@ -233,6 +233,7 @@ Celestial.display = function(config) {
     base = cfg.stars.size * adapt;
     center = [-rot[0], -rot[1]];
     
+    setCenter(center);
     clear();
     
     setStyle(cfg.background);
@@ -392,18 +393,10 @@ Celestial.display = function(config) {
     return prop.name;
   }
   
-/*  function starName(d) {
-    var name = d.properties.name;
-    if (cfg.stars.desig === false && name === "") return; 
-    if (cfg.stars.proper && name !== "") return name; 
-    if (cfg.stars.desig) return d.properties.desig; 
-  }
-*/
   /*n=true, p=false, d=false non-hd/hip desig
             p=true,  d=false proper name || non-hd/hip desig
             p=false, d=true  any desig
-            p=true,  d=true  proper name || any desig
-  */
+            p=true,  d=true  proper name || any desig  */
   function starName(d) {
     var name = d.properties.desig;
     if (cfg.stars.proper && d.properties.name !== "") name = d.properties.name;
@@ -441,13 +434,13 @@ Celestial.display = function(config) {
   
   function getAngles(coords) {
     if (coords === null) return [0,0];
-    return coords;
-    /*var rot = eulerAngles.equatorial, ctr = 0;
-    if (!coords || trans !== 'equatorial') {
-      if (trans === 'equatorial' || trans === 'ecliptic') ctr = 180;
-      return [rot[0] - ctr, rot[1], rot[2]];
-    }
+    //return coords;
+    var rot = eulerAngles.equatorial; //, ctr = 0;
+    //if (!coords || trans !== 'equatorial') {
+      //if (trans === 'equatorial' || trans === 'ecliptic') ctr = 180;
+      //return [rot[0], rot[1], rot[2]];
+    //}
     //ctr = transformDeg(coords, euler["inverse " + trans]);
-    return [rot[0] - coords[0], rot[1] - coords[1], rot[2]];*/
+    return [rot[0] - coords[0], rot[1] - coords[1], rot[2]];
   }
 };

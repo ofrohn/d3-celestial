@@ -203,6 +203,15 @@ Celestial.display = function(config) {
     cfg = settings.set(config); 
     redraw();
   }
+
+
+  function rotate(config) {
+    cfg = settings.set(config); 
+    rotation = getAngles(cfg.center);
+    center = [-rotation[0], -rotation[1]];
+    projection.rotate(rotation);
+    redraw();
+  }
   
   function resize() {
     if (cfg.width && cfg.width > 0) return;
@@ -322,6 +331,7 @@ Celestial.display = function(config) {
   this.mapProjection = projection;
   this.resize = function() { resize(); }; 
   this.apply = function(config) { apply(config); }; 
+  this.rotate = function(config) { rotate(config); }; 
   
   // Helper functions -------------------------------------------------
   
@@ -431,11 +441,13 @@ Celestial.display = function(config) {
   }
   
   function getAngles(coords) {
-    var rot = eulerAngles.equatorial, ctr = 0;
-    if (!coords || trans !== 'equatorial') {
-      if (trans === 'equatorial' || trans === 'ecliptic') ctr = 180;
-      return [rot[0] - ctr, rot[1], rot[2]];
-    }
+    if (coords === null) return [0,0];
+    //return coords;
+    var rot = eulerAngles.equatorial; //, ctr = 0;
+    //if (!coords || trans !== 'equatorial') {
+      //if (trans === 'equatorial' || trans === 'ecliptic') ctr = 180;
+      //return [rot[0], rot[1], rot[2]];
+    //}
     //ctr = transformDeg(coords, euler["inverse " + trans]);
     return [rot[0] - coords[0], rot[1] - coords[1], rot[2]];
   }
@@ -1129,18 +1141,10 @@ function form(cfg) {
     if (cfg.transform !== "equatorial") return cx; 
     return cx < 0 ? cx / 15 + 24 : cx / 15; 
   })
-  .attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", function() {
-    var cx = this.value; 
-    if (testNumber(this)) { 
-      if (cfg.transform !== "equatorial") cfg.center[0] = cx; 
-      else { 
-        cfg.center[0] = cx > 12 ? cx * 15 - 360 : cx * 15; 
-      } 
-    }
-  });
+  .attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
   col.append("span").attr("id", "cxunit").html("h");
   
-  col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("value", cfg.center[1]).attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", function() { if (testNumber(this)) cfg.center[1] = this.value; });
+  col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("value", cfg.center[1]).attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
   col.append("span").html("\u00b0");
   col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
   //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
@@ -1274,8 +1278,7 @@ function form(cfg) {
   }*/
 
   function redraw() {
-    var value, src = this;
-
+    var src = this;
     switch (src.id) {
       case "width": if (testNumber(src) === false) return; 
                     cfg.width = src.value; break;
@@ -1284,9 +1287,17 @@ function form(cfg) {
                         cfg.transform = src.options[src.selectedIndex].value;
                         setUnit(cfg.transform, old); 
                         cfg.center[0] = $("centerx").value; break;
+    }    
+    Celestial.display(cfg);
+  }
+                        
+  function turn() {
+    var src = this;
+    switch (src.id) {
       case "centerx": if (testNumber(src) === false) return;
                       if (cfg.transform !== "equatorial") cfg.center[0] = src.value; 
-                      else cfg.center[0] = src.value > 12 ? src.value * 15 - 360 : src.value * 15; 
+                      else cfg.center[0] = src.value > 12 ? src.value * 15 - 360 : src.value * 15;
+                      //if (src.value === )                      
                       if ($("centery").value === "") return; 
                       break;
       case "centery": if (testNumber(src) === false) return;
@@ -1294,8 +1305,7 @@ function form(cfg) {
                       if ($("centerx").value === "") return; 
                       break;
     }
-    
-    Celestial.display(cfg);
+    Celestial.rotate(cfg);
   }
 
   function apply() {
