@@ -1,4 +1,4 @@
-/* global Celestial, $, px, isNumber */
+/* global Celestial, $, px, isNumber, Round */
 //display settings form
 
 //test with onchange and set cfg
@@ -235,6 +235,7 @@ function form(cfg) {
     
   }
 }
+
 // Dependend fields relations
 var depends = {
   "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-names"],
@@ -324,8 +325,8 @@ function setCenter(ctr) {
   if (!cx || !cy) return;
   
   if (ctr === null) ctr = [0,0]; 
-  cfg.center = ctr; 
-  if (cfg.transform !== "equatorial") cx.value = ctr[0]; 
+  //cfg.center = ctr; 
+  if (cfg.transform !== "equatorial") cx.value = Round(ctr[0], 1); 
   else cx.value = ctr[0] < 0 ? Round(ctr[0] / 15 + 24, 1) : Round(ctr[0] / 15, 1); 
   
   cy.value = Round(ctr[1], 1);

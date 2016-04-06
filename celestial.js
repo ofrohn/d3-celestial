@@ -234,6 +234,7 @@ Celestial.display = function(config) {
     base = cfg.stars.size * adapt;
     center = [-rot[0], -rot[1]];
     
+    setCenter(center);
     clear();
     
     setStyle(cfg.background);
@@ -393,18 +394,10 @@ Celestial.display = function(config) {
     return prop.name;
   }
   
-/*  function starName(d) {
-    var name = d.properties.name;
-    if (cfg.stars.desig === false && name === "") return; 
-    if (cfg.stars.proper && name !== "") return name; 
-    if (cfg.stars.desig) return d.properties.desig; 
-  }
-*/
   /*n=true, p=false, d=false non-hd/hip desig
             p=true,  d=false proper name || non-hd/hip desig
             p=false, d=true  any desig
-            p=true,  d=true  proper name || any desig
-  */
+            p=true,  d=true  proper name || any desig  */
   function starName(d) {
     var name = d.properties.desig;
     if (cfg.stars.proper && d.properties.name !== "") name = d.properties.name;
@@ -1135,17 +1128,14 @@ function form(cfg) {
   col.append("br");
   
   col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
-  col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/lngitude").attr("value", function() {
-    if (cfg.center === null) cfg.center = [0,0];    
-    var cx = cfg.center[0]; 
-    if (cfg.transform !== "equatorial") return cx; 
-    return cx < 0 ? cx / 15 + 24 : cx / 15; 
-  })
-  .attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
+  col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/lngitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
   col.append("span").attr("id", "cxunit").html("h");
   
-  col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("value", cfg.center[1]).attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
+  col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
   col.append("span").html("\u00b0");
+  
+  setCenter(cfg.center);
+  
   col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
   //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
 
@@ -1297,7 +1287,7 @@ function form(cfg) {
       case "centerx": if (testNumber(src) === false) return;
                       if (cfg.transform !== "equatorial") cfg.center[0] = src.value; 
                       else cfg.center[0] = src.value > 12 ? src.value * 15 - 360 : src.value * 15;
-                      //if (src.value === )                      
+                      //if (src.value === )     
                       if ($("centery").value === "") return; 
                       break;
       case "centery": if (testNumber(src) === false) return;
@@ -1330,6 +1320,18 @@ function form(cfg) {
       default: return;
     }
     
+  }
+
+  function setCenter(ctr) {
+    var cx = $("centerx"), cy = $("centery");
+    if (!cx || !cy) return;
+    
+    if (ctr === null) ctr = [0,0]; 
+    cfg.center = ctr; 
+    if (cfg.transform !== "equatorial") cx.value = ctr[0]; 
+    else cx.value = ctr[0] < 0 ? Round(ctr[0] / 15 + 24, 1) : Round(ctr[0] / 15, 1); 
+    
+    cy.value = Round(ctr[1], 1);
   }
 }
 // Dependend fields relations
@@ -1398,10 +1400,10 @@ function setUnit(trans, old) {
   
   if (old) {
     if (trans === "equatorial" && old !== "equatorial") {
-      cx.value /= 15;
+      cx.value = Round(cx.value/15, 1);
       if (cx.value < 0) cx.value += 24;
     } else if (trans !== "equatorial" && old === "equatorial") {
-      cx.value *= 15;
+      cx.value = Round(cx.value * 15, 1);
       if (cx.value > 180) cx.value -= 360;
     }
   }
@@ -1415,6 +1417,7 @@ function setUnit(trans, old) {
     $("cxunit").innerHTML = "\u00b0";
   }
 }
+
 
 // Set max input limits depending on data
 function setLimits() {

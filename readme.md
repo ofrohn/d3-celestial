@@ -144,6 +144,9 @@ __Exposed functions & objects__
 * `Celestial.clip(coordinates)`  
    Function to check if the object is visible, and set its visiblility  
    _coordinates_: object coordinates in radians, normally supplied by D3 as geometry.coordinates array
+
+* `Celestial.rotate({center:[long,lat]})`; 
+   Turn the map to the given center coordinates
    
 ### Files
 
