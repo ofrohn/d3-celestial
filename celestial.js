@@ -14,7 +14,8 @@ Celestial.display = function(config) {
   
   //Mash config with default settings
   cfg = settings.set(config); 
-  cfg.stars.size = cfg.stars.size || 7;  //Nothung works without starsize
+  cfg.stars.size = cfg.stars.size || 7;  // Nothing works without these
+  cfg.center = cfg.center || [0,0];      
   
   var parent = $(cfg.container);
   if (parent) { 
@@ -206,8 +207,9 @@ Celestial.display = function(config) {
 
 
   function rotate(config) {
-    cfg = settings.set(config); 
+    cfg = settings.set(config), rot = projection.rotate();
     rotation = getAngles(cfg.center);
+    rotation[2] = rot[2];
     center = [-rotation[0], -rotation[1]];
     projection.rotate(rotation);
     redraw();
@@ -435,8 +437,7 @@ Celestial.display = function(config) {
   
   function getAngles(coords) {
     if (coords === null) return [0,0];
-    //return coords;
-    var rot = eulerAngles.equatorial; //, ctr = 0;
+    var rot = eulerAngles.equatorial; //, rp = projection.rotate(); //, ctr = 0;
     //if (!coords || trans !== 'equatorial') {
       //if (trans === 'equatorial' || trans === 'ecliptic') ctr = 180;
       //return [rot[0], rot[1], rot[2]];
@@ -1282,17 +1283,23 @@ function form(cfg) {
   }
                         
   function turn() {
-    var src = this;
+    var src = this,
+        cx = $("centerx"), cy = $("centery");
     switch (src.id) {
       case "centerx": if (testNumber(src) === false) return;
                       if (cfg.transform !== "equatorial") cfg.center[0] = src.value; 
                       else cfg.center[0] = src.value > 12 ? src.value * 15 - 360 : src.value * 15;
                       //if (src.value === )     
-                      if ($("centery").value === "") return; 
+                      if (cy.value === "") return; 
+                      else cfg.center[1] = cy.value;
                       break;
       case "centery": if (testNumber(src) === false) return;
                       cfg.center[1] = src.value; 
-                      if ($("centerx").value === "") return; 
+                      if (cx.value === "") return; 
+                      else {
+                        if (cfg.transform !== "equatorial") cfg.center[0] = cx.value; 
+                        else cfg.center[0] = cx.value > 12 ? cx.value * 15 - 360 : cx.value * 15;
+                      }
                       break;
     }
     Celestial.rotate(cfg);
@@ -1321,19 +1328,8 @@ function form(cfg) {
     }
     
   }
-
-  function setCenter(ctr) {
-    var cx = $("centerx"), cy = $("centery");
-    if (!cx || !cy) return;
-    
-    if (ctr === null) ctr = [0,0]; 
-    cfg.center = ctr; 
-    if (cfg.transform !== "equatorial") cx.value = ctr[0]; 
-    else cx.value = ctr[0] < 0 ? Round(ctr[0] / 15 + 24, 1) : Round(ctr[0] / 15, 1); 
-    
-    cy.value = Round(ctr[1], 1);
-  }
 }
+
 // Dependend fields relations
 var depends = {
   "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-names"],
@@ -1384,7 +1380,7 @@ function popError(nd, err) {
   d3.select("#error").html(err).style( {top:px(nd.offsetTop+nd.offsetHeight+1), left:px(nd.offsetLeft), opacity:1} );
 }
 
-//Check nmueric field
+//Check numeric field
 function testNumber(nd) {
   var v = nd.value;
   //if (v === "") return true;
@@ -1393,6 +1389,13 @@ function testNumber(nd) {
   if (v < nd.min || v > nd.max ) { popError(nd, nd.title + " must be between " + nd.min + " and " + nd.max); return false; }
   d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} );
   return true;
+}
+
+//Check color field
+function testColor(nd) {
+  var v = nd.value;
+  if (v === "") return true;
+  if (v.test(/^#[0-9A-F]{6}$/i));
 }
 
 function setUnit(trans, old) {
@@ -1418,6 +1421,17 @@ function setUnit(trans, old) {
   }
 }
 
+function setCenter(ctr) {
+  var cx = $("centerx"), cy = $("centery");
+  if (!cx || !cy) return;
+  
+  if (ctr === null) ctr = [0,0]; 
+  //cfg.center = ctr; 
+  if (cfg.transform !== "equatorial") cx.value = Round(ctr[0], 1); 
+  else cx.value = ctr[0] < 0 ? Round(ctr[0] / 15 + 24, 1) : Round(ctr[0] / 15, 1); 
+  
+  cy.value = Round(ctr[1], 1);
+}
 
 // Set max input limits depending on data
 function setLimits() {

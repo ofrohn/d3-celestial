@@ -195,17 +195,23 @@ function form(cfg) {
   }
                         
   function turn() {
-    var src = this;
+    var src = this,
+        cx = $("centerx"), cy = $("centery");
     switch (src.id) {
       case "centerx": if (testNumber(src) === false) return;
                       if (cfg.transform !== "equatorial") cfg.center[0] = src.value; 
                       else cfg.center[0] = src.value > 12 ? src.value * 15 - 360 : src.value * 15;
                       //if (src.value === )     
-                      if ($("centery").value === "") return; 
+                      if (cy.value === "") return; 
+                      else cfg.center[1] = cy.value;
                       break;
       case "centery": if (testNumber(src) === false) return;
                       cfg.center[1] = src.value; 
-                      if ($("centerx").value === "") return; 
+                      if (cx.value === "") return; 
+                      else {
+                        if (cfg.transform !== "equatorial") cfg.center[0] = cx.value; 
+                        else cfg.center[0] = cx.value > 12 ? cx.value * 15 - 360 : cx.value * 15;
+                      }
                       break;
     }
     Celestial.rotate(cfg);
@@ -286,7 +292,7 @@ function popError(nd, err) {
   d3.select("#error").html(err).style( {top:px(nd.offsetTop+nd.offsetHeight+1), left:px(nd.offsetLeft), opacity:1} );
 }
 
-//Check nmueric field
+//Check numeric field
 function testNumber(nd) {
   var v = nd.value;
   //if (v === "") return true;
@@ -295,6 +301,13 @@ function testNumber(nd) {
   if (v < nd.min || v > nd.max ) { popError(nd, nd.title + " must be between " + nd.min + " and " + nd.max); return false; }
   d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} );
   return true;
+}
+
+//Check color field
+function testColor(nd) {
+  var v = nd.value;
+  if (v === "") return true;
+  if (v.test(/^#[0-9A-F]{6}$/i));
 }
 
 function setUnit(trans, old) {

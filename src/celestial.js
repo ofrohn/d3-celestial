@@ -13,7 +13,8 @@ Celestial.display = function(config) {
   
   //Mash config with default settings
   cfg = settings.set(config); 
-  cfg.stars.size = cfg.stars.size || 7;  //Nothung works without starsize
+  cfg.stars.size = cfg.stars.size || 7;  // Nothing works without these
+  cfg.center = cfg.center || [0,0];      
   
   var parent = $(cfg.container);
   if (parent) { 
@@ -205,8 +206,9 @@ Celestial.display = function(config) {
 
 
   function rotate(config) {
-    cfg = settings.set(config); 
+    cfg = settings.set(config), rot = projection.rotate();
     rotation = getAngles(cfg.center);
+    rotation[2] = rot[2];
     center = [-rotation[0], -rotation[1]];
     projection.rotate(rotation);
     redraw();
@@ -434,8 +436,7 @@ Celestial.display = function(config) {
   
   function getAngles(coords) {
     if (coords === null) return [0,0];
-    //return coords;
-    var rot = eulerAngles.equatorial; //, ctr = 0;
+    var rot = eulerAngles.equatorial; //, rp = projection.rotate(); //, ctr = 0;
     //if (!coords || trans !== 'equatorial') {
       //if (trans === 'equatorial' || trans === 'ecliptic') ctr = 180;
       //return [rot[0], rot[1], rot[2]];
