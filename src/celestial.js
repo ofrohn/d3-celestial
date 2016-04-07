@@ -206,7 +206,8 @@ Celestial.display = function(config) {
 
 
   function rotate(config) {
-    cfg = settings.set(config), rot = projection.rotate();
+    cfg = settings.set(config);
+    var rot = projection.rotate();
     rotation = getAngles(cfg.center);
     rotation[2] = rot[2];
     center = [-rotation[0], -rotation[1]];
@@ -235,7 +236,7 @@ Celestial.display = function(config) {
     base = cfg.stars.size * adapt;
     center = [-rot[0], -rot[1]];
     
-    setCenter(center);
+    setCenter(cfg);
     clear();
     
     setStyle(cfg.background);

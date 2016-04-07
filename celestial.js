@@ -207,7 +207,8 @@ Celestial.display = function(config) {
 
 
   function rotate(config) {
-    cfg = settings.set(config), rot = projection.rotate();
+    cfg = settings.set(config);
+    var rot = projection.rotate();
     rotation = getAngles(cfg.center);
     rotation[2] = rot[2];
     center = [-rotation[0], -rotation[1]];
@@ -236,7 +237,7 @@ Celestial.display = function(config) {
     base = cfg.stars.size * adapt;
     center = [-rot[0], -rot[1]];
     
-    setCenter(center);
+    setCenter(cfg);
     clear();
     
     setStyle(cfg.background);
@@ -1135,7 +1136,7 @@ function form(cfg) {
   col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
   col.append("span").html("\u00b0");
   
-  setCenter(cfg.center);
+  setCenter(cfg);
   
   col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
   //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
@@ -1311,7 +1312,7 @@ function form(cfg) {
     switch (src.type) {
       case "checkbox": value = src.checked; enable(src); break;
       case "number": if (testNumber(src) === false) return; value = src.value; break;
-      case "color": value = src.value; break;
+      case "color": if (testColor(src) === false) return; value = src.value; break;
     }
     set(src.id, value);
     
@@ -1381,21 +1382,23 @@ function popError(nd, err) {
 }
 
 //Check numeric field
-function testNumber(nd) {
-  var v = nd.value;
+function testNumber(node) {
+  var v = node.value;
   //if (v === "") return true;
-  if (!isNumber(v)) { popError(nd, nd.title + ": check field value"); return false; }
+  if (!isNumber(v)) { popError(node, node.title + ": check field value"); return false; }
   v = parseFloat(v);
-  if (v < nd.min || v > nd.max ) { popError(nd, nd.title + " must be between " + nd.min + " and " + nd.max); return false; }
+  if (v < node.min || v > node.max ) { popError(node, node.title + " must be between " + node.min + " anode " + node.max); return false; }
   d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} );
   return true;
 }
 
 //Check color field
-function testColor(nd) {
-  var v = nd.value;
+function testColor(node) {
+  var v = node.value;
   if (v === "") return true;
-  if (v.test(/^#[0-9A-F]{6}$/i));
+  if (v.search(/^#[0-9A-F]{6}$/i) === -1) { popError(node, node.title + ": not a color value"); return false; }
+  d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} );
+  return true;
 }
 
 function setUnit(trans, old) {
@@ -1421,8 +1424,9 @@ function setUnit(trans, old) {
   }
 }
 
-function setCenter(ctr) {
-  var cx = $("centerx"), cy = $("centery");
+function setCenter(cfg) {
+  var cx = $("centerx"), cy = $("centery"),
+      ctr = cfg.center;
   if (!cx || !cy) return;
   
   if (ctr === null) ctr = [0,0]; 
