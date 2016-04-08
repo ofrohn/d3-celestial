@@ -500,26 +500,6 @@ var τ = Math.PI*2,
     halfπ = Math.PI/2,
     deg2rad = Math.PI/180;
 
-Celestial.graticule = function(svg, path, trans) {
-  //d3.geo.circle graticule for coordinate spaces other than equatorial
-  //circles center [0º,90º] / angle 10..170º and  center [0..180º,0º] / angle 90º
-
-  var i;
-  
-  if (!trans || trans == "equatorial") return; 
-  for (i=10; i<=170; i+=10) {
-    svg.append("path")
-       .datum( d3.geo.circle().angle([i]).origin(poles[trans]) )
-       .attr("class", 'gridline')
-       .attr("d", path);
-  }
-  for (i=10; i<=180; i+=10) {
-    svg.append("path")
-       .datum( d3.geo.circle().angle([90]).origin(transformDeg([i,0], euler["inverse " + trans])) )
-       .attr("class", 'gridline')
-       .attr("d", path);    
-  }  
-};
 
 //Transform equatorial into any coordinates, degrees
 function transformDeg(c, euler) {

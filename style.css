@@ -3,7 +3,7 @@ body { background:#fff; }
 svg * { cursor:hand; cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; /*cursor: crosshair!important;*/ }
 svg *:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing; }
 #map { width: 100%; height: auto; margin: 0; padding: 0; display: inline-block; position: relative; }
-canvas { display: inline-block; position:absolute; z-index:0; cursor:hand; cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; }
+canvas { display: inline-block; position:absolute; z-index:0; cursor:url(stylesheets/hand.cur); cursor:hand; cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; }
 canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing; }
 text { stroke: none; fill: #fff; font: 11px Helvetica, Arial, sans-serif; z-index:100; }
 .stroke { fill: none; stroke: #fff; stroke-width: 3px; }
