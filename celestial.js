@@ -237,7 +237,7 @@ Celestial.display = function(config) {
     base = cfg.stars.size * adapt;
     center = [-rot[0], -rot[1]];
     
-    setCenter(cfg);
+    setCenter(center, cfg.transform);
     clear();
     
     setStyle(cfg.background);
@@ -1136,7 +1136,7 @@ function form(cfg) {
   col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
   col.append("span").html("\u00b0");
   
-  setCenter(cfg);
+  setCenter(cfg.center, cfg.transform);
   
   col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
   //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
@@ -1424,14 +1424,13 @@ function setUnit(trans, old) {
   }
 }
 
-function setCenter(cfg) {
-  var cx = $("centerx"), cy = $("centery"),
-      ctr = cfg.center;
+function setCenter(ctr, trans) {
+  var cx = $("centerx"), cy = $("centery");
   if (!cx || !cy) return;
   
   if (ctr === null) ctr = [0,0]; 
   //cfg.center = ctr; 
-  if (cfg.transform !== "equatorial") cx.value = Round(ctr[0], 1); 
+  if (trans !== "equatorial") cx.value = Round(ctr[0], 1); 
   else cx.value = ctr[0] < 0 ? Round(ctr[0] / 15 + 24, 1) : Round(ctr[0] / 15, 1); 
   
   cy.value = Round(ctr[1], 1);

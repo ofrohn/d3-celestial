@@ -236,7 +236,7 @@ Celestial.display = function(config) {
     base = cfg.stars.size * adapt;
     center = [-rot[0], -rot[1]];
     
-    setCenter(cfg);
+    setCenter(center, cfg.transform);
     clear();
     
     setStyle(cfg.background);
