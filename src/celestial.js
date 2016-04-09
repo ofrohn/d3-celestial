@@ -83,7 +83,7 @@ Celestial.display = function(config) {
   //Celestial planes
   for (var key in cfg.lines) {
     if (!has(cfg.lines, key)) continue;
-    if (key === "graticule"/* || cfg.lines[key].show === false*/) {
+    if (key === "graticule") {
       container.append("path").datum(graticule).attr("class", "graticule"); 
     } else {
     container.append("path")
@@ -184,9 +184,9 @@ Celestial.display = function(config) {
     
   d3.select(window).on('resize', resize);
 
-  if (cfg.controls === true && $("zoomin") === null) {
-    d3.select(par).append("input").attr("type", "button").attr("id", "zoomin").attr("value", "\u002b").on("click", function() { zoomBy(1.111); });
-    d3.select(par).append("input").attr("type", "button").attr("id", "zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
+  if (cfg.controls === true && $("celestial-zoomin") === null) {
+    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function() { zoomBy(1.111); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
   }
   
   if (cfg.form === true && $("params") === null) form(cfg);
@@ -361,8 +361,8 @@ Celestial.display = function(config) {
   }
     
   function zoomState(sc) {
-    $("zoomin").disabled = sc > scale*4.5;
-    $("zoomout").disabled = sc < scale*1.111;    
+    $("celestial-zoomin").disabled = sc > scale*4.51;
+    $("celestial-zoomout").disabled = sc < scale*1.11;    
   }
   
   function dsoDisplay(prop, limit) {

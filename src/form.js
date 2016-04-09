@@ -4,7 +4,7 @@
 //test with onchange and set cfg
 function form(cfg) {
   var prj = Celestial.projections(), leo = Celestial.eulerAngles();
-  var ctrl = d3.select("#form").append("div").attr("class", "ctrl");
+  var ctrl = d3.select("#celestial-form").append("div").attr("class", "ctrl");
   var frm = ctrl.append("form").attr("id", "params").attr("name", "params").attr("method", "get").attr("action" ,"#");
   
   //Map parameters    
@@ -46,11 +46,19 @@ function form(cfg) {
   
   col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
   col.append("span").html("\u00b0");
-  
-  setCenter(cfg.center, cfg.transform);
-  
+  if (cfg.fullwidth)
+    col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Make Full Width \u25ba").on("click", function() {
+    $("sidebar-wrapper").style.display = "none";
+    $("outer-wrapper").style.width = "100%";
+    $("main-wrapper").style.width = "100%";
+    this.style.display = "none";
+    Celestial.display(cfg);
+    return false;
+  });
   col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
   //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
+
+  setCenter(cfg.center, cfg.transform);
 
   // Stars 
   col = frm.append("div").attr("class", "col");

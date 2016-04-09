@@ -84,7 +84,7 @@ Celestial.display = function(config) {
   //Celestial planes
   for (var key in cfg.lines) {
     if (!has(cfg.lines, key)) continue;
-    if (key === "graticule"/* || cfg.lines[key].show === false*/) {
+    if (key === "graticule") {
       container.append("path").datum(graticule).attr("class", "graticule"); 
     } else {
     container.append("path")
@@ -185,9 +185,9 @@ Celestial.display = function(config) {
     
   d3.select(window).on('resize', resize);
 
-  if (cfg.controls === true && $("zoomin") === null) {
-    d3.select(par).append("input").attr("type", "button").attr("id", "zoomin").attr("value", "\u002b").on("click", function() { zoomBy(1.111); });
-    d3.select(par).append("input").attr("type", "button").attr("id", "zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
+  if (cfg.controls === true && $("celestial-zoomin") === null) {
+    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function() { zoomBy(1.111); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
   }
   
   if (cfg.form === true && $("params") === null) form(cfg);
@@ -362,8 +362,8 @@ Celestial.display = function(config) {
   }
     
   function zoomState(sc) {
-    $("zoomin").disabled = sc > scale*4.5;
-    $("zoomout").disabled = sc < scale*1.111;    
+    $("celestial-zoomin").disabled = sc > scale*4.51;
+    $("celestial-zoomout").disabled = sc < scale*1.11;    
   }
   
   function dsoDisplay(prop, limit) {
@@ -655,8 +655,9 @@ var settings = {
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
-  controls: true,      // Display zoom controls
-  container: "map",   // ID of parent element, e.g. div
+  fullwidth: false,   // Display fullwidth button
+  controls: true,     // Display zoom controls
+  container: "celestial-map",   // ID of parent element, e.g. div
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
     show: true,    // Show stars
@@ -703,7 +704,7 @@ var settings = {
     show: true,    // Show constellations 
     names: true,   // Show constellation names 
     desig: true,   // Show short constellation names (3 letter designations)
-    namestyle: { fill:"#cccc99", font: "12px Helvetica, Arial, sans-serif", align: "center", baseline: "middle" },
+    namestyle: { fill:"#cccc99", font: "12px Helvetica, Arial, sans-serif", align: "center", baseline: "middle", opacity:0.8 },
     lines: true,   // Show constellation lines 
     linestyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries 
@@ -1073,7 +1074,7 @@ function stopPropagation(e) {
 //test with onchange and set cfg
 function form(cfg) {
   var prj = Celestial.projections(), leo = Celestial.eulerAngles();
-  var ctrl = d3.select("#form").append("div").attr("class", "ctrl");
+  var ctrl = d3.select("#celestial-form").append("div").attr("class", "ctrl");
   var frm = ctrl.append("form").attr("id", "params").attr("name", "params").attr("method", "get").attr("action" ,"#");
   
   //Map parameters    
@@ -1115,11 +1116,19 @@ function form(cfg) {
   
   col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
   col.append("span").html("\u00b0");
-  
-  setCenter(cfg.center, cfg.transform);
-  
+  if (cfg.fullwidth)
+    col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Make Full Width \u25ba").on("click", function() {
+    $("sidebar-wrapper").style.display = "none";
+    $("outer-wrapper").style.width = "100%";
+    $("main-wrapper").style.width = "100%";
+    this.style.display = "none";
+    Celestial.display(cfg);
+    return false;
+  });
   col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
   //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
+
+  setCenter(cfg.center, cfg.transform);
 
   // Stars 
   col = frm.append("div").attr("class", "col");
