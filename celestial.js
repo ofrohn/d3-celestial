@@ -334,7 +334,7 @@ Celestial.display = function(config) {
   this.mapProjection = projection;
   this.resize = function() { resize(); }; 
   this.apply = function(config) { apply(config); }; 
-  this.rotate = function(config) { if (!config) return projection.rotate(); rotate(config); }; 
+  this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
 
   // Helper functions -------------------------------------------------
   
