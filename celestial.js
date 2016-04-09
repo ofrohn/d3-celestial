@@ -40,7 +40,7 @@ Celestial.display = function(config) {
       exp = -0.28, //Object size base & exponent
       adapt = 1,
       rotation = getAngles(cfg.center),
-      center = [-rotation[0], -rotation[1]],
+      //center = [-rotation[0], -rotation[1]],
       path = cfg.datapath || "";
       path = path.replace(/([^\/]$)/, "$1\/");
   
@@ -210,7 +210,7 @@ Celestial.display = function(config) {
     var rot = projection.rotate();
     rotation = getAngles(cfg.center);
     rotation[2] = rot[2];
-    center = [-rotation[0], -rotation[1]];
+    //center = [-rotation[0], -rotation[1]];
     projection.rotate(rotation);
     redraw();
   }
@@ -234,9 +234,9 @@ Celestial.display = function(config) {
     
     if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/scale);
     base = cfg.stars.size * adapt;
-    center = [-rot[0], -rot[1]];
+    cfg.center = [-rot[0], -rot[1]];
     
-    setCenter(center, cfg.transform);
+    setCenter(cfg.center, cfg.transform);
     clear();
     
     setStyle(cfg.background);
@@ -339,7 +339,7 @@ Celestial.display = function(config) {
   // Helper functions -------------------------------------------------
   
   function clip(coords) {
-    return proj.clip && d3.geo.distance(center, coords) > halfπ ? 0 : 1;
+    return proj.clip && d3.geo.distance(cfg.center, coords) > halfπ ? 0 : 1;
   }
 
   function setStyle(s) {
