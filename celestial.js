@@ -21,8 +21,7 @@ Celestial.display = function(config) {
   if (parent) { 
     par = "#"+cfg.container;
     var st = window.getComputedStyle(parent, null);
-    //parent.style.width = stl.width;
-    if (!parseInt(st.width) && !cfg.width) parent.style.width = px(window.innerWidth);    
+    if (!parseInt(st.width) && !cfg.width) parent.style.width = px(parent.parentNode.clientWidth); 
   } else { 
     par = "body"; 
     parent = null; 
@@ -432,7 +431,8 @@ Celestial.display = function(config) {
   
   function getWidth() {
     if (cfg.width && cfg.width > 0) return cfg.width;
-    if (parent && parent.style.width !== "" && parent.style.width !== "100%") return parent.clientWidth - margin[0];
+    //if (parent && parent.style.width !== "" && parent.style.width !== "100%") return parent.clientWidth - margin[0];
+    if (parent) return parent.clientWidth - margin[0];
     return window.innerWidth - margin[0]*2;
   }
   
