@@ -1,6 +1,6 @@
 /* global settings, bvcolor, projections, poles, eulerAngles, euler, transformDeg, getData, Canvas, halfπ, $, px, has, form, setCenter */
 var Celestial = {
-  version: '0.5.0',
+  version: '0.5.1',
   container: null,
   data: []
 };
@@ -326,14 +326,6 @@ Celestial.display = function(config) {
     }
   }
     
-  // Exported objects and functions for adding data
-  this.container = container;
-  this.clip = clip;
-  this.map = map;
-  this.mapProjection = projection;
-  this.resize = function() { resize(); }; 
-  this.apply = function(config) { apply(config); }; 
-  this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
 
   // Helper functions -------------------------------------------------
   
@@ -445,4 +437,17 @@ Celestial.display = function(config) {
     //ctr = transformDeg(coords, euler["inverse " + trans]);
     return [rot[0] - coords[0], rot[1] - coords[1], rot[2]];
   }
+  
+  // Exported objects and functions for adding data
+  this.container = container;
+  this.clip = clip;
+  this.map = map;
+  this.mapProjection = projection;
+  this.context = context;
+  this.setStyle = setStyle;
+  this.setTextStyle = setTextStyle;
+  this.resize = function() { resize(); }; 
+  this.apply = function(config) { apply(config); }; 
+  this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
+
 };

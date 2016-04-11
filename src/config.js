@@ -5,7 +5,7 @@ var settings = {
   projection: "aitoff",  // Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
   transform: "equatorial", // Coordinate transformation: equatorial (default), ecliptic, galactic, supergalactic
   center: null,       // Initial center coordinates in equatorial transformation only [hours, degrees], null = default center
-  background: { fill: "#000000", stroke: "#000000", opacity: 1 }, // Background style
+  background: { fill: "#000000", stroke: "#000000", opacity: 1, width:1 }, // Background style
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form

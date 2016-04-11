@@ -1,5 +1,9 @@
-/* global euler, transformDeg */
+/* global Celestial, euler, transformDeg */
 //load data and transform coordinates
+
+function getPoint(coords, trans) {
+  return transformDeg(coords, euler[trans]);
+}
 
 function getData(d, trans) {
   if (trans === "equatorial") return d;
@@ -44,3 +48,5 @@ function transMultiLine(c, leo) {
   return lines;
 }
 
+Celestial.getData = getData;
+Celestial.getPoint = getPoint;
