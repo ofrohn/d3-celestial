@@ -4,7 +4,7 @@
 function getPoint(coords, trans) {
   return transformDeg(coords, euler[trans]);
 }
-
+ 
 function getData(d, trans) {
   if (trans === "equatorial") return d;
 

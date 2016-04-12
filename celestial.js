@@ -5,7 +5,7 @@ var Celestial = {
   container: null,
   data: []
 };
-
+ 
 var cfg, projection, projOl, zoom, map, outline;
 
 // Show it all, with the given config, otherwise with default settings
@@ -608,7 +608,7 @@ Celestial.add = function(dat) {
 function getPoint(coords, trans) {
   return transformDeg(coords, euler[trans]);
 }
-
+ 
 function getData(d, trans) {
   if (trans === "equatorial") return d;
 

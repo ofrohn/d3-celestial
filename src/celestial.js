@@ -4,7 +4,7 @@ var Celestial = {
   container: null,
   data: []
 };
-
+ 
 var cfg, projection, projOl, zoom, map, outline;
 
 // Show it all, with the given config, otherwise with default settings
