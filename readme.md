@@ -108,18 +108,18 @@ Celestial.display(config);
 __Supported projections:__ Airy, Aitoff, Armadillo, August, Azimuthal Equal Area, Azimuthal Equidistant, Baker, Berghaus, Boggs, Bonne, Bromley, Collignon, Craig, Craster, Cylindrical Equal Area, Cylindrical Stereographic, Eckert 1, Eckert 2, Eckert 3, Eckert 4, Eckert 5, Eckert 6, Eisenlohr, Equirectangular, Fahey, Foucaut, Ginzburg 4, Ginzburg 5, Ginzburg 6, Ginzburg 8, Ginzburg 9, Hammer, Hatano, HEALPix, Hill, Homolosine, Kavrayskiy 7, Lagrange, l'Arrivee, Laskowski, Loximuthal, Mercator, Miller, Mollweide, Flat Polar Parabolic, Flat Polar Quartic, Flat Polar Sinusoidal, Natural Earth, Nell Hammer, Orthographic, Patterson, Polyconic, Rectangular Polyconic, Robinson, Sinusoidal, Stereographic, Times, 2 Point Equidistant, van Der Grinten, van Der Grinten 2, van Der Grinten 3, van Der Grinten 4, Wagner 4, Wagner 6, Wagner 7, Wiechel and Winkel Tripel. Most of these need the extension [d3.geo.projections](https://github.com/d3/d3-geo-projection/)  
 
 __Style settings__   
-_fill_ fill color (css color value)  
-_opacity_ opacity (number 0..1)  
-<u>Line styles</u>  
-_stroke_ outline color (css color value)  
-_width_ line width (number 0..)  
-_dash_ line dash ([line length, gap length])  
-<u>Text styles</u>  
-_font_ well, the font (css font property)  
-_align_ horizontal align (left|center|right|start|end)  
-_baseline_ vertical align (alphabetic|top|hanging|middle|ideographic|bottom)  
-<u>Symbol style</u>  
-_shape_ symbol shape (circle|square|diamond|ellipse|marker or whatever else is defined in canvas.js)  
+_fill_: fill color (css color value)  
+_opacity_: opacity (number 0..1)  
+<span style="text-decoration:underline">Line styles</span>  
+_stroke_: outline color (css color value)  
+_width_: line width (number 0..)  
+_dash_: line dash ([line length, gap length])  
+<span style="text-decoration:underline">Text styles</span>  
+_font_: well, the font (css font property)  
+_align_: horizontal align (left|center|right|start|end)  
+_baseline_: vertical align (alphabetic|top|hanging|middle|ideographic|bottom)  
+<span style="text-decoration:underline">Symbol style</span>  
+_shape_: symbol shape (circle|square|diamond|ellipse|marker or whatever else is defined in canvas.js)  
 
 ### Adding Data
   (To be implemented)  

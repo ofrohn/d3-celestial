@@ -100,7 +100,7 @@ __Constellation boundaries__
   "type": "FeatureCollection",
   "features": [{
     "type": "Feature",
-    "id": "",           // 3-letter designator of contellation
+    "id": "",           // 3-letter designator of constellation
     "geometry": {  
       "type": "Polygon",
       "coordinates": [[[lon, lat],[lon, lat],..]]

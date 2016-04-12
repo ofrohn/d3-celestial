@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.5.1',
+  version: '0.5.2',
   container: null,
   data: []
 };
@@ -1157,7 +1157,7 @@ function form(cfg) {
   col.append("br");
   
   col.append("label").attr("for", "stars-names").html("Show names");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-names").on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "stars-names").property("checked", cfg.stars.names).on("change", apply);
   
   col.append("label").attr("for", "stars-proper").html("proper names (if any)");
   col.append("input").attr("type", "checkbox").attr("id", "stars-proper").property("checked", cfg.stars.proper).on("change", apply);
@@ -1270,6 +1270,7 @@ function form(cfg) {
 
   function redraw() {
     var src = this;
+    if (!src) return;
     switch (src.id) {
       case "width": if (testNumber(src) === false) return; 
                     cfg.width = src.value; break;
@@ -1325,8 +1326,7 @@ function form(cfg) {
       case 2: cfg[a[0]][a[1]] = val; break;
       case 3: cfg[a[0]][a[1]][a[2]] = val; break;
       default: return;
-    }
-    
+    }   
   }
 }
 
