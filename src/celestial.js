@@ -295,8 +295,7 @@ Celestial.display = function(config) {
     if (cfg.dsos.show) { 
       container.selectAll(".dso").each(function(d) {
         if (clip(d.geometry.coordinates) && dsoDisplay(d.properties, cfg.dsos.limit)) {
-          var node = d3.select(this),
-              pt = projection(d.geometry.coordinates),
+          var pt = projection(d.geometry.coordinates),
               type = d.properties.type;
           setStyle(cfg.dsos.symbols[type]);
           var r = dsoSymbol(d, pt);
@@ -334,7 +333,7 @@ Celestial.display = function(config) {
   }
 
   function setStyle(s) {
-    context.fillStyle = s.fill;
+    context.fillStyle = s.fill || null;
     context.strokeStyle = s.stroke || null;
     context.lineWidth = s.width || null;
     context.globalAlpha = s.opacity || 1;  
@@ -446,6 +445,7 @@ Celestial.display = function(config) {
   this.context = context;
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;
+  this.redraw = redraw; 
   this.resize = function() { resize(); }; 
   this.apply = function(config) { apply(config); }; 
   this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 

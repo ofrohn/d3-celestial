@@ -1,11 +1,11 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.5.0',
+  version: '0.5.2',
   container: null,
   data: []
 };
-
+ 
 var cfg, projection, projOl, zoom, map, outline;
 
 // Show it all, with the given config, otherwise with default settings
@@ -327,14 +327,6 @@ Celestial.display = function(config) {
     }
   }
     
-  // Exported objects and functions for adding data
-  this.container = container;
-  this.clip = clip;
-  this.map = map;
-  this.mapProjection = projection;
-  this.resize = function() { resize(); }; 
-  this.apply = function(config) { apply(config); }; 
-  this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
 
   // Helper functions -------------------------------------------------
   
@@ -446,6 +438,19 @@ Celestial.display = function(config) {
     //ctr = transformDeg(coords, euler["inverse " + trans]);
     return [rot[0] - coords[0], rot[1] - coords[1], rot[2]];
   }
+  
+  // Exported objects and functions for adding data
+  this.container = container;
+  this.clip = clip;
+  this.map = map;
+  this.mapProjection = projection;
+  this.context = context;
+  this.setStyle = setStyle;
+  this.setTextStyle = setTextStyle;
+  this.resize = function() { resize(); }; 
+  this.apply = function(config) { apply(config); }; 
+  this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
+
 };
 
 
@@ -600,6 +605,10 @@ Celestial.add = function(dat) {
 
 //load data and transform coordinates
 
+function getPoint(coords, trans) {
+  return transformDeg(coords, euler[trans]);
+}
+ 
 function getData(d, trans) {
   if (trans === "equatorial") return d;
 
@@ -643,7 +652,8 @@ function transMultiLine(c, leo) {
   return lines;
 }
 
-
+Celestial.getData = getData;
+Celestial.getPoint = getPoint;
 
 //Defaults
 var settings = { 
@@ -651,7 +661,7 @@ var settings = {
   projection: "aitoff",  // Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
   transform: "equatorial", // Coordinate transformation: equatorial (default), ecliptic, galactic, supergalactic
   center: null,       // Initial center coordinates in equatorial transformation only [hours, degrees], null = default center
-  background: { fill: "#000000", stroke: "#000000", opacity: 1 }, // Background style
+  background: { fill: "#000000", stroke: "#000000", opacity: 1, width:1 }, // Background style
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
@@ -1147,7 +1157,7 @@ function form(cfg) {
   col.append("br");
   
   col.append("label").attr("for", "stars-names").html("Show names");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-names").on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "stars-names").property("checked", cfg.stars.names).on("change", apply);
   
   col.append("label").attr("for", "stars-proper").html("proper names (if any)");
   col.append("input").attr("type", "checkbox").attr("id", "stars-proper").property("checked", cfg.stars.proper).on("change", apply);
@@ -1260,6 +1270,7 @@ function form(cfg) {
 
   function redraw() {
     var src = this;
+    if (!src) return;
     switch (src.id) {
       case "width": if (testNumber(src) === false) return; 
                     cfg.width = src.value; break;
@@ -1315,8 +1326,7 @@ function form(cfg) {
       case 2: cfg[a[0]][a[1]] = val; break;
       case 3: cfg[a[0]][a[1]][a[2]] = val; break;
       default: return;
-    }
-    
+    }   
   }
 }
 

@@ -40,6 +40,15 @@ Canvas.symbol = function() {
       ctx.closePath();
       return r;
     },
+    "triangle": function(ctx) {
+      var s = Math.sqrt(size()), 
+          r = s/Math.sqrt(3);
+      ctx.moveTo(pos[0], pos[1]-r);
+      ctx.lineTo(pos[0]+r, pos[1]+r);
+      ctx.lineTo(pos[0]-r, pos[1]+r);
+      ctx.closePath();
+      return r;
+    },
     "ellipse": function(ctx) {
       var s = Math.sqrt(size()), 
           r = s/2;
@@ -69,6 +78,8 @@ Canvas.symbol = function() {
       ctx.lineTo(pos[0], pos[1]+s);
       ctx.moveTo(pos[0]-s, pos[1]);
       ctx.lineTo(pos[0]+s, pos[1]);
+      ctx.stroke();
+      ctx.beginPath();
       ctx.moveTo(pos[0], pos[1]);
       ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    
       ctx.closePath();
@@ -79,6 +90,8 @@ Canvas.symbol = function() {
           r = s/2;
       ctx.moveTo(pos[0], pos[1]-s);
       ctx.lineTo(pos[0], pos[1]+s);
+      ctx.stroke();
+      ctx.beginPath();
       ctx.moveTo(pos[0], pos[1]);
       ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    
       ctx.closePath();
