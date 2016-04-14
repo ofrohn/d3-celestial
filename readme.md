@@ -149,8 +149,8 @@ __Exposed functions & objects__
    Function to check if the object is visible, and set its visiblility  
    _coordinates_: object coordinates in radians, normally supplied by D3 as geometry.coordinates array
 
-* `Celestial.setStyle(&lt;style object>)`
-* `Celestial.setTextStyle(&lt;style object>)`
+* `Celestial.setStyle(<style object>)`
+* `Celestial.setTextStyle(\<style object>)`
    Set the canvas styles as documented above under __style settings__. Seperate functions for graphic/text
    _&lt;style object>_: object literal listing all styles to set
 
