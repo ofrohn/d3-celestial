@@ -193,7 +193,10 @@ Celestial.display = function(config) {
 
   
   function zoomBy(factor) {
-    var scale = projection.scale() * factor; 
+    var scale = projection.scale() * factor,
+        ext = zoom.scaleExtent();
+    if (scale < ext[0]) scale = ext[0];
+    if (scale > ext[1]) scale = ext[1];
     projection.scale([scale]); 
     zoom.scale([scale]); 
     redraw(); 
@@ -352,8 +355,8 @@ Celestial.display = function(config) {
   }
     
   function zoomState(sc) {
-    $("celestial-zoomin").disabled = sc > scale*4.51;
-    $("celestial-zoomout").disabled = sc < scale*1.11;    
+    $("celestial-zoomin").disabled = sc >= scale*4.99;
+    $("celestial-zoomout").disabled = sc <= scale;    
   }
   
   function dsoDisplay(prop, limit) {
@@ -450,7 +453,7 @@ Celestial.display = function(config) {
   this.resize = function() { resize(); }; 
   this.apply = function(config) { apply(config); }; 
   this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
-
+  this.zoomBy = function(factor) { if (!factor) return cfg.center; zoomBy(factor); };
 };
 
 

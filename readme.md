@@ -122,7 +122,7 @@ _baseline_: vertical align (alphabetic|top|hanging|middle|ideographic|bottom)
 _shape_: symbol shape (circle|square|diamond|ellipse|marker or whatever else is defined in canvas.js)  
 
 ### Adding Data
-  (To be implemented)  
+
 __Exposed functions & objects__  
 * `Celestial.add({file:string, type:dso|line, callback:function, redraw:function)`  
    Function to add data in json-format (dso) or directly (line) to the display
@@ -131,12 +131,16 @@ __Exposed functions & objects__
    _callback_: callback function to call when json is loaded (dso)
                or to directly add elements to the path (line)
    _redraw_: for interactive display, call when view changes (optional) 
-  
+
+   
 * `Celestial.container`  
    The object to add data to in the callback. See D3.js documentation 
 
 * `Celestial.context` 
    The HTML5-canvas context object to draw on in the callback. Also see D3.js documentation 
+  
+* `Celestial.map`  
+   The d3.geo.path object to apply projection to data. Also see D3.js documentation
   
 * `Celestial.mapProjection`  
    The projection object for access to its properties and functions. Also D3.js documentation
@@ -145,9 +149,35 @@ __Exposed functions & objects__
    Function to check if the object is visible, and set its visiblility  
    _coordinates_: object coordinates in radians, normally supplied by D3 as geometry.coordinates array
 
-* `Celestial.rotate({center:[long,lat]})`; 
-   Turn the map to the given center coordinates
+* `Celestial.setStyle(&lt;style object>)`
+* `Celestial.setTextStyle(&lt;style object>)`
+   Set the canvas styles as documented above under __style settings__. Seperate functions for graphic/text
+   _&lt;style object>_: object literal listing all styles to set
+
    
+### Manipulating the Map
+
+__Exposed functions__  
+
+* `Celestial.rotate({center:[long,lat]})` 
+   Turn the map to the given center coordinates, without parameter returns the current center
+
+* `Celestial.zoomBy(factor)` 
+   Zoom the map by the given factor - &lt; 1 zooms out, > 1 zooms in, without parameter returns the 
+   current zoom level
+
+* `Celestial.apply(config)` 
+   Apply configuration changes without reloading the complete map. Any parameter of the above 
+   config-object can be set except width, projection, transform, and \*.data, which need a reload
+   and interactive, form, controls, container, which control page structure & behaviour and shouls
+   only be set on the initial load
+   
+* `Celestial.resize()` 
+   Change the overall size of the map, canvas object needs a complete reload
+
+* `Celestial.redraw()`
+  Simply redraw the map without changes
+  
 ### Files
 
 __GeoJSON data files__  
