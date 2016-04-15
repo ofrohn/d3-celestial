@@ -847,6 +847,7 @@ var projections = {
 Celestial.projections = function() { return projections; };
 
 
+
 var Canvas = {}; 
 
 Canvas.symbol = function() {
@@ -973,7 +974,7 @@ Canvas.symbol = function() {
   return canvas_symbol;
 };
 
-
+Celestial.Canvas = Canvas;
 
 
 /*var color = "#fff", angle = 0, align = "center", baseline = "middle", font = "10px sans-serif", padding = [0,0], aPos, sText;

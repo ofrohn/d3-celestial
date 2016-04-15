@@ -154,6 +154,9 @@ __Exposed functions & objects__
    Set the canvas styles as documented above under __style settings__. Seperate functions for graphic/text
    _&lt;style object>_: object literal listing all styles to set
 
+* `Celestial.Canvas.symbol()`  
+   Draw symbol shapes directly on canvas context: circle, square, diamond, triangle, ellipse, marker,
+   stroke-circle, cross-circle
    
 ### Manipulating the Map
 
