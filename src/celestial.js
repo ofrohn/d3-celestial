@@ -1,6 +1,6 @@
 /* global settings, bvcolor, projections, poles, eulerAngles, euler, transformDeg, getData, Canvas, halfπ, $, px, has, form, setCenter */
 var Celestial = {
-  version: '0.5.2',
+  version: '0.5.3',
   container: null,
   data: []
 };

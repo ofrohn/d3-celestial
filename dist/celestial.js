@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.5.2',
+  version: '0.5.3',
   container: null,
   data: []
 };
@@ -193,7 +193,10 @@ Celestial.display = function(config) {
 
   
   function zoomBy(factor) {
-    var scale = projection.scale() * factor; 
+    var scale = projection.scale() * factor,
+        ext = zoom.scaleExtent();
+    if (scale < ext[0]) scale = ext[0];
+    if (scale > ext[1]) scale = ext[1];
     projection.scale([scale]); 
     zoom.scale([scale]); 
     redraw(); 
@@ -296,8 +299,7 @@ Celestial.display = function(config) {
     if (cfg.dsos.show) { 
       container.selectAll(".dso").each(function(d) {
         if (clip(d.geometry.coordinates) && dsoDisplay(d.properties, cfg.dsos.limit)) {
-          var node = d3.select(this),
-              pt = projection(d.geometry.coordinates),
+          var pt = projection(d.geometry.coordinates),
               type = d.properties.type;
           setStyle(cfg.dsos.symbols[type]);
           var r = dsoSymbol(d, pt);
@@ -335,7 +337,7 @@ Celestial.display = function(config) {
   }
 
   function setStyle(s) {
-    context.fillStyle = s.fill;
+    context.fillStyle = s.fill || null;
     context.strokeStyle = s.stroke || null;
     context.lineWidth = s.width || null;
     context.globalAlpha = s.opacity || 1;  
@@ -353,8 +355,8 @@ Celestial.display = function(config) {
   }
     
   function zoomState(sc) {
-    $("celestial-zoomin").disabled = sc > scale*4.51;
-    $("celestial-zoomout").disabled = sc < scale*1.11;    
+    $("celestial-zoomin").disabled = sc >= scale*4.99;
+    $("celestial-zoomout").disabled = sc <= scale;    
   }
   
   function dsoDisplay(prop, limit) {
@@ -447,10 +449,11 @@ Celestial.display = function(config) {
   this.context = context;
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;
+  this.redraw = redraw; 
   this.resize = function() { resize(); }; 
   this.apply = function(config) { apply(config); }; 
   this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
-
+  this.zoomBy = function(factor) { if (!factor) return cfg.center; zoomBy(factor); };
 };
 
 
@@ -844,6 +847,7 @@ var projections = {
 Celestial.projections = function() { return projections; };
 
 
+
 var Canvas = {}; 
 
 Canvas.symbol = function() {
@@ -886,6 +890,15 @@ Canvas.symbol = function() {
       ctx.closePath();
       return r;
     },
+    "triangle": function(ctx) {
+      var s = Math.sqrt(size()), 
+          r = s/Math.sqrt(3);
+      ctx.moveTo(pos[0], pos[1]-r);
+      ctx.lineTo(pos[0]+r, pos[1]+r);
+      ctx.lineTo(pos[0]-r, pos[1]+r);
+      ctx.closePath();
+      return r;
+    },
     "ellipse": function(ctx) {
       var s = Math.sqrt(size()), 
           r = s/2;
@@ -915,6 +928,8 @@ Canvas.symbol = function() {
       ctx.lineTo(pos[0], pos[1]+s);
       ctx.moveTo(pos[0]-s, pos[1]);
       ctx.lineTo(pos[0]+s, pos[1]);
+      ctx.stroke();
+      ctx.beginPath();
       ctx.moveTo(pos[0], pos[1]);
       ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    
       ctx.closePath();
@@ -925,6 +940,8 @@ Canvas.symbol = function() {
           r = s/2;
       ctx.moveTo(pos[0], pos[1]-s);
       ctx.lineTo(pos[0], pos[1]+s);
+      ctx.stroke();
+      ctx.beginPath();
       ctx.moveTo(pos[0], pos[1]);
       ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    
       ctx.closePath();
@@ -957,7 +974,7 @@ Canvas.symbol = function() {
   return canvas_symbol;
 };
 
-
+Celestial.Canvas = Canvas;
 
 
 /*var color = "#fff", angle = 0, align = "center", baseline = "middle", font = "10px sans-serif", padding = [0,0], aPos, sText;

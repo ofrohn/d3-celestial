@@ -1,6 +1,6 @@
 {
   "name": "d3-celestial",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "A star map with D3.js",
   "main": "celestial.js",
   "directories": {
