@@ -258,24 +258,26 @@ Celestial.display = function(config) {
       context.stroke();    
     }
 
-    if (cfg.constellations.names) { 
-      setTextStyle(cfg.constellations.namestyle);
-      container.selectAll(".constname").each( function(d) { 
-        if (clip(d.geometry.coordinates)) {
-          var pt = projection(d.geometry.coordinates);
-          context.fillText(constName(d), pt[0], pt[1]); 
-        }
-      });
-    }
+    if (cfg.constellations.show) {     
+      if (cfg.constellations.names) { 
+        setTextStyle(cfg.constellations.namestyle);
+        container.selectAll(".constname").each( function(d) { 
+          if (clip(d.geometry.coordinates)) {
+            var pt = projection(d.geometry.coordinates);
+            context.fillText(constName(d), pt[0], pt[1]); 
+          }
+        });
+      }
 
-    if (cfg.constellations.lines) { 
-      container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
+      if (cfg.constellations.lines) { 
+        container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
+      }
+      
+      if (cfg.constellations.bounds) { 
+        container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
+      }
     }
-    
-    if (cfg.constellations.bounds) { 
-      container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
-    }
-    
+      
     if (cfg.stars.show) { 
       setStyle(cfg.stars.style);
       container.selectAll(".star").each(function(d) {
