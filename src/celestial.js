@@ -188,6 +188,7 @@ Celestial.display = function(config) {
     d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
   }
   
+  if (cfg.location === true && $("loc") === null) geo(cfg);
   if (cfg.form === true && $("params") === null) form(cfg);
 
   

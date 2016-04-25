@@ -1,4 +1,4 @@
-/* Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE */
+/* Copyright 2015-16 Olaf Frohn https://github.com/ofrohn, see LICENSE */
 body { background:#fff; }
 #celestial-map { width: 100%; height: auto; margin: 0; padding: 0; display: inline-block; position: relative; }
 canvas { display: inline-block; position:absolute; z-index:0; cursor:hand; cursor:url(stylesheets/hand.cur); cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; }
@@ -10,11 +10,13 @@ canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbin
 #celestial-form .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }
 
 #celestial-form input { vertical-align: 0px; }
-#celestial-form input[type='number'] { width:48px; height:18px; text-align:right; padding:0; }
+#celestial-form input[type='number'] { width:64px; height:18px; text-align:right; padding:0; }
+#celestial-form input[type='text'] { width:132px; height:18px; text-align:right; padding:0 4px 0 0; }
 #celestial-form input[type='checkbox'] { vertical-align: -2px; }
 #celestial-form input[type='color'] { vertical-align: -3px; height:22px;  background:#fff; }
 #celestial-form input[name='width'], input[type='color'] { width:48px; }
 
+#celestial-form input[type='text']:disabled, 
 #celestial-form input[type='number']:disabled, 
 #celestial-form input[type='color']:disabled { border: 1px solid #ccc; background:#eee }
 
@@ -25,6 +27,7 @@ canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbin
 #celestial-form input#show:hover, 
 #celestial-form input#fullwidth:hover { background:#eee; }
 
+#celestial-form input[type='text'], 
 #celestial-form input[type='number'], 
 #celestial-form input[type='color'], 
 #celestial-form select, 

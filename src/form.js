@@ -210,7 +210,6 @@ function form(cfg) {
       case "centerx": if (testNumber(src) === false) return;
                       if (cfg.transform !== "equatorial") cfg.center[0] = src.value; 
                       else cfg.center[0] = src.value > 12 ? src.value * 15 - 360 : src.value * 15;
-                      //if (src.value === )     
                       if (cy.value === "") return; 
                       else cfg.center[1] = cy.value;
                       break;
