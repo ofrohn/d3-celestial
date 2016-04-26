@@ -54,12 +54,14 @@ target.build = function() {
     './src/celestial.js', 
     './src/projection.js', 
     './src/transform.js', 
+    './src/horizontal.js', 
     './src/add.js',
     './src/get.js',
     './src/config.js', 
     './src/canvas.js',
     './src/util.js',
     './src/form.js',
+    './src/location.js',
     './lib/d3.geo.zoom.js'
   ]);
   file = copy + begin + file.replace(/\/\* global.*/g, '') + end;

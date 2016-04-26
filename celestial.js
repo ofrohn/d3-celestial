@@ -189,6 +189,7 @@ Celestial.display = function(config) {
     d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
   }
   
+  if (cfg.location === true && $("loc") === null) geo(cfg);
   if (cfg.form === true && $("params") === null) form(cfg);
 
   
@@ -259,24 +260,26 @@ Celestial.display = function(config) {
       context.stroke();    
     }
 
-    if (cfg.constellations.names) { 
-      setTextStyle(cfg.constellations.namestyle);
-      container.selectAll(".constname").each( function(d) { 
-        if (clip(d.geometry.coordinates)) {
-          var pt = projection(d.geometry.coordinates);
-          context.fillText(constName(d), pt[0], pt[1]); 
-        }
-      });
-    }
+    if (cfg.constellations.show) {     
+      if (cfg.constellations.names) { 
+        setTextStyle(cfg.constellations.namestyle);
+        container.selectAll(".constname").each( function(d) { 
+          if (clip(d.geometry.coordinates)) {
+            var pt = projection(d.geometry.coordinates);
+            context.fillText(constName(d), pt[0], pt[1]); 
+          }
+        });
+      }
 
-    if (cfg.constellations.lines) { 
-      container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
+      if (cfg.constellations.lines) { 
+        container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
+      }
+      
+      if (cfg.constellations.bounds) { 
+        container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
+      }
     }
-    
-    if (cfg.constellations.bounds) { 
-      container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
-    }
-    
+      
     if (cfg.stars.show) { 
       setStyle(cfg.stars.style);
       container.selectAll(".star").each(function(d) {
@@ -586,6 +589,79 @@ var euler = {
 euler.init();
 Celestial.euler = function() { return euler; };
 
+var horizontal = function(dt, pos, loc) {
+  //dt: datetime, pos: celestial coordinates [lat,lng], loc: location [lat, lng]  
+  var ha = getMST(dt, loc[1]) - pos[0];
+  if (ha < 0) ha = ha + 360;
+  
+  ha  = ha * deg2rad;
+  var lng = pos[1] * deg2rad;
+  var lat = loc[0] * deg2rad;
+
+  var alt = Math.asin(Math.sin(dec) * Math.sin(lat) + Math.cos(dec) * Math.cos(lat) * Math.cos(ha));
+  var az = Math.acos((Math.sin(dec) - Math.sin(alt) * Math.sin(lat)) / (Math.cos(alt) * Math.cos(lat)));
+
+  if (Math.sin(ha) > 0) az = Math.PI * 2 - az;
+  
+  return [alt / deg2rad, az / deg2rad];
+}
+
+horizontal.inverse = function(dt, hor, loc) {
+  
+  var alt = hor[0] * deg2rad;
+  var az = hor[1] * deg2rad;
+  var lat = loc[0] * deg2rad;
+   
+  var dec = Math.asin((Math.sin(alt) * Math.sin(lat)) + (Math.cos(alt) * Math.cos(lat) * Math.cos(az)));
+  var ha = Round((Math.sin(alt) - (Math.sin(dec) * Math.sin(lat))) / (Math.cos(dec) * Math.cos(lat)), 6);
+  
+  ha = Math.acos(ha);
+  ha  = ha / deg2rad;
+  
+  var ra = getMST(dt, loc[1]) - ha;
+  //if (ra < 0) ra = ra + 360;
+    
+  return [ra, dec / deg2rad];
+}
+
+function getMST(dt, lng)
+{
+    var yr = dt.getUTCFullYear();
+    var mo = dt.getUTCMonth() + 1;
+    var dy = dt.getUTCDate();
+    var h = dt.getUTCHours();
+    var m = dt.getUTCMinutes();
+    var s = dt.getUTCSeconds();
+
+    if ((mo == 1)||(mo == 2)) {
+        yr  = yr - 1;
+        mo = mo + 12;
+    }
+
+    var a = Math.floor(yr / 100);
+    var b = 2 - a + Math.floor(a / 4);
+    var c = Math.floor(365.25 * yr);
+    var d = Math.floor(30.6001 * (mo + 1));
+
+    // days since J2000.0
+    var jd = b + c + d - 730550.5 + dy + (h + m/60.0 + s/3600.0)/24.0;
+    
+    // julian centuries since J2000.0
+    var jt = jd/36525.0;
+
+    // the mean sidereal time in degrees
+    var mst = 280.46061837 + 360.98564736629*jd + 0.000387933*jt*jt - jt*jt*jt/38710000 + lng;
+
+    // in degrees modulo 360.0
+    if (mst > 0.0) 
+        while (mst > 360.0) mst = mst - 360.0;
+    else
+        while (mst < 0.0)   mst = mst + 360.0;
+        
+    return mst;
+}
+
+Celestial.horizontal = horizontal;
 
 //Add more JSON data to the map
 
@@ -668,6 +744,7 @@ var settings = {
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
+  location: true,
   fullwidth: false,   // Display fullwidth button
   controls: true,     // Display zoom controls
   container: "celestial-map",   // ID of parent element, e.g. div
@@ -1138,7 +1215,7 @@ function form(cfg) {
   col.append("br");
   
   col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
-  col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/lngitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
+  col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
   col.append("span").attr("id", "cxunit").html("h");
   
   col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
@@ -1307,7 +1384,6 @@ function form(cfg) {
       case "centerx": if (testNumber(src) === false) return;
                       if (cfg.transform !== "equatorial") cfg.center[0] = src.value; 
                       else cfg.center[0] = src.value > 12 ? src.value * 15 - 360 : src.value * 15;
-                      //if (src.value === )     
                       if (cy.value === "") return; 
                       else cfg.center[1] = cy.value;
                       break;
@@ -1486,6 +1562,57 @@ function setLimits() {
 
   return res;
 }
+
+function geo(cfg) {
+  var ctrl = d3.select("#celestial-form").append("div").attr("class", "loc"),
+      dt = new Date(), geopos = [0,0], zone = 0,
+      dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S %Z");
+  
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition( function(pos) {
+      geopos = [Round(pos.coords.latitude, 4), Round(pos.coords.longitude, 4)];
+      d3.select("#lat").attr("value", geopos[0]);
+      d3.select("#lon").attr("value", geopos[1]);
+      go();
+    });  
+  }
+  
+  var col = ctrl.append("div").attr("class", "col");
+
+  col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");
+  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change", go);
+  col.append("span").html("\u00b0");
+  
+  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change", go);
+  col.append("span").html("\u00b0");
+
+  col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Local date/time");
+  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dtFormat(dt)).on("change", go);
+
+  col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
+  
+  function now() {
+    dt.setTime(Date.now());
+    $("datetime").value = dtFormat(dt);
+    go();
+  }
+  
+  function go() {
+    var zenith = [0,0];
+    switch (this.id) {
+      case "lat": geopos[0] = this.value; break;
+      case "lon": geopos[1] = this.value; break;
+      case "datetime": dt = dtFormat.parse(this.value); break;
+      case "tz": offset = this.value; break;
+    }
+    if (geopos[0] !== "" && geopos[1] !== "") {
+      zenith = horizontal.inverse(dt, [90, 0], geopos);
+      config.center = zenith;
+      Celestial.rotate(config);
+    }
+  }
+}
+
 
 // Copyright 2014, Jason Davies, http://www.jasondavies.com
 // See LICENSE.txt for details.

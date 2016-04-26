@@ -10,8 +10,9 @@ canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbin
 #celestial-form .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }
 
 #celestial-form input { vertical-align: 0px; }
-#celestial-form input[type='number'] { width:64px; height:18px; text-align:right; padding:0; }
-#celestial-form input[type='text'] { width:132px; height:18px; text-align:right; padding:0 4px 0 0; }
+#celestial-form input[type='number'] { width:48px; height:18px; text-align:right; padding:0; }
+#celestial-form #centerx, #celestial-form #centery, #celestial-form #lat, #celestial-form #lon { width:64px }
+#celestial-form input[type='text'] { width:164px; height:18px; text-align:right; padding:0 4px 0 0; }
 #celestial-form input[type='checkbox'] { vertical-align: -2px; }
 #celestial-form input[type='color'] { vertical-align: -3px; height:22px;  background:#fff; }
 #celestial-form input[name='width'], input[type='color'] { width:48px; }
@@ -21,6 +22,7 @@ canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbin
 #celestial-form input[type='color']:disabled { border: 1px solid #ccc; background:#eee }
 
 #celestial-form input[type='button'] { width:64px; margin:0 0 0 8px; margin-top:4px; }
+#celestial-form input#now, 
 #celestial-form input#show, 
 #celestial-form input#fullwidth { float:right;  background: #f7f7f7; }
 #celestial-form input#fullwidth { width:148px; }
@@ -31,6 +33,7 @@ canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbin
 #celestial-form input[type='number'], 
 #celestial-form input[type='color'], 
 #celestial-form select, 
+#celestial-form input#now, 
 #celestial-form input#show, 
 #celestial-form input#fullwidth { border: 1px solid #000; border-radius:3px; height:24px; }
 
