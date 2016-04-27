@@ -1,3 +1,4 @@
+/* global Celestial, horizontal, datetimepicker, config, Round, $ */
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("class", "loc"),
       dt = new Date(), geopos = [0,0], zone = 0,
@@ -22,7 +23,8 @@ function geo(cfg) {
   col.append("span").html("\u00b0");
 
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Local date/time");
-  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dtFormat(dt)).on("change", go);
+  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dtFormat(dt))
+  .on("click", pick).on("change", go);
 
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
   
@@ -31,6 +33,14 @@ function geo(cfg) {
     $("datetime").value = dtFormat(dt);
     go();
   }
+
+  function pick() {
+    var dtnew = datetimepicker(dt);
+    dt.setTime(dtnew.getTime());
+    $("datetime").value = dtFormat(dt);
+    //go();
+  }
+
   
   function go() {
     var zenith = [0,0];
@@ -38,7 +48,7 @@ function geo(cfg) {
       case "lat": geopos[0] = this.value; break;
       case "lon": geopos[1] = this.value; break;
       case "datetime": dt = dtFormat.parse(this.value); break;
-      case "tz": offset = this.value; break;
+      //case "tz": offset = this.value; break;
     }
     if (geopos[0] !== "" && geopos[1] !== "") {
       zenith = horizontal.inverse(dt, [90, 0], geopos);

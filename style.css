@@ -11,23 +11,20 @@ canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbin
 
 #celestial-form input { vertical-align: 0px; }
 #celestial-form input[type='number'] { width:48px; height:18px; text-align:right; padding:0; }
-#celestial-form #centerx, #celestial-form #centery, #celestial-form #lat, #celestial-form #lon { width:64px }
+#celestial-form #centerx, #celestial-form #centery, 
+#celestial-form #lat, #celestial-form #lon { width:64px; margin-top:4px; }
 #celestial-form input[type='text'] { width:164px; height:18px; text-align:right; padding:0 4px 0 0; }
 #celestial-form input[type='checkbox'] { vertical-align: -2px; }
-#celestial-form input[type='color'] { vertical-align: -3px; height:22px;  background:#fff; }
-#celestial-form input[name='width'], input[type='color'] { width:48px; }
+#celestial-form input[type='color'] { width:48px; vertical-align: -3px; height:22px;  background:#fff; }
+
+#celestial-form input[type='button'] { width:64px; padding-bottom:1px; margin-top:4px; float:right;  background: #f7f7f7; }
+#celestial-form input#fullwidth { width:148px; }
+#celestial-form input#width, #celestial-form input#now  { width:64px; margin-left:2px; }
+#celestial-form input[type='button']:hover { background:#eee; }
 
 #celestial-form input[type='text']:disabled, 
 #celestial-form input[type='number']:disabled, 
 #celestial-form input[type='color']:disabled { border: 1px solid #ccc; background:#eee }
-
-#celestial-form input[type='button'] { width:64px; margin:0 0 0 8px; margin-top:4px; }
-#celestial-form input#now, 
-#celestial-form input#show, 
-#celestial-form input#fullwidth { float:right;  background: #f7f7f7; }
-#celestial-form input#fullwidth { width:148px; }
-#celestial-form input#show:hover, 
-#celestial-form input#fullwidth:hover { background:#eee; }
 
 #celestial-form input[type='text'], 
 #celestial-form input[type='number'], 
@@ -44,13 +41,21 @@ canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbin
 #celestial-form br + label { margin-left:0; }
 
 /* Zoom controls */
-input#celestial-zoomin, 
-input#celestial-zoomout { width:32px; height:32px; left:8px; top:12px; background: rgba(255,255,255,0.5); border:1px solid #000; border-radius:3px; position:absolute; font: normal bold 24px/1 Consolas, Courier, 'Courier New', monospace ; cursor:pointer; }
-input#celestial-zoomout { top: 48px; }
-input#celestial-zoomin:hover, 
-input#celestial-zoomout:hover { background: rgba(255,255,255,0.7); }
-input#celestial-zoomin:disabled, 
-input#celestial-zoomout:disabled { background: rgba(255,255,255,0.0); border:1px solid rgba(153,153,153,0.7); color:rgba(153,153,153,0.7); cursor:default; }
+#celestial-zoomin, 
+#celestial-zoomout { width:32px; height:32px; left:8px; top:12px; background: rgba(255,255,255,0.5); border:1px solid #000; border-radius:3px; position:absolute; font: normal bold 24px/1 Consolas, Courier, 'Courier New', monospace ; cursor:pointer; }
+#celestial-zoomout { top: 48px; }
+#celestial-zoomin:hover, 
+#celestial-zoomout:hover { background: rgba(255,255,255,0.7); }
+#celestial-zoomin:disabled, 
+#celestial-zoomout:disabled { background: rgba(255,255,255,0.0); border:1px solid rgba(153,153,153,0.7); color:rgba(153,153,153,0.7); cursor:default; }
+
+#celestial-date .cal { display:block; width:142px; }
+#celestial-date .date { display:inline-block; width:16px; height:16px; color:#000; font: bold 13px/1 sans-serif; text-align:right; vertical-align:middle; padding:2px; }
+#celestial-date .grey { color:#ccc; }
+#celestial-date .weekend { color:#f00; }
+#celestial-date .selected { border:1px solid #000; border-radius:3px; }
+#celestial-date .today { background:#ff0; }
+
 
 @media print {
   #celestial-zoomin, #celestial-zoomout, #celestial-form { display: none; }

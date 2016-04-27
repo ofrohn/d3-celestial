@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.5.3',
+  version: '0.5.4',
   container: null,
   data: []
 };
@@ -589,13 +589,14 @@ var euler = {
 euler.init();
 Celestial.euler = function() { return euler; };
 
+
 var horizontal = function(dt, pos, loc) {
-  //dt: datetime, pos: celestial coordinates [lat,lng], loc: location [lat, lng]  
+  //dt: datetime, pos: celestial coordinates [lat,lng], loc: location [lat,lng]  
   var ha = getMST(dt, loc[1]) - pos[0];
   if (ha < 0) ha = ha + 360;
   
   ha  = ha * deg2rad;
-  var lng = pos[1] * deg2rad;
+  var dec = pos[1] * deg2rad;
   var lat = loc[0] * deg2rad;
 
   var alt = Math.asin(Math.sin(dec) * Math.sin(lat) + Math.cos(dec) * Math.cos(lat) * Math.cos(ha));
@@ -604,7 +605,7 @@ var horizontal = function(dt, pos, loc) {
   if (Math.sin(ha) > 0) az = Math.PI * 2 - az;
   
   return [alt / deg2rad, az / deg2rad];
-}
+};
 
 horizontal.inverse = function(dt, hor, loc) {
   
@@ -622,7 +623,7 @@ horizontal.inverse = function(dt, hor, loc) {
   //if (ra < 0) ra = ra + 360;
     
   return [ra, dec / deg2rad];
-}
+};
 
 function getMST(dt, lng)
 {
@@ -744,7 +745,7 @@ var settings = {
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
-  location: true,
+  location: false,
   fullwidth: false,   // Display fullwidth button
   controls: true,     // Display zoom controls
   container: "celestial-map",   // ID of parent element, e.g. div
@@ -1563,6 +1564,7 @@ function setLimits() {
   return res;
 }
 
+
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("class", "loc"),
       dt = new Date(), geopos = [0,0], zone = 0,
@@ -1587,7 +1589,8 @@ function geo(cfg) {
   col.append("span").html("\u00b0");
 
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Local date/time");
-  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dtFormat(dt)).on("change", go);
+  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dtFormat(dt))
+  .on("click", pick).on("change", go);
 
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
   
@@ -1596,6 +1599,14 @@ function geo(cfg) {
     $("datetime").value = dtFormat(dt);
     go();
   }
+
+  function pick() {
+    var dtnew = datetimepicker(dt);
+    dt.setTime(dtnew.getTime());
+    $("datetime").value = dtFormat(dt);
+    //go();
+  }
+
   
   function go() {
     var zenith = [0,0];
@@ -1603,7 +1614,7 @@ function geo(cfg) {
       case "lat": geopos[0] = this.value; break;
       case "lon": geopos[1] = this.value; break;
       case "datetime": dt = dtFormat.parse(this.value); break;
-      case "tz": offset = this.value; break;
+      //case "tz": offset = this.value; break;
     }
     if (geopos[0] !== "" && geopos[1] !== "") {
       zenith = horizontal.inverse(dt, [90, 0], geopos);

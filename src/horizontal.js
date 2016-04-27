@@ -1,10 +1,11 @@
+/* global Celestial, deg2rad, Round */
 var horizontal = function(dt, pos, loc) {
-  //dt: datetime, pos: celestial coordinates [lat,lng], loc: location [lat, lng]  
+  //dt: datetime, pos: celestial coordinates [lat,lng], loc: location [lat,lng]  
   var ha = getMST(dt, loc[1]) - pos[0];
   if (ha < 0) ha = ha + 360;
   
   ha  = ha * deg2rad;
-  var lng = pos[1] * deg2rad;
+  var dec = pos[1] * deg2rad;
   var lat = loc[0] * deg2rad;
 
   var alt = Math.asin(Math.sin(dec) * Math.sin(lat) + Math.cos(dec) * Math.cos(lat) * Math.cos(ha));
@@ -13,7 +14,7 @@ var horizontal = function(dt, pos, loc) {
   if (Math.sin(ha) > 0) az = Math.PI * 2 - az;
   
   return [alt / deg2rad, az / deg2rad];
-}
+};
 
 horizontal.inverse = function(dt, hor, loc) {
   
@@ -31,7 +32,7 @@ horizontal.inverse = function(dt, hor, loc) {
   //if (ra < 0) ra = ra + 360;
     
   return [ra, dec / deg2rad];
-}
+};
 
 function getMST(dt, lng)
 {
