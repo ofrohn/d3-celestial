@@ -49,6 +49,7 @@ canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbin
 #celestial-zoomin:disabled, 
 #celestial-zoomout:disabled { background: rgba(255,255,255,0.0); border:1px solid rgba(153,153,153,0.7); color:rgba(153,153,153,0.7); cursor:default; }
 
+#celestial-date { display:absolute;  }
 #celestial-date .cal { display:block; width:142px; }
 #celestial-date .date { display:inline-block; width:16px; height:16px; color:#000; font: bold 13px/1 sans-serif; text-align:right; vertical-align:middle; padding:2px; }
 #celestial-date .grey { color:#ccc; }
