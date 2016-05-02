@@ -12,6 +12,8 @@ function geo(cfg) {
       go();
     });  
   }
+
+  var dtpick = new datetimepicker();
   
   var col = ctrl.append("div").attr("class", "col");
 
@@ -24,7 +26,7 @@ function geo(cfg) {
 
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Local date/time");
   col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dtFormat(dt))
-  .on("click", pick).on("change", go);
+  .on("click", showpick).on("change", go);
 
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
   
@@ -34,8 +36,11 @@ function geo(cfg) {
     go();
   }
 
+  function showpick() {
+    dtpick.show(this, dt);
+  }
+  
   function pick() {
-    var dtnew = datetimepicker(dt);
     dt.setTime(dtnew.getTime());
     $("datetime").value = dtFormat(dt);
     //go();
