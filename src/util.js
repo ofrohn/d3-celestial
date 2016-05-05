@@ -22,3 +22,19 @@ function stopPropagation(e) {
   else e.cancelBubble = true;
 }
 
+function dateDiff(dt1, dt2, type) {
+  var diff, t, con;
+  diff = dt2.valueOf() - dt1.valueOf();
+  t = type || "d";
+  switch (t) {
+    case 'y': case 'yr': diff /= 31556926080; break;
+    case 'm': case 'mo': diff /= 2629800000; break;
+    case 'd': case 'dy': diff /= 86400000; break;
+    case 'h': case 'hr': diff /= 3600000; break;
+    case 'n': case 'mn': diff /= 60000; break;
+    case 's': case 'sec': diff /= 1000; break;
+    case 'ms': break;    
+  }
+  return Math.floor(diff);
+};
+

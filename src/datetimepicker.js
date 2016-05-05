@@ -4,6 +4,7 @@ var datetimepicker = function(callback) {
       tzFormat = d3.time.format("%Z"),
       tz = [{"−12:00":720}, {"−11:00":660}, {"−10:00":600}, {"−09:30":570}, {"−09:00":540}, {"−08:00":480}, {"−07:00":420}, {"−06:00":360}, {"−05:00":300}, {"−04:30":270}, {"−04:00":240}, {"−03:30":210}, {"−03:00":180}, {"−02:00":120}, {"−01:00":60}, {"±00:00":0}, {"+01:00":-60}, {"+02:00":-120}, {"+03:00":-180}, {"+03:30":-210}, {"+04:00":-240}, {"+04:30":-270}, {"+05:00":-300}, {"+05:30":-330}, {"+05:45":-345}, {"+06:00":-360}, {"+06:30":-390}, {"+07:00":-420}, {"+08:00":-480}, {"+08:30":-510}, {"+08:45":-525}, {"+09:00":-540}, {"+09:30":-570}, {"+10:00":-600}, {"+10:30":-630}, {"+11:00":-660}, {"+12:00":-720}, {"+12:45":-765}, {"+13:00":-780}, {"+14:00":-840}],
       months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      days = ["Su", "M", "T", "W", "Th", "F", "Sa"],
       years = getYears(date);
     
   var cal = d3.select("#celestial-form").append("div").attr("id", "celestial-date");
@@ -12,27 +13,31 @@ var datetimepicker = function(callback) {
   yrSel();
   nav("right");
   
-  var days = cal.append("div").attr("id", "cal");
+  var cal = cal.append("div").attr("id", "cal");
 
   daySel(date.getFullYear(), date.getMonth());
   
   
   function daySel(yr, mo) {
     var curdt = new Date(yr, mo, 1),
-        days = d3.select("#cal");
+        cal = d3.select("#cal"),
+        today = new Date();
         
     curdt.setDate(curdt.getDate() - curdt.getDay());
-    var nd = days.node();
+    var nd = cal.node();
     while (nd.firstChild) nd.removeChild(nd.firstChild);
     
-    for (var i=0; i<35; i++) {
-      curmon = curdt.getMonth(), curday = curdt.getDay(), curdate = curdt.getDate();
-      days.append("div").classed({
+    for (var i=0; i<7; i++) {
+      cal.append("div").classed({"date": true, "weekday": true}).html(days[i]);
+    }
+    for (var i=0; i<42; i++) {
+      var curmon = curdt.getMonth(), curday = curdt.getDay();
+      cal.append("div").classed({
         "date": true, 
         "grey": curmon !== mo,
         "weekend": curmon === mo && (curday === 0 || curday === 6),
-        "today": curmon === mo && curdate === new Date().getDate(),
-        "selected": curmon === mo && curdate === date.getDate()
+        "today": dateDiff(curdt, today) === 0,
+        "selected": dateDiff(curdt, date) === 0
       }).on("click", pick)
       .html(curdt.getDate().toString());
       
@@ -72,11 +77,21 @@ var datetimepicker = function(callback) {
       function() { return (dir === "left") ? "\u25C0" : "\u25B6"; 
     })
     .on("click", function() {
-      if (dir === "left")
-        date.setDate(date.getDate()-1);
-      else
-        date.setDate(date.getDate()+1);
-      navigate();
+      mon = $("mon"), yr = $("yr"),
+      year = yr[yr.selectedIndex].value;
+      
+      if (dir === "left") {
+        if (mon.selectedIndex === 0) {
+          mon.selectedIndex = 11;
+          yr.selectedIndex--;
+        } else mon.selectedIndex--;
+      } else {
+        if (mon.selectedIndex === 11) {
+          mon.selectedIndex = 0;
+          yr.selectedIndex++;
+        } else mon.selectedIndex++;
+      }
+      daySel(yr[yr.selectedIndex].value, mon.selectedIndex);
     })
   }
   
@@ -98,11 +113,13 @@ var datetimepicker = function(callback) {
   function getYears(dt) {
     var y0 = dt.getFullYear(), res = [];
     for (var i=y0-10; i<=y0+10; i++) res.push(i);
-    return res
+    return res;
   }  
   
   function navigate() {
     //yr, mon, back, fwd
+    daySel(date.getFullYear(), date.getMonth());
+    
   }
   
   function settimezone(offset) {
@@ -116,12 +133,15 @@ var datetimepicker = function(callback) {
         src = $("datepick"),
         left = src.offsetLeft + src.offsetWidth - nd.offsetWidth,
         top = src.offsetTop - nd.offsetHeight;
-    
-    date.setTime(dt.valueOf());
-    daySel(date.getFullYear(), date.getMonth());
-    
-    d3.select("#celestial-date").style({"top": px(top), "left": px(left), "opacity": 1});  
-    return dt;
+  
+    if (nd.offsetTop === -9999) {
+      date.setTime(dt.valueOf());
+      daySel(date.getFullYear(), date.getMonth());
+      d3.select("#celestial-date").style({"top": px(top), "left": px(left), "opacity": 1});  
+    } else {
+      nd.style.opacity = 0;
+      setTimeout(function() { $("celestial-date").style.top = px(-9999); }, 600);
+    }
   }
   
   function pick() {

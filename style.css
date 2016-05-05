@@ -56,8 +56,9 @@ canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbin
 #celestial-date #yr, #celestial-date #mon { margin: 2px 3px;  vertical-align:middle; }
 #celestial-date #left, #celestial-date #right { display:inline-block; font-size:24px; line-height:0; vertical-align:middle; margin: 0; cursor:pointer; }
 #celestial-date #cal { display:inline-block; width:142px; margin:0 4px;  }
-#celestial-date .date { display:inline-block; width:16px; height:16px; color:#000; font: bold 13px/1 sans-serif; text-align:right; vertical-align:middle; padding:2px; cursor:pointer; }
+#celestial-date .date { display:inline-block; width:14px; height:14px; border:1px solid #fff; color:#000; font: bold 13px/1 sans-serif; text-align:right; vertical-align:middle; padding:2px; cursor:pointer; }
 #celestial-date .grey { color:#ccc; }
+#celestial-date .weekday { color:#999; fomt-sixe:11px; }
 #celestial-date .weekend { color:#f00; }
 #celestial-date .selected { border:1px solid #000; border-radius:3px; }
 #celestial-date .today { background:#ff0; }
