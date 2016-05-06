@@ -4,16 +4,11 @@ function geo(cfg) {
       dt = new Date(), geopos = [0,0], zone = 0,
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S %Z");
   
-  if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition( function(pos) {
-      geopos = [Round(pos.coords.latitude, 4), Round(pos.coords.longitude, 4)];
-      d3.select("#lat").attr("value", geopos[0]);
-      d3.select("#lon").attr("value", geopos[1]);
-      go();
-    });  
-  }
 
-  var dtpick = new datetimepicker();
+  var dtpick = new datetimepicker( function(date) { 
+    $("datetime").value = dtFormat(date); 
+    go(); 
+  });
   
   var col = ctrl.append("div").attr("class", "col");
 
@@ -24,6 +19,10 @@ function geo(cfg) {
   col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change", go);
   col.append("span").html("\u00b0");
 
+  if ("geolocation" in navigator) {
+    col.append("input").attr("type", "button").attr("value", "Here").attr("id", "here").on("click", here);
+  }
+  
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Local date/time");
   col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dtFormat(dt))
   .on("click", showpick).on("change", go);
@@ -37,6 +36,16 @@ function geo(cfg) {
     go();
   }
 
+  function here() {
+    navigator.geolocation.getCurrentPosition( function(pos) {
+      geopos = [Round(pos.coords.latitude, 4), Round(pos.coords.longitude, 4)];
+      d3.select("#lat").attr("value", geopos[0]);
+      d3.select("#lon").attr("value", geopos[1]);
+      go();
+    });  
+  }
+  
+  
   function showpick() {
     dtpick.show(dt);
   }
@@ -50,12 +59,12 @@ function geo(cfg) {
   
   function go() {
     var zenith = [0,0];
-    switch (this.id) {
-      case "lat": geopos[0] = this.value; break;
-      case "lon": geopos[1] = this.value; break;
-      case "datetime": dt = dtFormat.parse(this.value); break;
-      //case "tz": offset = this.value; break;
-    }
+    //switch (this.id) {
+    geopos[0] = parseFloat($("lat").value); 
+    geopos[1] = parseFloat($("lon").value); 
+    dt = dtFormat.parse($("datetime").value);
+    //case "tz": offset = this.value; break;
+
     if (geopos[0] !== "" && geopos[1] !== "") {
       zenith = horizontal.inverse(dt, [90, 0], geopos);
       config.center = zenith;

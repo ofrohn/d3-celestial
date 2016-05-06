@@ -4,8 +4,9 @@ var datetimepicker = function(callback) {
       tzFormat = d3.time.format("%Z"),
       tz = [{"−12:00":720}, {"−11:00":660}, {"−10:00":600}, {"−09:30":570}, {"−09:00":540}, {"−08:00":480}, {"−07:00":420}, {"−06:00":360}, {"−05:00":300}, {"−04:30":270}, {"−04:00":240}, {"−03:30":210}, {"−03:00":180}, {"−02:00":120}, {"−01:00":60}, {"±00:00":0}, {"+01:00":-60}, {"+02:00":-120}, {"+03:00":-180}, {"+03:30":-210}, {"+04:00":-240}, {"+04:30":-270}, {"+05:00":-300}, {"+05:30":-330}, {"+05:45":-345}, {"+06:00":-360}, {"+06:30":-390}, {"+07:00":-420}, {"+08:00":-480}, {"+08:30":-510}, {"+08:45":-525}, {"+09:00":-540}, {"+09:30":-570}, {"+10:00":-600}, {"+10:30":-630}, {"+11:00":-660}, {"+12:00":-720}, {"+12:45":-765}, {"+13:00":-780}, {"+14:00":-840}],
       months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-      days = ["Su", "M", "T", "W", "Th", "F", "Sa"],
-      years = getYears(date);
+      days = ["Su", "M", "Tu", "W", "Th", "F", "Sa"],
+      years = getYears(date),
+      dateFormat = d3.time.format("%Y-%m-%d");
     
   var cal = d3.select("#celestial-form").append("div").attr("id", "celestial-date");
   nav("left");
@@ -22,23 +23,25 @@ var datetimepicker = function(callback) {
     var curdt = new Date(yr, mo, 1),
         cal = d3.select("#cal"),
         today = new Date();
-        
+    yr = parseInt(yr);   
+    mo = parseInt(mo);   
     curdt.setDate(curdt.getDate() - curdt.getDay());
     var nd = cal.node();
     while (nd.firstChild) nd.removeChild(nd.firstChild);
     
-    for (var i=0; i<7; i++) {
+    /*for (var i=0; i<7; i++) {
       cal.append("div").classed({"date": true, "weekday": true}).html(days[i]);
-    }
+    }*/
     for (var i=0; i<42; i++) {
-      var curmon = curdt.getMonth(), curday = curdt.getDay();
+      var curmon = curdt.getMonth(), curday = curdt.getDay(), curid = dateFormat(curdt);
       cal.append("div").classed({
         "date": true, 
         "grey": curmon !== mo,
         "weekend": curmon === mo && (curday === 0 || curday === 6),
         "today": dateDiff(curdt, today) === 0,
         "selected": dateDiff(curdt, date) === 0
-      }).on("click", pick)
+      }).attr("id", curid)
+      .on("click", pick)
       .html(curdt.getDate().toString());
       
       curdt.setDate(curdt.getDate()+1);
@@ -58,6 +61,17 @@ var datetimepicker = function(callback) {
     sel.property("selectedIndex", selected);
   }
 
+  function selectYr(yr) {
+    var sel = $("yr");
+    for (var i=0; i<sel.childNodes.length; i++) {
+      if (sel.childNodes[i].value == yr) {
+        sel.selectedIndex = i;
+        break;
+      }
+    }
+    
+  }
+  
   function monSel() { 
     var sel = cal.append("select").attr("id", "mon").on("change", navigate),
         selected = 0,
@@ -77,8 +91,7 @@ var datetimepicker = function(callback) {
       function() { return (dir === "left") ? "\u25C0" : "\u25B6"; 
     })
     .on("click", function() {
-      mon = $("mon"), yr = $("yr"),
-      year = yr[yr.selectedIndex].value;
+      mon = $("mon"), yr = $("yr");
       
       if (dir === "left") {
         if (mon.selectedIndex === 0) {
@@ -91,7 +104,7 @@ var datetimepicker = function(callback) {
           yr.selectedIndex++;
         } else mon.selectedIndex++;
       }
-      daySel(yr[yr.selectedIndex].value, mon.selectedIndex);
+      daySel(yr.value, mon.value);
     })
   }
   
@@ -117,9 +130,8 @@ var datetimepicker = function(callback) {
   }  
   
   function navigate() {
-    //yr, mon, back, fwd
-    daySel(date.getFullYear(), date.getMonth());
-    
+    mon = $("mon"), yr = $("yr");
+    daySel(yr.value, mon.value);
   }
   
   function settimezone(offset) {
@@ -132,7 +144,7 @@ var datetimepicker = function(callback) {
     var nd = $("celestial-date"),
         src = $("datepick"),
         left = src.offsetLeft + src.offsetWidth - nd.offsetWidth,
-        top = src.offsetTop - nd.offsetHeight;
+        top = src.offsetTop - nd.offsetHeight - 1;
   
     if (nd.offsetTop === -9999) {
       date.setTime(dt.valueOf());
@@ -145,8 +157,13 @@ var datetimepicker = function(callback) {
   }
   
   function pick() {
+    //mon = $("mon").value, yr = $("yr").value,
+    //dy = parseInt(this.innerHTML);
+    date = dateFormat.parse(this.id); 
+    daySel(date.getFullYear(), date.getMonth());
+    selectYr(date.getFullYear());
+    $("mon").selectedIndex = date.getMonth();
     callback(date);
-    
   } 
   //return datetimepicker;
 }
