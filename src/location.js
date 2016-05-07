@@ -25,10 +25,15 @@ function geo(cfg) {
   
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Local date/time");
   col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dtFormat(dt))
-  .on("click", showpick).on("change", go);
+  .on("click", showpick).on("input", function() { 
+    this.value = dtFormat(dt); 
+    if (!dtpick.isVisible()) showpick(); 
+  });
   col.append("button").attr("id", "datepick").html("&#x1F4C5;").on("click", showpick);
   
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
+  
+  //d3.select(window).on("click", function() { if (dtpick.isVisible()) dtpick.hide(); });
   
   function now() {
     dt.setTime(Date.now());
@@ -48,6 +53,7 @@ function geo(cfg) {
   
   function showpick() {
     dtpick.show(dt);
+    return false;
   }
   
   function pick() {

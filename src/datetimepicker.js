@@ -8,16 +8,17 @@ var datetimepicker = function(callback) {
       years = getYears(date),
       dateFormat = d3.time.format("%Y-%m-%d");
     
-  var cal = d3.select("#celestial-form").append("div").attr("id", "celestial-date");
+  var picker = d3.select("#celestial-form").append("div").attr("id", "celestial-date");
   nav("left");
   monSel();
   yrSel();
   nav("right");
   
-  var cal = cal.append("div").attr("id", "cal");
+  var cal = picker.append("div").attr("id", "cal");
 
   daySel(date.getFullYear(), date.getMonth());
   
+  timeSel();
   
   function daySel(yr, mo) {
     var curdt = new Date(yr, mo, 1),
@@ -49,7 +50,7 @@ var datetimepicker = function(callback) {
   }
 
   function yrSel() { 
-    var sel = cal.append("select").attr("id", "yr").on("change", navigate),
+    var sel = picker.append("select").attr("id", "yr").on("change", navigate),
         selected = 0,
         year = date.getFullYear();
         
@@ -73,7 +74,7 @@ var datetimepicker = function(callback) {
   }
   
   function monSel() { 
-    var sel = cal.append("select").attr("id", "mon").on("change", navigate),
+    var sel = picker.append("select").attr("id", "mon").on("change", navigate),
         selected = 0,
         month = date.getMonth();
     
@@ -87,7 +88,7 @@ var datetimepicker = function(callback) {
   }
   
   function nav(dir) {
-    var lnk = cal.append("div").attr("id", dir).html (
+    var lnk = picker.append("div").attr("id", dir).html (
       function() { return (dir === "left") ? "\u25C0" : "\u25B6"; 
     })
     .on("click", function() {
@@ -107,10 +108,21 @@ var datetimepicker = function(callback) {
       daySel(yr.value, mon.value);
     })
   }
+
+  function timeSel() { 
+    picker.append("input").attr("type", "number").attr("id", "hr").attr("title", "Hours").attr("max", "23").attr("min", "0").attr("step", "1").attr("value", date.getHours()).on("change", pick);
+    picker.append("span").html(":");
+
+    picker.append("input").attr("type", "number").attr("id", "min").attr("title", "Minutes").attr("max", "59").attr("min", "0").attr("step", "1").attr("value", date.getMinutes()).on("change", pick);
+    picker.append("span").html(":");
+    
+    picker.append("input").attr("type", "number").attr("id", "sec").attr("title", "Seconds").attr("max", "59").attr("min", "0").attr("step", "1").attr("value", date.getSeconds()).on("change", pick);
+
+  }
   
   function tzSel() { 
-    cal.append("label").attr("title", "Time zone offset from UTC").attr("for", "tz").html(" Time zone");
-    var sel = cal.append("select").attr("id", "tz").on("change", settimezone),
+    //picker.append("label").attr("title", "Time zone offset from UTC").attr("for", "tz").html(" Time zone");
+    var sel = picker.append("select").attr("id", "tz").on("change", settimezone),
         selected = 0,
         timezone = dt.getTimezoneOffset();
     sel.selectAll('option').data(tz).enter().append('option')
@@ -151,18 +163,36 @@ var datetimepicker = function(callback) {
       daySel(date.getFullYear(), date.getMonth());
       d3.select("#celestial-date").style({"top": px(top), "left": px(left), "opacity": 1});  
     } else {
-      nd.style.opacity = 0;
-      setTimeout(function() { $("celestial-date").style.top = px(-9999); }, 600);
+      vanish();
     }
+    return false;
+  }
+  
+  this.isVisible = function() {
+    return $("celestial-date").offsetTop !== -9999;
+  }
+
+  this.hide = function() {
+    vanish();
+    return false;
+  }
+  
+  function vanish() {
+    $("celestial-date").style.opacity = 0;
+    setTimeout(function() { $("celestial-date").style.top = px(-9999); }, 600);    
   }
   
   function pick() {
-    //mon = $("mon").value, yr = $("yr").value,
-    //dy = parseInt(this.innerHTML);
-    date = dateFormat.parse(this.id); 
-    daySel(date.getFullYear(), date.getMonth());
-    selectYr(date.getFullYear());
-    $("mon").selectedIndex = date.getMonth();
+    var h = $("hr").value, m = $("min").value,
+        s = $("sec").value;
+    if (this.id && this.id.search(/^\d/) !== -1) {
+      date = dateFormat.parse(this.id); 
+      var yr = date.getFullYear(), mo = date.getMonth();
+      daySel(yr, mo);
+      selectYr(yr);
+      $("mon").selectedIndex = mo;
+    }
+    date.setHours(h, m, s);    
     callback(date);
   } 
   //return datetimepicker;

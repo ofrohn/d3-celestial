@@ -54,8 +54,9 @@ canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbin
 #celestial-zoomout:disabled { background: rgba(255,255,255,0.0); border:1px solid rgba(153,153,153,0.7); color:rgba(153,153,153,0.7); cursor:default; }
 
 #celestial-date { position:absolute; top:-9999px; width:150px; text-align:center; border:1px solid #000; background:#fff; opacity:0; transition:.6s ease-in opacity; }
-#celestial-date #yr, #celestial-date #mon { margin: 2px 3px;  vertical-align:middle; }
+#celestial-date #yr, #celestial-date #mon { margin: 2px 3px; vertical-align:middle; }
 #celestial-date #left, #celestial-date #right { display:inline-block; font-size:24px; line-height:0; vertical-align:middle; margin: 0; cursor:pointer; }
+#celestial-date #hr, #celestial-date #min, #celestial-date #sec { margin: 0 1px 2px 0; width:36px; }
 #celestial-date #cal { display:inline-block; width:142px; margin:0 4px;  }
 #celestial-date .date { display:inline-block; width:14px; height:14px; border:1px solid #fff; color:#000; font: bold 13px/1 sans-serif; text-align:right; vertical-align:middle; padding:2px; cursor:pointer; }
 #celestial-date .grey { color:#ccc; }
