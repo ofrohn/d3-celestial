@@ -8,6 +8,21 @@ var shell = require('shelljs/make'),
     begin = "!(function() {",
     end = "this.Celestial = Celestial;\n})();",
     filename = './celestial',
+    filelist = [
+    './src/celestial.js', 
+    './src/projection.js', 
+    './src/transform.js', 
+    './src/horizontal.js', 
+    './src/add.js',
+    './src/get.js',
+    './src/config.js', 
+    './src/canvas.js',
+    './src/util.js',
+    './src/form.js',
+    './src/location.js',
+    './src/datetimepicker.js',
+    './lib/d3.geo.zoom.js'
+    ],
     FINAL = true;
 
     
@@ -50,20 +65,7 @@ target.build = function() {
   echo('V' + Celestial.version);
   if (!FINAL) filename += Celestial.version;
   
-  var file = cat([
-    './src/celestial.js', 
-    './src/projection.js', 
-    './src/transform.js', 
-    './src/horizontal.js', 
-    './src/add.js',
-    './src/get.js',
-    './src/config.js', 
-    './src/canvas.js',
-    './src/util.js',
-    './src/form.js',
-    './src/location.js',
-    './lib/d3.geo.zoom.js'
-  ]);
+  var file = cat(filelist);
   file = copy + begin + file.replace(/\/\* global.*/g, '') + end;
   file.to(filename + '.js');
 
