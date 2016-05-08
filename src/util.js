@@ -1,7 +1,7 @@
 
 function $(id) { return document.getElementById(id); }
 function px(n) { return n + "px"; } 
-function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
+//function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
 function sign(x) { return x ? x < 0 ? -1 : 1 : 0; }
 
 function has(o, key) { return o !== null && hasOwnProperty.call(o, key); }
@@ -36,5 +36,5 @@ function dateDiff(dt1, dt2, type) {
     case 'ms': break;    
   }
   return Math.floor(diff);
-};
+}
 

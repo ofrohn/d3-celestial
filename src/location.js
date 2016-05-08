@@ -1,4 +1,4 @@
-/* global Celestial, horizontal, datetimepicker, config, Round, $ */
+/* global Celestial, horizontal, datetimepicker, config, $ */
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("class", "loc"),
       dt = new Date(), geopos = [0,0], zone = 0,
@@ -29,7 +29,7 @@ function geo(cfg) {
     this.value = dtFormat(dt); 
     if (!dtpick.isVisible()) showpick(); 
   });
-  col.append("button").attr("id", "datepick").html("&#x1F4C5;").on("click", showpick);
+  col.append("div").attr("id", "datepick").html("&#x1F4C5;").on("click", showpick);
   
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
   
@@ -43,7 +43,7 @@ function geo(cfg) {
 
   function here() {
     navigator.geolocation.getCurrentPosition( function(pos) {
-      geopos = [Round(pos.coords.latitude, 4), Round(pos.coords.longitude, 4)];
+      geopos = [pos.coords.latitude.toFixed(4), pos.coords.longitude.toFixed(4)];
       d3.select("#lat").attr("value", geopos[0]);
       d3.select("#lon").attr("value", geopos[1]);
       go();
@@ -55,13 +55,6 @@ function geo(cfg) {
     dtpick.show(dt);
     return false;
   }
-  
-  function pick() {
-    dt.setTime(dtnew.getTime());
-    $("datetime").value = dtFormat(dt);
-    //go();
-  }
-
   
   function go() {
     var zenith = [0,0];
@@ -77,5 +70,7 @@ function geo(cfg) {
       Celestial.rotate(config);
     }
   }
+
+  setTimeout(go, 1000);  
 }
 

@@ -1,4 +1,4 @@
-/* global Celestial, $, px, isNumber, Round */
+/* global Celestial, $, px, has, isNumber */
 //display settings form
 
 //test with onchange and set cfg
@@ -38,14 +38,15 @@ function form(cfg) {
      .attr("value", function (d) { return d.o; })
      .text(function (d) { return d.n; });
   sel.property("selectedIndex", selected);
-  col.append("br");
-  
-  col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
-  col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
-  col.append("span").attr("id", "cxunit").html("h");
-  
-  col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
-  col.append("span").html("\u00b0");
+  if (!cfg.location) {
+    col.append("br");
+    col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
+    col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
+    col.append("span").attr("id", "cxunit").html("h");
+    
+    col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
+    col.append("span").html("\u00b0");
+  }
   if (cfg.fullwidth)
     col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Make Full Width \u25ba").on("click", function() {
     $("sidebar-wrapper").style.display = "none";
@@ -324,10 +325,10 @@ function setUnit(trans, old) {
   
   if (old) {
     if (trans === "equatorial" && old !== "equatorial") {
-      cx.value = Round(cx.value/15, 1);
+      cx.value = (cx.value/15).toFixed(1);
       if (cx.value < 0) cx.value += 24;
     } else if (trans !== "equatorial" && old === "equatorial") {
-      cx.value = Round(cx.value * 15, 1);
+      cx.value = (cx.value * 15).toFixed(1);
       if (cx.value > 180) cx.value -= 360;
     }
   }
@@ -348,10 +349,10 @@ function setCenter(ctr, trans) {
   
   if (ctr === null) ctr = [0,0]; 
   //cfg.center = ctr; 
-  if (trans !== "equatorial") cx.value = Round(ctr[0], 1); 
-  else cx.value = ctr[0] < 0 ? Round(ctr[0] / 15 + 24, 1) : Round(ctr[0] / 15, 1); 
+  if (trans !== "equatorial") cx.value = ctr[0].toFixed(1); 
+  else cx.value = ctr[0] < 0 ? (ctr[0] / 15 + 24).toFixed(1) : (ctr[0] / 15).toFixed(1); 
   
-  cy.value = Round(ctr[1], 1);
+  cy.value = ctr[1].toFixed(1);
 }
 
 // Set max input limits depending on data

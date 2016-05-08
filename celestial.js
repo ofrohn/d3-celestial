@@ -614,7 +614,7 @@ horizontal.inverse = function(dt, hor, loc) {
   var lat = loc[0] * deg2rad;
    
   var dec = Math.asin((Math.sin(alt) * Math.sin(lat)) + (Math.cos(alt) * Math.cos(lat) * Math.cos(az)));
-  var ha = Round((Math.sin(alt) - (Math.sin(dec) * Math.sin(lat))) / (Math.cos(dec) * Math.cos(lat)), 6);
+  var ha = ((Math.sin(alt) - (Math.sin(dec) * Math.sin(lat))) / (Math.cos(dec) * Math.cos(lat))).toFixed(6);
   
   ha = Math.acos(ha);
   ha  = ha / deg2rad;
@@ -1151,7 +1151,7 @@ canvas.text = function() {
 
 function $(id) { return document.getElementById(id); }
 function px(n) { return n + "px"; } 
-function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
+//function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
 function sign(x) { return x ? x < 0 ? -1 : 1 : 0; }
 
 function has(o, key) { return o !== null && hasOwnProperty.call(o, key); }
@@ -1170,6 +1170,22 @@ function attach(node, event, func) {
 function stopPropagation(e) {
   if (typeof e.stopPropagation != "undefined") e.stopPropagation();
   else e.cancelBubble = true;
+}
+
+function dateDiff(dt1, dt2, type) {
+  var diff, t, con;
+  diff = dt2.valueOf() - dt1.valueOf();
+  t = type || "d";
+  switch (t) {
+    case 'y': case 'yr': diff /= 31556926080; break;
+    case 'm': case 'mo': diff /= 2629800000; break;
+    case 'd': case 'dy': diff /= 86400000; break;
+    case 'h': case 'hr': diff /= 3600000; break;
+    case 'n': case 'mn': diff /= 60000; break;
+    case 's': case 'sec': diff /= 1000; break;
+    case 'ms': break;    
+  }
+  return Math.floor(diff);
 }
 
 
@@ -1213,14 +1229,15 @@ function form(cfg) {
      .attr("value", function (d) { return d.o; })
      .text(function (d) { return d.n; });
   sel.property("selectedIndex", selected);
-  col.append("br");
-  
-  col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
-  col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
-  col.append("span").attr("id", "cxunit").html("h");
-  
-  col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
-  col.append("span").html("\u00b0");
+  if (!cfg.location) {
+    col.append("br");
+    col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
+    col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
+    col.append("span").attr("id", "cxunit").html("h");
+    
+    col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
+    col.append("span").html("\u00b0");
+  }
   if (cfg.fullwidth)
     col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Make Full Width \u25ba").on("click", function() {
     $("sidebar-wrapper").style.display = "none";
@@ -1499,10 +1516,10 @@ function setUnit(trans, old) {
   
   if (old) {
     if (trans === "equatorial" && old !== "equatorial") {
-      cx.value = Round(cx.value/15, 1);
+      cx.value = (cx.value/15).toFixed(1);
       if (cx.value < 0) cx.value += 24;
     } else if (trans !== "equatorial" && old === "equatorial") {
-      cx.value = Round(cx.value * 15, 1);
+      cx.value = (cx.value * 15).toFixed(1);
       if (cx.value > 180) cx.value -= 360;
     }
   }
@@ -1523,10 +1540,10 @@ function setCenter(ctr, trans) {
   
   if (ctr === null) ctr = [0,0]; 
   //cfg.center = ctr; 
-  if (trans !== "equatorial") cx.value = Round(ctr[0], 1); 
-  else cx.value = ctr[0] < 0 ? Round(ctr[0] / 15 + 24, 1) : Round(ctr[0] / 15, 1); 
+  if (trans !== "equatorial") cx.value = ctr[0].toFixed(1); 
+  else cx.value = ctr[0] < 0 ? (ctr[0] / 15 + 24).toFixed(1) : (ctr[0] / 15).toFixed(1); 
   
-  cy.value = Round(ctr[1], 1);
+  cy.value = ctr[1].toFixed(1);
 }
 
 // Set max input limits depending on data
@@ -1570,14 +1587,11 @@ function geo(cfg) {
       dt = new Date(), geopos = [0,0], zone = 0,
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S %Z");
   
-  if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition( function(pos) {
-      geopos = [Round(pos.coords.latitude, 4), Round(pos.coords.longitude, 4)];
-      d3.select("#lat").attr("value", geopos[0]);
-      d3.select("#lon").attr("value", geopos[1]);
-      go();
-    });  
-  }
+
+  var dtpick = new datetimepicker( function(date) { 
+    $("datetime").value = dtFormat(date); 
+    go(); 
+  });
   
   var col = ctrl.append("div").attr("class", "col");
 
@@ -1588,11 +1602,21 @@ function geo(cfg) {
   col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change", go);
   col.append("span").html("\u00b0");
 
+  if ("geolocation" in navigator) {
+    col.append("input").attr("type", "button").attr("value", "Here").attr("id", "here").on("click", here);
+  }
+  
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Local date/time");
   col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dtFormat(dt))
-  .on("click", pick).on("change", go);
-
+  .on("click", showpick).on("input", function() { 
+    this.value = dtFormat(dt); 
+    if (!dtpick.isVisible()) showpick(); 
+  });
+  col.append("button").attr("id", "datepick").html("&#x1F4C5;").on("click", showpick);
+  
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
+  
+  //d3.select(window).on("click", function() { if (dtpick.isVisible()) dtpick.hide(); });
   
   function now() {
     dt.setTime(Date.now());
@@ -1600,22 +1624,29 @@ function geo(cfg) {
     go();
   }
 
-  function pick() {
-    var dtnew = datetimepicker(dt);
-    dt.setTime(dtnew.getTime());
-    $("datetime").value = dtFormat(dt);
-    //go();
+  function here() {
+    navigator.geolocation.getCurrentPosition( function(pos) {
+      geopos = [pos.coords.latitude.toFixed(4), pos.coords.longitude.toFixed(4)];
+      d3.select("#lat").attr("value", geopos[0]);
+      d3.select("#lon").attr("value", geopos[1]);
+      go();
+    });  
   }
-
+  
+  
+  function showpick() {
+    dtpick.show(dt);
+    return false;
+  }
   
   function go() {
     var zenith = [0,0];
-    switch (this.id) {
-      case "lat": geopos[0] = this.value; break;
-      case "lon": geopos[1] = this.value; break;
-      case "datetime": dt = dtFormat.parse(this.value); break;
-      //case "tz": offset = this.value; break;
-    }
+    //switch (this.id) {
+    geopos[0] = parseFloat($("lat").value); 
+    geopos[1] = parseFloat($("lon").value); 
+    dt = dtFormat.parse($("datetime").value);
+    //case "tz": offset = this.value; break;
+
     if (geopos[0] !== "" && geopos[1] !== "") {
       zenith = horizontal.inverse(dt, [90, 0], geopos);
       config.center = zenith;

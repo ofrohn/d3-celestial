@@ -1,4 +1,4 @@
-
+/* global dateDiff, $, px */
 var datetimepicker = function(callback) {
   var date = new Date(), 
       tzFormat = d3.time.format("%Z"),
@@ -88,11 +88,11 @@ var datetimepicker = function(callback) {
   }
   
   function nav(dir) {
-    var lnk = picker.append("div").attr("id", dir).html (
+    var lnk = picker.append("div").attr("id", dir).html(
       function() { return (dir === "left") ? "\u25C0" : "\u25B6"; 
     })
     .on("click", function() {
-      mon = $("mon"), yr = $("yr");
+      var mon = $("mon"), yr = $("yr");
       
       if (dir === "left") {
         if (mon.selectedIndex === 0) {
@@ -106,7 +106,7 @@ var datetimepicker = function(callback) {
         } else mon.selectedIndex++;
       }
       daySel(yr.value, mon.value);
-    })
+    });
   }
 
   function timeSel() { 
@@ -124,7 +124,7 @@ var datetimepicker = function(callback) {
     //picker.append("label").attr("title", "Time zone offset from UTC").attr("for", "tz").html(" Time zone");
     var sel = picker.append("select").attr("id", "tz").on("change", settimezone),
         selected = 0,
-        timezone = dt.getTimezoneOffset();
+        timezone = date.getTimezoneOffset();
     sel.selectAll('option').data(tz).enter().append('option')
        .attr("value", function (d, i) { 
          var k = Object.keys(d)[0];
@@ -142,7 +142,7 @@ var datetimepicker = function(callback) {
   }  
   
   function navigate() {
-    mon = $("mon"), yr = $("yr");
+    var mon = $("mon"), yr = $("yr");
     daySel(yr.value, mon.value);
   }
   
@@ -166,16 +166,16 @@ var datetimepicker = function(callback) {
       vanish();
     }
     return false;
-  }
+  };
   
   this.isVisible = function() {
     return $("celestial-date").offsetTop !== -9999;
-  }
+  };
 
   this.hide = function() {
     vanish();
     return false;
-  }
+  };
   
   function vanish() {
     $("celestial-date").style.opacity = 0;
@@ -196,4 +196,4 @@ var datetimepicker = function(callback) {
     callback(date);
   } 
   //return datetimepicker;
-}
+};
