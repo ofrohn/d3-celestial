@@ -3,7 +3,7 @@ var datetimepicker = function(callback) {
   var date = new Date(), 
       tzFormat = d3.time.format("%Z"),
       tz = [{"−12:00":720}, {"−11:00":660}, {"−10:00":600}, {"−09:30":570}, {"−09:00":540}, {"−08:00":480}, {"−07:00":420}, {"−06:00":360}, {"−05:00":300}, {"−04:30":270}, {"−04:00":240}, {"−03:30":210}, {"−03:00":180}, {"−02:00":120}, {"−01:00":60}, {"±00:00":0}, {"+01:00":-60}, {"+02:00":-120}, {"+03:00":-180}, {"+03:30":-210}, {"+04:00":-240}, {"+04:30":-270}, {"+05:00":-300}, {"+05:30":-330}, {"+05:45":-345}, {"+06:00":-360}, {"+06:30":-390}, {"+07:00":-420}, {"+08:00":-480}, {"+08:30":-510}, {"+08:45":-525}, {"+09:00":-540}, {"+09:30":-570}, {"+10:00":-600}, {"+10:30":-630}, {"+11:00":-660}, {"+12:00":-720}, {"+12:45":-765}, {"+13:00":-780}, {"+14:00":-840}],
-      months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
       days = ["Su", "M", "Tu", "W", "Th", "F", "Sa"],
       years = getYears(date),
       dateFormat = d3.time.format("%Y-%m-%d");
@@ -19,6 +19,7 @@ var datetimepicker = function(callback) {
   daySel(date.getFullYear(), date.getMonth());
   
   timeSel();
+  tzSel();
   
   function daySel(yr, mo) {
     var curdt = new Date(yr, mo, 1),
@@ -50,7 +51,7 @@ var datetimepicker = function(callback) {
   }
 
   function yrSel() { 
-    var sel = picker.append("select").attr("id", "yr").on("change", navigate),
+    var sel = picker.append("select").attr("title", "Year").attr("id", "yr").on("change", navigate),
         selected = 0,
         year = date.getFullYear();
         
@@ -74,7 +75,7 @@ var datetimepicker = function(callback) {
   }
   
   function monSel() { 
-    var sel = picker.append("select").attr("id", "mon").on("change", navigate),
+    var sel = picker.append("select").attr("title", "Month").attr("id", "mon").on("change", navigate),
         selected = 0,
         month = date.getMonth();
     
@@ -111,18 +112,17 @@ var datetimepicker = function(callback) {
 
   function timeSel() { 
     picker.append("input").attr("type", "number").attr("id", "hr").attr("title", "Hours").attr("max", "23").attr("min", "0").attr("step", "1").attr("value", date.getHours()).on("change", pick);
-    picker.append("span").html(":");
+    //picker.append("span").html(":");
 
     picker.append("input").attr("type", "number").attr("id", "min").attr("title", "Minutes").attr("max", "59").attr("min", "0").attr("step", "1").attr("value", date.getMinutes()).on("change", pick);
-    picker.append("span").html(":");
+    //picker.append("span").html(":");
     
     picker.append("input").attr("type", "number").attr("id", "sec").attr("title", "Seconds").attr("max", "59").attr("min", "0").attr("step", "1").attr("value", date.getSeconds()).on("change", pick);
 
   }
   
   function tzSel() { 
-    //picker.append("label").attr("title", "Time zone offset from UTC").attr("for", "tz").html(" Time zone");
-    var sel = picker.append("select").attr("id", "tz").on("change", settimezone),
+    var sel = picker.append("select").attr("title", "Time zone offset from UTC").attr("id", "tz").on("change", settimezone),
         selected = 0,
         timezone = date.getTimezoneOffset();
     sel.selectAll('option').data(tz).enter().append('option')
