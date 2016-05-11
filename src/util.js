@@ -3,6 +3,8 @@ function $(id) { return document.getElementById(id); }
 function px(n) { return n + "px"; } 
 //function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
 function sign(x) { return x ? x < 0 ? -1 : 1 : 0; }
+function pad(n) { return n < 10 ? '0' + n : n; }
+
 
 function has(o, key) { return o !== null && hasOwnProperty.call(o, key); }
 function when(o, key, val) { return o !== null && hasOwnProperty.call(o, key) ? o[key] : val; }

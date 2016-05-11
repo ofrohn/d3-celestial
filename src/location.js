@@ -2,11 +2,13 @@
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("class", "loc"),
       dt = new Date(), geopos = [0,0], zone = 0,
-      dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S %Z");
+      dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
+      zone = dt.getTimezoneOffset();
   
 
-  var dtpick = new datetimepicker( function(date) { 
-    $("datetime").value = dtFormat(date); 
+  var dtpick = new datetimepicker( function(date, tz) { 
+    $("datetime").value = dtFormat(date) + zoneFormat(tz); 
+    zone = tz;
     go(); 
   });
   
@@ -24,7 +26,7 @@ function geo(cfg) {
   }
   
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Local date/time");
-  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dtFormat(dt))
+  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dtFormat(dt) + zoneFormat(zone))
   .on("click", showpick).on("input", function() { 
     this.value = dtFormat(dt); 
     if (!dtpick.isVisible()) showpick(); 
@@ -56,14 +58,24 @@ function geo(cfg) {
     return false;
   }
   
+  function zoneFormat(mn) {
+    if (!mn || mn === 0) return "±00:00";
+    
+    var h = Math.abs(mn / 60).toFixed(),
+        m = Math.abs(mn) - (h * 60),
+        s = min < 0 ? " −" : " +";
+
+    return s + pad(h) + pad(m);
+  }  
+  
   function go() {
     var zenith = [0,0];
     //switch (this.id) {
     geopos[0] = parseFloat($("lat").value); 
     geopos[1] = parseFloat($("lon").value); 
-    dt = dtFormat.parse($("datetime").value);
+    dt = dtFormat.parse($("datetime").value.slice(0,-6));
     //case "tz": offset = this.value; break;
-
+    var tz = dt.getTimezoneOffset();
     if (geopos[0] !== "" && geopos[1] !== "") {
       zenith = horizontal.inverse(dt, [90, 0], geopos);
       config.center = zenith;

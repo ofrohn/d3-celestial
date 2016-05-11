@@ -122,8 +122,8 @@ var datetimepicker = function(callback) {
   }
   
   function tzSel() { 
-    var sel = picker.append("select").attr("title", "Time zone offset from UTC").attr("id", "tz").on("change", settimezone),
-        selected = 0,
+    var sel = picker.append("select").attr("title", "Time zone offset from UTC").attr("id", "tz").on("change", pick),
+        selected = 15,
         timezone = date.getTimezoneOffset();
     sel.selectAll('option').data(tz).enter().append('option')
        .attr("value", function (d, i) { 
@@ -147,9 +147,9 @@ var datetimepicker = function(callback) {
   }
   
   function settimezone(offset) {
-    var utc = date.getTime() + (date.getTimezoneOffset() * 60000);
-    var nd = new Date(utc + (600000*offset));
-    return nd;
+    //var utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+    //var nd = new Date(utc + (600000*offset));
+    //return nd;
   } 
   
   this.show = function(dt) {
@@ -184,16 +184,18 @@ var datetimepicker = function(callback) {
   
   function pick() {
     var h = $("hr").value, m = $("min").value,
-        s = $("sec").value;
+        s = $("sec").value, tz = $("tz").value;
+        
     if (this.id && this.id.search(/^\d/) !== -1) {
       date = dateFormat.parse(this.id); 
-      var yr = date.getFullYear(), mo = date.getMonth();
-      daySel(yr, mo);
-      selectYr(yr);
-      $("mon").selectedIndex = mo;
     }
+    var yr = date.getFullYear(), mo = date.getMonth();
+    daySel(yr, mo);
+    selectYr(yr);
+    $("mon").selectedIndex = mo;
+    
     date.setHours(h, m, s);    
-    callback(date);
+    callback(date, tz);
   } 
   //return datetimepicker;
 };
