@@ -16,13 +16,14 @@ var datetimepicker = function(callback) {
   
   var cal = picker.append("div").attr("id", "cal");
 
-  daySel(date.getFullYear(), date.getMonth());
+  daySel();
   
   timeSel();
   tzSel();
   
-  function daySel(yr, mo) {
-    var curdt = new Date(yr, mo, 1),
+  function daySel() {
+    var mo = $("mon").value, yr = $("yr").value;
+        curdt = new Date(yr, mo, 1),
         cal = d3.select("#cal"),
         today = new Date();
     yr = parseInt(yr);   
@@ -51,7 +52,7 @@ var datetimepicker = function(callback) {
   }
 
   function yrSel() { 
-    var sel = picker.append("select").attr("title", "Year").attr("id", "yr").on("change", navigate),
+    var sel = picker.append("select").attr("title", "Year").attr("id", "yr").on("change", daySel),
         selected = 0,
         year = date.getFullYear();
         
@@ -62,20 +63,9 @@ var datetimepicker = function(callback) {
        });
     sel.property("selectedIndex", selected);
   }
-
-  function selectYr(yr) {
-    var sel = $("yr");
-    for (var i=0; i<sel.childNodes.length; i++) {
-      if (sel.childNodes[i].value == yr) {
-        sel.selectedIndex = i;
-        break;
-      }
-    }
-    
-  }
   
   function monSel() { 
-    var sel = picker.append("select").attr("title", "Month").attr("id", "mon").on("change", navigate),
+    var sel = picker.append("select").attr("title", "Month").attr("id", "mon").on("change", daySel),
         selected = 0,
         month = date.getMonth();
     
@@ -106,18 +96,25 @@ var datetimepicker = function(callback) {
           yr.selectedIndex++;
         } else mon.selectedIndex++;
       }
-      daySel(yr.value, mon.value);
+      daySel();
     });
   }
 
   function timeSel() { 
-    picker.append("input").attr("type", "number").attr("id", "hr").attr("title", "Hours").attr("max", "23").attr("min", "0").attr("step", "1").attr("value", date.getHours()).on("change", pick);
-    //picker.append("span").html(":");
+    picker.append("input").attr("type", "number").attr("id", "hr").attr("title", "Hours").attr("max", "24").attr("min", "0").attr("step", "1").attr("value", date.getHours()).on("change", function() { 
+      if (this.value == 24) { this.value = 0; date.setDate(date.getDate()+1);  date.setHours(0); set();  }
+      pick();
+    });
 
-    picker.append("input").attr("type", "number").attr("id", "min").attr("title", "Minutes").attr("max", "59").attr("min", "0").attr("step", "1").attr("value", date.getMinutes()).on("change", pick);
-    //picker.append("span").html(":");
+    picker.append("input").attr("type", "number").attr("id", "min").attr("title", "Minutes").attr("max", "60").attr("min", "0").attr("step", "1").attr("value", date.getMinutes()).on("change", function() { 
+      if (this.value == 60) { this.value = 0; date.setHours(date.getHours()+1, 0); set(); }
+      pick();
+    });
     
-    picker.append("input").attr("type", "number").attr("id", "sec").attr("title", "Seconds").attr("max", "59").attr("min", "0").attr("step", "1").attr("value", date.getSeconds()).on("change", pick);
+    picker.append("input").attr("type", "number").attr("id", "sec").attr("title", "Seconds").attr("max", "60").attr("min", "0").attr("step", "1").attr("value", date.getSeconds()).on("change", function() { 
+      if (this.value == 60) { this.value = 0; date.setMinutes(date.getMinutes()+1, 0); set(); }
+      pick();
+    });
 
   }
   
@@ -141,15 +138,25 @@ var datetimepicker = function(callback) {
     return res;
   }  
   
-  function navigate() {
-    var mon = $("mon"), yr = $("yr");
-    daySel(yr.value, mon.value);
+  function select(id, val) {
+    var sel = $(id);
+    for (var i=0; i<sel.childNodes.length; i++) {
+      if (sel.childNodes[i].value == val) {
+        sel.selectedIndex = i;
+        break;
+      }
+    }
   }
   
-  function settimezone(offset) {
-    //var utc = date.getTime() + (date.getTimezoneOffset() * 60000);
-    //var nd = new Date(utc + (600000*offset));
-    //return nd;
+  function set(dt) {
+     if (dt) date.setTime(dt.valueOf());
+     
+     select("yr", date.getFullYear());
+     select("mon", date.getMonth());
+     daySel();
+     $("hr").value = date.getHours();
+     $("min").value = date.getMinutes();
+     $("sec").value = date.getSeconds();
   } 
   
   this.show = function(dt) {
@@ -160,12 +167,12 @@ var datetimepicker = function(callback) {
   
     if (nd.offsetTop === -9999) {
       date.setTime(dt.valueOf());
-      daySel(date.getFullYear(), date.getMonth());
+      set();
       d3.select("#celestial-date").style({"top": px(top), "left": px(left), "opacity": 1});  
+      d3.select("#datepick").html("&#x25bc;");
     } else {
       vanish();
     }
-    return false;
   };
   
   this.isVisible = function() {
@@ -174,11 +181,11 @@ var datetimepicker = function(callback) {
 
   this.hide = function() {
     vanish();
-    return false;
   };
   
   function vanish() {
-    $("celestial-date").style.opacity = 0;
+    d3.select("#celestial-date").style("opacity", 0);
+    d3.select("#datepick").html("&#x1F4C5;");
     setTimeout(function() { $("celestial-date").style.top = px(-9999); }, 600);    
   }
   
@@ -188,14 +195,17 @@ var datetimepicker = function(callback) {
         
     if (this.id && this.id.search(/^\d/) !== -1) {
       date = dateFormat.parse(this.id); 
+      set();
     }
+    /*
     var yr = date.getFullYear(), mo = date.getMonth();
-    daySel(yr, mo);
-    selectYr(yr);
-    $("mon").selectedIndex = mo;
+    select("yr", yr);
+    select("mon", mo);
+    daySel();*/
     
-    date.setHours(h, m, s);    
+    date.setHours(h, m, s);
+    
     callback(date, tz);
   } 
-  //return datetimepicker;
+  
 };

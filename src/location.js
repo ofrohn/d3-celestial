@@ -1,13 +1,12 @@
 /* global Celestial, horizontal, datetimepicker, config, $ */
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("class", "loc"),
-      dt = new Date(), geopos = [0,0], zone = 0,
+      dt = new Date(), geopos = [0,0],
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zone = dt.getTimezoneOffset();
-  
 
   var dtpick = new datetimepicker( function(date, tz) { 
-    $("datetime").value = dtFormat(date) + zoneFormat(tz); 
+    $("datetime").value = dateFormat(date, tz); 
     zone = tz;
     go(); 
   });
@@ -26,20 +25,22 @@ function geo(cfg) {
   }
   
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Local date/time");
-  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dtFormat(dt) + zoneFormat(zone))
-  .on("click", showpick).on("input", function() { 
-    this.value = dtFormat(dt); 
+  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(dt, zone))
+  .on("click", showpick, true).on("input", function() { 
+    this.value = dateFormat(dt, zone); 
     if (!dtpick.isVisible()) showpick(); 
   });
   col.append("div").attr("id", "datepick").html("&#x1F4C5;").on("click", showpick);
   
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
   
-  //d3.select(window).on("click", function() { if (dtpick.isVisible()) dtpick.hide(); });
+  d3.select(document).on("mousedown", function() { 
+    if (!hasParent(d3.event.explicitOriginalTarget, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
+  });
   
   function now() {
     dt.setTime(Date.now());
-    $("datetime").value = dtFormat(dt);
+    $("datetime").value = dateFormat(dt, zone);
     go();
   }
 
@@ -52,20 +53,20 @@ function geo(cfg) {
     });  
   }
   
-  
   function showpick() {
     dtpick.show(dt);
-    return false;
   }
   
-  function zoneFormat(mn) {
-    if (!mn || mn === 0) return "±00:00";
-    
-    var h = Math.abs(mn / 60).toFixed(),
-        m = Math.abs(mn) - (h * 60),
-        s = min < 0 ? " −" : " +";
-
-    return s + pad(h) + pad(m);
+  function dateFormat(dt, tz) {
+    var tzs;
+    if (!tz || tz === "0") tzs = " ±0000";
+    else {
+      var h = Math.floor(Math.abs(tz) / 60),
+          m = Math.abs(tz) - (h * 60),
+          s = tz < 0 ? " +" : " −";
+      tzs = s + pad(h) + pad(m);
+    }
+    return dtFormat(dt) + tzs;
   }  
   
   function go() {
@@ -76,13 +77,22 @@ function geo(cfg) {
     dt = dtFormat.parse($("datetime").value.slice(0,-6));
     //case "tz": offset = this.value; break;
     var tz = dt.getTimezoneOffset();
+    var dtc = new Date(dt.valueOf() + (zone - tz) * 60000);
     if (geopos[0] !== "" && geopos[1] !== "") {
-      zenith = horizontal.inverse(dt, [90, 0], geopos);
+      zenith = horizontal.inverse(dtc, [90, 0], geopos);
       config.center = zenith;
       Celestial.rotate(config);
     }
   }
 
+  function hasParent(t, id){
+    while(t.parentNode){
+      if(t.id === id) return true;
+      t = t.parentNode;
+    }
+    return false;
+  }
+  
   setTimeout(go, 1000);  
 }
 
