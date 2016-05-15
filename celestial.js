@@ -358,8 +358,11 @@ Celestial.display = function(config) {
   }
     
   function zoomState(sc) {
-    $("celestial-zoomin").disabled = sc >= scale*4.99;
-    $("celestial-zoomout").disabled = sc <= scale;    
+    var czi = $("celestial-zoomin"),
+        czo = $("celestial-zoomout");
+    if (!czi || !czo) return;
+    czi.disabled = sc >= scale*4.99;
+    czo.disabled = sc <= scale;    
   }
   
   function dsoDisplay(prop, limit) {
@@ -745,7 +748,7 @@ var settings = {
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
-  location: false,
+  location: false,    // Display location settings 
   fullwidth: false,   // Display fullwidth button
   controls: true,     // Display zoom controls
   container: "celestial-map",   // ID of parent element, e.g. div
@@ -1153,6 +1156,8 @@ function $(id) { return document.getElementById(id); }
 function px(n) { return n + "px"; } 
 //function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
 function sign(x) { return x ? x < 0 ? -1 : 1 : 0; }
+function pad(n) { return n < 10 ? '0' + n : n; }
+
 
 function has(o, key) { return o !== null && hasOwnProperty.call(o, key); }
 function when(o, key, val) { return o !== null && hasOwnProperty.call(o, key) ? o[key] : val; }
@@ -1513,6 +1518,7 @@ function testColor(node) {
 
 function setUnit(trans, old) {
   var cx = $("centerx");
+  if (!cx) return;
   
   if (old) {
     if (trans === "equatorial" && old !== "equatorial") {
@@ -1584,12 +1590,13 @@ function setLimits() {
 
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("class", "loc"),
-      dt = new Date(), geopos = [0,0], zone = 0,
-      dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S %Z");
-  
+      dt = new Date(), geopos = [0,0],
+      dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
+      zone = dt.getTimezoneOffset();
 
-  var dtpick = new datetimepicker( function(date) { 
-    $("datetime").value = dtFormat(date); 
+  var dtpick = new datetimepicker( function(date, tz) { 
+    $("datetime").value = dateFormat(date, tz); 
+    zone = tz;
     go(); 
   });
   
@@ -1607,20 +1614,22 @@ function geo(cfg) {
   }
   
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Local date/time");
-  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dtFormat(dt))
-  .on("click", showpick).on("input", function() { 
-    this.value = dtFormat(dt); 
+  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(dt, zone))
+  .on("click", showpick, true).on("input", function() { 
+    this.value = dateFormat(dt, zone); 
     if (!dtpick.isVisible()) showpick(); 
   });
   col.append("div").attr("id", "datepick").html("&#x1F4C5;").on("click", showpick);
   
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
   
-  //d3.select(window).on("click", function() { if (dtpick.isVisible()) dtpick.hide(); });
+  d3.select(document).on("mousedown", function() { 
+    if (!hasParent(d3.event.explicitOriginalTarget, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
+  });
   
   function now() {
     dt.setTime(Date.now());
-    $("datetime").value = dtFormat(dt);
+    $("datetime").value = dateFormat(dt, zone);
     go();
   }
 
@@ -1633,27 +1642,46 @@ function geo(cfg) {
     });  
   }
   
-  
   function showpick() {
     dtpick.show(dt);
-    return false;
   }
+  
+  function dateFormat(dt, tz) {
+    var tzs;
+    if (!tz || tz === "0") tzs = " ±0000";
+    else {
+      var h = Math.floor(Math.abs(tz) / 60),
+          m = Math.abs(tz) - (h * 60),
+          s = tz < 0 ? " +" : " −";
+      tzs = s + pad(h) + pad(m);
+    }
+    return dtFormat(dt) + tzs;
+  }  
   
   function go() {
     var zenith = [0,0];
     //switch (this.id) {
     geopos[0] = parseFloat($("lat").value); 
     geopos[1] = parseFloat($("lon").value); 
-    dt = dtFormat.parse($("datetime").value);
+    dt = dtFormat.parse($("datetime").value.slice(0,-6));
     //case "tz": offset = this.value; break;
-
+    var tz = dt.getTimezoneOffset();
+    var dtc = new Date(dt.valueOf() + (zone - tz) * 60000);
     if (geopos[0] !== "" && geopos[1] !== "") {
-      zenith = horizontal.inverse(dt, [90, 0], geopos);
-      config.center = zenith;
-      Celestial.rotate(config);
+      zenith = horizontal.inverse(dtc, [90, 0], geopos);
+      //var center = zenith;
+      Celestial.rotate({center:zenith});
     }
   }
 
+  function hasParent(t, id){
+    while(t.parentNode){
+      if(t.id === id) return true;
+      t = t.parentNode;
+    }
+    return false;
+  }
+  
   setTimeout(go, 1000);  
 }
 
@@ -1663,7 +1691,7 @@ var datetimepicker = function(callback) {
   var date = new Date(), 
       tzFormat = d3.time.format("%Z"),
       tz = [{"−12:00":720}, {"−11:00":660}, {"−10:00":600}, {"−09:30":570}, {"−09:00":540}, {"−08:00":480}, {"−07:00":420}, {"−06:00":360}, {"−05:00":300}, {"−04:30":270}, {"−04:00":240}, {"−03:30":210}, {"−03:00":180}, {"−02:00":120}, {"−01:00":60}, {"±00:00":0}, {"+01:00":-60}, {"+02:00":-120}, {"+03:00":-180}, {"+03:30":-210}, {"+04:00":-240}, {"+04:30":-270}, {"+05:00":-300}, {"+05:30":-330}, {"+05:45":-345}, {"+06:00":-360}, {"+06:30":-390}, {"+07:00":-420}, {"+08:00":-480}, {"+08:30":-510}, {"+08:45":-525}, {"+09:00":-540}, {"+09:30":-570}, {"+10:00":-600}, {"+10:30":-630}, {"+11:00":-660}, {"+12:00":-720}, {"+12:45":-765}, {"+13:00":-780}, {"+14:00":-840}],
-      months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
       days = ["Su", "M", "Tu", "W", "Th", "F", "Sa"],
       years = getYears(date),
       dateFormat = d3.time.format("%Y-%m-%d");
@@ -1676,12 +1704,14 @@ var datetimepicker = function(callback) {
   
   var cal = picker.append("div").attr("id", "cal");
 
-  daySel(date.getFullYear(), date.getMonth());
+  daySel();
   
   timeSel();
+  tzSel();
   
-  function daySel(yr, mo) {
-    var curdt = new Date(yr, mo, 1),
+  function daySel() {
+    var mo = $("mon").value, yr = $("yr").value,
+        curdt = new Date(yr, mo, 1),
         cal = d3.select("#cal"),
         today = new Date();
     yr = parseInt(yr);   
@@ -1710,7 +1740,7 @@ var datetimepicker = function(callback) {
   }
 
   function yrSel() { 
-    var sel = picker.append("select").attr("id", "yr").on("change", navigate),
+    var sel = picker.append("select").attr("title", "Year").attr("id", "yr").on("change", daySel),
         selected = 0,
         year = date.getFullYear();
         
@@ -1721,20 +1751,9 @@ var datetimepicker = function(callback) {
        });
     sel.property("selectedIndex", selected);
   }
-
-  function selectYr(yr) {
-    var sel = $("yr");
-    for (var i=0; i<sel.childNodes.length; i++) {
-      if (sel.childNodes[i].value == yr) {
-        sel.selectedIndex = i;
-        break;
-      }
-    }
-    
-  }
   
   function monSel() { 
-    var sel = picker.append("select").attr("id", "mon").on("change", navigate),
+    var sel = picker.append("select").attr("title", "Month").attr("id", "mon").on("change", daySel),
         selected = 0,
         month = date.getMonth();
     
@@ -1765,25 +1784,31 @@ var datetimepicker = function(callback) {
           yr.selectedIndex++;
         } else mon.selectedIndex++;
       }
-      daySel(yr.value, mon.value);
+      daySel();
     });
   }
 
   function timeSel() { 
-    picker.append("input").attr("type", "number").attr("id", "hr").attr("title", "Hours").attr("max", "23").attr("min", "0").attr("step", "1").attr("value", date.getHours()).on("change", pick);
-    picker.append("span").html(":");
+    picker.append("input").attr("type", "number").attr("id", "hr").attr("title", "Hours").attr("max", "24").attr("min", "0").attr("step", "1").attr("value", date.getHours()).on("change", function() { 
+      if (this.value == 24) { this.value = 0; date.setDate(date.getDate()+1);  date.setHours(0); set();  }
+      pick();
+    });
 
-    picker.append("input").attr("type", "number").attr("id", "min").attr("title", "Minutes").attr("max", "59").attr("min", "0").attr("step", "1").attr("value", date.getMinutes()).on("change", pick);
-    picker.append("span").html(":");
+    picker.append("input").attr("type", "number").attr("id", "min").attr("title", "Minutes").attr("max", "60").attr("min", "0").attr("step", "1").attr("value", date.getMinutes()).on("change", function() { 
+      if (this.value == 60) { this.value = 0; date.setHours(date.getHours()+1, 0); set(); }
+      pick();
+    });
     
-    picker.append("input").attr("type", "number").attr("id", "sec").attr("title", "Seconds").attr("max", "59").attr("min", "0").attr("step", "1").attr("value", date.getSeconds()).on("change", pick);
+    picker.append("input").attr("type", "number").attr("id", "sec").attr("title", "Seconds").attr("max", "60").attr("min", "0").attr("step", "1").attr("value", date.getSeconds()).on("change", function() { 
+      if (this.value == 60) { this.value = 0; date.setMinutes(date.getMinutes()+1, 0); set(); }
+      pick();
+    });
 
   }
   
   function tzSel() { 
-    //picker.append("label").attr("title", "Time zone offset from UTC").attr("for", "tz").html(" Time zone");
-    var sel = picker.append("select").attr("id", "tz").on("change", settimezone),
-        selected = 0,
+    var sel = picker.append("select").attr("title", "Time zone offset from UTC").attr("id", "tz").on("change", pick),
+        selected = 15,
         timezone = date.getTimezoneOffset();
     sel.selectAll('option').data(tz).enter().append('option')
        .attr("value", function (d, i) { 
@@ -1801,15 +1826,25 @@ var datetimepicker = function(callback) {
     return res;
   }  
   
-  function navigate() {
-    var mon = $("mon"), yr = $("yr");
-    daySel(yr.value, mon.value);
+  function select(id, val) {
+    var sel = $(id);
+    for (var i=0; i<sel.childNodes.length; i++) {
+      if (sel.childNodes[i].value == val) {
+        sel.selectedIndex = i;
+        break;
+      }
+    }
   }
   
-  function settimezone(offset) {
-    var utc = date.getTime() + (date.getTimezoneOffset() * 60000);
-    var nd = new Date(utc + (600000*offset));
-    return nd;
+  function set(dt) {
+     if (dt) date.setTime(dt.valueOf());
+     
+     select("yr", date.getFullYear());
+     select("mon", date.getMonth());
+     daySel();
+     $("hr").value = date.getHours();
+     $("min").value = date.getMinutes();
+     $("sec").value = date.getSeconds();
   } 
   
   this.show = function(dt) {
@@ -1820,12 +1855,12 @@ var datetimepicker = function(callback) {
   
     if (nd.offsetTop === -9999) {
       date.setTime(dt.valueOf());
-      daySel(date.getFullYear(), date.getMonth());
+      set();
       d3.select("#celestial-date").style({"top": px(top), "left": px(left), "opacity": 1});  
+      d3.select("#datepick").html("&#x25bc;");
     } else {
       vanish();
     }
-    return false;
   };
   
   this.isVisible = function() {
@@ -1834,28 +1869,33 @@ var datetimepicker = function(callback) {
 
   this.hide = function() {
     vanish();
-    return false;
   };
   
   function vanish() {
-    $("celestial-date").style.opacity = 0;
+    d3.select("#celestial-date").style("opacity", 0);
+    d3.select("#datepick").html("&#x1F4C5;");
     setTimeout(function() { $("celestial-date").style.top = px(-9999); }, 600);    
   }
   
   function pick() {
     var h = $("hr").value, m = $("min").value,
-        s = $("sec").value;
+        s = $("sec").value, tz = $("tz").value;
+        
     if (this.id && this.id.search(/^\d/) !== -1) {
       date = dateFormat.parse(this.id); 
-      var yr = date.getFullYear(), mo = date.getMonth();
-      daySel(yr, mo);
-      selectYr(yr);
-      $("mon").selectedIndex = mo;
+      set();
     }
-    date.setHours(h, m, s);    
-    callback(date);
+    /*
+    var yr = date.getFullYear(), mo = date.getMonth();
+    select("yr", yr);
+    select("mon", mo);
+    daySel();*/
+    
+    date.setHours(h, m, s);
+    
+    callback(date, tz);
   } 
-  //return datetimepicker;
+  
 };
 // Copyright 2014, Jason Davies, http://www.jasondavies.com
 // See LICENSE.txt for details.

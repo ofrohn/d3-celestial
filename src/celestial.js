@@ -357,8 +357,11 @@ Celestial.display = function(config) {
   }
     
   function zoomState(sc) {
-    $("celestial-zoomin").disabled = sc >= scale*4.99;
-    $("celestial-zoomout").disabled = sc <= scale;    
+    var czi = $("celestial-zoomin"),
+        czo = $("celestial-zoomout");
+    if (!czi || !czo) return;
+    czi.disabled = sc >= scale*4.99;
+    czo.disabled = sc <= scale;    
   }
   
   function dsoDisplay(prop, limit) {

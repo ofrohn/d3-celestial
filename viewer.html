@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en"><head>
   <meta charset="utf-8">
-  <title>D3 Starmap</title>
+  <title>D3-Celestial Starmap</title>
   <script type="text/javascript" src="lib/d3.min.js"></script>
   <script type="text/javascript" src="lib/d3.geo.projection.min.js"></script>
-  <script type="text/javascript" src="celestial.min.js"></script>
+  <script type="text/javascript" src="celestial.js"></script>
   <link rel="stylesheet" href="style.css">
 </head><body>
 <div style="overflow:hidden;"><div id="celestial-map"></div></div>
 <div id="celestial-form"></div>
 <script type="text/javascript">
 Celestial.display({
-  form: true
+  form: true,
+  location:true
 });
   </script>
   </body>

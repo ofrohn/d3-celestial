@@ -1,4 +1,4 @@
-/* global Celestial, horizontal, datetimepicker, config, $ */
+/* global Celestial, horizontal, datetimepicker, config, $, pad */
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("class", "loc"),
       dt = new Date(), geopos = [0,0],
@@ -80,8 +80,8 @@ function geo(cfg) {
     var dtc = new Date(dt.valueOf() + (zone - tz) * 60000);
     if (geopos[0] !== "" && geopos[1] !== "") {
       zenith = horizontal.inverse(dtc, [90, 0], geopos);
-      config.center = zenith;
-      Celestial.rotate(config);
+      //var center = zenith;
+      Celestial.rotate({center:zenith});
     }
   }
 

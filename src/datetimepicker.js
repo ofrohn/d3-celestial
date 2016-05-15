@@ -22,7 +22,7 @@ var datetimepicker = function(callback) {
   tzSel();
   
   function daySel() {
-    var mo = $("mon").value, yr = $("yr").value;
+    var mo = $("mon").value, yr = $("yr").value,
         curdt = new Date(yr, mo, 1),
         cal = d3.select("#cal"),
         today = new Date();

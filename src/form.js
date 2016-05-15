@@ -322,6 +322,7 @@ function testColor(node) {
 
 function setUnit(trans, old) {
   var cx = $("centerx");
+  if (!cx) return;
   
   if (old) {
     if (trans === "equatorial" && old !== "equatorial") {
