@@ -204,13 +204,13 @@ Celestial.display = function(config) {
   }  
   
   function apply(config) {
-    cfg = settings.set(config); 
+    cfg = cfg.set(config); 
     redraw();
   }
 
 
   function rotate(config) {
-    cfg = settings.set(config);
+    cfg = cfg.set(config);
     var rot = projection.rotate();
     rotation = getAngles(cfg.center);
     rotation[2] = rot[2];
@@ -821,7 +821,7 @@ var settings = {
     if (!cfg) return this; 
     for (prop in this) {
       if (!has(this, prop)) continue; 
-      if (typeof(this[prop]) === 'function') continue; 
+      //if (typeof(this[prop]) === 'function'); 
       if (!has(cfg, prop) || cfg[prop] === null) { 
         res[prop] = this[prop]; 
       } else if (this[prop] === null || this[prop].constructor != Object ) {

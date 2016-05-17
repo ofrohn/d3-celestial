@@ -82,7 +82,7 @@ var settings = {
     if (!cfg) return this; 
     for (prop in this) {
       if (!has(this, prop)) continue; 
-      if (typeof(this[prop]) === 'function') continue; 
+      //if (typeof(this[prop]) === 'function'); 
       if (!has(cfg, prop) || cfg[prop] === null) { 
         res[prop] = this[prop]; 
       } else if (this[prop] === null || this[prop].constructor != Object ) {
