@@ -101,21 +101,11 @@ var datetimepicker = function(callback) {
   }
 
   function timeSel() { 
-    picker.append("input").attr("type", "number").attr("id", "hr").attr("title", "Hours").attr("max", "24").attr("min", "0").attr("step", "1").attr("value", date.getHours()).on("change", function() { 
-      if (this.value == 24) { this.value = 0; date.setDate(date.getDate()+1);  date.setHours(0); set();  }
-      pick();
-    });
+    picker.append("input").attr("type", "number").attr("id", "hr").attr("title", "Hours").attr("max", "24").attr("min", "-1").attr("step", "1").attr("value", date.getHours()).on("change", pick);
 
-    picker.append("input").attr("type", "number").attr("id", "min").attr("title", "Minutes").attr("max", "60").attr("min", "0").attr("step", "1").attr("value", date.getMinutes()).on("change", function() { 
-      if (this.value == 60) { this.value = 0; date.setHours(date.getHours()+1, 0); set(); }
-      pick();
-    });
+    picker.append("input").attr("type", "number").attr("id", "min").attr("title", "Minutes").attr("max", "60").attr("min", "-1").attr("step", "1").attr("value", date.getMinutes()).on("change", pick);
     
-    picker.append("input").attr("type", "number").attr("id", "sec").attr("title", "Seconds").attr("max", "60").attr("min", "0").attr("step", "1").attr("value", date.getSeconds()).on("change", function() { 
-      if (this.value == 60) { this.value = 0; date.setMinutes(date.getMinutes()+1, 0); set(); }
-      pick();
-    });
-
+    picker.append("input").attr("type", "number").attr("id", "sec").attr("title", "Seconds").attr("max", "60").attr("min", "-1").attr("step", "1").attr("value", date.getSeconds()).on("change", pick);
   }
   
   function tzSel() { 
@@ -195,7 +185,6 @@ var datetimepicker = function(callback) {
         
     if (this.id && this.id.search(/^\d/) !== -1) {
       date = dateFormat.parse(this.id); 
-      set();
     }
     /*
     var yr = date.getFullYear(), mo = date.getMonth();
@@ -204,6 +193,7 @@ var datetimepicker = function(callback) {
     daySel();*/
     
     date.setHours(h, m, s);
+    set();
     
     callback(date, tz);
   } 

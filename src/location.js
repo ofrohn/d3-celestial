@@ -35,7 +35,7 @@ function geo(cfg) {
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
   
   d3.select(document).on("mousedown", function() { 
-    if (!hasParent(d3.event.explicitOriginalTarget, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
+    if (!hasParent(d3.event.target, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
   });
   
   function now() {
