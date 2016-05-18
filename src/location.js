@@ -30,7 +30,7 @@ function geo(cfg) {
     this.value = dateFormat(dt, zone); 
     if (!dtpick.isVisible()) showpick(); 
   });
-  col.append("div").attr("id", "datepick").html("&#x1F4C5;").on("click", showpick);
+  col.append("div").attr("id", "datepick").on("click", showpick);
   
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
   

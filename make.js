@@ -89,7 +89,7 @@ target.build = function() {
 
   // zip data + prod. code + css
   tar.pack('./', {
-       entries: ['viewer.html', 'style.css', 'readme.md', 'LICENSE', 'celestial.min.js', 'data', 'lib/d3.min.js', 'lib/d3.geo.projection.min.js'] 
+       entries: ['viewer.html', 'style.css', 'readme.md', 'LICENSE', 'celestial.min.js', 'dtpick.png', 'data', 'lib/d3.min.js', 'lib/d3.geo.projection.min.js'] 
      })
      .pipe(zlib.createGzip())
      .pipe(fs.createWriteStream(filename + '.tar.gz'))

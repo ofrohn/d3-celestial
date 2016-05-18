@@ -79,10 +79,7 @@ var datetimepicker = function(callback) {
   }
   
   function nav(dir) {
-    var lnk = picker.append("div").attr("id", dir).html(
-      function() { return (dir === "left") ? "\u25C0" : "\u25B6"; 
-    })
-    .on("click", function() {
+    var lnk = picker.append("div").attr("id", dir).on("click", function() {
       var mon = $("mon"), yr = $("yr");
       
       if (dir === "left") {
@@ -159,7 +156,7 @@ var datetimepicker = function(callback) {
       date.setTime(dt.valueOf());
       set();
       d3.select("#celestial-date").style({"top": px(top), "left": px(left), "opacity": 1});  
-      d3.select("#datepick").html("&#x25bc;");
+      d3.select("#datepick").classed("active", true);
     } else {
       vanish();
     }
@@ -175,7 +172,7 @@ var datetimepicker = function(callback) {
   
   function vanish() {
     d3.select("#celestial-date").style("opacity", 0);
-    d3.select("#datepick").html("&#x1F4C5;");
+    d3.select("#datepick").classed("active", false);
     setTimeout(function() { $("celestial-date").style.top = px(-9999); }, 600);    
   }
   
