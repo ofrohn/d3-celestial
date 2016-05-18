@@ -190,6 +190,7 @@ Celestial.display = function(config) {
   
   if (cfg.location === true && $("loc") === null) geo(cfg);
   if (cfg.form === true && $("params") === null) form(cfg);
+  if ($("error") === null) d3.select("body").append("div").attr("id", "error");
 
   
   function zoomBy(factor) {

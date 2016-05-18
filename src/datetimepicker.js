@@ -172,6 +172,7 @@ var datetimepicker = function(callback) {
   
   function vanish() {
     d3.select("#celestial-date").style("opacity", 0);
+    d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} ); 
     d3.select("#datepick").classed("active", false);
     setTimeout(function() { $("celestial-date").style.top = px(-9999); }, 600);    
   }

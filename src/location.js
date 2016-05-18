@@ -1,4 +1,4 @@
-/* global Celestial, horizontal, datetimepicker, config, $, pad */
+/* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber */
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("class", "loc"),
       dt = new Date(), geopos = [0,0],
@@ -14,10 +14,10 @@ function geo(cfg) {
   var col = ctrl.append("div").attr("class", "col");
 
   col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");
-  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change", go);
+  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change",  function() { if (testNumber(this) === true) go(); });
   col.append("span").html("\u00b0");
   
-  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change", go);
+  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change",  function() { if (testNumber(this) === true) go(); });
   col.append("span").html("\u00b0");
 
   if ("geolocation" in navigator) {
@@ -33,7 +33,7 @@ function geo(cfg) {
   col.append("div").attr("id", "datepick").on("click", showpick);
   
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
-  
+    
   d3.select(document).on("mousedown", function() { 
     if (!hasParent(d3.event.target, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
   });

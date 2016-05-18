@@ -1,4 +1,4 @@
-/* global Celestial, $, px, has, isNumber */
+/* global Celestial, $, px, has, isNumber, findPos */
 //display settings form
 
 //test with onchange and set cfg
@@ -161,9 +161,7 @@ function form(cfg) {
   
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", cfg.adaptable).on("change", apply);
- 
-  ctrl.append("div").attr("id", "error");
-  
+   
   $("show").onclick = function(e) {
     var x = $("centerx"),
         y = $("centery");
@@ -297,18 +295,27 @@ function fldEnable(d, off) {
 // Error notification
 function popError(nd, err) {
   //var p = nd.getBoundingClientRect();
-  d3.select("#error").html(err).style( {top:px(nd.offsetTop+nd.offsetHeight+1), left:px(nd.offsetLeft), opacity:1} );
+  var p = findPos(nd);
+  d3.select("#error").html(err).style( {top:px(p[1] + nd.offsetHeight + 1), left:px(p[0]), opacity:1} );
 }
 
 //Check numeric field
 function testNumber(node) {
-  var v = node.value;
-  //if (v === "") return true;
-  if (!isNumber(v)) { popError(node, node.title + ": check field value"); return false; }
-  v = parseFloat(v);
-  if (v < node.min || v > node.max ) { popError(node, node.title + " must be between " + node.min + " anode " + node.max); return false; }
-  d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} );
-  return true;
+  var v, adj = node.id === "hr" || node.id === "min" || node.id === "sec" ? 1 : 0;
+  if (node.validity) {
+    v = node.validity;
+    if (v.typeMismatch || v.badInput) { popError(node, node.title + ": check field value"); return false; }
+    if (v.rangeOverflow || v.rangeUnderflow) { popError(node, node.title + " must be between " + (parseInt(node.min) + adj) + " and " + (parseInt(node.max) - adj)); return false; }
+    d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} ); 
+    return true; 
+  } else {
+    v = node.value;
+    if (!isNumber(v)) { popError(node, node.title + ": check field value"); return false; }
+    v = parseFloat(v);
+    if (v < node.min || v > node.max ) { popError(node, node.title + " must be between " + (node.min + adj) + " and " + (+node.max - adj)); return false; }
+    d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} );
+    return true;
+  }
 }
 
 //Check color field

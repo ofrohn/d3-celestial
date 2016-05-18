@@ -13,6 +13,16 @@ function isArray(o) { return Object.prototype.toString.call(o) === "[object Arra
 function isObject(o) { var type = typeof o;  return type === 'function' || type === 'object' && !!o; }
 function isFunction(o) { return typeof o == 'function' || false; }
 
+function findPos(o) {
+  var l = 0, t = 0;
+  if (o.offsetParent) {
+    do {
+      l += o.offsetLeft;
+      t += o.offsetTop;
+    } while ((o = o.offsetParent) !== null);
+  }
+  return [l, t];
+}
 
 function attach(node, event, func) {
   if (node.addEventListener) node.addEventListener(event, func, false);

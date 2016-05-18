@@ -191,6 +191,7 @@ Celestial.display = function(config) {
   
   if (cfg.location === true && $("loc") === null) geo(cfg);
   if (cfg.form === true && $("params") === null) form(cfg);
+  if ($("error") === null) d3.select("body").append("div").attr("id", "error");
 
   
   function zoomBy(factor) {
@@ -1166,6 +1167,16 @@ function isArray(o) { return Object.prototype.toString.call(o) === "[object Arra
 function isObject(o) { var type = typeof o;  return type === 'function' || type === 'object' && !!o; }
 function isFunction(o) { return typeof o == 'function' || false; }
 
+function findPos(o) {
+  var l = 0, t = 0;
+  if (o.offsetParent) {
+    do {
+      l += o.offsetLeft;
+      t += o.offsetTop;
+    } while ((o = o.offsetParent) !== null);
+  }
+  return [l, t];
+}
 
 function attach(node, event, func) {
   if (node.addEventListener) node.addEventListener(event, func, false);
@@ -1357,9 +1368,7 @@ function form(cfg) {
   
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", cfg.adaptable).on("change", apply);
- 
-  ctrl.append("div").attr("id", "error");
-  
+   
   $("show").onclick = function(e) {
     var x = $("centerx"),
         y = $("centery");
@@ -1493,18 +1502,27 @@ function fldEnable(d, off) {
 // Error notification
 function popError(nd, err) {
   //var p = nd.getBoundingClientRect();
-  d3.select("#error").html(err).style( {top:px(nd.offsetTop+nd.offsetHeight+1), left:px(nd.offsetLeft), opacity:1} );
+  var p = findPos(nd);
+  d3.select("#error").html(err).style( {top:px(p[1] + nd.offsetHeight + 1), left:px(p[0]), opacity:1} );
 }
 
 //Check numeric field
 function testNumber(node) {
-  var v = node.value;
-  //if (v === "") return true;
-  if (!isNumber(v)) { popError(node, node.title + ": check field value"); return false; }
-  v = parseFloat(v);
-  if (v < node.min || v > node.max ) { popError(node, node.title + " must be between " + node.min + " anode " + node.max); return false; }
-  d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} );
-  return true;
+  var v, adj = node.id === "hr" || node.id === "min" || node.id === "sec" ? 1 : 0;
+  if (node.validity) {
+    v = node.validity;
+    if (v.typeMismatch || v.badInput) { popError(node, node.title + ": check field value"); return false; }
+    if (v.rangeOverflow || v.rangeUnderflow) { popError(node, node.title + " must be between " + (parseInt(node.min) + adj) + " and " + (parseInt(node.max) - adj)); return false; }
+    d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} ); 
+    return true; 
+  } else {
+    v = node.value;
+    if (!isNumber(v)) { popError(node, node.title + ": check field value"); return false; }
+    v = parseFloat(v);
+    if (v < node.min || v > node.max ) { popError(node, node.title + " must be between " + (node.min + adj) + " and " + (+node.max - adj)); return false; }
+    d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} );
+    return true;
+  }
 }
 
 //Check color field
@@ -1603,10 +1621,10 @@ function geo(cfg) {
   var col = ctrl.append("div").attr("class", "col");
 
   col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");
-  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change", go);
+  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change",  function() { if (testNumber(this) === true) go(); });
   col.append("span").html("\u00b0");
   
-  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change", go);
+  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change",  function() { if (testNumber(this) === true) go(); });
   col.append("span").html("\u00b0");
 
   if ("geolocation" in navigator) {
@@ -1622,7 +1640,7 @@ function geo(cfg) {
   col.append("div").attr("id", "datepick").on("click", showpick);
   
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
-  
+    
   d3.select(document).on("mousedown", function() { 
     if (!hasParent(d3.event.target, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
   });
@@ -1860,6 +1878,7 @@ var datetimepicker = function(callback) {
   
   function vanish() {
     d3.select("#celestial-date").style("opacity", 0);
+    d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} ); 
     d3.select("#datepick").classed("active", false);
     setTimeout(function() { $("celestial-date").style.top = px(-9999); }, 600);    
   }
