@@ -294,9 +294,9 @@ function fldEnable(d, off) {
 
 // Error notification
 function popError(nd, err) {
-  //var p = nd.getBoundingClientRect();
   var p = findPos(nd);
   d3.select("#error").html(err).style( {top:px(p[1] + nd.offsetHeight + 1), left:px(p[0]), opacity:1} );
+  nd.focus();
 }
 
 //Check numeric field

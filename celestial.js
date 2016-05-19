@@ -1501,9 +1501,9 @@ function fldEnable(d, off) {
 
 // Error notification
 function popError(nd, err) {
-  //var p = nd.getBoundingClientRect();
   var p = findPos(nd);
   d3.select("#error").html(err).style( {top:px(p[1] + nd.offsetHeight + 1), left:px(p[0]), opacity:1} );
+  nd.focus();
 }
 
 //Check numeric field
@@ -1621,10 +1621,10 @@ function geo(cfg) {
   var col = ctrl.append("div").attr("class", "col");
 
   col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");
-  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change",  function() { if (testNumber(this) === true) go(); });
+  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("placeholder", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change",  function() { if (testNumber(this) === true) go(); });
   col.append("span").html("\u00b0");
   
-  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change",  function() { if (testNumber(this) === true) go(); });
+  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("placeholder", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change",  function() { if (testNumber(this) === true) go(); });
   col.append("span").html("\u00b0");
 
   if ("geolocation" in navigator) {
@@ -1677,17 +1677,18 @@ function geo(cfg) {
   }  
   
   function go() {
-    var zenith = [0,0];
-    //switch (this.id) {
-    geopos[0] = parseFloat($("lat").value); 
-    geopos[1] = parseFloat($("lon").value); 
+    var zenith = [0,0],
+        lon = $("lon").value,
+        lat = $("lat").value; 
+
     dt = dtFormat.parse($("datetime").value.slice(0,-6));
-    //case "tz": offset = this.value; break;
+
     var tz = dt.getTimezoneOffset();
     var dtc = new Date(dt.valueOf() + (zone - tz) * 60000);
-    if (geopos[0] !== "" && geopos[1] !== "") {
+
+    if (lon !== "" && lat !== "") {
+      geopos = [parseFloat(lat), parseFloat(lon)];
       zenith = horizontal.inverse(dtc, [90, 0], geopos);
-      //var center = zenith;
       Celestial.rotate({center:zenith});
     }
   }
