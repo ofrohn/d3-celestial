@@ -74,7 +74,7 @@ function form(cfg) {
   col.append("input").attr("type", "checkbox").attr("id", "stars-colors").property("checked", cfg.stars.colors).on("change", apply);
   
   col.append("label").attr("for", "stars-color").html("or default color ");
-  col.append("input").attr("type", "color").attr("autocomplete", "off").attr("id", "stars-style-fill").property("value", cfg.stars.style.fill).on("change", apply);
+  col.append("input").attr("type", "color").attr("autocomplete", "off").attr("id", "stars-style-fill").attr("title", "Star color").property("value", cfg.stars.style.fill).on("change", apply);
   col.append("br");
   
   col.append("label").attr("for", "stars-names").html("Show names");
@@ -157,7 +157,7 @@ function form(cfg) {
   col.append("input").attr("type", "checkbox").attr("id", "mw-show").property("checked", cfg.mw.show).on("change", apply);
   
   col.append("label").attr("for", "background").html("Background color");
-  col.append("input").attr("type", "color").attr("id", "background-fill").attr("value", cfg.background.fill).on("change", apply);
+  col.append("input").attr("type", "color").attr("id", "background-fill").attr("title", "Background color").attr("value", cfg.background.fill).on("change", apply);
   
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", cfg.adaptable).on("change", apply);
