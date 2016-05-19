@@ -1375,9 +1375,11 @@ function form(cfg) {
     //Test params
     if (!isNumber(cfg.width)) { popError($("width"), "Check Width setting"); return false; }
 
-    if (x.value === "" && y.value !== "" || y.value === "" && x.value !== "") {
-      popError(x, "Both center coordinates need to be given");
-      return false; 
+    if (x !== null && y !== null) {
+      if (x.value === "" && y.value !== "" || y.value === "" && x.value !== "") {
+        popError(x, "Both center coordinates need to be given");
+        return false; 
+      }
     } 
   
     Celestial.display(cfg);
@@ -1403,8 +1405,12 @@ function form(cfg) {
       case "projection": cfg.projection = src.options[src.selectedIndex].value; break;
       case "transform": var old = cfg.transform;
                         cfg.transform = src.options[src.selectedIndex].value;
-                        setUnit(cfg.transform, old); 
-                        cfg.center[0] = $("centerx").value; break;
+                        var cx = $("centerx");
+                        if (cx) {
+                          setUnit(cfg.transform, old); 
+                          cfg.center[0] = cx.value; 
+                        }
+                        break;
     }    
     Celestial.display(cfg);
   }
@@ -1436,9 +1442,15 @@ function form(cfg) {
 
     switch (src.type) {
       case "checkbox": value = src.checked; enable(src); break;
-      case "number": if (testNumber(src) === false) return; value = src.value; break;
-      case "color": if (testColor(src) === false) return; value = src.value; break;
+      case "number": if (testNumber(src) === false) return; 
+                     value = src.value; break;
+      case "color": if (testColor(src) === false) return; 
+                    value = src.value; break;
+      case "text": if (src.id.search(/fill$/) === -1) return;
+                   if (testColor(src) === false) return; 
+                   value = src.value; break;
     }
+    if (value === null) return;
     set(src.id, value);
     
     Celestial.apply(cfg);
@@ -1513,23 +1525,27 @@ function testNumber(node) {
     v = node.validity;
     if (v.typeMismatch || v.badInput) { popError(node, node.title + ": check field value"); return false; }
     if (v.rangeOverflow || v.rangeUnderflow) { popError(node, node.title + " must be between " + (parseInt(node.min) + adj) + " and " + (parseInt(node.max) - adj)); return false; }
-    d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} ); 
-    return true; 
   } else {
     v = node.value;
     if (!isNumber(v)) { popError(node, node.title + ": check field value"); return false; }
     v = parseFloat(v);
     if (v < node.min || v > node.max ) { popError(node, node.title + " must be between " + (node.min + adj) + " and " + (+node.max - adj)); return false; }
-    d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} );
-    return true;
   }
+  d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} ); 
+  return true; 
 }
 
 //Check color field
 function testColor(node) {
-  var v = node.value;
-  if (v === "") return true;
-  if (v.search(/^#[0-9A-F]{6}$/i) === -1) { popError(node, node.title + ": not a color value"); return false; }
+  if (node.validity) {
+    v = node.validity;
+    if (v.typeMismatch || v.badInput) { popError(node, node.title + ": check field value"); return false; }
+    if (node.value.search(/^#[0-9A-F]{6}$/i) === -1) { popError(node, node.title + ": not a color value"); return false; }
+  } else {
+    var v = node.value;
+    if (v === "") return true;
+    if (v.search(/^#[0-9A-F]{6}$/i) === -1) { popError(node, node.title + ": not a color value"); return false; }
+  }
   d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} );
   return true;
 }
@@ -1607,7 +1623,7 @@ function setLimits() {
 
 
 function geo(cfg) {
-  var ctrl = d3.select("#celestial-form").append("div").attr("class", "loc"),
+  var ctrl = d3.select("#celestial-form").append("div").attr("id", "loc"),
       dt = new Date(), geopos = [0,0],
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zone = dt.getTimezoneOffset();

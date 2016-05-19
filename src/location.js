@@ -1,6 +1,6 @@
 /* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber */
 function geo(cfg) {
-  var ctrl = d3.select("#celestial-form").append("div").attr("class", "loc"),
+  var ctrl = d3.select("#celestial-form").append("div").attr("id", "loc"),
       dt = new Date(), geopos = [0,0],
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zone = dt.getTimezoneOffset();
