@@ -27,7 +27,7 @@ __Stars__
 
 __DSOs__  
 `dsos.6.json`, `dsos.14.json`: the number indicates limit magnitude  
-`dsos.bright.json`: handselected
+`dsos.bright.json`: handselected  
 `lf.json`: Local group  
 
 ```js
@@ -50,14 +50,13 @@ __DSOs__
   }, { } ]
 }
 ```  
-___type___ _gg_: galaxy cluster, _g_: galaxy, _s_: spiral galaxy, _s0_: lenticular gal., _ds_: dwarf gal., _i_: irregular gal., _e_: elliptical gal.,  
+___Object type___ _gg_: galaxy cluster, _g_: galaxy, _s_: spiral galaxy, _s0_: lenticular gal., _ds_: dwarf gal., _i_: irregular gal., _e_: elliptical gal.,  
 _oc_: open cluster, _gc_: globular cluster, _dn_: dark nebula, _bn_: bright nebula, _sfr_: star forming region, _rn_: reflection nebula, _pn_: planetary nebula, _snr_: supernova remnant  
 
 ___additional lg.json properties:___  
-sub: Sub group membership: MW|M31|N3109|LG  (Milky way, Andromeda, NGC 3109, gen. LG)  
-pop: MW popultions OH|YH|BD (Old halo, young halo, bulge & disk)  
-     M31 populations M31|GP  (gen. M31, great plane)  
-str: Tidal streams Mag|Sgr|CMa|FLS  (Magellanic Stream, Sagittarius Stream, Canis Major/Monoceros Stream, Fornax-Leo-Sculptor Great Circle)
+_sub_: Sub group membership: [MW|M31|N3109|LG]  (Milky way, Andromeda, NGC 3109, gen. LG)  
+_pop_: MW popultions [OH|YH|BD] (Old halo, young halo, bulge & disk), M31 populations M31|GP  (gen. M31, great plane)  
+_str_: Tidal streams [Mag|Sgr|CMa|FLS]  (Magellanic Stream, Sagittarius Stream, Canis Major/Monoceros Stream, Fornax-Leo-Sculptor Great Circle)
 
 __Constellations__  
 `constellations.json`  
