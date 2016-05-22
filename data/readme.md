@@ -54,9 +54,9 @@ ___Object type___ _gg_: galaxy cluster, _g_: galaxy, _s_: spiral galaxy, _s0_: l
 _oc_: open cluster, _gc_: globular cluster, _dn_: dark nebula, _bn_: bright nebula, _sfr_: star forming region, _rn_: reflection nebula, _pn_: planetary nebula, _snr_: supernova remnant  
 
 ___additional lg.json properties:___  
-_sub_: Sub group membership: [MW|M31|N3109|LG]  (Milky way, Andromeda, NGC 3109, gen. LG)  
-_pop_: MW popultions [OH|YH|BD] (Old halo, young halo, bulge & disk), M31 populations M31|GP  (gen. M31, great plane)  
-_str_: Tidal streams [Mag|Sgr|CMa|FLS]  (Magellanic Stream, Sagittarius Stream, Canis Major/Monoceros Stream, Fornax-Leo-Sculptor Great Circle)
+_sub_: Sub group membership: \[MW|M31|N3109|LG\]  (Milky way, Andromeda, NGC 3109, gen. LG)  
+_pop_: MW popultions \[OH|YH|BD\] (Old halo, young halo, bulge & disk), M31 populations \[M31|GP\]  (gen. M31, great plane)  
+_str_: Tidal streams \[Mag|Sgr|CMa|FLS\] (Magellanic Stream, Sagittarius Stream, Canis Major/Monoceros Stream, Fornax-Leo-Sculptor Great Circle)
 
 __Constellations__  
 `constellations.json`  
