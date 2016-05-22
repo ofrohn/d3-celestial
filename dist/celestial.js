@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.5.3',
+  version: '0.5.4',
   container: null,
   data: []
 };
@@ -189,7 +189,9 @@ Celestial.display = function(config) {
     d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
   }
   
+  if (cfg.location === true && $("loc") === null) geo(cfg);
   if (cfg.form === true && $("params") === null) form(cfg);
+  if ($("error") === null) d3.select("body").append("div").attr("id", "error");
 
   
   function zoomBy(factor) {
@@ -203,13 +205,13 @@ Celestial.display = function(config) {
   }  
   
   function apply(config) {
-    cfg = settings.set(config); 
+    cfg = cfg.set(config); 
     redraw();
   }
 
 
   function rotate(config) {
-    cfg = settings.set(config);
+    cfg = cfg.set(config);
     var rot = projection.rotate();
     rotation = getAngles(cfg.center);
     rotation[2] = rot[2];
@@ -259,24 +261,26 @@ Celestial.display = function(config) {
       context.stroke();    
     }
 
-    if (cfg.constellations.names) { 
-      setTextStyle(cfg.constellations.namestyle);
-      container.selectAll(".constname").each( function(d) { 
-        if (clip(d.geometry.coordinates)) {
-          var pt = projection(d.geometry.coordinates);
-          context.fillText(constName(d), pt[0], pt[1]); 
-        }
-      });
-    }
+    if (cfg.constellations.show) {     
+      if (cfg.constellations.names) { 
+        setTextStyle(cfg.constellations.namestyle);
+        container.selectAll(".constname").each( function(d) { 
+          if (clip(d.geometry.coordinates)) {
+            var pt = projection(d.geometry.coordinates);
+            context.fillText(constName(d), pt[0], pt[1]); 
+          }
+        });
+      }
 
-    if (cfg.constellations.lines) { 
-      container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
+      if (cfg.constellations.lines) { 
+        container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
+      }
+      
+      if (cfg.constellations.bounds) { 
+        container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
+      }
     }
-    
-    if (cfg.constellations.bounds) { 
-      container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
-    }
-    
+      
     if (cfg.stars.show) { 
       setStyle(cfg.stars.style);
       container.selectAll(".star").each(function(d) {
@@ -355,8 +359,11 @@ Celestial.display = function(config) {
   }
     
   function zoomState(sc) {
-    $("celestial-zoomin").disabled = sc >= scale*4.99;
-    $("celestial-zoomout").disabled = sc <= scale;    
+    var czi = $("celestial-zoomin"),
+        czo = $("celestial-zoomout");
+    if (!czi || !czo) return;
+    czi.disabled = sc >= scale*4.99;
+    czo.disabled = sc <= scale;    
   }
   
   function dsoDisplay(prop, limit) {
@@ -587,6 +594,80 @@ euler.init();
 Celestial.euler = function() { return euler; };
 
 
+var horizontal = function(dt, pos, loc) {
+  //dt: datetime, pos: celestial coordinates [lat,lng], loc: location [lat,lng]  
+  var ha = getMST(dt, loc[1]) - pos[0];
+  if (ha < 0) ha = ha + 360;
+  
+  ha  = ha * deg2rad;
+  var dec = pos[1] * deg2rad;
+  var lat = loc[0] * deg2rad;
+
+  var alt = Math.asin(Math.sin(dec) * Math.sin(lat) + Math.cos(dec) * Math.cos(lat) * Math.cos(ha));
+  var az = Math.acos((Math.sin(dec) - Math.sin(alt) * Math.sin(lat)) / (Math.cos(alt) * Math.cos(lat)));
+
+  if (Math.sin(ha) > 0) az = Math.PI * 2 - az;
+  
+  return [alt / deg2rad, az / deg2rad];
+};
+
+horizontal.inverse = function(dt, hor, loc) {
+  
+  var alt = hor[0] * deg2rad;
+  var az = hor[1] * deg2rad;
+  var lat = loc[0] * deg2rad;
+   
+  var dec = Math.asin((Math.sin(alt) * Math.sin(lat)) + (Math.cos(alt) * Math.cos(lat) * Math.cos(az)));
+  var ha = ((Math.sin(alt) - (Math.sin(dec) * Math.sin(lat))) / (Math.cos(dec) * Math.cos(lat))).toFixed(6);
+  
+  ha = Math.acos(ha);
+  ha  = ha / deg2rad;
+  
+  var ra = getMST(dt, loc[1]) - ha;
+  //if (ra < 0) ra = ra + 360;
+    
+  return [ra, dec / deg2rad];
+};
+
+function getMST(dt, lng)
+{
+    var yr = dt.getUTCFullYear();
+    var mo = dt.getUTCMonth() + 1;
+    var dy = dt.getUTCDate();
+    var h = dt.getUTCHours();
+    var m = dt.getUTCMinutes();
+    var s = dt.getUTCSeconds();
+
+    if ((mo == 1)||(mo == 2)) {
+        yr  = yr - 1;
+        mo = mo + 12;
+    }
+
+    var a = Math.floor(yr / 100);
+    var b = 2 - a + Math.floor(a / 4);
+    var c = Math.floor(365.25 * yr);
+    var d = Math.floor(30.6001 * (mo + 1));
+
+    // days since J2000.0
+    var jd = b + c + d - 730550.5 + dy + (h + m/60.0 + s/3600.0)/24.0;
+    
+    // julian centuries since J2000.0
+    var jt = jd/36525.0;
+
+    // the mean sidereal time in degrees
+    var mst = 280.46061837 + 360.98564736629*jd + 0.000387933*jt*jt - jt*jt*jt/38710000 + lng;
+
+    // in degrees modulo 360.0
+    if (mst > 0.0) 
+        while (mst > 360.0) mst = mst - 360.0;
+    else
+        while (mst < 0.0)   mst = mst + 360.0;
+        
+    return mst;
+}
+
+Celestial.horizontal = horizontal;
+
 //Add more JSON data to the map
 
 Celestial.add = function(dat) {
@@ -668,6 +749,7 @@ var settings = {
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
+  location: false,    // Display location settings 
   fullwidth: false,   // Display fullwidth button
   controls: true,     // Display zoom controls
   container: "celestial-map",   // ID of parent element, e.g. div
@@ -740,7 +822,7 @@ var settings = {
     if (!cfg) return this; 
     for (prop in this) {
       if (!has(this, prop)) continue; 
-      if (typeof(this[prop]) === 'function') continue; 
+      //if (typeof(this[prop]) === 'function'); 
       if (!has(cfg, prop) || cfg[prop] === null) { 
         res[prop] = this[prop]; 
       } else if (this[prop] === null || this[prop].constructor != Object ) {
@@ -1073,8 +1155,10 @@ canvas.text = function() {
 
 function $(id) { return document.getElementById(id); }
 function px(n) { return n + "px"; } 
-function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
+//function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
 function sign(x) { return x ? x < 0 ? -1 : 1 : 0; }
+function pad(n) { return n < 10 ? '0' + n : n; }
+
 
 function has(o, key) { return o !== null && hasOwnProperty.call(o, key); }
 function when(o, key, val) { return o !== null && hasOwnProperty.call(o, key) ? o[key] : val; }
@@ -1083,6 +1167,16 @@ function isArray(o) { return Object.prototype.toString.call(o) === "[object Arra
 function isObject(o) { var type = typeof o;  return type === 'function' || type === 'object' && !!o; }
 function isFunction(o) { return typeof o == 'function' || false; }
 
+function findPos(o) {
+  var l = 0, t = 0;
+  if (o.offsetParent) {
+    do {
+      l += o.offsetLeft;
+      t += o.offsetTop;
+    } while ((o = o.offsetParent) !== null);
+  }
+  return [l, t];
+}
 
 function attach(node, event, func) {
   if (node.addEventListener) node.addEventListener(event, func, false);
@@ -1092,6 +1186,22 @@ function attach(node, event, func) {
 function stopPropagation(e) {
   if (typeof e.stopPropagation != "undefined") e.stopPropagation();
   else e.cancelBubble = true;
+}
+
+function dateDiff(dt1, dt2, type) {
+  var diff, t, con;
+  diff = dt2.valueOf() - dt1.valueOf();
+  t = type || "d";
+  switch (t) {
+    case 'y': case 'yr': diff /= 31556926080; break;
+    case 'm': case 'mo': diff /= 2629800000; break;
+    case 'd': case 'dy': diff /= 86400000; break;
+    case 'h': case 'hr': diff /= 3600000; break;
+    case 'n': case 'mn': diff /= 60000; break;
+    case 's': case 'sec': diff /= 1000; break;
+    case 'ms': break;    
+  }
+  return Math.floor(diff);
 }
 
 
@@ -1135,14 +1245,15 @@ function form(cfg) {
      .attr("value", function (d) { return d.o; })
      .text(function (d) { return d.n; });
   sel.property("selectedIndex", selected);
-  col.append("br");
-  
-  col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
-  col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/lngitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
-  col.append("span").attr("id", "cxunit").html("h");
-  
-  col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
-  col.append("span").html("\u00b0");
+  if (!cfg.location) {
+    col.append("br");
+    col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
+    col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
+    col.append("span").attr("id", "cxunit").html("h");
+    
+    col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
+    col.append("span").html("\u00b0");
+  }
   if (cfg.fullwidth)
     col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Make Full Width \u25ba").on("click", function() {
     $("sidebar-wrapper").style.display = "none";
@@ -1170,7 +1281,7 @@ function form(cfg) {
   col.append("input").attr("type", "checkbox").attr("id", "stars-colors").property("checked", cfg.stars.colors).on("change", apply);
   
   col.append("label").attr("for", "stars-color").html("or default color ");
-  col.append("input").attr("type", "color").attr("id", "stars-style-fill").property("value", cfg.stars.style.fill).on("change", apply);
+  col.append("input").attr("type", "color").attr("autocomplete", "off").attr("id", "stars-style-fill").attr("title", "Star color").property("value", cfg.stars.style.fill).on("change", apply);
   col.append("br");
   
   col.append("label").attr("for", "stars-names").html("Show names");
@@ -1253,22 +1364,22 @@ function form(cfg) {
   col.append("input").attr("type", "checkbox").attr("id", "mw-show").property("checked", cfg.mw.show).on("change", apply);
   
   col.append("label").attr("for", "background").html("Background color");
-  col.append("input").attr("type", "color").attr("id", "background-fill").attr("value", cfg.background.fill).on("change", apply);
+  col.append("input").attr("type", "color").attr("id", "background-fill").attr("title", "Background color").attr("value", cfg.background.fill).on("change", apply);
   
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", cfg.adaptable).on("change", apply);
- 
-  ctrl.append("div").attr("id", "error");
-  
+   
   $("show").onclick = function(e) {
     var x = $("centerx"),
         y = $("centery");
     //Test params
     if (!isNumber(cfg.width)) { popError($("width"), "Check Width setting"); return false; }
 
-    if (x.value === "" && y.value !== "" || y.value === "" && x.value !== "") {
-      popError(x, "Both center coordinates need to be given");
-      return false; 
+    if (x !== null && y !== null) {
+      if (x.value === "" && y.value !== "" || y.value === "" && x.value !== "") {
+        popError(x, "Both center coordinates need to be given");
+        return false; 
+      }
     } 
   
     Celestial.display(cfg);
@@ -1294,8 +1405,12 @@ function form(cfg) {
       case "projection": cfg.projection = src.options[src.selectedIndex].value; break;
       case "transform": var old = cfg.transform;
                         cfg.transform = src.options[src.selectedIndex].value;
-                        setUnit(cfg.transform, old); 
-                        cfg.center[0] = $("centerx").value; break;
+                        var cx = $("centerx");
+                        if (cx) {
+                          setUnit(cfg.transform, old); 
+                          cfg.center[0] = cx.value; 
+                        }
+                        break;
     }    
     Celestial.display(cfg);
   }
@@ -1307,7 +1422,6 @@ function form(cfg) {
       case "centerx": if (testNumber(src) === false) return;
                       if (cfg.transform !== "equatorial") cfg.center[0] = src.value; 
                       else cfg.center[0] = src.value > 12 ? src.value * 15 - 360 : src.value * 15;
-                      //if (src.value === )     
                       if (cy.value === "") return; 
                       else cfg.center[1] = cy.value;
                       break;
@@ -1328,9 +1442,15 @@ function form(cfg) {
 
     switch (src.type) {
       case "checkbox": value = src.checked; enable(src); break;
-      case "number": if (testNumber(src) === false) return; value = src.value; break;
-      case "color": if (testColor(src) === false) return; value = src.value; break;
+      case "number": if (testNumber(src) === false) return; 
+                     value = src.value; break;
+      case "color": if (testColor(src) === false) return; 
+                    value = src.value; break;
+      case "text": if (src.id.search(/fill$/) === -1) return;
+                   if (testColor(src) === false) return; 
+                   value = src.value; break;
     }
+    if (value === null) return;
     set(src.id, value);
     
     Celestial.apply(cfg);
@@ -1393,39 +1513,53 @@ function fldEnable(d, off) {
 
 // Error notification
 function popError(nd, err) {
-  //var p = nd.getBoundingClientRect();
-  d3.select("#error").html(err).style( {top:px(nd.offsetTop+nd.offsetHeight+1), left:px(nd.offsetLeft), opacity:1} );
+  var p = findPos(nd);
+  d3.select("#error").html(err).style( {top:px(p[1] + nd.offsetHeight + 1), left:px(p[0]), opacity:1} );
+  nd.focus();
 }
 
 //Check numeric field
 function testNumber(node) {
-  var v = node.value;
-  //if (v === "") return true;
-  if (!isNumber(v)) { popError(node, node.title + ": check field value"); return false; }
-  v = parseFloat(v);
-  if (v < node.min || v > node.max ) { popError(node, node.title + " must be between " + node.min + " anode " + node.max); return false; }
-  d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} );
-  return true;
+  var v, adj = node.id === "hr" || node.id === "min" || node.id === "sec" ? 1 : 0;
+  if (node.validity) {
+    v = node.validity;
+    if (v.typeMismatch || v.badInput) { popError(node, node.title + ": check field value"); return false; }
+    if (v.rangeOverflow || v.rangeUnderflow) { popError(node, node.title + " must be between " + (parseInt(node.min) + adj) + " and " + (parseInt(node.max) - adj)); return false; }
+  } else {
+    v = node.value;
+    if (!isNumber(v)) { popError(node, node.title + ": check field value"); return false; }
+    v = parseFloat(v);
+    if (v < node.min || v > node.max ) { popError(node, node.title + " must be between " + (node.min + adj) + " and " + (+node.max - adj)); return false; }
+  }
+  d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} ); 
+  return true; 
 }
 
 //Check color field
 function testColor(node) {
-  var v = node.value;
-  if (v === "") return true;
-  if (v.search(/^#[0-9A-F]{6}$/i) === -1) { popError(node, node.title + ": not a color value"); return false; }
+  if (node.validity) {
+    v = node.validity;
+    if (v.typeMismatch || v.badInput) { popError(node, node.title + ": check field value"); return false; }
+    if (node.value.search(/^#[0-9A-F]{6}$/i) === -1) { popError(node, node.title + ": not a color value"); return false; }
+  } else {
+    var v = node.value;
+    if (v === "") return true;
+    if (v.search(/^#[0-9A-F]{6}$/i) === -1) { popError(node, node.title + ": not a color value"); return false; }
+  }
   d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} );
   return true;
 }
 
 function setUnit(trans, old) {
   var cx = $("centerx");
+  if (!cx) return;
   
   if (old) {
     if (trans === "equatorial" && old !== "equatorial") {
-      cx.value = Round(cx.value/15, 1);
+      cx.value = (cx.value/15).toFixed(1);
       if (cx.value < 0) cx.value += 24;
     } else if (trans !== "equatorial" && old === "equatorial") {
-      cx.value = Round(cx.value * 15, 1);
+      cx.value = (cx.value * 15).toFixed(1);
       if (cx.value > 180) cx.value -= 360;
     }
   }
@@ -1446,10 +1580,10 @@ function setCenter(ctr, trans) {
   
   if (ctr === null) ctr = [0,0]; 
   //cfg.center = ctr; 
-  if (trans !== "equatorial") cx.value = Round(ctr[0], 1); 
-  else cx.value = ctr[0] < 0 ? Round(ctr[0] / 15 + 24, 1) : Round(ctr[0] / 15, 1); 
+  if (trans !== "equatorial") cx.value = ctr[0].toFixed(1); 
+  else cx.value = ctr[0] < 0 ? (ctr[0] / 15 + 24).toFixed(1) : (ctr[0] / 15).toFixed(1); 
   
-  cy.value = Round(ctr[1], 1);
+  cy.value = ctr[1].toFixed(1);
 }
 
 // Set max input limits depending on data
@@ -1487,6 +1621,305 @@ function setLimits() {
   return res;
 }
 
+
+function geo(cfg) {
+  var ctrl = d3.select("#celestial-form").append("div").attr("id", "loc"),
+      dt = new Date(), geopos = [0,0],
+      dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
+      zone = dt.getTimezoneOffset();
+
+  var dtpick = new datetimepicker( function(date, tz) { 
+    $("datetime").value = dateFormat(date, tz); 
+    zone = tz;
+    go(); 
+  });
+  
+  var col = ctrl.append("div").attr("class", "col");
+
+  col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");
+  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("placeholder", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change",  function() { if (testNumber(this) === true) go(); });
+  col.append("span").html("\u00b0");
+  
+  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("placeholder", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change",  function() { if (testNumber(this) === true) go(); });
+  col.append("span").html("\u00b0");
+
+  if ("geolocation" in navigator) {
+    col.append("input").attr("type", "button").attr("value", "Here").attr("id", "here").on("click", here);
+  }
+  
+  col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Local date/time");
+  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(dt, zone))
+  .on("click", showpick, true).on("input", function() { 
+    this.value = dateFormat(dt, zone); 
+    if (!dtpick.isVisible()) showpick(); 
+  });
+  col.append("div").attr("id", "datepick").on("click", showpick);
+  
+  col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
+    
+  d3.select(document).on("mousedown", function() { 
+    if (!hasParent(d3.event.target, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
+  });
+  
+  function now() {
+    dt.setTime(Date.now());
+    $("datetime").value = dateFormat(dt, zone);
+    go();
+  }
+
+  function here() {
+    navigator.geolocation.getCurrentPosition( function(pos) {
+      geopos = [pos.coords.latitude.toFixed(4), pos.coords.longitude.toFixed(4)];
+      d3.select("#lat").attr("value", geopos[0]);
+      d3.select("#lon").attr("value", geopos[1]);
+      go();
+    });  
+  }
+  
+  function showpick() {
+    dtpick.show(dt);
+  }
+  
+  function dateFormat(dt, tz) {
+    var tzs;
+    if (!tz || tz === "0") tzs = " ±0000";
+    else {
+      var h = Math.floor(Math.abs(tz) / 60),
+          m = Math.abs(tz) - (h * 60),
+          s = tz < 0 ? " +" : " −";
+      tzs = s + pad(h) + pad(m);
+    }
+    return dtFormat(dt) + tzs;
+  }  
+  
+  function go() {
+    var zenith = [0,0],
+        lon = $("lon").value,
+        lat = $("lat").value; 
+
+    dt = dtFormat.parse($("datetime").value.slice(0,-6));
+
+    var tz = dt.getTimezoneOffset();
+    var dtc = new Date(dt.valueOf() + (zone - tz) * 60000);
+
+    if (lon !== "" && lat !== "") {
+      geopos = [parseFloat(lat), parseFloat(lon)];
+      zenith = horizontal.inverse(dtc, [90, 0], geopos);
+      Celestial.rotate({center:zenith});
+    }
+  }
+
+  function hasParent(t, id){
+    while(t.parentNode){
+      if(t.id === id) return true;
+      t = t.parentNode;
+    }
+    return false;
+  }
+  
+  setTimeout(go, 1000);  
+}
+
+
+
+var datetimepicker = function(callback) {
+  var date = new Date(), 
+      tzFormat = d3.time.format("%Z"),
+      tz = [{"−12:00":720}, {"−11:00":660}, {"−10:00":600}, {"−09:30":570}, {"−09:00":540}, {"−08:00":480}, {"−07:00":420}, {"−06:00":360}, {"−05:00":300}, {"−04:30":270}, {"−04:00":240}, {"−03:30":210}, {"−03:00":180}, {"−02:00":120}, {"−01:00":60}, {"±00:00":0}, {"+01:00":-60}, {"+02:00":-120}, {"+03:00":-180}, {"+03:30":-210}, {"+04:00":-240}, {"+04:30":-270}, {"+05:00":-300}, {"+05:30":-330}, {"+05:45":-345}, {"+06:00":-360}, {"+06:30":-390}, {"+07:00":-420}, {"+08:00":-480}, {"+08:30":-510}, {"+08:45":-525}, {"+09:00":-540}, {"+09:30":-570}, {"+10:00":-600}, {"+10:30":-630}, {"+11:00":-660}, {"+12:00":-720}, {"+12:45":-765}, {"+13:00":-780}, {"+14:00":-840}],
+      months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+      days = ["Su", "M", "Tu", "W", "Th", "F", "Sa"],
+      years = getYears(date),
+      dateFormat = d3.time.format("%Y-%m-%d");
+    
+  var picker = d3.select("#celestial-form").append("div").attr("id", "celestial-date");
+  nav("left");
+  monSel();
+  yrSel();
+  nav("right");
+  
+  var cal = picker.append("div").attr("id", "cal");
+
+  daySel();
+  
+  timeSel();
+  tzSel();
+  
+  function daySel() {
+    var mo = $("mon").value, yr = $("yr").value,
+        curdt = new Date(yr, mo, 1),
+        cal = d3.select("#cal"),
+        today = new Date();
+    yr = parseInt(yr);   
+    mo = parseInt(mo);   
+    curdt.setDate(curdt.getDate() - curdt.getDay());
+    var nd = cal.node();
+    while (nd.firstChild) nd.removeChild(nd.firstChild);
+    
+    /*for (var i=0; i<7; i++) {
+      cal.append("div").classed({"date": true, "weekday": true}).html(days[i]);
+    }*/
+    for (var i=0; i<42; i++) {
+      var curmon = curdt.getMonth(), curday = curdt.getDay(), curid = dateFormat(curdt);
+      cal.append("div").classed({
+        "date": true, 
+        "grey": curmon !== mo,
+        "weekend": curmon === mo && (curday === 0 || curday === 6),
+        "today": dateDiff(curdt, today) === 0,
+        "selected": dateDiff(curdt, date) === 0
+      }).attr("id", curid)
+      .on("click", pick)
+      .html(curdt.getDate().toString());
+      
+      curdt.setDate(curdt.getDate()+1);
+    }
+  }
+
+  function yrSel() { 
+    var sel = picker.append("select").attr("title", "Year").attr("id", "yr").on("change", daySel),
+        selected = 0,
+        year = date.getFullYear();
+        
+    sel.selectAll('option').data(years).enter().append('option')
+       .text(function (d, i) { 
+         if (d === year) selected = i; 
+         return d.toString(); 
+       });
+    sel.property("selectedIndex", selected);
+  }
+  
+  function monSel() { 
+    var sel = picker.append("select").attr("title", "Month").attr("id", "mon").on("change", daySel),
+        selected = 0,
+        month = date.getMonth();
+    
+    sel.selectAll('option').data(months).enter().append('option')
+       .attr("value", function (d, i) { 
+         if (i === month) selected = i; 
+         return i; 
+       })
+       .text(function (d) { return d; });
+    sel.property("selectedIndex", selected);
+  }
+  
+  function nav(dir) {
+    var lnk = picker.append("div").attr("id", dir).on("click", function() {
+      var mon = $("mon"), yr = $("yr");
+      
+      if (dir === "left") {
+        if (mon.selectedIndex === 0) {
+          mon.selectedIndex = 11;
+          yr.selectedIndex--;
+        } else mon.selectedIndex--;
+      } else {
+        if (mon.selectedIndex === 11) {
+          mon.selectedIndex = 0;
+          yr.selectedIndex++;
+        } else mon.selectedIndex++;
+      }
+      daySel();
+    });
+  }
+
+  function timeSel() { 
+    picker.append("input").attr("type", "number").attr("id", "hr").attr("title", "Hours").attr("max", "24").attr("min", "-1").attr("step", "1").attr("value", date.getHours()).on("change", function() { if (testNumber(this) === true) pick(); });
+
+    picker.append("input").attr("type", "number").attr("id", "min").attr("title", "Minutes").attr("max", "60").attr("min", "-1").attr("step", "1").attr("value", date.getMinutes()).on("change", function() { if (testNumber(this) === true) pick(); });
+    
+    picker.append("input").attr("type", "number").attr("id", "sec").attr("title", "Seconds").attr("max", "60").attr("min", "-1").attr("step", "1").attr("value", date.getSeconds()).on("change", function() { if (testNumber(this) === true) pick(); });
+  }
+  
+  function tzSel() { 
+    var sel = picker.append("select").attr("title", "Time zone offset from UTC").attr("id", "tz").on("change", pick),
+        selected = 15,
+        timezone = date.getTimezoneOffset();
+    sel.selectAll('option').data(tz).enter().append('option')
+       .attr("value", function (d, i) { 
+         var k = Object.keys(d)[0];
+         if (d[k] === timezone) selected = i; 
+         return d[k]; 
+       })
+       .text(function (d) { return Object.keys(d)[0]; });
+    sel.property("selectedIndex", selected);
+  }
+  
+  function getYears(dt) {
+    var y0 = dt.getFullYear(), res = [];
+    for (var i=y0-10; i<=y0+10; i++) res.push(i);
+    return res;
+  }  
+  
+  function select(id, val) {
+    var sel = $(id);
+    for (var i=0; i<sel.childNodes.length; i++) {
+      if (sel.childNodes[i].value == val) {
+        sel.selectedIndex = i;
+        break;
+      }
+    }
+  }
+  
+  function set(dt) {
+     if (dt) date.setTime(dt.valueOf());
+     
+     select("yr", date.getFullYear());
+     select("mon", date.getMonth());
+     daySel();
+     $("hr").value = date.getHours();
+     $("min").value = date.getMinutes();
+     $("sec").value = date.getSeconds();
+  } 
+  
+  this.show = function(dt) {
+    var nd = $("celestial-date"),
+        src = $("datepick"),
+        left = src.offsetLeft + src.offsetWidth - nd.offsetWidth,
+        top = src.offsetTop - nd.offsetHeight - 1;
+  
+    if (nd.offsetTop === -9999) {
+      date.setTime(dt.valueOf());
+      set();
+      d3.select("#celestial-date").style({"top": px(top), "left": px(left), "opacity": 1});  
+      d3.select("#datepick").classed("active", true);
+    } else {
+      vanish();
+    }
+  };
+  
+  this.isVisible = function() {
+    return $("celestial-date").offsetTop !== -9999;
+  };
+
+  this.hide = function() {
+    vanish();
+  };
+  
+  function vanish() {
+    d3.select("#celestial-date").style("opacity", 0);
+    d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} ); 
+    d3.select("#datepick").classed("active", false);
+    setTimeout(function() { $("celestial-date").style.top = px(-9999); }, 600);    
+  }
+  
+  function pick() {
+    var h = $("hr").value, m = $("min").value,
+        s = $("sec").value, tz = $("tz").value;
+        
+    if (this.id && this.id.search(/^\d/) !== -1) {
+      date = dateFormat.parse(this.id); 
+    }
+    /*
+    var yr = date.getFullYear(), mo = date.getMonth();
+    select("yr", yr);
+    select("mon", mo);
+    daySel();*/
+    
+    date.setHours(h, m, s);
+    set();
+    
+    callback(date, tz);
+  } 
+  
+};
 // Copyright 2014, Jason Davies, http://www.jasondavies.com
 // See LICENSE.txt for details.
 (function() {
