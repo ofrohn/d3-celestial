@@ -149,7 +149,7 @@ __Special Planes__
 }
 ```
 
-__Asterism__  
+__Asterisms__  
 
 ```js
 {

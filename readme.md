@@ -7,10 +7,12 @@ Features display of stars and deep sky objects (DSOs) with a selectable magnitud
 Since it uses D3.js and HTML5 canvas, it needs a modern browser with canvas support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at <a href="http://armchairastronautics.blogspot.com/p/skymap.html">armchairastronautics.blogspot.com</a> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment, quite easy to do with node.js.
 
 __See some examples__:  
-[Interactive Form Demo](http://armchairastronautics.blogspot.com/p/skymap.html)  
-[Spinning Sky Globe](http://armchairastronautics.blogspot.com/2016/04/interactive-skymap-version-05.html)  
-[The Milky Way Halo, Globular Clusters & Satellite Galaxies](http://armchairastronautics.blogspot.com/p/milky-way-halo.html)  
-[The Local Group of Galaxies](http://armchairastronautics.blogspot.com/p/local-group.html)  
+[Interactive form demo](http://armchairastronautics.blogspot.com/p/skymap.html)  
+[Spinning sky globe](http://armchairastronautics.blogspot.com/2016/04/interactive-skymap-version-05.html)  
+[The Milky Way halo, globular clusters & satellite galaxies](http://armchairastronautics.blogspot.com/p/milky-way-halo.html)  
+[The Local Group of galaxies](http://armchairastronautics.blogspot.com/p/local-group.html)  
+[Asterisms with locations & time selection](http://armchairastronautics.blogspot.com/p/asterisms.html) 
+[Asterisms with zoom & pan](http://armchairastronautics.blogspot.com/2016/05/asterisms-interactive-and-with.html) 
 
 ### Usage
 
