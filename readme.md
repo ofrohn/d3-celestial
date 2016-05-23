@@ -193,23 +193,23 @@ __Exposed functions__
 ### Files
 
 __GeoJSON data files__  
-(See format specification in readme.md for the [data folder](./data/)  
+(See format specification in readme.md for the [data folder](./data/))  
 
 * `stars.6.json` Stars down to 6th magnitude \[1\]
 * `stars.8.json` Stars down to 8.5th magnitude \[1\]
-  
+
 * `dsos.6.json` Deep space objects down to 6th magnitude \[2\]
 * `dsos.14.json` Deep space objects down to 14th magnitude \[2\]
 * `dsos.bright.json` Some of the brightest showpiece DSOs of my own choosing
 * `lg.json` Local group and Milky Way halo galaxies/globiular clusters. My own compilation \[6\]
-  
+
 * `constellations.json` Constellation data  \[3\]
 * `constellations.bounds.json` Constellation boundaries \[4\]
 * `constellations.lines.json` Constellation lines \[3\]
 * `asterisms.json` Asterism data  \[7\]
-  
+
 * `mw.json` Milky Way outlines in 5 brightness steps \[5\]
-  
+
 * `templ.json` GeoJSON templates for all the different object types used
   
 __Sources__
