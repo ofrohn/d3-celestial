@@ -196,8 +196,7 @@ __GeoJSON data files__
 (See format specification in readme.md for the [data folder](./data/))  
 
 * `stars.6.json` Stars down to 6th magnitude \[1\]
-* `stars.8.json` Stars down to 8.5th magnitude \[1\]
-
+* `stars.8.json` Stars down to 8.5th magnitude \[1\]  
 * `dsos.6.json` Deep space objects down to 6th magnitude \[2\]
 * `dsos.14.json` Deep space objects down to 14th magnitude \[2\]
 * `dsos.bright.json` Some of the brightest showpiece DSOs of my own choosing
