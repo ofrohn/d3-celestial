@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <title>D3-Celestial Sky Map</title>
+  <script type="text/javascript" src="lib/d3.min.js"></script>
+  <script type="text/javascript" src="lib/d3.geo.projection.min.js"></script>
+  <script type="text/javascript" src="celestial.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head><body>
+<div style="overflow:hidden;"><div id="celestial-map"></div></div>
+<div id="celestial-form"></div>
+<script type="text/javascript">
+/* D3-Celestial sky map
+   Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
+   
+*/
+// Properties different from default
+var config = { 
+  location: true,
+  interactive: false,
+  controls: false,
+  projection: "airy", 
+  transform: "equatorial",  
+  center: [0,0],
+  //background: { fill: "#fff", stroke: "#000", opacity: 1, width: 1 },
+  datapath: "data/",
+  //datapath: "http://ofrohn.github.io/data/",
+  //stars: { colors: false, names: false, style: { fill: "#000", opacity:1 }, limit: 6, size: 6 },
+  /*constellations: {   
+    show: true,
+    namestyle: { fill:"#aaa", font: "12px Helvetica, Arial, sans-serif", align: "center", baseline: "middle", opacity:0.9 },
+    linestyle: { stroke: "#999", width: 1.5, opacity: 0.8 },
+ },*/
+  //dsos: { show: false },
+  //mw: { style: { fill:"#664", opacity: 0.15 } }
+  /*lines: {
+    equatorial: {show: false}, 
+    ecliptic: {show: false},
+    galactic: {show: true, stroke:"#fe3", width: 1.5, opacity: 0.6 }, 
+    supergalactic: {show: true, stroke:"#f0c", width:1.5, opacity:0.8 }
+  }*/
+};
+  
+Celestial.display(config);
+
+</script>
+
+</body>
+</html>
