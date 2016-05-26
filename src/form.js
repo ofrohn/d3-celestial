@@ -1,7 +1,6 @@
 /* global Celestial, $, px, has, isNumber, findPos */
-//display settings form
 
-//test with onchange and set cfg
+//display settings form in div with id "celestial-form"
 function form(cfg) {
   var prj = Celestial.projections(), leo = Celestial.eulerAngles();
   var ctrl = d3.select("#celestial-form").append("div").attr("class", "ctrl");
@@ -46,6 +45,13 @@ function form(cfg) {
     
     col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
     col.append("span").html("\u00b0");
+
+    col.append("label").attr("title", "Orientation").attr("for", "centerz").html("Orientation");
+    col.append("input").attr("type", "number").attr("id", "centerz").attr("title", "Center orientation").attr("max", "180").attr("min", "-180").attr("step", "0.1").on("change", turn);
+    col.append("span").html("\u00b0");
+
+    col.append("label").attr("for", "orientationfixed").html("Fixed");
+    col.append("input").attr("type", "checkbox").attr("id", "orientationfixed").property("checked", cfg.orientationfixed).on("change", apply);    
   }
   if (cfg.fullwidth)
     col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Make Full Width \u25ba").on("click", function() {
@@ -209,34 +215,35 @@ function form(cfg) {
   }
                         
   function turn() {
-    var src = this,
-        cx = $("centerx"), cy = $("centery");
-    switch (src.id) {
-      case "centerx": if (testNumber(src) === false) return;
-                      if (cfg.transform !== "equatorial") cfg.center[0] = src.value; 
-                      else cfg.center[0] = src.value > 12 ? src.value * 15 - 360 : src.value * 15;
-                      if (cy.value === "") return; 
-                      else cfg.center[1] = cy.value;
-                      break;
-      case "centery": if (testNumber(src) === false) return;
-                      cfg.center[1] = src.value; 
-                      if (cx.value === "") return; 
-                      else {
-                        if (cfg.transform !== "equatorial") cfg.center[0] = cx.value; 
-                        else cfg.center[0] = cx.value > 12 ? cx.value * 15 - 360 : cx.value * 15;
-                      }
-                      break;
-    }
+    if (testNumber(this) === false) return;   
+    if (getCenter() === false) return;
     Celestial.rotate(cfg);
   }
 
+  function getCenter() {
+    var cx = $("centerx"), cy = $("centery"), cz = $("centerz"),
+        rot = [];
+
+    if (cfg.transform !== "equatorial") cfg.center[0] = parseFloat(cx.value); 
+    else { 
+      var vx = parseFloat(cx.value);
+      cfg.center[0] = vx > 12 ? vx * 15 - 360 : vx * 15;
+    }
+    cfg.center[1] = parseFloat(cy.value); 
+    
+    var vz = parseFloat(cz.value); 
+    cfg.center[2] = isNaN(vz) ? 0 : vz;
+    
+    return cx.value !== "" && cy.value !== "";
+  }
+  
   function apply() {
     var value, src = this;
 
     switch (src.type) {
       case "checkbox": value = src.checked; enable(src); break;
       case "number": if (testNumber(src) === false) return; 
-                     value = src.value; break;
+                     value = parseFloat(src.value); break;
       case "color": if (testColor(src) === false) return; 
                     value = src.value; break;
       case "text": if (src.id.search(/fill$/) === -1) return;
@@ -245,7 +252,7 @@ function form(cfg) {
     }
     if (value === null) return;
     set(src.id, value);
-    
+    getCenter();
     Celestial.apply(cfg);
   }
 
@@ -368,15 +375,16 @@ function setUnit(trans, old) {
 }
 
 function setCenter(ctr, trans) {
-  var cx = $("centerx"), cy = $("centery");
+  var cx = $("centerx"), cy = $("centery"), cz = $("centerz");
   if (!cx || !cy) return;
   
-  if (ctr === null) ctr = [0,0]; 
+  if (ctr === null) ctr = [0,0,0]; 
   //cfg.center = ctr; 
   if (trans !== "equatorial") cx.value = ctr[0].toFixed(1); 
   else cx.value = ctr[0] < 0 ? (ctr[0] / 15 + 24).toFixed(1) : (ctr[0] / 15).toFixed(1); 
   
   cy.value = ctr[1].toFixed(1);
+  cz.value = ctr.length > 2 && ctr[2] !== null ? ctr[2].toFixed(1) : 0;
 }
 
 // Set max input limits depending on data

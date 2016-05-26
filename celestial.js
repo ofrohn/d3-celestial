@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.5.4',
+  version: '0.5.5',
   container: null,
   data: []
 };
@@ -214,7 +214,7 @@ Celestial.display = function(config) {
     cfg = cfg.set(config);
     var rot = projection.rotate();
     rotation = getAngles(cfg.center);
-    rotation[2] = rot[2];
+    if (rotation[2] === "" || rotation[2] === undefined) rotation[2] = rot[2];
     //center = [-rotation[0], -rotation[1]];
     projection.rotate(rotation);
     redraw();
@@ -238,8 +238,12 @@ Celestial.display = function(config) {
     projOl.scale(projection.scale());
     
     if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/scale);
+    if (cfg.orientationfixed) {
+      rot[2] = cfg.center[2]; 
+      projection.rotate(rot);
+    }
     base = cfg.stars.size * adapt;
-    cfg.center = [-rot[0], -rot[1]];
+    cfg.center = [-rot[0], -rot[1], rot[2]];
     
     setCenter(cfg.center, cfg.transform);
     clear();
@@ -427,7 +431,7 @@ Celestial.display = function(config) {
   }
   
   function clear() {
-    context.clearRect(0,0,width+margin[0],height+margin[1]);
+    context.clearRect(0, 0, width + margin[0], height + margin[1]);
   }
   
   function getWidth() {
@@ -438,14 +442,10 @@ Celestial.display = function(config) {
   }
   
   function getAngles(coords) {
-    if (coords === null) return [0,0];
-    var rot = eulerAngles.equatorial; //, rp = projection.rotate(); //, ctr = 0;
-    //if (!coords || trans !== 'equatorial') {
-      //if (trans === 'equatorial' || trans === 'ecliptic') ctr = 180;
-      //return [rot[0], rot[1], rot[2]];
-    //}
-    //ctr = transformDeg(coords, euler["inverse " + trans]);
-    return [rot[0] - coords[0], rot[1] - coords[1], rot[2]];
+    if (coords === null) return [0,0,0];
+    var rot = eulerAngles.equatorial; 
+    
+    return [rot[0] - coords[0], rot[1] - coords[1], rot[2] + coords[2]];
   }
   
   // Exported objects and functions for adding data
@@ -744,7 +744,9 @@ var settings = {
   width: 0,     // Default width; height is determined by projection
   projection: "aitoff",  // Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
   transform: "equatorial", // Coordinate transformation: equatorial (default), ecliptic, galactic, supergalactic
-  center: null,       // Initial center coordinates in equatorial transformation only [hours, degrees], null = default center
+  center: null,       // Initial center coordinates in equatorial transformation [hours, degrees, degrees], 
+                      // otherwise [degrees, degrees, degrees], 3rd parameter is orientation, null = default center
+  orientationfixed: true,  // Keep orientation angle the same as center[2]
   background: { fill: "#000000", stroke: "#000000", opacity: 1, width:1 }, // Background style
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
@@ -1206,9 +1208,8 @@ function dateDiff(dt1, dt2, type) {
 
 
 
-//display settings form
 
-//test with onchange and set cfg
+//display settings form in div with id "celestial-form"
 function form(cfg) {
   var prj = Celestial.projections(), leo = Celestial.eulerAngles();
   var ctrl = d3.select("#celestial-form").append("div").attr("class", "ctrl");
@@ -1253,6 +1254,13 @@ function form(cfg) {
     
     col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
     col.append("span").html("\u00b0");
+
+    col.append("label").attr("title", "Orientation").attr("for", "centerz").html("Orientation");
+    col.append("input").attr("type", "number").attr("id", "centerz").attr("title", "Center orientation").attr("max", "180").attr("min", "-180").attr("step", "0.1").on("change", turn);
+    col.append("span").html("\u00b0");
+
+    col.append("label").attr("for", "orientationfixed").html("Fixed");
+    col.append("input").attr("type", "checkbox").attr("id", "orientationfixed").property("checked", cfg.orientationfixed).on("change", apply);    
   }
   if (cfg.fullwidth)
     col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Make Full Width \u25ba").on("click", function() {
@@ -1416,34 +1424,35 @@ function form(cfg) {
   }
                         
   function turn() {
-    var src = this,
-        cx = $("centerx"), cy = $("centery");
-    switch (src.id) {
-      case "centerx": if (testNumber(src) === false) return;
-                      if (cfg.transform !== "equatorial") cfg.center[0] = src.value; 
-                      else cfg.center[0] = src.value > 12 ? src.value * 15 - 360 : src.value * 15;
-                      if (cy.value === "") return; 
-                      else cfg.center[1] = cy.value;
-                      break;
-      case "centery": if (testNumber(src) === false) return;
-                      cfg.center[1] = src.value; 
-                      if (cx.value === "") return; 
-                      else {
-                        if (cfg.transform !== "equatorial") cfg.center[0] = cx.value; 
-                        else cfg.center[0] = cx.value > 12 ? cx.value * 15 - 360 : cx.value * 15;
-                      }
-                      break;
-    }
+    if (testNumber(this) === false) return;   
+    if (getCenter() === false) return;
     Celestial.rotate(cfg);
   }
 
+  function getCenter() {
+    var cx = $("centerx"), cy = $("centery"), cz = $("centerz"),
+        rot = [];
+
+    if (cfg.transform !== "equatorial") cfg.center[0] = parseFloat(cx.value); 
+    else { 
+      var vx = parseFloat(cx.value);
+      cfg.center[0] = vx > 12 ? vx * 15 - 360 : vx * 15;
+    }
+    cfg.center[1] = parseFloat(cy.value); 
+    
+    var vz = parseFloat(cz.value); 
+    cfg.center[2] = isNaN(vz) ? 0 : vz;
+    
+    return cx.value !== "" && cy.value !== "";
+  }
+  
   function apply() {
     var value, src = this;
 
     switch (src.type) {
       case "checkbox": value = src.checked; enable(src); break;
       case "number": if (testNumber(src) === false) return; 
-                     value = src.value; break;
+                     value = parseFloat(src.value); break;
       case "color": if (testColor(src) === false) return; 
                     value = src.value; break;
       case "text": if (src.id.search(/fill$/) === -1) return;
@@ -1452,7 +1461,7 @@ function form(cfg) {
     }
     if (value === null) return;
     set(src.id, value);
-    
+    getCenter();
     Celestial.apply(cfg);
   }
 
@@ -1575,15 +1584,16 @@ function setUnit(trans, old) {
 }
 
 function setCenter(ctr, trans) {
-  var cx = $("centerx"), cy = $("centery");
+  var cx = $("centerx"), cy = $("centery"), cz = $("centerz");
   if (!cx || !cy) return;
   
-  if (ctr === null) ctr = [0,0]; 
+  if (ctr === null) ctr = [0,0,0]; 
   //cfg.center = ctr; 
   if (trans !== "equatorial") cx.value = ctr[0].toFixed(1); 
   else cx.value = ctr[0] < 0 ? (ctr[0] / 15 + 24).toFixed(1) : (ctr[0] / 15).toFixed(1); 
   
   cy.value = ctr[1].toFixed(1);
+  cz.value = ctr.length > 2 && ctr[2] !== null ? ctr[2].toFixed(1) : 0;
 }
 
 // Set max input limits depending on data

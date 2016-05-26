@@ -1,6 +1,6 @@
 /* global settings, bvcolor, projections, poles, eulerAngles, euler, transformDeg, getData, Canvas, halfπ, $, px, has, form, geo, setCenter */
 var Celestial = {
-  version: '0.5.4',
+  version: '0.5.5',
   container: null,
   data: []
 };
@@ -213,7 +213,7 @@ Celestial.display = function(config) {
     cfg = cfg.set(config);
     var rot = projection.rotate();
     rotation = getAngles(cfg.center);
-    rotation[2] = rot[2];
+    if (rotation[2] === "" || rotation[2] === undefined) rotation[2] = rot[2];
     //center = [-rotation[0], -rotation[1]];
     projection.rotate(rotation);
     redraw();
@@ -237,8 +237,12 @@ Celestial.display = function(config) {
     projOl.scale(projection.scale());
     
     if (cfg.adaptable) adapt = Math.sqrt(projection.scale()/scale);
+    if (cfg.orientationfixed) {
+      rot[2] = cfg.center[2]; 
+      projection.rotate(rot);
+    }
     base = cfg.stars.size * adapt;
-    cfg.center = [-rot[0], -rot[1]];
+    cfg.center = [-rot[0], -rot[1], rot[2]];
     
     setCenter(cfg.center, cfg.transform);
     clear();
@@ -426,7 +430,7 @@ Celestial.display = function(config) {
   }
   
   function clear() {
-    context.clearRect(0,0,width+margin[0],height+margin[1]);
+    context.clearRect(0, 0, width + margin[0], height + margin[1]);
   }
   
   function getWidth() {
@@ -437,14 +441,10 @@ Celestial.display = function(config) {
   }
   
   function getAngles(coords) {
-    if (coords === null) return [0,0];
-    var rot = eulerAngles.equatorial; //, rp = projection.rotate(); //, ctr = 0;
-    //if (!coords || trans !== 'equatorial') {
-      //if (trans === 'equatorial' || trans === 'ecliptic') ctr = 180;
-      //return [rot[0], rot[1], rot[2]];
-    //}
-    //ctr = transformDeg(coords, euler["inverse " + trans]);
-    return [rot[0] - coords[0], rot[1] - coords[1], rot[2]];
+    if (coords === null) return [0,0,0];
+    var rot = eulerAngles.equatorial; 
+    
+    return [rot[0] - coords[0], rot[1] - coords[1], rot[2] + coords[2]];
   }
   
   // Exported objects and functions for adding data
