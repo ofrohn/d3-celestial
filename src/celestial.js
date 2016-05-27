@@ -49,10 +49,8 @@ Celestial.display = function(config) {
   projection = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale([scale]);
   projOl = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([scale]); //projected non moving outline
   
-  if (proj.clip) {
-    projection.clipAngle(90);
-    circle = d3.geo.circle().angle([90]);
-  }
+  if (proj.clip) { projection.clipAngle(90); }
+  circle = d3.geo.circle().angle([90]);
   
   zoom = d3.geo.zoom().projection(projection).center([width/2, height/2]).scaleExtent([scale, scale*5]).on("zoom.redraw", redraw);
 
@@ -73,7 +71,7 @@ Celestial.display = function(config) {
   if (cfg.interactive) canvas.call(zoom);
   else canvas.attr("style", "cursor: default!important");
   
-  if (circle) {
+  if (proj.clip) {
     container.append("path").datum(circle).attr("class", "outline"); 
   } else {
     container.append("path").datum(graticule.outline).attr("class", "outline"); 
