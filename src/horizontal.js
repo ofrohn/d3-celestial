@@ -13,7 +13,7 @@ var horizontal = function(dt, pos, loc) {
 
   if (Math.sin(ha) > 0) az = Math.PI * 2 - az;
   
-  return [alt / deg2rad, az / deg2rad];
+  return [alt / deg2rad, az / deg2rad, 0];
 };
 
 horizontal.inverse = function(dt, hor, loc) {
@@ -31,7 +31,7 @@ horizontal.inverse = function(dt, hor, loc) {
   var ra = getMST(dt, loc[1]) - ha;
   //if (ra < 0) ra = ra + 360;
     
-  return [ra, dec / deg2rad];
+  return [ra, dec / deg2rad, 0];
 };
 
 function getMST(dt, lng)

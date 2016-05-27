@@ -11,7 +11,7 @@ canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbin
 
 #celestial-form input { vertical-align: 0px; }
 #celestial-form input[type='number'] { width:48px; height:18px; text-align:right; padding:0; }
-#celestial-form #centerx, #celestial-form #centery, 
+#celestial-form #centerx, #celestial-form #centery, #celestial-form #centerz,
 #celestial-form #lat, #celestial-form #lon { width:64px; margin-top:4px; }
 #celestial-form input[type='text'] { width:194px; height:18px; text-align:left; padding-left:2px; }
 #celestial-form input[type='checkbox'] { vertical-align: -2px; }

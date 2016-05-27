@@ -606,7 +606,7 @@ var horizontal = function(dt, pos, loc) {
 
   if (Math.sin(ha) > 0) az = Math.PI * 2 - az;
   
-  return [alt / deg2rad, az / deg2rad];
+  return [alt / deg2rad, az / deg2rad, 0];
 };
 
 horizontal.inverse = function(dt, hor, loc) {
@@ -624,7 +624,7 @@ horizontal.inverse = function(dt, hor, loc) {
   var ra = getMST(dt, loc[1]) - ha;
   //if (ra < 0) ra = ra + 360;
     
-  return [ra, dec / deg2rad];
+  return [ra, dec / deg2rad, 0];
 };
 
 function getMST(dt, lng)
@@ -1586,12 +1586,13 @@ function setCenter(ctr, trans) {
   if (!cx || !cy) return;
   
   if (ctr === null) ctr = [0,0,0]; 
+  if (ctr.length <= 2) ctr[2] = 0;
   //cfg.center = ctr; 
   if (trans !== "equatorial") cx.value = ctr[0].toFixed(1); 
   else cx.value = ctr[0] < 0 ? (ctr[0] / 15 + 24).toFixed(1) : (ctr[0] / 15).toFixed(1); 
   
   cy.value = ctr[1].toFixed(1);
-  cz.value = ctr.length > 2 && ctr[2] !== null ? ctr[2].toFixed(1) : 0;
+  cz.value = ctr[2] !== null ? ctr[2].toFixed(1) : 0;
 }
 
 // Set max input limits depending on data
@@ -1713,6 +1714,7 @@ function geo(cfg) {
     if (lon !== "" && lat !== "") {
       geopos = [parseFloat(lat), parseFloat(lon)];
       zenith = horizontal.inverse(dtc, [90, 0], geopos);
+      //zenith[2]
       Celestial.rotate({center:zenith});
     }
   }
