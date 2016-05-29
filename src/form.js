@@ -224,6 +224,8 @@ function form(cfg) {
     var cx = $("centerx"), cy = $("centery"), cz = $("centerz"),
         rot = [];
 
+    if (!cx || !cy) return;
+
     if (cfg.transform !== "equatorial") cfg.center[0] = parseFloat(cx.value); 
     else { 
       var vx = parseFloat(cx.value);

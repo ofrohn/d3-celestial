@@ -5,11 +5,11 @@ var Celestial = {
   data: []
 };
  
-var cfg, projection, projOl, zoom, map, outline;
+var cfg, projection, projOl, zoom, map, outline, circle;
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
-  var circle, par, container = Celestial.container;
+  var par, container = Celestial.container;
   
   //Mash config with default settings
   cfg = settings.set(config); 
@@ -75,6 +75,9 @@ Celestial.display = function(config) {
     container.append("path").datum(circle).attr("class", "outline"); 
   } else {
     container.append("path").datum(graticule.outline).attr("class", "outline"); 
+    /*if (cfg.location && cfg.daylight.show) {
+      container.append("path").datum(circle).attr("class", "daylight");
+    }*/
   }
 
   //Celestial planes
@@ -83,9 +86,9 @@ Celestial.display = function(config) {
     if (key === "graticule") {
       container.append("path").datum(graticule).attr("class", "graticule"); 
     } else {
-    container.append("path")
-      .datum(d3.geo.circle().angle([90]).origin(transformDeg(poles[key], euler[trans])) )
-      .attr("class", key);
+      container.append("path")
+        .datum(d3.geo.circle().angle([90]).origin(transformDeg(poles[key], euler[trans])) )
+        .attr("class", key);
     }
   }
   
@@ -325,6 +328,15 @@ Celestial.display = function(config) {
         d.redraw();
       });
     }
+    
+    /*if (cfg.location && cfg.daylight.show && !proj.clip) {
+      circle.origin(transformDeg(cfg.center, euler[trans]));
+
+      setStyle(cfg.daylight);
+      container.selectAll(".daylight").datum(circle).attr("d", map);  
+      context.fill();    
+    }*/
+    
     setStyle(cfg.background);
     container.selectAll(".outline").attr("d", outline);      
     context.stroke();
