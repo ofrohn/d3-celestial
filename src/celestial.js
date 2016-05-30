@@ -75,9 +75,9 @@ Celestial.display = function(config) {
     container.append("path").datum(circle).attr("class", "outline"); 
   } else {
     container.append("path").datum(graticule.outline).attr("class", "outline"); 
-    /*if (cfg.location && cfg.daylight.show) {
+    if (cfg.location && cfg.daylight.show) {
       container.append("path").datum(circle).attr("class", "daylight");
-    }*/
+    }
   }
 
   //Celestial planes
@@ -189,7 +189,7 @@ Celestial.display = function(config) {
     d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
   }
   
-  if (cfg.location === true && $("loc") === null) geo(cfg);
+  if (cfg.location === true && $("loc") === null) var geoform = geo(cfg);
   if (cfg.form === true && $("params") === null) form(cfg);
   if ($("error") === null) d3.select("body").append("div").attr("id", "error");
 
@@ -329,18 +329,24 @@ Celestial.display = function(config) {
       });
     }
     
-    /*if (cfg.location && cfg.daylight.show && !proj.clip) {
-      circle.origin(transformDeg(cfg.center, euler[trans]));
-
-      setStyle(cfg.daylight);
-      container.selectAll(".daylight").datum(circle).attr("d", map);  
-      context.fill();    
-    }*/
     
     setStyle(cfg.background);
     container.selectAll(".outline").attr("d", outline);      
     context.stroke();
     
+    if (cfg.location && cfg.daylight.show && !proj.clip) {
+      circle.origin(transformDeg(geoform.nadir(), euler[trans]));
+      setStyle(cfg.daylight);
+      /*context.shadowOffsetX = 0;
+      context.shadowOffsetY = 0;
+      context.shadowBlur= 1;
+      context.shadowColor = "#ccc";*/
+      container.selectAll(".daylight").datum(circle).attr("d", map);  
+      context.fill();    
+      //context.shadowBlur= 0;
+      //context.shadowColor = "#fff";
+    }
+
     if (cfg.controls) { 
       zoomState(projection.scale());
     }

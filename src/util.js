@@ -24,6 +24,14 @@ function findPos(o) {
   return [l, t];
 }
 
+function hasParent(t, id){
+  while(t.parentNode){
+    if(t.id === id) return true;
+    t = t.parentNode;
+  }
+  return false;
+}
+
 function attach(node, event, func) {
   if (node.addEventListener) node.addEventListener(event, func, false);
   else node.attachEvent("on" + event, func); 

@@ -1,7 +1,7 @@
-/* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber */
+/* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, hasParent */
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("id", "loc"),
-      dt = new Date(), geopos = [0,0],
+      dt = new Date(), geopos = [0,0], zenith = [0,0],
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zone = dt.getTimezoneOffset();
 
@@ -70,8 +70,7 @@ function geo(cfg) {
   }  
   
   function go() {
-    var zenith = [0,0],
-        lon = $("lon").value,
+    var lon = $("lon").value,
         lat = $("lat").value; 
 
     dt = dtFormat.parse($("datetime").value.slice(0,-6));
@@ -87,14 +86,16 @@ function geo(cfg) {
     }
   }
 
-  function hasParent(t, id){
-    while(t.parentNode){
-      if(t.id === id) return true;
-      t = t.parentNode;
-    }
-    return false;
-  }
+  this.zenith = function() { return zenith; };
+  this.nadir = function() {
+    var b = -zenith[1],
+        l = zenith[0] + 180;
+    if (l > 180) l -= 360;    
+    return [l, b-0.001]; 
+  };
   
-  setTimeout(go, 1000);  
+  setTimeout(go, 1000); 
+
+  return this;
 }
 

@@ -76,9 +76,9 @@ Celestial.display = function(config) {
     container.append("path").datum(circle).attr("class", "outline"); 
   } else {
     container.append("path").datum(graticule.outline).attr("class", "outline"); 
-    /*if (cfg.location && cfg.daylight.show) {
+    if (cfg.location && cfg.daylight.show) {
       container.append("path").datum(circle).attr("class", "daylight");
-    }*/
+    }
   }
 
   //Celestial planes
@@ -190,7 +190,7 @@ Celestial.display = function(config) {
     d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
   }
   
-  if (cfg.location === true && $("loc") === null) geo(cfg);
+  if (cfg.location === true && $("loc") === null) var geoform = geo(cfg);
   if (cfg.form === true && $("params") === null) form(cfg);
   if ($("error") === null) d3.select("body").append("div").attr("id", "error");
 
@@ -330,18 +330,24 @@ Celestial.display = function(config) {
       });
     }
     
-    /*if (cfg.location && cfg.daylight.show && !proj.clip) {
-      circle.origin(transformDeg(cfg.center, euler[trans]));
-
-      setStyle(cfg.daylight);
-      container.selectAll(".daylight").datum(circle).attr("d", map);  
-      context.fill();    
-    }*/
     
     setStyle(cfg.background);
     container.selectAll(".outline").attr("d", outline);      
     context.stroke();
     
+    if (cfg.location && cfg.daylight.show && !proj.clip) {
+      circle.origin(transformDeg(geoform.nadir(), euler[trans]));
+      setStyle(cfg.daylight);
+      /*context.shadowOffsetX = 0;
+      context.shadowOffsetY = 0;
+      context.shadowBlur= 1;
+      context.shadowColor = "#ccc";*/
+      container.selectAll(".daylight").datum(circle).attr("d", map);  
+      context.fill();    
+      //context.shadowBlur= 0;
+      //context.shadowColor = "#fff";
+    }
+
     if (cfg.controls) { 
       zoomState(projection.scale());
     }
@@ -762,7 +768,7 @@ var settings = {
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
   location: false,    // Display location settings 
-  daylight: { show: true, fill: "#fff", opacity: 0.4 },  // Show daylight marker 
+  daylight: { show: false, fill: "#fff", opacity: 0.4 },  // Show daylight marker 
   fullwidth: false,   // Display fullwidth button
   controls: true,     // Display zoom controls
   container: "celestial-map",   // ID of parent element, e.g. div
@@ -1189,6 +1195,14 @@ function findPos(o) {
     } while ((o = o.offsetParent) !== null);
   }
   return [l, t];
+}
+
+function hasParent(t, id){
+  while(t.parentNode){
+    if(t.id === id) return true;
+    t = t.parentNode;
+  }
+  return false;
 }
 
 function attach(node, event, func) {
@@ -1648,7 +1662,7 @@ function setLimits() {
 
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("id", "loc"),
-      dt = new Date(), geopos = [0,0],
+      dt = new Date(), geopos = [0,0], zenith = [0,0],
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zone = dt.getTimezoneOffset();
 
@@ -1717,8 +1731,7 @@ function geo(cfg) {
   }  
   
   function go() {
-    var zenith = [0,0],
-        lon = $("lon").value,
+    var lon = $("lon").value,
         lat = $("lat").value; 
 
     dt = dtFormat.parse($("datetime").value.slice(0,-6));
@@ -1734,15 +1747,17 @@ function geo(cfg) {
     }
   }
 
-  function hasParent(t, id){
-    while(t.parentNode){
-      if(t.id === id) return true;
-      t = t.parentNode;
-    }
-    return false;
-  }
+  this.zenith = function() { return zenith; };
+  this.nadir = function() {
+    var b = -zenith[1],
+        l = zenith[0] + 180;
+    if (l > 180) l -= 360;    
+    return [l, b-0.001]; 
+  };
   
-  setTimeout(go, 1000);  
+  setTimeout(go, 1000); 
+
+  return this;
 }
 
 

@@ -12,7 +12,7 @@ var settings = {
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
   location: false,    // Display location settings 
-  daylight: { show: true, fill: "#fff", opacity: 0.4 },  // Show daylight marker 
+  daylight: { show: false, fill: "#fff", opacity: 0.4 },  // Show daylight marker 
   fullwidth: false,   // Display fullwidth button
   controls: true,     // Display zoom controls
   container: "celestial-map",   // ID of parent element, e.g. div
