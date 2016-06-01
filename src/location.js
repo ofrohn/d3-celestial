@@ -80,8 +80,8 @@ function geo(cfg) {
 
     if (lon !== "" && lat !== "") {
       geopos = [parseFloat(lat), parseFloat(lon)];
-      zenith = horizontal.inverse(dtc, [90, 0], geopos);
-      //zenith[2]
+      zenith = Celestial.getPoint(horizontal.inverse(dtc, [90, 0], geopos), cfg.transform);
+      zenith[2] = 0;
       Celestial.rotate({center:zenith});
     }
   }

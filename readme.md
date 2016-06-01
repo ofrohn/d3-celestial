@@ -134,37 +134,46 @@ _Symbol style_
 
 __Exposed functions & objects__  
 * `Celestial.add({file:string, type:dso|line, callback:function, redraw:function)`  
-   Function to add data in json-format (dso) or directly (line) to the display
-   _file_: complete url/path to json data file (type:dso)
-   _type_: type of data being added
-   _callback_: callback function to call when json is loaded (dso)
-               or to directly add elements to the path (line)
-   _redraw_: for interactive display, call when view changes (optional) 
+   Function to add data in json-format (dso) or directly (line) to the display  
+   _file_: complete url/path to json data file (type:dso)  
+   _type_: type of data being added  
+   _callback_: callback function to call when json is loaded (dso)  
+               or to directly add elements to the path (line)  
+   _redraw_: for interactive display, call when view changes (optional)  
 
+* `Celestial.getData(geojson, transform)`  
+   Function to convert geojson coordinates to transformation  
+   (equatorial, ecliptic, galactic, supergalactic)  
+   Returns geojson-object with transformed coordinates  
+   
+* `Celestial.getPoint(coordinates, transform)`  
+   Function to convert single coordinate to transformation  
+   (equatorial, ecliptic, galactic, supergalactic)  
+   Returns transformed coordinates  
    
 * `Celestial.container`  
-   The object to add data to in the callback. See D3.js documentation 
+   The object to add data to in the callback. See D3.js documentation  
 
 * `Celestial.context` 
-   The HTML5-canvas context object to draw on in the callback. Also see D3.js documentation 
+   The HTML5-canvas context object to draw on in the callback. Also see D3.js documentation  
   
 * `Celestial.map`  
-   The d3.geo.path object to apply projection to data. Also see D3.js documentation
+   The d3.geo.path object to apply projection to data. Also see D3.js documentation  
   
 * `Celestial.mapProjection`  
-   The projection object for access to its properties and functions. Also D3.js documentation
+   The projection object for access to its properties and functions. Also D3.js documentation  
 
 * `Celestial.clip(coordinates)`  
    Function to check if the object is visible, and set its visiblility  
-   _coordinates_: object coordinates in radians, normally supplied by D3 as geometry.coordinates array
+   _coordinates_: object coordinates in radians, normally supplied by D3 as geometry.coordinates array  
 
-* `Celestial.setStyle(<style object>)`
-* `Celestial.setTextStyle(<style object>)`
-   Set the canvas styles as documented above under __style settings__. Seperate functions for graphic/text
-   _&lt;style object>_: object literal listing all styles to set
+* `Celestial.setStyle(<style object>)`  
+* `Celestial.setTextStyle(<style object>)`  
+   Set the canvas styles as documented above under __style settings__. Seperate functions for graphic/text  
+   _&lt;style object>_: object literal listing all styles to set  
 
 * `Celestial.Canvas.symbol()`  
-   Draw symbol shapes directly on canvas context: circle, square, diamond, triangle, ellipse, marker,
+   Draw symbol shapes directly on canvas context: circle, square, diamond, triangle, ellipse, marker,  
    stroke-circle, cross-circle
    
 ### Manipulating the Map
