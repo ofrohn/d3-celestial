@@ -32,6 +32,8 @@ var config = {
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: true,         // Display form for interactive settings
   location: false,    // Display location settings (no center setting on form)
+  horizon: { show: true, fill: "#000", opacity: 0.6 },  //Show horizon marker, if location
+                      // is set and map projection shows 360?  
   controls: true,     // Display zoom controls
   container: "map",   // ID of parent element, e.g. div, null = html-body
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'

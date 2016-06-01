@@ -12,7 +12,8 @@ var settings = {
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
   location: false,    // Display location settings 
-  daylight: { show: false, fill: "#fff", opacity: 0.4 },  // Show daylight marker 
+  horizon: { show: true, fill: "#000", opacity: 0.6 },  //Show horizon marker 
+  daylight: { show: false, fill: "#fff", opacity: 0.4 }, //Show daylight marker 
   fullwidth: false,   // Display fullwidth button
   controls: true,     // Display zoom controls
   container: "celestial-map",   // ID of parent element, e.g. div
@@ -129,7 +130,7 @@ var projections = {
   "baker": {n:"Baker Dinomic", arg:null, scale:160, ratio:1.4},
   "berghaus": {n:"Berghaus Star", arg:0, scale:320, ratio:1.0, clip:true},
   "boggs": {n:"Boggs Eumorphic", arg:null, scale:170},
-  "bonne": {n:"Bonne", arg:Math.PI/5, scale:230, ratio:0.88},
+  "bonne": {n:"Bonne", arg:Math.PI/5, scale:225, ratio:0.88},
   "bromley": {n:"Bromley", arg:null, scale:162},
   "collignon": {n:"Collignon", arg:null, scale:100, ratio:2.6},
   "craig": {n:"Craig Retroazimuthal", arg:-0.1, scale:310, ratio:1.5, clip:true},
@@ -159,7 +160,7 @@ var projections = {
   "hatano": {n:"Hatano", arg:null, scale:186},
   "healpix": {n:"HEALPix", arg:1, scale:320, ratio:1.2},
   "hill": {n:"Hill Eucyclic", arg:2, scale:190, ratio:1.1},
-  "kavrayskiy VII": {n:"Kavrayskiy 7", arg:null, scale:185, ratio:1.75},
+  "kavrayskiy7": {n:"Kavrayskiy VII", arg:null, scale:185, ratio:1.75},
   "lagrange": {n:"Lagrange", arg:Math.PI/4, scale:88, ratio:1.6, clip:false},
   "larrivee": {n:"l'Arrivée", arg:null, scale:160, ratio:1.25},
   "laskowski": {n:"Laskowski Tri-Optimal", arg:null, scale:165, ratio:1.7},
