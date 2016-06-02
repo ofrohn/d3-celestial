@@ -191,9 +191,11 @@ Celestial.display = function(config) {
   
   if (cfg.location === true) {
     if ($("loc") === null) geo(cfg);
+    //set coords
     var hs = $("horizon-show");
     if (hs) hs.style.display = proj.clip === true ? "none" : "inline-block";
     hs.previousSibling.style.display = hs.style.display;
+    projection.rotate({center:Celestial.zenith()});
   }
   if (cfg.form === true && $("params") === null) form(cfg);
   if ($("error") === null) d3.select("body").append("div").attr("id", "error");
@@ -340,7 +342,7 @@ Celestial.display = function(config) {
     context.stroke();
     
     if (cfg.location && cfg.horizon.show && !proj.clip) {
-      circle.origin(transformDeg(Celestial.nadir(), euler[trans]));
+      circle.origin(Celestial.nadir());
       setStyle(cfg.horizon);
       container.selectAll(".horizon").datum(circle).attr("d", map);  
       context.fill();    

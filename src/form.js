@@ -37,7 +37,7 @@ function form(cfg) {
      .attr("value", function (d) { return d.o; })
      .text(function (d) { return d.n; });
   sel.property("selectedIndex", selected);
-  if (!cfg.location) {
+  //if (!cfg.location) {
     col.append("br");
     col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
     col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
@@ -52,7 +52,7 @@ function form(cfg) {
 
     col.append("label").attr("for", "orientationfixed").html("Fixed");
     col.append("input").attr("type", "checkbox").attr("id", "orientationfixed").property("checked", cfg.orientationfixed).on("change", apply);    
-  }
+  //}
   if (cfg.fullwidth)
     col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Make Full Width \u25ba").on("click", function() {
     $("sidebar-wrapper").style.display = "none";
@@ -62,7 +62,7 @@ function form(cfg) {
     Celestial.display(cfg);
     return false;
   });
-  col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
+  //col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
   //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
 
   setCenter(cfg.center, cfg.transform);
@@ -168,7 +168,7 @@ function form(cfg) {
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", cfg.adaptable).on("change", apply);
    
-  $("show").onclick = function(e) {
+  /*$("show").onclick = function(e) {
     var x = $("centerx"),
         y = $("centery");
     //Test params
@@ -184,7 +184,7 @@ function form(cfg) {
     Celestial.display(cfg);
 
     return false;
-  };
+  };*/
 
   setLimits();
   setUnit(cfg.transform);

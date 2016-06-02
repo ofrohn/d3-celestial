@@ -25,7 +25,7 @@ function geo(cfg) {
     col.append("input").attr("type", "button").attr("value", "Here").attr("id", "here").on("click", here);
   }
   //Datetime field with dtpicker-button
-  col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Local date/time");
+  col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Date/time");
   col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(dt, zone))
   .on("click", showpick, true).on("input", function() { 
     this.value = dateFormat(dt, zone); 
