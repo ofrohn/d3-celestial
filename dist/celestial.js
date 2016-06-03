@@ -476,7 +476,7 @@ Celestial.display = function(config) {
   this.redraw = redraw; 
   this.resize = function() { resize(); }; 
   this.apply = function(config) { apply(config); }; 
-  this.rotate = function(config) { if (!config) return projection.rotate(); rotate(config); }; 
+  this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
   this.zoomBy = function(factor) { if (!factor) return projection.scale(); zoomBy(factor); };
 };
 
