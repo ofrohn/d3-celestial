@@ -3,14 +3,18 @@ body { background:#fff; }
 #celestial-map { width: 100%; height: auto; margin: 0; padding: 0; display: inline-block; position: relative; }
 canvas { display: inline-block; position:absolute; z-index:0; cursor:hand; cursor:url(stylesheets/hand.cur); cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; }
 canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing; }
+footer { text-align:center; color:#666; font:10pt/1 'Arial Unicode MS', Arial, Helvetica, sans-serif; }
+footer a { text-decoration:none; color:#99f; }
 
 /* Form */
-#celestial-form { display: inline-block; position: relative; }
+#celestial-form { font:12pt/1 'Arial Unicode MS', Arial, Helvetica, sans-serif;  display: inline-block; position: relative; }
 #error { position:absolute; min-width:100px; height:auto; padding: 2px 4px; color:#f00; background:#fff; border:2px solid #f00; border-radius:3px; font-weight:normal; display:block; top:-9999px; left:-9999px; opacity:0; transition:opacity 1s linear; }
 #celestial-form .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }
 
 #celestial-form input { vertical-align: 0px; }
 #celestial-form input[type='number'] { width:48px; height:18px; text-align:right; padding:0; }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { height: auto; }
 #celestial-form #centerx, #celestial-form #centery, #celestial-form #centerz,
 #celestial-form #lat, #celestial-form #lon { width:64px; margin-top:4px; }
 #celestial-form input[type='text'] { width:194px; height:18px; text-align:left; padding-left:2px; }
@@ -22,10 +26,10 @@ canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbin
 #celestial-form input#now { position:relative; left:-24px; }
 
 #celestial-form input[type='button'] { width:64px; padding-bottom:1px; margin-top:4px; float:right; background: #f7f7f7; }
-#celestial-form input#fullwidth { width:148px; }
+#celestial-form input#fullwidth { width:108px; }
 #celestial-form input#width { margin-left:2px; }
 #celestial-form input#now, 
-#celestial-form input#here  { width:64px; margin-left:2px; float:none; }
+#celestial-form input#here  { width:48px; margin-left:2px; float:none; }
 #celestial-form input[type='button']:hover,
 #celestial-form #datepick:hover { background-color:#eee; }
 

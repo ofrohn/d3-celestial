@@ -192,9 +192,11 @@ Celestial.display = function(config) {
   
   if (cfg.location === true) {
     if ($("loc") === null) geo(cfg);
+    //set coords
     var hs = $("horizon-show");
     if (hs) hs.style.display = proj.clip === true ? "none" : "inline-block";
     hs.previousSibling.style.display = hs.style.display;
+    projection.rotate({center:Celestial.zenith()});
   }
   if (cfg.form === true && $("params") === null) form(cfg);
   if ($("error") === null) d3.select("body").append("div").attr("id", "error");
@@ -341,7 +343,7 @@ Celestial.display = function(config) {
     context.stroke();
     
     if (cfg.location && cfg.horizon.show && !proj.clip) {
-      circle.origin(transformDeg(Celestial.nadir(), euler[trans]));
+      circle.origin(Celestial.nadir());
       setStyle(cfg.horizon);
       container.selectAll(".horizon").datum(circle).attr("d", map);  
       context.fill();    
@@ -1271,7 +1273,7 @@ function form(cfg) {
      .attr("value", function (d) { return d.o; })
      .text(function (d) { return d.n; });
   sel.property("selectedIndex", selected);
-  if (!cfg.location) {
+  //if (!cfg.location) {
     col.append("br");
     col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
     col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
@@ -1286,9 +1288,9 @@ function form(cfg) {
 
     col.append("label").attr("for", "orientationfixed").html("Fixed");
     col.append("input").attr("type", "checkbox").attr("id", "orientationfixed").property("checked", cfg.orientationfixed).on("change", apply);    
-  }
+  //}
   if (cfg.fullwidth)
-    col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Make Full Width \u25ba").on("click", function() {
+    col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Full Width \u25ba").on("click", function() {
     $("sidebar-wrapper").style.display = "none";
     $("outer-wrapper").style.width = "100%";
     $("main-wrapper").style.width = "100%";
@@ -1296,7 +1298,7 @@ function form(cfg) {
     Celestial.display(cfg);
     return false;
   });
-  col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
+  //col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
   //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
 
   setCenter(cfg.center, cfg.transform);
@@ -1402,7 +1404,7 @@ function form(cfg) {
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", cfg.adaptable).on("change", apply);
    
-  $("show").onclick = function(e) {
+  /*$("show").onclick = function(e) {
     var x = $("centerx"),
         y = $("centery");
     //Test params
@@ -1418,7 +1420,7 @@ function form(cfg) {
     Celestial.display(cfg);
 
     return false;
-  };
+  };*/
 
   setLimits();
   setUnit(cfg.transform);
@@ -1686,7 +1688,7 @@ function geo(cfg) {
     col.append("input").attr("type", "button").attr("value", "Here").attr("id", "here").on("click", here);
   }
   //Datetime field with dtpicker-button
-  col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Local date/time");
+  col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Date/time");
   col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(dt, zone))
   .on("click", showpick, true).on("input", function() { 
     this.value = dateFormat(dt, zone); 
