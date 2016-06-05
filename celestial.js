@@ -192,11 +192,11 @@ Celestial.display = function(config) {
   
   if (cfg.location === true) {
     if ($("loc") === null) geo(cfg);
+    else rotate({center:Celestial.zenith()});
     //set coords
     var hs = $("horizon-show");
     if (hs) hs.style.display = proj.clip === true ? "none" : "inline-block";
     hs.previousSibling.style.display = hs.style.display;
-    projection.rotate({center:Celestial.zenith()});
   }
   if (cfg.form === true && $("params") === null) form(cfg);
   if ($("error") === null) d3.select("body").append("div").attr("id", "error");
