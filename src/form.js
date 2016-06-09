@@ -9,12 +9,12 @@ function form(cfg) {
   //Map parameters    
   var col = frm.append("div").attr("class", "col");
   
-  col.append("label").attr("title", "Map width, 0 indicates full width").attr("for", "width").html("Width ");
+  col.append("label").attr("title", "Map width in pixel, 0 indicates full width").attr("for", "width").html("Width ");
   col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "9999").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", cfg.width).on("change", redraw);
   col.append("span").html("px");
 
   col.append("label").attr("title", "Map projection, (hemi) indicates hemispherical projection").attr("for", "projection").html("Projection");
-  var sel = col.append("select").attr("id", "projection").on("change", redraw);
+  var sel = col.append("select").attr("id", "projection").on("change", reproject);
   var selected = 0;
   var list = Object.keys(prj).map( function (key, i) { 
     var n = prj[key].clip && prj[key].clip === true ? prj[key].n + " (hemi)" : prj[key].n; 
@@ -74,7 +74,7 @@ function form(cfg) {
   col.append("input").attr("type", "checkbox").attr("id", "stars-show").property("checked", cfg.stars.show).on("change", apply);
   
   col.append("label").attr("for", "stars-limit").html("down to magnitude");
-  col.append("input").attr("type", "number").attr("id", "stars-limit").attr("title", "Star display limit").attr("value", cfg.stars.limit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
+  col.append("input").attr("type", "number").attr("id", "stars-limit").attr("title", "Star display limit (magnitude)").attr("value", cfg.stars.limit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
   
   col.append("label").attr("for", "stars-colors").html("with spectral colors");
   col.append("input").attr("type", "checkbox").attr("id", "stars-colors").property("checked", cfg.stars.colors).on("change", apply);
@@ -93,7 +93,7 @@ function form(cfg) {
   col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", cfg.stars.desig).on("change", apply);
   
   col.append("label").attr("for", "stars-namelimit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star name display limit").attr("value", cfg.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
+  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star name display limit (magnitude)").attr("value", cfg.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
 
   enable($("stars-show"));
   
@@ -104,7 +104,7 @@ function form(cfg) {
   col.append("input").attr("type", "checkbox").attr("id", "dsos-show").property("checked", cfg.dsos.show).on("change", apply);
   
   col.append("label").attr("for", "dsos-limit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "dsos-limit").attr("title", "DSO display limit").attr("value", cfg.dsos.limit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
+  col.append("input").attr("type", "number").attr("id", "dsos-limit").attr("title", "DSO display limit (magnitude)").attr("value", cfg.dsos.limit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
   
   col.append("label").attr("for", "dsos-names").html("with names");
   col.append("input").attr("type", "checkbox").attr("id", "dsos-names").property("checked", cfg.dsos.names).on("change", apply);
@@ -113,7 +113,7 @@ function form(cfg) {
   col.append("input").attr("type", "checkbox").attr("id", "dsos-desig").property("checked", cfg.dsos.desig).on("change", apply);
   
   col.append("label").attr("for", "dsos-namelimit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "dsos-namelimit").attr("title", "DSO name display limit").attr("value", cfg.dsos.namelimit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
+  col.append("input").attr("type", "number").attr("id", "dsos-namelimit").attr("title", "DSO name display limit (magnitude)").attr("value", cfg.dsos.namelimit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
 
   enable($("dsos-show"));
 
@@ -213,7 +213,14 @@ function form(cfg) {
     }    
     Celestial.display(cfg);
   }
-                        
+
+  function reproject() {
+    var src = this;
+    if (!src) return;
+    cfg.projection = src.options[src.selectedIndex].value; 
+    Celestial.reproject(cfg);
+  }
+  
   function turn() {
     if (testNumber(this) === false) return;   
     if (getCenter() === false) return;

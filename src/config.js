@@ -133,7 +133,7 @@ var projections = {
   "bonne": {n:"Bonne", arg:Math.PI/5, scale:225, ratio:0.88},
   "bromley": {n:"Bromley", arg:null, scale:162},
   "collignon": {n:"Collignon", arg:null, scale:100, ratio:2.6},
-  "craig": {n:"Craig Retroazimuthal", arg:-0.1, scale:310, ratio:1.5, clip:true},
+  "craig": {n:"Craig Retroazimuthal", arg:0, scale:310, ratio:1.5, clip:true},
   "craster": {n:"Craster Parabolic", arg:null, scale:160},
   "cylindricalEqualArea": {n:"Cylindrical Equal Area", arg:Math.PI/6, scale:190, ratio:2.3},
   "cylindricalStereographic": {n:"Cylindrical Stereographic", arg:Math.PI/4, scale:230, ratio:1.3},

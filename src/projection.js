@@ -26,6 +26,36 @@ Celestial.projection = function(projection) {
   return d3.geo.projection(forward);
 };
 
+function projectionTween(a, b) {
+  var prj = d3.geo.projection(raw),
+      scale = prj.scale,
+      center = prj.center,
+      translate = prj.translate,
+      α;
+
+  function raw(λ, φ) {
+    var pa = a([λ *= 180 / Math.PI, φ *= 180 / Math.PI]), pb = b([λ, φ]);
+    return [(1 - α) * pa[0] + α * pb[0], (α - 1) * pa[1] - α * pb[1]];
+  }
+
+  prj.alpha = function(_) {
+    if (!arguments.length) return α;
+    α = +_;
+    var sa = a.scale(), sb = b.scale(),
+        ca = a.center(), cb = b.center(),
+        ta = a.translate(), tb = b.translate();
+    scale(1); //[(1 - α) * sa + α * sb]);
+    center([(1 - α) * ca[0] + α * cb[0], (1 - α) * ca[1] + α * cb[1]]);
+    translate([(1 - α) * ta[0] + α * tb[0], (1 - α) * ta[1] + α * tb[1]]);
+    return prj;
+  };
+
+  //delete projection.scale;
+  //delete projection.translate;
+  //delete projection.center;
+  return prj.alpha(0);
+}
+
 var eulerAngles = {
   "equatorial": [0.0, 0.0, 0.0],
   "ecliptic": [0.0, 0.0, 23.4393],
