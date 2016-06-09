@@ -7,13 +7,10 @@ var settings = {
   center: null,       // Initial center coordinates in equatorial transformation [hours, degrees, degrees], 
                       // otherwise [degrees, degrees, degrees], 3rd parameter is orientation, null = default center
   orientationfixed: true,  // Keep orientation angle the same as center[2]
-  background: { fill: "#000000", stroke: "#000000", opacity: 1, width:1 }, // Background style
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
   location: false,    // Display location settings 
-  horizon: { show: true, fill: "#000", opacity: 0.6 },  //Show horizon marker 
-  daylight: { show: false, fill: "#fff", opacity: 0.4 }, //Show daylight marker 
   fullwidth: false,   // Display fullwidth button
   controls: true,     // Display zoom controls
   container: "celestial-map",   // ID of parent element, e.g. div
@@ -80,7 +77,25 @@ var settings = {
     galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 
     supergalactic: { show: false, stroke: "#cc66cc", width: 1.3, opacity: 0.7 } // Show supergalactic plane 
    //mars: { show: false, stroke:"#cc0000", width:1.3, opacity:.7 }
-  },
+  }, // Background style
+  background: { 
+    fill: "#000000", 
+    opacity: 1, 
+    stroke: "#000000", // Outline
+    width: 1 
+  }, 
+  horizon: {  //Show horizon marker
+    show: true, 
+    stroke: null, // Line
+    width: 1.0, 
+    fill: "#000000", // Area below horizon
+    opacity: 0.5
+  },  
+  daylight: {  //Show daylight marker (tbi)
+    show: false, 
+    fill: "#fff", 
+    opacity: 0.4 
+  },  
   set: function(cfg) {  // Override defaults with values of cfg
     var prop, key, res = {};
     if (!cfg) return this; 

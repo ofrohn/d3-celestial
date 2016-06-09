@@ -190,8 +190,8 @@ Celestial.display = function(config) {
       redraw();
     });
 
-    if (this.data.length > 0) { 
-      this.data.forEach( function(d) {
+    if (Celestial.data.length > 0) { 
+      Celestial.data.forEach( function(d) {
         if (has(d, "file")) d3.json(d.file, d.callback);
         else setTimeout(d.callback, 0);
       }, this);
@@ -257,7 +257,6 @@ Celestial.display = function(config) {
     if (proj.clip) {
       prjMap.clipAngle(90);
       container.selectAll(".outline").remove();
-      //container.selectAll(".horizon").remove();
       container.append("path").datum(d3.geo.circle().angle([90])).attr("class", "outline");
     } else {
       prjMap.clipAngle(null);
@@ -408,6 +407,7 @@ Celestial.display = function(config) {
       setStyle(cfg.horizon);
       container.selectAll(".horizon").datum(circle).attr("d", map);  
       context.fill();    
+      if (cfg.horizon.stroke) context.stroke();    
     }
 
     if (cfg.controls) { 
