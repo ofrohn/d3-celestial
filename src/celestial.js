@@ -243,13 +243,16 @@ Celestial.display = function(config) {
     proj = getProjection(config.projection);
     if (!proj) return;
     
-    var rot = prjMap.rotate();
+    var rot = prjMap.rotate(), ctr = prjMap.center();
+
+    var prjFrom = Celestial.projection(cfg.projection).center(ctr).translate([width/2, height/2]).scale([scale]);
+
     height = width / proj.ratio;
     scale = proj.scale * width/1024;
-
-    prjMap = Celestial.projection(config.projection).rotate(rot).translate([width/2, height/2]).scale([scale]);
-    prjOutline = Celestial.projection(config.projection).translate([width/2, height/2]).scale([scale]);
-
+    var prjTo = Celestial.projection(config.projection).center(ctr).translate([width/2, height/2]).scale([scale]);
+    cfg.projection = config.projection;
+    cfg.adaptable = false;
+    /*
     map.projection(prjMap);
     outline.projection(prjOutline);
     zoom.projection(prjMap).scaleExtent([scale, scale*5]);
@@ -263,43 +266,43 @@ Celestial.display = function(config) {
       container.selectAll(".outline").remove();
       container.append("path").datum(graticule.outline).attr("class", "outline"); 
     }
+    */
     showHorizon(proj.clip);
-    //prjMap.rotate(rot);
     resize();
-    /*prjFrom = Celestial.projection(cfg.projection).rotate(rotation).translate([width/1.2, height/2]).scale([scale]);
-    prjTo = Celestial.projection(config.projection).rotate(rotation).translate([width/1.2, height/2]).scale([p.scale * width/1024]);
-    //interval = 0;
+    
     prjMap = projectionTween(prjFrom, prjTo);
     prjOutline = projectionTween(prjFrom, prjTo);
-    //animate();
-    d3.select({}).transition().duration(2500)//.ease("poly(3)")
-      .tween("projection", function() {
+
+    d3.select({}).transition().duration(2500).tween("projection", function() {
         return function(_) {
-          prjMap.alpha(_);
+          prjMap.alpha(_).rotate(rot);
           prjOutline.alpha(_);
           map.projection(prjMap);
           outline.projection(prjOutline);
-          zoom.projection(prjMap);
+
+          if (proj.clip) {
+            prjMap.clipAngle(90);
+            container.selectAll(".outline").remove();
+            container.append("path").datum(d3.geo.circle().angle([90])).attr("class", "outline");
+          } else {
+            prjMap.clipAngle(null);
+            container.selectAll(".outline").remove();
+            container.append("path").datum(graticule.outline).attr("class", "outline"); 
+          }
           redraw();
         };
-      });*/
+      }).transition().duration(0).tween("projection", function() {
+        prjMap = Celestial.projection(config.projection).rotate(rot).translate([width/2, height/2]).scale([scale]),
+        prjOutline = Celestial.projection(config.projection).translate([width/2, height/2]).scale([scale]),
+        
+        map.projection(prjMap);
+        outline.projection(prjOutline);
+        zoom.projection(prjMap).scaleExtent([scale, scale*5]);
+        cfg.adaptable = true;
+      
+      });
   }
-  
-/*  function animate() {
-    var reqAnimFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame  || window.webkitRequestAnimationFrame || 
-                       window.oRequestAnimationFrame || window.msRequestAnimationFrame;
-    interval += 0.01;
-    if (interval > 1) {
-      prjMap = prjTo;
-      return;
-    }
-    reqAnimFrame(animate);
-    prjMap.alpha(interval);
-    prjOutline = prjMap;
-    map.projection(prjMap);
-    redraw();
-  }
-  */
+
   
   function redraw() {  
     var rot = prjMap.rotate();
@@ -545,6 +548,7 @@ Celestial.display = function(config) {
   this.setTextStyle = setTextStyle;
   this.redraw = redraw; 
   this.resize = function() { resize(); }; 
+  this.reload = function(config) { cfg.transform = config.transform; container.selectAll("*").remove(); load(); }; 
   this.reproject = function(config) { reproject(config); }; 
   this.apply = function(config) { apply(config); }; 
   this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
