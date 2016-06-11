@@ -34,7 +34,8 @@ Celestial.display = function(config) {
   if (!proj) return;
       
   var trans = cfg.transform || "equatorial",
-      height = width / proj.ratio,
+      ratio = proj.ratio,
+      height = width / ratio,
       scale = proj.scale * width/1024,
       base = cfg.stars.size, 
       exp = -0.28, //Object size base & exponent
@@ -69,12 +70,7 @@ Celestial.display = function(config) {
   if (cfg.interactive) canvas.call(zoom);
   else canvas.attr("style", "cursor: default!important");
   
-  if (proj.clip) {
-    prjMap.clipAngle(90);
-    container.append("path").datum(d3.geo.circle().angle([90])).attr("class", "outline"); 
-  } else {
-    container.append("path").datum(graticule.outline).attr("class", "outline"); 
-  }
+  setClip(proj.clip);
 
   d3.select(window).on('resize', resize);
 
@@ -230,7 +226,7 @@ Celestial.display = function(config) {
   function resize() {
     if (cfg.width && cfg.width > 0) return;
     width = getWidth();
-    height = width/proj.ratio;
+    height = width/ratio;
     var scale = proj.scale * width/1024;
     canvas.attr("width", width).attr("height", height);
     zoom.scale([scale]);
@@ -241,66 +237,58 @@ Celestial.display = function(config) {
   }
 
   function reproject(config) {
-    proj = getProjection(config.projection);
-    if (!proj) return;
+    var prj = getProjection(config.projection);
+    if (!prj) return;
     
-    var rot = prjMap.rotate();
-    height = width / proj.ratio;
-    scale = proj.scale * width/1024;
-
-    prjMap = Celestial.projection(config.projection).rotate(rot).translate([width/2, height/2]).scale([scale]);
-    prjOutline = Celestial.projection(config.projection).translate([width/2, height/2]).scale([scale]);
-
-    map.projection(prjMap);
-    outline.projection(prjOutline);
-    zoom.projection(prjMap).scaleExtent([scale, scale*5]);
+    var rot = prjMap.rotate(), ctr = prjMap.center(),
+        rFrom = ratio,
+        prjFrom = Celestial.projection(cfg.projection).center(ctr).translate([width/2, height/2]).scale([scale]),
+        rTo = prj.ratio,
+        interval = 2500;
+        
+    ratio = Math.min(rFrom, rTo);
+    height = width/ratio;
+    if (proj.clip != prj.clip) interval = 0;   // Different clip = no transition
     
-    if (proj.clip) {
-      prjMap.clipAngle(90);
-      container.selectAll(".outline").remove();
-      container.append("path").datum(d3.geo.circle().angle([90])).attr("class", "outline");
-    } else {
-      prjMap.clipAngle(null);
-      container.selectAll(".outline").remove();
-      container.append("path").datum(graticule.outline).attr("class", "outline"); 
-    }
-    showHorizon(proj.clip);
-    //prjMap.rotate(rot);
-    resize();
-    /*prjFrom = Celestial.projection(cfg.projection).rotate(rotation).translate([width/1.2, height/2]).scale([scale]);
-    prjTo = Celestial.projection(config.projection).rotate(rotation).translate([width/1.2, height/2]).scale([p.scale * width/1024]);
-    //interval = 0;
+    scale = prj.scale * width/1024;
+    var prjTo = Celestial.projection(config.projection).center(ctr).translate([width/2, width/prj.ratio/2]).scale([scale]);
+    cfg.projection = config.projection;
+    cfg.adaptable = false;
+
+    showHorizon(prj.clip);
+    canvas.attr("width", width).attr("height", height);
+    if (parent) parent.style.height = px(height);
+    redraw();
+    
     prjMap = projectionTween(prjFrom, prjTo);
     prjOutline = projectionTween(prjFrom, prjTo);
-    //animate();
-    d3.select({}).transition().duration(2500)//.ease("poly(3)")
-      .tween("projection", function() {
+
+    d3.select({}).transition().duration(interval).tween("projection", function() {
         return function(_) {
-          prjMap.alpha(_);
+          prjMap.alpha(_).rotate(rot);
           prjOutline.alpha(_);
           map.projection(prjMap);
           outline.projection(prjOutline);
-          zoom.projection(prjMap);
+          setClip(prj.clip);
           redraw();
         };
-      });*/
+      }).transition().duration(0).tween("projection", function() {
+        proj = prj;
+        ratio = proj.ratio;
+        height = width / proj.ratio;
+        canvas.attr("width", width).attr("height", height);
+        if (parent) parent.style.height = px(height);
+        prjMap = Celestial.projection(config.projection).rotate(rot).translate([width/2, height/2]).scale([scale]);
+        prjOutline = Celestial.projection(config.projection).translate([width/2, height/2]).scale([scale]);
+        map.projection(prjMap);
+        outline.projection(prjOutline);
+        setClip(proj.clip); 
+        zoom.projection(prjMap).scaleExtent([scale, scale*5]);
+        cfg.adaptable = true;
+        redraw();
+      });
   }
-  
-/*  function animate() {
-    var reqAnimFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame  || window.webkitRequestAnimationFrame || 
-                       window.oRequestAnimationFrame || window.msRequestAnimationFrame;
-    interval += 0.01;
-    if (interval > 1) {
-      prjMap = prjTo;
-      return;
-    }
-    reqAnimFrame(animate);
-    prjMap.alpha(interval);
-    prjOutline = prjMap;
-    map.projection(prjMap);
-    redraw();
-  }
-  */
+
   
   function redraw() {  
     var rot = prjMap.rotate();
@@ -449,6 +437,18 @@ Celestial.display = function(config) {
     czo.disabled = sc <= scale;    
   }
   
+  function setClip(setit) {
+    if (setit) {
+      prjMap.clipAngle(90);
+      container.selectAll(".outline").remove();
+      container.append("path").datum(d3.geo.circle().angle([90])).attr("class", "outline");
+    } else {
+      prjMap.clipAngle(null);
+      container.selectAll(".outline").remove();
+      container.append("path").datum(graticule.outline).attr("class", "outline"); 
+    }        
+  }
+  
   function dsoDisplay(prop, limit) {
     return prop.mag === 999 && Math.sqrt(parseInt(prop.dim)) > limit ||
            prop.mag !== 999 && prop.mag <= limit;
@@ -546,6 +546,7 @@ Celestial.display = function(config) {
   this.setTextStyle = setTextStyle;
   this.redraw = redraw; 
   this.resize = function() { resize(); }; 
+  this.reload = function(config) { cfg.transform = config.transform; container.selectAll("*").remove(); load(); }; 
   this.reproject = function(config) { reproject(config); }; 
   this.apply = function(config) { apply(config); }; 
   this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
@@ -583,8 +584,7 @@ Celestial.projection = function(projection) {
 };
 
 function projectionTween(a, b) {
-  var prj = d3.geo.projection(raw),
-      scale = prj.scale,
+  var prj = d3.geo.projection(raw).scale(1),
       center = prj.center,
       translate = prj.translate,
       α;
@@ -597,18 +597,17 @@ function projectionTween(a, b) {
   prj.alpha = function(_) {
     if (!arguments.length) return α;
     α = +_;
-    var sa = a.scale(), sb = b.scale(),
-        ca = a.center(), cb = b.center(),
+    var ca = a.center(), cb = b.center(),
         ta = a.translate(), tb = b.translate();
-    scale(1); //[(1 - α) * sa + α * sb]);
+    
     center([(1 - α) * ca[0] + α * cb[0], (1 - α) * ca[1] + α * cb[1]]);
     translate([(1 - α) * ta[0] + α * tb[0], (1 - α) * ta[1] + α * tb[1]]);
     return prj;
   };
 
-  //delete projection.scale;
-  //delete projection.translate;
-  //delete projection.center;
+  delete prj.scale;
+  delete prj.translate;
+  delete prj.center;
   return prj.alpha(0);
 }
 

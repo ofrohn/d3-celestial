@@ -27,8 +27,7 @@ Celestial.projection = function(projection) {
 };
 
 function projectionTween(a, b) {
-  var prj = d3.geo.projection(raw).scale(1);
-      scale = prj.scale,
+  var prj = d3.geo.projection(raw).scale(1),
       center = prj.center,
       translate = prj.translate,
       α;
@@ -49,9 +48,9 @@ function projectionTween(a, b) {
     return prj;
   };
 
-  delete projection.scale;
-  delete projection.translate;
-  delete projection.center;
+  delete prj.scale;
+  delete prj.translate;
+  delete prj.center;
   return prj.alpha(0);
 }
 
