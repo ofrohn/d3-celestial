@@ -48,7 +48,6 @@ function projectionTween(a, b) {
     return prj;
   };
 
-  delete prj.scale;
   delete prj.translate;
   delete prj.center;
   return prj.alpha(0);
