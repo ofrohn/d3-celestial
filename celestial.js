@@ -241,13 +241,10 @@ Celestial.display = function(config) {
     if (!prj) return;
     
     var rot = prjMap.rotate(), ctr = prjMap.center(),
-        rFrom = ratio,
         prjFrom = Celestial.projection(cfg.projection).center(ctr).translate([width/2, height/2]).scale([scale]),
-        rTo = prj.ratio,
-        interval = 2500;
-        
-    ratio = Math.min(rFrom, rTo);
-    height = width/ratio;
+        interval = 2500,
+       rTween = d3.interpolateNumber(ratio, prj.ratio);
+
     if (proj.clip != prj.clip) interval = 0;   // Different clip = no transition
     
     scale = prj.scale * width/1024;
@@ -256,9 +253,9 @@ Celestial.display = function(config) {
     cfg.adaptable = false;
 
     showHorizon(prj.clip);
-    canvas.attr("width", width).attr("height", height);
-    if (parent) parent.style.height = px(height);
-    redraw();
+    //canvas.attr("width", width).attr("height", height);
+    //if (parent) parent.style.height = px(height);
+    //redraw();
     
     prjMap = projectionTween(prjFrom, prjTo);
     prjOutline = projectionTween(prjFrom, prjTo);
@@ -270,6 +267,10 @@ Celestial.display = function(config) {
           map.projection(prjMap);
           outline.projection(prjOutline);
           setClip(prj.clip);
+          ratio = rTween(_);
+          height = width/ratio;
+          canvas.attr("width", width).attr("height", height);
+          if (parent) parent.style.height = px(height);
           redraw();
         };
       }).transition().duration(0).tween("projection", function() {
