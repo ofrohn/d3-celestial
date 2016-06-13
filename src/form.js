@@ -10,7 +10,7 @@ function form(cfg) {
   var col = frm.append("div").attr("class", "col");
   
   col.append("label").attr("title", "Map width in pixel, 0 indicates full width").attr("for", "width").html("Width ");
-  col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "9999").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", cfg.width).on("change", redraw);
+  col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "9999").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", cfg.width).on("change", resize);
   col.append("span").html("px");
 
   col.append("label").attr("title", "Map projection, (hemi) indicates hemispherical projection").attr("for", "projection").html("Projection");
@@ -28,7 +28,7 @@ function form(cfg) {
   
   selected = 0;
   col.append("label").attr("title", "Coordinate space in which the map is displayed").attr("for", "transform").html("Coordinates");
-  sel = col.append("select").attr("id", "transform").on("change", redraw);
+  sel = col.append("select").attr("id", "transform").on("change", reload);
   list = Object.keys(leo).map(function (key, i) {
     if (key === cfg.transform) selected = i;    
     return {o:key, n:key.replace(/^([a-z])/, function(s, m) { return m.toUpperCase(); } )}; 
@@ -214,10 +214,27 @@ function form(cfg) {
     Celestial.display(cfg);
   }
 
+  function resize() {
+    var src = this,
+        w = src.value;
+    if (testNumber(src) === false) return; 
+    cfg.width = w;
+    Celestial.resize({width:w});
+  }
+  
+  function reload() {
+    var src = this,
+        trans = src.value,
+        cx = setUnit(trans, cfg.transform); 
+    if (cx !== null) cfg.center[0] = cx; 
+    cfg.transform = trans;
+    Celestial.reload({transform:trans});
+  }  
+  
   function reproject() {
     var src = this;
     if (!src) return;
-    cfg.projection = src.options[src.selectedIndex].value; 
+    cfg.projection = src.value; 
     Celestial.reproject(cfg);
   }
   
@@ -361,7 +378,7 @@ function testColor(node) {
 
 function setUnit(trans, old) {
   var cx = $("centerx");
-  if (!cx) return;
+  if (!cx) return null;
   
   if (old) {
     if (trans === "equatorial" && old !== "equatorial") {
@@ -381,6 +398,7 @@ function setUnit(trans, old) {
     cx.max = "180";
     $("cxunit").innerHTML = "\u00b0";
   }
+  return cx.value;
 }
 
 function setCenter(ctr, trans) {

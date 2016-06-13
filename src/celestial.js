@@ -217,18 +217,17 @@ Celestial.display = function(config) {
     var rot = prjMap.rotate();
     rotation = getAngles(cfg.center);
     if (rotation[2] === "" || rotation[2] === undefined) rotation[2] = rot[2];
-    //center = [-rotation[0], -rotation[1]];
     prjMap.rotate(rotation);
     redraw();
   }
   
-  function resize() {
-    if (cfg.width && cfg.width > 0) return;
+  function resize(set) {
     width = getWidth();
+    if (cfg.width === width && !set) return;
     height = width/ratio;
-    var scale = proj.scale * width/1024;
+    scale = proj.scale * width/1024;
     canvas.attr("width", width).attr("height", height);
-    zoom.scale([scale]);
+    zoom.scale([scale]).scaleExtent([scale, scale*5]);
     prjMap.translate([width/2, height/2]).scale([scale]);
     prjOutline.translate([width/2, height/2]);
     if (parent) parent.style.height = px(height);
@@ -543,8 +542,17 @@ Celestial.display = function(config) {
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;
   this.redraw = redraw; 
-  this.resize = function() { resize(); }; 
-  this.reload = function(config) { cfg.transform = config.transform; container.selectAll("*").remove(); load(); }; 
+  this.resize = function(config) { 
+    if (config && has(config, "width")) cfg.width = config.width; 
+    resize(true); 
+  }; 
+  this.reload = function(config) { 
+    if (!config || !has(config, "transform")) return;
+    trans = cfg.transform = config.transform; 
+    container.selectAll("*").remove(); 
+    setClip();
+    load(); 
+  }; 
   this.reproject = function(config) { reproject(config); }; 
   this.apply = function(config) { apply(config); }; 
   this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
