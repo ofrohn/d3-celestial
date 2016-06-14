@@ -227,7 +227,7 @@ Celestial.display = function(config) {
     height = width/ratio;
     scale = proj.scale * width/1024;
     canvas.attr("width", width).attr("height", height);
-    zoom.scale([scale]).scaleExtent([scale, scale*5]);
+    zoom.scaleExtent([scale, scale*5]).scale([scale]);
     prjMap.translate([width/2, height/2]).scale([scale]);
     prjOutline.translate([width/2, height/2]);
     if (parent) parent.style.height = px(height);
