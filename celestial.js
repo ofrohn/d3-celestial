@@ -552,6 +552,7 @@ Celestial.display = function(config) {
     trans = cfg.transform = config.transform; 
     container.selectAll("*").remove(); 
     setClip();
+    container.append("path").datum(circle).attr("class", "horizon");
     load(); 
   }; 
   this.reproject = function(config) { reproject(config); }; 
@@ -1555,7 +1556,7 @@ function form(cfg) {
     return false;
   }*/
 
-  function redraw() {
+  /*function redraw() {
     var src = this;
     if (!src) return;
     switch (src.id) {
@@ -1573,7 +1574,7 @@ function form(cfg) {
     }    
     Celestial.display(cfg);
   }
-
+  */
   function resize() {
     var src = this,
         w = src.value;

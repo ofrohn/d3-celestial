@@ -551,6 +551,7 @@ Celestial.display = function(config) {
     trans = cfg.transform = config.transform; 
     container.selectAll("*").remove(); 
     setClip();
+    container.append("path").datum(circle).attr("class", "horizon");
     load(); 
   }; 
   this.reproject = function(config) { reproject(config); }; 

@@ -195,7 +195,7 @@ function form(cfg) {
     return false;
   }*/
 
-  function redraw() {
+  /*function redraw() {
     var src = this;
     if (!src) return;
     switch (src.id) {
@@ -213,7 +213,7 @@ function form(cfg) {
     }    
     Celestial.display(cfg);
   }
-
+  */
   function resize() {
     var src = this,
         w = src.value;
