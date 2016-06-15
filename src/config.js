@@ -85,7 +85,7 @@ var settings = {
     width: 1 
   }, 
   horizon: {  //Show horizon marker
-    show: true, 
+    show: false, 
     stroke: null, // Line
     width: 1.0, 
     fill: "#000000", // Area below horizon
