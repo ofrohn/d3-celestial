@@ -27,13 +27,11 @@ var config = {
                            // ecliptic, galactic, supergalactic
   center: null,       // Initial center coordinates in equatorial transformation only
                       // [hours, degrees], null = default center
-  background:  { fill: "#000000", stroke: "#000000", opacity: 1 }, // Background style  
+  orientationfixed: true,  // Keep orientation angle the same as center[2]
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: true,         // Display form for interactive settings
   location: false,    // Display location settings (no center setting on form)
-  horizon: { show: true, fill: "#000", opacity: 0.6 },  //Show horizon marker, if location
-                      // is set and map projection shows 360?  
   controls: true,     // Display zoom controls
   container: "map",   // ID of parent element, e.g. div, null = html-body
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
@@ -109,10 +107,23 @@ var config = {
     ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },     
     galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },    
     supergalactic: { show: false, stroke: "#cc66cc", width: 1.3, opacity: 0.7 }
+  },
+  background: {        // Background style
+    fill: "#000000",   // Area fill
+    opacity: 1, 
+    stroke: "#000000", // Outline
+    width: 1 
+  }, 
+  horizon: {  //Show horizon marker, if location is set and map projection is all-sky
+    show: false, 
+    stroke: null, // Line
+    width: 1.0, 
+    fill: "#000000", // Area below horizon
+    opacity: 0.5
   }
 };
 
-// Display map with the configuration above
+// Display map with the configuration above or any subset therof
 Celestial.display(config);
 ```
 
@@ -182,7 +193,7 @@ __Exposed functions & objects__
 
 __Exposed functions__  
 
-* `Celestial.rotate({center:[long,lat]})` 
+* `Celestial.rotate({center:[long,lat,orient]})` 
    Turn the map to the given center coordinates, without parameter returns the current center
 
 * `Celestial.zoomBy(factor)` 
@@ -195,11 +206,18 @@ __Exposed functions__
    and interactive, form, controls, container, which control page structure & behaviour and shouls
    only be set on the initial load
    
-* `Celestial.resize()` 
+* `Celestial.resize({width:px|0|null})` 
    Change the overall size of the map, canvas object needs a complete reload
+   Optional width: new size in pixels, null or 0 = full parent width
 
-* `Celestial.redraw()`
-  Simply redraw the map without changes
+* `Celestial.redraw({transform:equatorial|ecliptic|galactic|supergalactic})`
+  Load all the data and redraw the whole map. 
+  Optional transform: change the coordinate space transformation
+
+* `Celestial.reproject({projection:&lt;see above>})`
+  Change the map projection. 
+  projection: new projection to set
+
   
 ### Files
 
