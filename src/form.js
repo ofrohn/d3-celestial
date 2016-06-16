@@ -168,7 +168,8 @@ function form(cfg) {
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", cfg.adaptable).on("change", apply);
    
-  /*$("show").onclick = function(e) {
+  /* obsolete
+  $("show").onclick = function(e) {
     var x = $("centerx"),
         y = $("centery");
     //Test params
@@ -195,7 +196,8 @@ function form(cfg) {
     return false;
   }*/
 
-  /*function redraw() {
+  /* obsolete
+  function redraw() {
     var src = this;
     if (!src) return;
     switch (src.id) {

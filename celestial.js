@@ -566,11 +566,11 @@ Celestial.display = function(config) {
 
 //Flipped projection generated on the fly
 Celestial.projection = function(projection) {
-  var p, trans, raw, forward;
+  var p, raw, forward;
   
   if (!has(projections, projection)) { throw new Error("Projection not supported: " + projection); }
-  p = projections[projection];
-    
+  p = projections[projection];    
+
   if (p.arg !== null) {
     raw = d3.geo[projection].raw(p.arg);
   } else {
@@ -1014,6 +1014,7 @@ var projections = {
   "boggs": {n:"Boggs Eumorphic", arg:null, scale:170},
   "bonne": {n:"Bonne", arg:Math.PI/5, scale:225, ratio:0.88},
   "bromley": {n:"Bromley", arg:null, scale:162},
+//  "butterfly": {n:"Butterfly", arg:null, scale:31, ratio:1.1, clip:true},
   "collignon": {n:"Collignon", arg:null, scale:100, ratio:2.6},
   "craig": {n:"Craig Retroazimuthal", arg:0, scale:310, ratio:1.5, clip:true},
   "craster": {n:"Craster Parabolic", arg:null, scale:160},
@@ -1529,7 +1530,8 @@ function form(cfg) {
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", cfg.adaptable).on("change", apply);
    
-  /*$("show").onclick = function(e) {
+  /* obsolete
+  $("show").onclick = function(e) {
     var x = $("centerx"),
         y = $("centery");
     //Test params
@@ -1556,7 +1558,8 @@ function form(cfg) {
     return false;
   }*/
 
-  /*function redraw() {
+  /* obsolete
+  function redraw() {
     var src = this;
     if (!src) return;
     switch (src.id) {

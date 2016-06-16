@@ -1,11 +1,11 @@
 /* global Celestial, projections, has */
 //Flipped projection generated on the fly
 Celestial.projection = function(projection) {
-  var p, trans, raw, forward;
+  var p, raw, forward;
   
   if (!has(projections, projection)) { throw new Error("Projection not supported: " + projection); }
-  p = projections[projection];
-    
+  p = projections[projection];    
+
   if (p.arg !== null) {
     raw = d3.geo[projection].raw(p.arg);
   } else {

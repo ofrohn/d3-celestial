@@ -1,8 +1,8 @@
 /* Copyright 2015-16 Olaf Frohn https://github.com/ofrohn, see LICENSE */
 body { background:#fff; }
 #celestial-map { width: 100%; height: auto; margin: 0; padding: 0; display: inline-block; position: relative; }
-canvas { display: inline-block; position:absolute; z-index:0; cursor:hand; cursor:url(stylesheets/hand.cur); cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; }
-canvas:active { cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing; }
+canvas { display: inline-block; position:absolute; z-index:0; cursor:hand; cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; }
+canvas:active { cursor:move; cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing; }
 footer { text-align:center; color:#666; font:10pt/1 'Arial Unicode MS', Arial, Helvetica, sans-serif; }
 footer a { text-decoration:none; color:#99f; }
 
@@ -54,7 +54,7 @@ input[type="number"]::-webkit-outer-spin-button { height: auto; }
 
 /* Zoom controls */
 #celestial-zoomin, 
-#celestial-zoomout { width:32px; height:32px; left:8px; top:12px; background: rgba(255,255,255,0.5); border:1px solid #000; border-radius:3px; position:absolute; font: normal bold 24px/1 Consolas, Courier, 'Courier New', monospace ; cursor:pointer; }
+#celestial-zoomout { width:32px; height:32px; left:8px; top:12px; background: rgba(255,255,255,0.5); border:1px solid #000; border-radius:3px; position:absolute; font: normal bold 24px/1 Consolas, Courier, 'Courier New', monospace; cursor:pointer; }
 #celestial-zoomout { top: 48px; }
 #celestial-zoomin:hover, 
 #celestial-zoomout:hover { background: rgba(255,255,255,0.7); }
