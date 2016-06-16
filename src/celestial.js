@@ -241,13 +241,12 @@ Celestial.display = function(config) {
     var rot = prjMap.rotate(), ctr = prjMap.center(),
         prjFrom = Celestial.projection(cfg.projection).center(ctr).translate([width/2, height/2]).scale([scale]),
         interval = 2500,
-       rTween = d3.interpolateNumber(ratio, prj.ratio);
+        rTween = d3.interpolateNumber(ratio, prj.ratio);
 
     if (proj.clip != prj.clip) interval = 0;   // Different clip = no transition
     
-    scale = prj.scale * width/1024;
-    var prjTo = Celestial.projection(config.projection).center(ctr).translate([width/2, width/prj.ratio/2]).scale([scale]);
-    cfg.projection = config.projection;
+    //scale = prj.scale * width/1024;
+    var prjTo = Celestial.projection(config.projection).center(ctr).translate([width/2, width/prj.ratio/2]).scale([prj.scale * width/1024]);
     var bAdapt = cfg.adaptable;
     cfg.adaptable = false;
 
@@ -273,8 +272,10 @@ Celestial.display = function(config) {
         proj = prj;
         ratio = proj.ratio;
         height = width / proj.ratio;
+        scale = proj.scale * width/1024;
         canvas.attr("width", width).attr("height", height);
         if (parent) parent.style.height = px(height);
+        cfg.projection = config.projection;
         prjMap = Celestial.projection(config.projection).rotate(rot).translate([width/2, height/2]).scale([scale]);
         prjOutline = Celestial.projection(config.projection).translate([width/2, height/2]).scale([scale]);
         map.projection(prjMap);

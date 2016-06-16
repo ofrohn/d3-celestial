@@ -99,8 +99,9 @@ function geo(cfg) {
 
 function showHorizon(clip) {
   var hs = $("horizon-show");
-  if (hs) hs.style.display = clip === true ? "none" : "inline-block";
-  hs.previousSibling.style.display = hs.style.display;  
+  if (!hs) return;
+  hs.style.display = clip === true ? "none" : "inline-block";
+  hs.previousSibling.style.display = hs.style.display;    
 }
 
 Celestial.zenith = function() { return zenith; };

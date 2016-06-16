@@ -1,7 +1,9 @@
-/* global Celestial, $, px, has, isNumber, findPos */
+/* global Celestial, settings, $, px, has, isNumber, findPos */
 
 //display settings form in div with id "celestial-form"
 function form(cfg) {
+  var config = settings.set(cfg); 
+
   var prj = Celestial.projections(), leo = Celestial.eulerAngles();
   var ctrl = d3.select("#celestial-form").append("div").attr("class", "ctrl");
   var frm = ctrl.append("form").attr("id", "params").attr("name", "params").attr("method", "get").attr("action" ,"#");
@@ -10,7 +12,7 @@ function form(cfg) {
   var col = frm.append("div").attr("class", "col");
   
   col.append("label").attr("title", "Map width in pixel, 0 indicates full width").attr("for", "width").html("Width ");
-  col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "9999").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", cfg.width).on("change", resize);
+  col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "9999").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", config.width).on("change", resize);
   col.append("span").html("px");
 
   col.append("label").attr("title", "Map projection, (hemi) indicates hemispherical projection").attr("for", "projection").html("Projection");
@@ -18,7 +20,7 @@ function form(cfg) {
   var selected = 0;
   var list = Object.keys(prj).map( function (key, i) { 
     var n = prj[key].clip && prj[key].clip === true ? prj[key].n + " (hemi)" : prj[key].n; 
-    if (key === cfg.projection) selected = i;
+    if (key === config.projection) selected = i;
     return {o:key, n:n};
   });
   sel.selectAll('option').data(list).enter().append('option')
@@ -30,14 +32,14 @@ function form(cfg) {
   col.append("label").attr("title", "Coordinate space in which the map is displayed").attr("for", "transform").html("Coordinates");
   sel = col.append("select").attr("id", "transform").on("change", reload);
   list = Object.keys(leo).map(function (key, i) {
-    if (key === cfg.transform) selected = i;    
+    if (key === config.transform) selected = i;    
     return {o:key, n:key.replace(/^([a-z])/, function(s, m) { return m.toUpperCase(); } )}; 
   });
   sel.selectAll("option").data(list).enter().append('option')
      .attr("value", function (d) { return d.o; })
      .text(function (d) { return d.n; });
   sel.property("selectedIndex", selected);
-  //if (!cfg.location) {
+  //if (!config.location) {
     col.append("br");
     col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
     col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
@@ -51,49 +53,49 @@ function form(cfg) {
     col.append("span").html("\u00b0");
 
     col.append("label").attr("for", "orientationfixed").html("Fixed");
-    col.append("input").attr("type", "checkbox").attr("id", "orientationfixed").property("checked", cfg.orientationfixed).on("change", apply);    
+    col.append("input").attr("type", "checkbox").attr("id", "orientationfixed").property("checked", config.orientationfixed).on("change", apply);    
   //}
-  if (cfg.fullwidth)
+  if (config.fullwidth)
     col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Full Width \u25ba").on("click", function() {
     $("sidebar-wrapper").style.display = "none";
     $("outer-wrapper").style.width = "100%";
     $("main-wrapper").style.width = "100%";
     this.style.display = "none";
-    Celestial.display(cfg);
+    Celestial.display(config);
     return false;
   });
   //col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
   //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
 
-  setCenter(cfg.center, cfg.transform);
+  setCenter(config.center, config.transform);
 
   // Stars 
   col = frm.append("div").attr("class", "col");
   
   col.append("label").attr("class", "header").attr("for", "stars-show").html("Stars");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-show").property("checked", cfg.stars.show).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "stars-show").property("checked", config.stars.show).on("change", apply);
   
   col.append("label").attr("for", "stars-limit").html("down to magnitude");
-  col.append("input").attr("type", "number").attr("id", "stars-limit").attr("title", "Star display limit (magnitude)").attr("value", cfg.stars.limit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
+  col.append("input").attr("type", "number").attr("id", "stars-limit").attr("title", "Star display limit (magnitude)").attr("value", config.stars.limit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
   
   col.append("label").attr("for", "stars-colors").html("with spectral colors");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-colors").property("checked", cfg.stars.colors).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "stars-colors").property("checked", config.stars.colors).on("change", apply);
   
   col.append("label").attr("for", "stars-color").html("or default color ");
-  col.append("input").attr("type", "color").attr("autocomplete", "off").attr("id", "stars-style-fill").attr("title", "Star color").property("value", cfg.stars.style.fill).on("change", apply);
+  col.append("input").attr("type", "color").attr("autocomplete", "off").attr("id", "stars-style-fill").attr("title", "Star color").property("value", config.stars.style.fill).on("change", apply);
   col.append("br");
   
   col.append("label").attr("for", "stars-names").html("Show names");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-names").property("checked", cfg.stars.names).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "stars-names").property("checked", config.stars.names).on("change", apply);
   
   col.append("label").attr("for", "stars-proper").html("proper names (if any)");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-proper").property("checked", cfg.stars.proper).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "stars-proper").property("checked", config.stars.proper).on("change", apply);
   
   col.append("label").attr("for", "stars-desig").attr("title", "include HD/HIP designations").html("all designations");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", cfg.stars.desig).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", config.stars.desig).on("change", apply);
   
   col.append("label").attr("for", "stars-namelimit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star name display limit (magnitude)").attr("value", cfg.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
+  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star name display limit (magnitude)").attr("value", config.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
 
   enable($("stars-show"));
   
@@ -101,38 +103,38 @@ function form(cfg) {
   col = frm.append("div").attr("class", "col");
   
   col.append("label").attr("class", "header").attr("title", "Deep Space Objects").attr("for", "dsos-show").html("DSOs");
-  col.append("input").attr("type", "checkbox").attr("id", "dsos-show").property("checked", cfg.dsos.show).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "dsos-show").property("checked", config.dsos.show).on("change", apply);
   
   col.append("label").attr("for", "dsos-limit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "dsos-limit").attr("title", "DSO display limit (magnitude)").attr("value", cfg.dsos.limit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
+  col.append("input").attr("type", "number").attr("id", "dsos-limit").attr("title", "DSO display limit (magnitude)").attr("value", config.dsos.limit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
   
   col.append("label").attr("for", "dsos-names").html("with names");
-  col.append("input").attr("type", "checkbox").attr("id", "dsos-names").property("checked", cfg.dsos.names).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "dsos-names").property("checked", config.dsos.names).on("change", apply);
   
   col.append("label").attr("for", "dsos-desig").html("or designations");
-  col.append("input").attr("type", "checkbox").attr("id", "dsos-desig").property("checked", cfg.dsos.desig).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "dsos-desig").property("checked", config.dsos.desig).on("change", apply);
   
   col.append("label").attr("for", "dsos-namelimit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "dsos-namelimit").attr("title", "DSO name display limit (magnitude)").attr("value", cfg.dsos.namelimit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
+  col.append("input").attr("type", "number").attr("id", "dsos-namelimit").attr("title", "DSO name display limit (magnitude)").attr("value", config.dsos.namelimit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
 
   enable($("dsos-show"));
 
   // Constellations 
   col = frm.append("div").attr("class", "col");
   col.append("label").attr("class", "header").html("Constellations");
-  //col.append("input").attr("type", "checkbox").attr("id", "constellations-show").property("checked", cfg.constellations.show).on("change", apply);
+  //col.append("input").attr("type", "checkbox").attr("id", "constellations-show").property("checked", config.constellations.show).on("change", apply);
   
   col.append("label").attr("for", "constellations-names").html("Show names");
-  col.append("input").attr("type", "checkbox").attr("id", "constellations-names").property("checked", cfg.constellations.names).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "constellations-names").property("checked", config.constellations.names).on("change", apply);
   
   col.append("label").attr("for", "constellations-desig").html("abbreviated");
-  col.append("input").attr("type", "checkbox").attr("id", "constellations-desig").property("checked", cfg.constellations.desig).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "constellations-desig").property("checked", config.constellations.desig).on("change", apply);
   
   col.append("label").attr("for", "constellations-lines").html("with lines");
-  col.append("input").attr("type", "checkbox").attr("id", "constellations-lines").property("checked", cfg.constellations.lines).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "constellations-lines").property("checked", config.constellations.lines).on("change", apply);
   
   col.append("label").attr("for", "constellations-bounds").html("with boundaries");
-  col.append("input").attr("type", "checkbox").attr("id", "constellations-bounds").property("checked", cfg.constellations.bounds).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "constellations-bounds").property("checked", config.constellations.bounds).on("change", apply);
 
   enable($("constellations-names"));
 
@@ -141,39 +143,39 @@ function form(cfg) {
   col.append("label").attr("class", "header").html("Lines");
   
   col.append("label").attr("title", "X/Y grid lines").attr("for", "lines-graticule").html("Graticule");
-  col.append("input").attr("type", "checkbox").attr("id", "lines-graticule-show").property("checked", cfg.lines.graticule.show).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "lines-graticule-show").property("checked", config.lines.graticule.show).on("change", apply);
   
   col.append("label").attr("for", "lines-equatorial").html("Equator");
-  col.append("input").attr("type", "checkbox").attr("id", "lines-equatorial-show").property("checked", cfg.lines.equatorial.show).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "lines-equatorial-show").property("checked", config.lines.equatorial.show).on("change", apply);
   
   col.append("label").attr("for", "lines-ecliptic").html("Ecliptic");
-  col.append("input").attr("type", "checkbox").attr("id", "lines-ecliptic-show").property("checked", cfg.lines.ecliptic.show).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "lines-ecliptic-show").property("checked", config.lines.ecliptic.show).on("change", apply);
   
   col.append("label").attr("for", "lines-galactic").html("Galactic plane");
-  col.append("input").attr("type", "checkbox").attr("id", "lines-galactic-show").property("checked", cfg.lines.galactic.show).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "lines-galactic-show").property("checked", config.lines.galactic.show).on("change", apply);
   
   col.append("label").attr("for", "lines-supergalactic").html("Supergalactic plane");
-  col.append("input").attr("type", "checkbox").attr("id", "lines-supergalactic-show").property("checked", cfg.lines.supergalactic.show).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "lines-supergalactic-show").property("checked", config.lines.supergalactic.show).on("change", apply);
 
   // Other
   col = frm.append("div").attr("class", "col");
   col.append("label").attr("class", "header").html("Other");
   
   col.append("label").attr("for", "mw-show").html("Milky Way");
-  col.append("input").attr("type", "checkbox").attr("id", "mw-show").property("checked", cfg.mw.show).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "mw-show").property("checked", config.mw.show).on("change", apply);
   
   col.append("label").attr("for", "background").html("Background color");
-  col.append("input").attr("type", "color").attr("id", "background-fill").attr("title", "Background color").attr("value", cfg.background.fill).on("change", apply);
+  col.append("input").attr("type", "color").attr("id", "background-fill").attr("title", "Background color").attr("value", config.background.fill).on("change", apply);
   
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
-  col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", cfg.adaptable).on("change", apply);
+  col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", config.adaptable).on("change", apply);
    
   /* obsolete
   $("show").onclick = function(e) {
     var x = $("centerx"),
         y = $("centery");
     //Test params
-    if (!isNumber(cfg.width)) { popError($("width"), "Check Width setting"); return false; }
+    if (!isNumber(config.width)) { popError($("width"), "Check Width setting"); return false; }
 
     if (x !== null && y !== null) {
       if (x.value === "" && y.value !== "" || y.value === "" && x.value !== "") {
@@ -182,17 +184,17 @@ function form(cfg) {
       }
     } 
   
-    Celestial.display(cfg);
+    Celestial.display(config);
 
     return false;
   };*/
 
   setLimits();
-  setUnit(cfg.transform);
+  setUnit(config.transform);
   /* descoped
   $("defaults").onclick = function(e) {
-    cfg = Celestial.settings().set({width:0, projection:"aitoff"});
-    //fillForm(cfg);
+    config = Celestial.settings().set({width:0, projection:"aitoff"});
+    //fillForm(config);
     return false;
   }*/
 
@@ -202,48 +204,48 @@ function form(cfg) {
     if (!src) return;
     switch (src.id) {
       case "width": if (testNumber(src) === false) return; 
-                    cfg.width = src.value; break;
-      case "projection": cfg.projection = src.options[src.selectedIndex].value; break;
-      case "transform": var old = cfg.transform;
-                        cfg.transform = src.options[src.selectedIndex].value;
+                    config.width = src.value; break;
+      case "projection": config.projection = src.options[src.selectedIndex].value; break;
+      case "transform": var old = config.transform;
+                        config.transform = src.options[src.selectedIndex].value;
                         var cx = $("centerx");
                         if (cx) {
-                          setUnit(cfg.transform, old); 
-                          cfg.center[0] = cx.value; 
+                          setUnit(config.transform, old); 
+                          config.center[0] = cx.value; 
                         }
                         break;
     }    
-    Celestial.display(cfg);
+    Celestial.display(config);
   }
   */
   function resize() {
     var src = this,
         w = src.value;
     if (testNumber(src) === false) return; 
-    cfg.width = w;
+    config.width = w;
     Celestial.resize({width:w});
   }
   
   function reload() {
     var src = this,
         trans = src.value,
-        cx = setUnit(trans, cfg.transform); 
-    if (cx !== null) cfg.center[0] = cx; 
-    cfg.transform = trans;
+        cx = setUnit(trans, config.transform); 
+    if (cx !== null) config.center[0] = cx; 
+    config.transform = trans;
     Celestial.reload({transform:trans});
   }  
   
   function reproject() {
     var src = this;
     if (!src) return;
-    cfg.projection = src.value; 
-    Celestial.reproject(cfg);
+    config.projection = src.value; 
+    Celestial.reproject(config);
   }
   
   function turn() {
     if (testNumber(this) === false) return;   
     if (getCenter() === false) return;
-    Celestial.rotate(cfg);
+    Celestial.rotate(config);
   }
 
   function getCenter() {
@@ -252,15 +254,15 @@ function form(cfg) {
 
     if (!cx || !cy) return;
 
-    if (cfg.transform !== "equatorial") cfg.center[0] = parseFloat(cx.value); 
+    if (config.transform !== "equatorial") config.center[0] = parseFloat(cx.value); 
     else { 
       var vx = parseFloat(cx.value);
-      cfg.center[0] = vx > 12 ? vx * 15 - 360 : vx * 15;
+      config.center[0] = vx > 12 ? vx * 15 - 360 : vx * 15;
     }
-    cfg.center[1] = parseFloat(cy.value); 
+    config.center[1] = parseFloat(cy.value); 
     
     var vz = parseFloat(cz.value); 
-    cfg.center[2] = isNaN(vz) ? 0 : vz;
+    config.center[2] = isNaN(vz) ? 0 : vz;
     
     return cx.value !== "" && cy.value !== "";
   }
@@ -281,15 +283,15 @@ function form(cfg) {
     if (value === null) return;
     set(src.id, value);
     getCenter();
-    Celestial.apply(cfg);
+    Celestial.apply(config);
   }
 
   function set(prop, val) {
     var a = prop.split("-");
     switch (a.length) {
-      case 1: cfg[a[0]] = val; break;
-      case 2: cfg[a[0]][a[1]] = val; break;
-      case 3: cfg[a[0]][a[1]][a[2]] = val; break;
+      case 1: config[a[0]] = val; break;
+      case 2: config[a[0]][a[1]] = val; break;
+      case 3: config[a[0]][a[1]][a[2]] = val; break;
       default: return;
     }   
   }
@@ -409,7 +411,7 @@ function setCenter(ctr, trans) {
   
   if (ctr === null) ctr = [0,0,0]; 
   if (ctr.length <= 2) ctr[2] = 0;
-  //cfg.center = ctr; 
+  //config.center = ctr; 
   if (trans !== "equatorial") cx.value = ctr[0].toFixed(1); 
   else cx.value = ctr[0] < 0 ? (ctr[0] / 15 + 24).toFixed(1) : (ctr[0] / 15).toFixed(1); 
   
@@ -421,9 +423,9 @@ function setCenter(ctr, trans) {
 function setLimits() {
   var t, rx = /\d+(\.\d+)?/g,
       s, d, res = {s:6, d:6},
-      cfg =  Celestial.settings();
+      config =  Celestial.settings();
 
-  d = cfg.dsos.data;
+  d = config.dsos.data;
   
   //test dso limit
   t = d.match(rx);
@@ -436,7 +438,7 @@ function setLimits() {
     $("dsos-namelimit").max = res.d;
   }
    
-   s = cfg.stars.data;
+   s = config.stars.data;
   
   //test star limit
   t = s.match(rx);
