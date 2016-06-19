@@ -131,9 +131,9 @@ var bvcolor =
  
 /* Default parameters for each supported projection
      arg: constructor argument, if any 
-     scale: scale parameter so that they all have ~equal width
-     ratio: width/height ration, 2.0 if none
-     clip: projection clipped to 90 degrees from center
+     scale: scale parameter so that they all have ~equal width, normalized to 1024 pixels
+     ratio: width/height ratio, 2.0 if none
+     clip: projection clipped to 90 degrees from center, otherwise to antimeridian
 */
 var projections = {
   "airy": {n:"Airy’s Minimum Error", arg:Math.PI/2, scale:360, ratio:1.0, clip:true},

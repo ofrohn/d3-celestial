@@ -1,12 +1,12 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.5.6',
+  version: '0.5.7',
   container: null,
   data: []
 };
  
-var cfg, prjMap, prjOutline, zoom, map, outline, circle, interval;
+var cfg, prjMap, prjOutline, zoom, map, outline, circle;
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
@@ -75,8 +75,8 @@ Celestial.display = function(config) {
   d3.select(window).on('resize', resize);
 
   if (cfg.controls === true && $("celestial-zoomin") === null) {
-    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function() { zoomBy(1.111); });
-    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function() { zoomBy(1.057); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.946); });
   }
   
   if (cfg.location === true) {
@@ -213,13 +213,29 @@ Celestial.display = function(config) {
 
 
   function rotate(config) {
+    var cFrom = cfg.center, 
+        rot = prjMap.rotate(),
+        interval = 1500,
+        keep = false;
     cfg = cfg.set(config);
-     //d3.geo.interpolate()
-    var rot = prjMap.rotate();
-    rotation = getAngles(cfg.center);
-    if (rotation[2] === "" || rotation[2] === undefined) rotation[2] = rot[2];
-    prjMap.rotate(rotation);
-    redraw();
+    if (cfg.center[1] === cFrom[1]) keep = true; //keep lat fixed if equal
+    var d = d3.geo.distance(cFrom, cfg.center);
+    if (d < 0.035) {  //~2deg
+      rotation = getAngles(cfg.center);
+      prjMap.rotate(rotation);
+      redraw();
+    } else {
+      var cTween = d3.geo.interpolate(cFrom, cfg.center);
+      interval *= d;
+      d3.select({}).transition().duration(interval).tween("center", function() {
+        return function(_) {
+          var c = getAngles(cTween(_));
+          if (keep === true) c[1] = rot[1];
+          prjMap.rotate(c);
+          redraw();
+        };
+      });        
+    }
   }
   
   function resize(set) {
@@ -531,7 +547,7 @@ Celestial.display = function(config) {
   function getAngles(coords) {
     if (coords === null) return [0,0,0];
     var rot = eulerAngles.equatorial; 
-    
+    if (!coords[2]) coords[2] = 0;
     return [rot[0] - coords[0], rot[1] - coords[1], rot[2] + coords[2]];
   }
   
@@ -999,9 +1015,9 @@ var bvcolor =
  
 /* Default parameters for each supported projection
      arg: constructor argument, if any 
-     scale: scale parameter so that they all have ~equal width
-     ratio: width/height ration, 2.0 if none
-     clip: projection clipped to 90 degrees from center
+     scale: scale parameter so that they all have ~equal width, normalized to 1024 pixels
+     ratio: width/height ratio, 2.0 if none
+     clip: projection clipped to 90 degrees from center, otherwise to antimeridian
 */
 var projections = {
   "airy": {n:"Airy’s Minimum Error", arg:Math.PI/2, scale:360, ratio:1.0, clip:true},
