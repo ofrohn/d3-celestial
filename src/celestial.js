@@ -216,8 +216,8 @@ Celestial.display = function(config) {
         rot = prjMap.rotate(),
         interval = 1500,
         keep = false;
+    if (config.center[1] === cFrom[1]) keep = true; //keep lat fixed if equal
     cfg = cfg.set(config);
-    if (cfg.center[1] === cFrom[1]) keep = true; //keep lat fixed if equal
     var d = d3.geo.distance(cFrom, cfg.center);
     if (d < 0.035) {  //~2deg
       rotation = getAngles(cfg.center);
@@ -229,7 +229,7 @@ Celestial.display = function(config) {
       d3.select({}).transition().duration(interval).tween("center", function() {
         return function(_) {
           var c = getAngles(cTween(_));
-          if (keep === true) c[1] = rot[1];
+          if (keep) c[1] = rot[1]; 
           prjMap.rotate(c);
           redraw();
         };
