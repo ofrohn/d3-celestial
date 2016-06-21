@@ -1,4 +1,4 @@
-/* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, Canvas, halfπ, $, px, has, form, geo, setCenter, showHorizon */
+/* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, Canvas, halfπ, $, px, Round, has, form, geo, setCenter, showHorizon */
 var Celestial = {
   version: '0.5.7',
   container: null,
@@ -216,7 +216,7 @@ Celestial.display = function(config) {
         rot = prjMap.rotate(),
         interval = 1500,
         keep = false;
-    if (config.center[1] === cFrom[1]) keep = true; //keep lat fixed if equal
+    if (Round(rot[1], 2) === -Round(config.center[1], 2)) keep = true; //keep lat fixed if equal
     cfg = cfg.set(config);
     var d = d3.geo.distance(cFrom, cfg.center);
     if (d < 0.035) {  //~2deg

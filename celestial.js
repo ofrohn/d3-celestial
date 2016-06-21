@@ -217,7 +217,7 @@ Celestial.display = function(config) {
         rot = prjMap.rotate(),
         interval = 1500,
         keep = false;
-    if (config.center[1] === cFrom[1]) keep = true; //keep lat fixed if equal
+    if (Round(rot[1], 2) === -Round(config.center[1], 2)) keep = true; //keep lat fixed if equal
     cfg = cfg.set(config);
     var d = d3.geo.distance(cFrom, cfg.center);
     if (d < 0.035) {  //~2deg
@@ -1319,7 +1319,7 @@ canvas.text = function() {
 
 function $(id) { return document.getElementById(id); }
 function px(n) { return n + "px"; } 
-//function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
+function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
 function sign(x) { return x ? x < 0 ? -1 : 1 : 0; }
 function pad(n) { return n < 10 ? '0' + n : n; }
 
