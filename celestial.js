@@ -6,7 +6,7 @@ var Celestial = {
   data: []
 };
  
-var cfg, prjMap, prjOutline, zoom, map, outline, circle;
+var cfg, prjMap, /*prjOutline,*/ zoom, map, /*outline, */circle;
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
@@ -48,8 +48,8 @@ Celestial.display = function(config) {
       
   if (par != "body") $(cfg.container).style.height = px(height);
   
-  prjMap = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale([scale]);
-  prjOutline = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([scale]); //projected non moving outline
+  prjMap = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale(scale);
+  //prjOutline = Celestial.projection(cfg.projection).translate([width/2, height/2]).scale([scale]); //projected non moving outline
     
   zoom = d3.geo.zoom().projection(prjMap).center([width/2, height/2]).scaleExtent([scale, scale*5]).on("zoom.redraw", redraw);
 
@@ -61,7 +61,7 @@ Celestial.display = function(config) {
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
   map = d3.geo.path().projection(prjMap).context(context);
-  outline = d3.geo.path().projection(prjOutline).context(context);
+  //outline = d3.geo.path().projection(prjOutline).context(context);
    
   //parent div with id #celestial-map or body
   if (container) container.selectAll("*").remove();
@@ -201,8 +201,8 @@ Celestial.display = function(config) {
         ext = zoom.scaleExtent();
     if (scale < ext[0]) scale = ext[0];
     if (scale > ext[1]) scale = ext[1];
-    prjMap.scale([scale]); 
-    zoom.scale([scale]); 
+    prjMap.scale(scale); 
+    zoom.scale(scale); 
     redraw(); 
   }  
   
@@ -244,9 +244,9 @@ Celestial.display = function(config) {
     height = width/ratio;
     scale = proj.scale * width/1024;
     canvas.attr("width", width).attr("height", height);
-    zoom.scaleExtent([scale, scale*5]).scale([scale]);
-    prjMap.translate([width/2, height/2]).scale([scale]);
-    prjOutline.translate([width/2, height/2]);
+    zoom.scaleExtent([scale, scale*5]).scale(scale);
+    prjMap.translate([width/2, height/2]).scale(scale);
+    //prjOutline.translate([width/2, height/2]);
     if (parent) parent.style.height = px(height);
     redraw();
   }
@@ -270,14 +270,14 @@ Celestial.display = function(config) {
     showHorizon(prj.clip);
     
     prjMap = projectionTween(prjFrom, prjTo);
-    prjOutline = projectionTween(prjFrom, prjTo);
+    //prjOutline = projectionTween(prjFrom, prjTo);
 
     d3.select({}).transition().duration(interval).tween("projection", function() {
         return function(_) {
           prjMap.alpha(_).rotate(rot);
-          prjOutline.alpha(_);
+          //prjOutline.alpha(_);
           map.projection(prjMap);
-          outline.projection(prjOutline);
+          //outline.projection(prjOutline);
           setClip(prj.clip);
           ratio = rTween(_);
           height = width/ratio;
@@ -293,12 +293,12 @@ Celestial.display = function(config) {
         canvas.attr("width", width).attr("height", height);
         if (parent) parent.style.height = px(height);
         cfg.projection = config.projection;
-        prjMap = Celestial.projection(config.projection).rotate(rot).translate([width/2, height/2]).scale([scale]);
-        prjOutline = Celestial.projection(config.projection).translate([width/2, height/2]).scale([scale]);
+        prjMap = Celestial.projection(config.projection).rotate(rot).translate([width/2, height/2]).scale(scale);
+        //prjOutline = Celestial.projection(config.projection).translate([width/2, height/2]).scale([scale]);
         map.projection(prjMap);
-        outline.projection(prjOutline);
+        //outline.projection(prjOutline);
         setClip(proj.clip); 
-        zoom.projection(prjMap).scaleExtent([scale, scale*5]);
+        zoom.projection(prjMap).scaleExtent([scale, scale*5]).scale(scale);
         cfg.adaptable = bAdapt;
         redraw();
       });
@@ -307,7 +307,7 @@ Celestial.display = function(config) {
   
   function redraw() {  
     var rot = prjMap.rotate();
-    prjOutline.scale(prjMap.scale());
+    //prjOutline.scale(prjMap.scale());
     
     if (cfg.adaptable) adapt = Math.sqrt(prjMap.scale()/scale);
     if (cfg.orientationfixed) {
@@ -320,9 +320,10 @@ Celestial.display = function(config) {
     setCenter(cfg.center, cfg.transform);
     clear();
     
-    setStyle(cfg.background);
-    container.selectAll(".outline").attr("d", outline);      
-    context.fill();
+    //setStyle(cfg.background);
+    //container.selectAll(".outline").attr("d", outline);      
+    //context.fill();
+    drawOutline();
     
     //Draw all types of objects on the canvas
     if (cfg.mw.show) { 
@@ -402,9 +403,11 @@ Celestial.display = function(config) {
     }
     
     
-    setStyle(cfg.background);
+    /*setStyle(cfg.background);
     container.selectAll(".outline").attr("d", outline);      
     context.stroke();
+    */
+    drawOutline(true);
     
     if (cfg.location && cfg.horizon.show && !proj.clip) {
       circle.origin(Celestial.nadir());
@@ -419,6 +422,15 @@ Celestial.display = function(config) {
     }
   }
     
+  function drawOutline(stroke) {
+    var rot = prjMap.rotate();
+    
+    prjMap.rotate([0,0]);
+    setStyle(cfg.background);
+    container.selectAll(".outline").attr("d", map);
+    if (stroke) context.stroke(); else context.fill();
+    prjMap.rotate(rot);
+  }
 
   // Helper functions -------------------------------------------------
   
