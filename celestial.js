@@ -222,6 +222,7 @@ Celestial.display = function(config) {
       prjMap.rotate(rotation);
       redraw();
     } else {
+      if (d > 3.14) cfg.center[0] -= 0.01; //180deg turn doesn't work well
       var cTween = d3.geo.interpolate(cFrom, cfg.center);
       interval *= d;
       d3.select({}).transition().duration(interval).tween("center", function() {
