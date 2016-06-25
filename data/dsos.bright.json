@@ -377,18 +377,5 @@
    "geometry": {
      "type": "Point",
      "coordinates": [13.155,-72.8]
-  }},
-/*  {"type": "Feature",
-   "id": "VirgoI",
-   "properties": {
-     "name": "Virgo Galaxy Cluster",
-     "desig": "Virgo Cl.",
-     "type": "gg",
-     "mag": 999,
-     "dim": "240"
-   },
-   "geometry": {
-     "type": "Point",
-     "coordinates": [-178.305,12.4]
-  }}*/
+  }}
 ]}
