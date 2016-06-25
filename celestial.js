@@ -6,6 +6,11 @@ var Celestial = {
   data: []
 };
  
+var ANIMDISTANCE = 0.035,  // rotation animation threshold, ~2deg in radians
+    ANIMSCALE = 1.4,       // zoom animation threshold, scale factor
+    ANIMINTERVAL_R = 2000, // rotation duration scale in ms
+    ANIMINTERVAL_P = 2500; // projection duration in ms
+    
 var cfg, prjMap, zoom, map, circle;
 
 // Show it all, with the given config, otherwise with default settings
@@ -213,19 +218,19 @@ Celestial.display = function(config) {
     var cFrom = cfg.center, 
         rot = prjMap.rotate(),
         sc = prjMap.scale(),
-        interval = 2000,
+        interval = ANIMINTERVAL_R,
         keep = false, zTween,
         oof = cfg.orientationfixed;
     
     if (Round(rot[1], 2) === -Round(config.center[1], 2)) keep = true; //keep lat fixed if equal
     cfg = cfg.set(config);
     var d = d3.geo.distance(cFrom, cfg.center);
-    if (d < 0.035) {  //~2deg
+    if (d < ANIMDISTANCE) {  
       rotation = getAngles(cfg.center);
       prjMap.rotate(rotation);
       redraw();
     } else {
-      if (sc > scale * 1.2) zTween = d3.interpolateNumber(sc, scale);
+      if (sc > scale * ANIMSCALE) zTween = d3.interpolateNumber(sc, scale);
       else zTween = function() { return sc; };
       if (d > 3.14) cfg.center[0] -= 0.01; //180deg turn doesn't work well
       cfg.orientationfixed = false;  
@@ -265,7 +270,7 @@ Celestial.display = function(config) {
     
     var rot = prjMap.rotate(), ctr = prjMap.center(),
         prjFrom = Celestial.projection(cfg.projection).center(ctr).translate([width/2, height/2]).scale([scale]),
-        interval = 2500,
+        interval = ANIMINTERVAL_P,
         rTween = d3.interpolateNumber(ratio, prj.ratio);
 
     if (proj.clip != prj.clip) interval = 0;   // Different clip = no transition
