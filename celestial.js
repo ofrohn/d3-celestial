@@ -194,12 +194,12 @@ Celestial.display = function(config) {
   
   
   function zoomBy(factor) {
-    var scale = prjMap.scale() * factor,
+    var sc = prjMap.scale() * factor,
         ext = zoom.scaleExtent();
-    if (scale < ext[0]) scale = ext[0];
-    if (scale > ext[1]) scale = ext[1];
-    prjMap.scale(scale); 
-    zoom.scale(scale); 
+    if (sc < ext[0]) sc = ext[0];
+    if (sc > ext[1]) sc = ext[1];
+    prjMap.scale(sc); 
+    zoom.scale(sc); 
     redraw(); 
   }  
   
@@ -212,8 +212,11 @@ Celestial.display = function(config) {
   function rotate(config) {
     var cFrom = cfg.center, 
         rot = prjMap.rotate(),
-        interval = 1500,
-        keep = false;
+        sc = prjMap.scale(),
+        interval = 2000,
+        keep = false, zTween,
+        oof = cfg.orientationfixed;
+    
     if (Round(rot[1], 2) === -Round(config.center[1], 2)) keep = true; //keep lat fixed if equal
     cfg = cfg.set(config);
     var d = d3.geo.distance(cFrom, cfg.center);
@@ -222,17 +225,25 @@ Celestial.display = function(config) {
       prjMap.rotate(rotation);
       redraw();
     } else {
+      if (sc > scale * 1.2) zTween = d3.interpolateNumber(sc, scale);
+      else zTween = function() { return sc; };
       if (d > 3.14) cfg.center[0] -= 0.01; //180deg turn doesn't work well
+      cfg.orientationfixed = false;  
       var cTween = d3.geo.interpolate(cFrom, cfg.center);
       interval *= d;
       d3.select({}).transition().duration(interval).tween("center", function() {
-        return function(_) {
-          var c = getAngles(cTween(_));
+        return function(t) {
+          var c = getAngles(cTween(t));
+          var z = t < 0.5 ? zTween(t) : zTween(1-t);
           if (keep) c[1] = rot[1]; 
+          prjMap.scale(z);
           prjMap.rotate(c);
           redraw();
         };
-      });        
+      }).transition().duration(0).tween("center", function() {
+        cfg.orientationfixed = oof;
+        redraw();
+      });
     }
   }
   
@@ -558,6 +569,8 @@ Celestial.display = function(config) {
   this.reload = function(config) { 
     if (!config || !has(config, "transform")) return;
     trans = cfg.transform = config.transform; 
+    if (trans === "equatorial") graticule.minorStep([15,10]);
+    else  graticule.minorStep([10,10]);
     container.selectAll("*").remove(); 
     setClip();
     container.append("path").datum(circle).attr("class", "horizon");
