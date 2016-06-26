@@ -1,15 +1,16 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.5.7',
+  version: '0.5.8',
   container: null,
   data: []
 };
- 
-var ANIMDISTANCE = 0.035,  // rotation animation threshold, ~2deg in radians
-    ANIMSCALE = 1.4,       // zoom animation threshold, scale factor
-    ANIMINTERVAL_R = 2000, // rotation duration scale in ms
-    ANIMINTERVAL_P = 2500; // projection duration in ms
+
+var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
+    ANIMSCALE = 1.4,       // Zoom animation threshold, scale factor
+    ANIMINTERVAL_R = 2000, // Rotation duration scale in ms
+    ANIMINTERVAL_P = 2500, // Projection duration in ms
+    ANIMINTERVAL_Z = 1500; // Zoom duration scale in ms
     
 var cfg, prjMap, zoom, map, circle;
 
@@ -20,7 +21,7 @@ Celestial.display = function(config) {
   //Mash config with default settings
   cfg = settings.set(config); 
   cfg.stars.size = cfg.stars.size || 7;  // Nothing works without these
-  cfg.center = cfg.center || [0,0];      
+  cfg.center = cfg.center || [0,0];     
   
   var parent = $(cfg.container);
   if (parent) { 
@@ -77,8 +78,8 @@ Celestial.display = function(config) {
   d3.select(window).on('resize', resize);
 
   if (cfg.controls === true && $("celestial-zoomin") === null) {
-    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function() { zoomBy(1.057); });
-    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.946); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function() { zoomBy(1.111); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
   }
   
   if (cfg.location === true) {
@@ -197,15 +198,27 @@ Celestial.display = function(config) {
     }
   }
   
-  
+  // Zoom by factor; >1 larger <1 smaller 
   function zoomBy(factor) {
-    var sc = prjMap.scale() * factor,
-        ext = zoom.scaleExtent();
-    if (sc < ext[0]) sc = ext[0];
-    if (sc > ext[1]) sc = ext[1];
-    prjMap.scale(sc); 
-    zoom.scale(sc); 
-    redraw(); 
+    if (!factor || factor === 1) return;
+    var sc0 = prjMap.scale(),
+        sc1 = sc0 * factor,
+        ext = zoom.scaleExtent(),
+        interval = ANIMINTERVAL_Z * Math.sqrt(Math.abs(1-factor));
+        
+    if (sc1 < ext[0]) sc1 = ext[0];
+    if (sc1 > ext[1]) sc1 = ext[1];
+    var zTween = d3.interpolateNumber(sc0, sc1);
+    d3.select({}).transition().duration(interval).tween("scale", function() {
+        return function(t) {
+          var z = zTween(t);
+          prjMap.scale(z); 
+          redraw(); 
+        };      
+    }).transition().duration(0).tween("scale", function() {
+      zoom.scale(sc1); 
+      redraw(); 
+    });
   }  
   
   function apply(config) {
@@ -219,26 +232,35 @@ Celestial.display = function(config) {
         rot = prjMap.rotate(),
         sc = prjMap.scale(),
         interval = ANIMINTERVAL_R,
-        keep = false, zTween,
+        keep = false, 
+        cTween, zTween, oTween,
         oof = cfg.orientationfixed;
     
     if (Round(rot[1], 2) === -Round(config.center[1], 2)) keep = true; //keep lat fixed if equal
     cfg = cfg.set(config);
-    var d = d3.geo.distance(cFrom, cfg.center);
-    if (d < ANIMDISTANCE) {  
+    var d = Round(d3.geo.distance(cFrom, cfg.center), 2);
+    var o = d3.geo.distance([cFrom[2],0], [cfg.center[2],0]);
+    if (d < ANIMDISTANCE && o < ANIMDISTANCE) {  
       rotation = getAngles(cfg.center);
       prjMap.rotate(rotation);
       redraw();
     } else {
+      // Zoom interpolator
       if (sc > scale * ANIMSCALE) zTween = d3.interpolateNumber(sc, scale);
       else zTween = function() { return sc; };
+      // Orientation interpolator
+      if (o === 0) oTween = function() { return rot[2]; };
+      else oTween = interpolateAngle(cFrom[2], cfg.center[2]);
       if (d > 3.14) cfg.center[0] -= 0.01; //180deg turn doesn't work well
       cfg.orientationfixed = false;  
-      var cTween = d3.geo.interpolate(cFrom, cfg.center);
-      interval *= d;
+      // Rotation interpolator
+      if (d === 0) cTween = function() { return cfg.center; };
+      else cTween = d3.geo.interpolate(cFrom, cfg.center);
+      interval = (d !== 0) ? interval * d : interval * o; // duration scaled by ang. distance
       d3.select({}).transition().duration(interval).tween("center", function() {
         return function(t) {
           var c = getAngles(cTween(t));
+          c[2] = oTween(t);
           var z = t < 0.5 ? zTween(t) : zTween(1-t);
           if (keep) c[1] = rot[1]; 
           prjMap.scale(z);
@@ -1385,7 +1407,16 @@ function dateDiff(dt1, dt2, type) {
   return Math.floor(diff);
 }
 
-
+function interpolateAngle(a1, a2, t) {
+  a1 = (a1*deg2rad +τ) % τ;
+  a2 = (a2*deg2rad + τ) % τ;
+  var diff = Math.abs(a1 - a2);
+  if (diff > Math.PI) {
+    if (a1 > a2) a1 = a1 - τ;
+    else if (a2 > a1) a2 = a2 - τ;
+  }
+  return d3.interpolateNumber(a1/deg2rad, a2/deg2rad);
+}
 
 
 //display settings form in div with id "celestial-form"
@@ -1452,8 +1483,6 @@ function form(cfg) {
     Celestial.display(config);
     return false;
   });
-  //col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
-  //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
 
   setCenter(config.center, config.transform);
 
@@ -1558,54 +1587,9 @@ function form(cfg) {
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", config.adaptable).on("change", apply);
    
-  /* obsolete
-  $("show").onclick = function(e) {
-    var x = $("centerx"),
-        y = $("centery");
-    //Test params
-    if (!isNumber(config.width)) { popError($("width"), "Check Width setting"); return false; }
-
-    if (x !== null && y !== null) {
-      if (x.value === "" && y.value !== "" || y.value === "" && x.value !== "") {
-        popError(x, "Both center coordinates need to be given");
-        return false; 
-      }
-    } 
-  
-    Celestial.display(config);
-
-    return false;
-  };*/
-
   setLimits();
   setUnit(config.transform);
-  /* descoped
-  $("defaults").onclick = function(e) {
-    config = Celestial.settings().set({width:0, projection:"aitoff"});
-    //fillForm(config);
-    return false;
-  }*/
 
-  /* obsolete
-  function redraw() {
-    var src = this;
-    if (!src) return;
-    switch (src.id) {
-      case "width": if (testNumber(src) === false) return; 
-                    config.width = src.value; break;
-      case "projection": config.projection = src.options[src.selectedIndex].value; break;
-      case "transform": var old = config.transform;
-                        config.transform = src.options[src.selectedIndex].value;
-                        var cx = $("centerx");
-                        if (cx) {
-                          setUnit(config.transform, old); 
-                          config.center[0] = cx.value; 
-                        }
-                        break;
-    }    
-    Celestial.display(config);
-  }
-  */
   function resize() {
     var src = this,
         w = src.value;

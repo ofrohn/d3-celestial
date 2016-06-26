@@ -1,4 +1,4 @@
-
+/* global τ, deg2rad */
 function $(id) { return document.getElementById(id); }
 function px(n) { return n + "px"; } 
 function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
@@ -58,3 +58,13 @@ function dateDiff(dt1, dt2, type) {
   return Math.floor(diff);
 }
 
+function interpolateAngle(a1, a2, t) {
+  a1 = (a1*deg2rad +τ) % τ;
+  a2 = (a2*deg2rad + τ) % τ;
+  var diff = Math.abs(a1 - a2);
+  if (diff > Math.PI) {
+    if (a1 > a2) a1 = a1 - τ;
+    else if (a2 > a1) a2 = a2 - τ;
+  }
+  return d3.interpolateNumber(a1/deg2rad, a2/deg2rad);
+}

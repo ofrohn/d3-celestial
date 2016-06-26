@@ -64,8 +64,6 @@ function form(cfg) {
     Celestial.display(config);
     return false;
   });
-  //col.append("input").attr("type", "button").attr("id", "show").attr("value", "Show");
-  //col.append("input").attr("type", "button").attr("id", "defaults").attr("value", "Defaults");
 
   setCenter(config.center, config.transform);
 
@@ -170,54 +168,9 @@ function form(cfg) {
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", config.adaptable).on("change", apply);
    
-  /* obsolete
-  $("show").onclick = function(e) {
-    var x = $("centerx"),
-        y = $("centery");
-    //Test params
-    if (!isNumber(config.width)) { popError($("width"), "Check Width setting"); return false; }
-
-    if (x !== null && y !== null) {
-      if (x.value === "" && y.value !== "" || y.value === "" && x.value !== "") {
-        popError(x, "Both center coordinates need to be given");
-        return false; 
-      }
-    } 
-  
-    Celestial.display(config);
-
-    return false;
-  };*/
-
   setLimits();
   setUnit(config.transform);
-  /* descoped
-  $("defaults").onclick = function(e) {
-    config = Celestial.settings().set({width:0, projection:"aitoff"});
-    //fillForm(config);
-    return false;
-  }*/
 
-  /* obsolete
-  function redraw() {
-    var src = this;
-    if (!src) return;
-    switch (src.id) {
-      case "width": if (testNumber(src) === false) return; 
-                    config.width = src.value; break;
-      case "projection": config.projection = src.options[src.selectedIndex].value; break;
-      case "transform": var old = config.transform;
-                        config.transform = src.options[src.selectedIndex].value;
-                        var cx = $("centerx");
-                        if (cx) {
-                          setUnit(config.transform, old); 
-                          config.center[0] = cx.value; 
-                        }
-                        break;
-    }    
-    Celestial.display(config);
-  }
-  */
   function resize() {
     var src = this,
         w = src.value;
