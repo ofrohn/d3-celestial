@@ -11,9 +11,9 @@ __See some examples__:
 [Spinning sky globe](http://armchairastronautics.blogspot.com/2016/04/interactive-skymap-version-05.html)  
 [The Milky Way halo, globular clusters & satellite galaxies](http://armchairastronautics.blogspot.com/p/milky-way-halo.html)  
 [The Local Group of galaxies](http://armchairastronautics.blogspot.com/p/local-group.html)  
-[Asterisms with locations & time selection](http://armchairastronautics.blogspot.com/p/asterisms.html) 
-[Asterisms with zoom & pan](http://armchairastronautics.blogspot.com/2016/05/asterisms-interactive-and-with.html) 
-[Zoom & pan animations](http://armchairastronautics.blogspot.com/2016/06/and-here-is-d3-celestial-057-with.html) 
+[Asterisms with locations & time selection](http://armchairastronautics.blogspot.com/p/asterisms.html)  
+[Asterisms with zoom & pan](http://armchairastronautics.blogspot.com/2016/05/asterisms-interactive-and-with.html)  
+[Zoom & pan animations](http://armchairastronautics.blogspot.com/2016/06/and-here-is-d3-celestial-057-with.html)  
 
 ### Usage
 
