@@ -13,6 +13,7 @@ __See some examples__:
 [The Local Group of galaxies](http://armchairastronautics.blogspot.com/p/local-group.html)  
 [Asterisms with locations & time selection](http://armchairastronautics.blogspot.com/p/asterisms.html) 
 [Asterisms with zoom & pan](http://armchairastronautics.blogspot.com/2016/05/asterisms-interactive-and-with.html) 
+[Zoom & pan animations](http://armchairastronautics.blogspot.com/2016/06/and-here-is-d3-celestial-057-with.html) 
 
 ### Usage
 
