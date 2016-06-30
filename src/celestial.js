@@ -15,7 +15,8 @@ var cfg, prjMap, zoom, map, circle;
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
-  var par, container = Celestial.container;
+  var par, container = Celestial.container,
+      animations = [], current = 0, repeat = false, aID;
   
   //Mash config with default settings
   cfg = settings.set(config); 
@@ -218,6 +219,7 @@ Celestial.display = function(config) {
       zoom.scale(sc1); 
       redraw(); 
     });
+    return interval;
   }  
   
   function apply(config) {
@@ -271,6 +273,7 @@ Celestial.display = function(config) {
         redraw();
       });
     }
+    return interval;
   }
   
   function resize(set) {
@@ -305,31 +308,32 @@ Celestial.display = function(config) {
     prjMap = projectionTween(prjFrom, prjTo);
 
     d3.select({}).transition().duration(interval).tween("projection", function() {
-        return function(_) {
-          prjMap.alpha(_).rotate(rot);
-          map.projection(prjMap);
-          setClip(prj.clip);
-          ratio = rTween(_);
-          height = width/ratio;
-          canvas.attr("width", width).attr("height", height);
-          if (parent) parent.style.height = px(height);
-          redraw();
-        };
-      }).transition().duration(0).tween("projection", function() {
-        proj = prj;
-        ratio = proj.ratio;
-        height = width / proj.ratio;
-        scale = proj.scale * width/1024;
+      return function(_) {
+        prjMap.alpha(_).rotate(rot);
+        map.projection(prjMap);
+        setClip(prj.clip);
+        ratio = rTween(_);
+        height = width/ratio;
         canvas.attr("width", width).attr("height", height);
         if (parent) parent.style.height = px(height);
-        cfg.projection = config.projection;
-        prjMap = Celestial.projection(config.projection).rotate(rot).translate([width/2, height/2]).scale(scale);
-        map.projection(prjMap);
-        setClip(proj.clip); 
-        zoom.projection(prjMap).scaleExtent([scale, scale*5]).scale(scale);
-        cfg.adaptable = bAdapt;
         redraw();
-      });
+      };
+    }).transition().duration(0).tween("projection", function() {
+      proj = prj;
+      ratio = proj.ratio;
+      height = width / proj.ratio;
+      scale = proj.scale * width/1024;
+      canvas.attr("width", width).attr("height", height);
+      if (parent) parent.style.height = px(height);
+      cfg.projection = config.projection;
+      prjMap = Celestial.projection(config.projection).rotate(rot).translate([width/2, height/2]).scale(scale);
+      map.projection(prjMap);
+      setClip(proj.clip); 
+      zoom.projection(prjMap).scaleExtent([scale, scale*5]).scale(scale);
+      cfg.adaptable = bAdapt;
+      redraw();
+    });
+    return interval;
   }
 
   
@@ -579,6 +583,27 @@ Celestial.display = function(config) {
     return [rot[0] - coords[0], rot[1] - coords[1], rot[2] + coords[2]];
   }
   
+  
+  function animate() {
+    var d, a = animations[current];
+    
+    switch (a.param) {
+      case "projection": d = reproject({projection:a.value}); break;
+      case "center": d = rotate({center:a.value}); break;
+      case "zoom": d = zoomBy(a.value);
+    }
+    current++;
+    if (repeat === true && current === animations.length) current = 0;
+    d = a.duration === 0 || a.duration < d ? d : a.duration;
+    if (current < animations.length) aID = setTimeout(animate, d);
+  }
+  
+  function stop() {
+    clearTimeout(aID);
+    current = 0;
+    repeat = false;
+  }
+  
   // Exported objects and functions for adding data
   this.container = container;
   this.clip = clip;
@@ -606,6 +631,14 @@ Celestial.display = function(config) {
   this.apply = function(config) { apply(config); }; 
   this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
   this.zoomBy = function(factor) { if (!factor) return prjMap.scale(); zoomBy(factor); };
+  this.animate = function(anims, dorepeat) { 
+    if (!anims) return; 
+    animations = anims; 
+    current = 0; 
+    repeat = dorepeat ? true : false; 
+    animate(); 
+  };
+  this.stop = stop;
   
   load();
 };
