@@ -26,8 +26,9 @@ var config = {
   projection: "aitoff",    // Map projection used: see below
   transform: "equatorial", // Coordinate transformation: equatorial (default),
                            // ecliptic, galactic, supergalactic
-  center: null,       // Initial center coordinates in equatorial transformation only
-                      // [hours, degrees], null = default center
+  center: null,       // Initial center coordinates in set transform
+                      // [longitude, latitude, orientation] all in degrees 
+                      // null = default center [0,0,0]
   orientationfixed: true,  // Keep orientation angle the same as center[2]
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
@@ -219,6 +220,24 @@ __Exposed functions__
   Change the map projection. 
   projection: new projection to set
 
+### Animations  
+
+__Exposed functions__  
+
+* `Celestial.animate(anims, dorepeat)`
+  Set the anmation sequence and start it.  
+  anims: sequence data (see below)  
+  dorepeat: repeat sequence in endless loop
+  
+* `Celestial.stop()`
+  Stop the animation, if on repeat.
+
+__Animation sequence format:__  
+ [  
+ {param: Animated parameter projection|center|zoom  
+   value: Adequate value for each parameter  
+   duration: in milliseconds, 0 = exact length of transition  
+ }, ...]   
   
 ### Files
 

@@ -1,6 +1,6 @@
 /* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, Canvas, halfπ, $, px, Round, has, form, geo, setCenter, showHorizon, interpolateAngle */
 var Celestial = {
-  version: '0.5.8',
+  version: '0.5.9',
   container: null,
   data: []
 };
@@ -237,7 +237,7 @@ Celestial.display = function(config) {
         cTween, zTween, oTween,
         oof = cfg.orientationfixed;
     
-    if (Round(rot[1], 2) === -Round(config.center[1], 2)) keep = true; //keep lat fixed if equal
+    if (Round(rot[1], 1) === -Round(config.center[1], 1)) keep = true; //keep lat fixed if equal
     cfg = cfg.set(config);
     var d = Round(d3.geo.distance(cFrom, cfg.center), 2);
     var o = d3.geo.distance([cFrom[2],0], [cfg.center[2],0]);
@@ -270,6 +270,8 @@ Celestial.display = function(config) {
         };
       }).transition().duration(0).tween("center", function() {
         cfg.orientationfixed = oof;
+        rotation = getAngles(cfg.center);
+        prjMap.rotate(rotation);
         redraw();
       });
     }
