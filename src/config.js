@@ -25,7 +25,7 @@ var settings = {
     desig: false,   // Show all names, including Draper and Hipparcos
     namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
-    size: 7,       // Maximum size (radius) of star circle in pixels
+    size: 7,       // Scale size (radius) of star circle in pixels
     data: "stars.6.json" // Data source for stellar data
   },
   dsos: {
@@ -35,6 +35,7 @@ var settings = {
     desig: true,   // Show short DSO names
     namestyle: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", align: "left", baseline: "top" },
     namelimit: 4,  // Show only names for DSOs brighter than namelimit
+    size: null,    // Optional seperate scale size for DSOs, null = stars.size
     data: "dsos.bright.json",  // Data source for DSOs
     symbols: {  //DSO symbol styles
       gg: {shape: "circle", fill: "#ff0000"},                                 // Galaxy cluster
@@ -49,7 +50,7 @@ var settings = {
       en: {shape: "square", fill: "#ff00cc"},                                 // Emission nebula
       bn: {shape: "square", fill: "#ff00cc"},                                 // Generic bright nebula
       sfr:{shape: "square", fill: "#cc00ff"},                                 // Star forming region
-      rn: {shape: "square", fill: "#00ooff"},                                 // Reflection nebula
+      rn: {shape: "square", fill: "#0000ff"},                                 // Reflection nebula
       pn: {shape: "diamond", fill: "#00cccc"},                                // Planetary nebula 
       snr:{shape: "diamond", fill: "#ff00cc"},                                // Supernova remnant
       dn: {shape: "square", fill: "#999999", stroke: "#999999", width: 2},    // Dark nebula 

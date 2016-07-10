@@ -23,7 +23,7 @@ Canvas.symbol = function() {
     },
     "square": function(ctx) {
       var s = Math.sqrt(size()), 
-          r = s/2;
+          r = s/1.7;
       ctx.moveTo(pos[0]-r, pos[1]-r);
       ctx.lineTo(pos[0]+r, pos[1]-r);
       ctx.lineTo(pos[0]+r, pos[1]+r);
@@ -33,7 +33,7 @@ Canvas.symbol = function() {
     },
     "diamond": function(ctx) {
       var s = Math.sqrt(size()), 
-          r = s/2;
+          r = s/1.5;
       ctx.moveTo(pos[0], pos[1]-r);
       ctx.lineTo(pos[0]+r, pos[1]);
       ctx.lineTo(pos[0], pos[1]+r);
@@ -65,10 +65,10 @@ Canvas.symbol = function() {
     "marker": function(ctx) {
       var s = Math.sqrt(size()), 
           r = s/2;
-      ctx.moveTo(pos[0], pos[1]-s);
-      ctx.lineTo(pos[0], pos[1]+s);
-      ctx.moveTo(pos[0]-s, pos[1]);
-      ctx.lineTo(pos[0]+s, pos[1]);
+      ctx.moveTo(pos[0], pos[1]-r);
+      ctx.lineTo(pos[0], pos[1]+r);
+      ctx.moveTo(pos[0]-r, pos[1]);
+      ctx.lineTo(pos[0]+r, pos[1]);
       ctx.closePath();
       return r;
     },

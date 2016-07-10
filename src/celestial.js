@@ -43,7 +43,8 @@ Celestial.display = function(config) {
       ratio = proj.ratio,
       height = width / ratio,
       scale = proj.scale * width/1024,
-      base = cfg.stars.size, 
+      starbase = cfg.stars.size, 
+      dsobase = cfg.dsos.size || base,
       exp = -0.28, //Object size base & exponent
       adapt = 1,
       rotation = getAngles(cfg.center),
@@ -294,20 +295,27 @@ Celestial.display = function(config) {
     var prj = getProjection(config.projection);
     if (!prj) return;
     
-    var rot = prjMap.rotate(), ctr = prjMap.center(),
-        prjFrom = Celestial.projection(cfg.projection).center(ctr).translate([width/2, height/2]).scale([scale]),
-        interval = ANIMINTERVAL_P,
+    var rot = prjMap.rotate(), ctr = prjMap.center(), sc = prjMap.scale(), ext = zoom.scaleExtent(),
+        prjFrom = Celestial.projection(cfg.projection).center(ctr).translate([width/2, height/2]).scale([ext[0]]),
+        interval = ANIMINTERVAL_P, 
+        delay = 0, 
         rTween = d3.interpolateNumber(ratio, prj.ratio);
 
     if (proj.clip != prj.clip) interval = 0;   // Different clip = no transition
     
     var prjTo = Celestial.projection(config.projection).center(ctr).translate([width/2, width/prj.ratio/2]).scale([prj.scale * width/1024]);
     var bAdapt = cfg.adaptable;
-    cfg.adaptable = false;
 
+    if (sc > ext[0]) {
+      delay = zoomBy(0.1);
+      setTimeout(reproject, delay, config);
+      return delay + interval;
+    }
+    
     showHorizon(prj.clip);
     
     prjMap = projectionTween(prjFrom, prjTo);
+    cfg.adaptable = false;
 
     d3.select({}).transition().duration(interval).tween("projection", function() {
       return function(_) {
@@ -343,11 +351,13 @@ Celestial.display = function(config) {
     var rot = prjMap.rotate();
     
     if (cfg.adaptable) adapt = Math.sqrt(prjMap.scale()/scale);
+    if (!adapt) adapt = 1;
     if (cfg.orientationfixed) {
       rot[2] = cfg.center[2]; 
       prjMap.rotate(rot);
     }
-    base = cfg.stars.size * adapt;
+    //starbase = cfg.stars.size * adapt;
+    //dsobase = cfg.dsos.size * adapt;
     cfg.center = [-rot[0], -rot[1], rot[2]];
     
     setCenter(cfg.center, cfg.transform);
@@ -520,8 +530,8 @@ Celestial.display = function(config) {
   }
 
   function dsoSize(prop) {
-    if (!prop.mag || prop.mag == 999) return Math.pow(parseInt(prop.dim) * base / 7, 0.5); 
-    return Math.pow(2 * base-prop.mag, 1.4);
+    if (!prop.mag || prop.mag == 999) return Math.pow(parseInt(prop.dim) * dsobase * adapt / 7, 0.5); 
+    return Math.pow(2 * dsobase * adapt - prop.mag, 1.4);
   }
  
 
@@ -547,7 +557,7 @@ Celestial.display = function(config) {
   function starSize(d) {
     var mag = d.properties.mag;
     if (mag === null) return 0.1; 
-    var r = base * Math.exp(exp * (mag+2));
+    var r = starbase * adapt * Math.exp(exp * (mag+2));
     return Math.max(r, 0.1);
   }
   
@@ -587,6 +597,8 @@ Celestial.display = function(config) {
   
   
   function animate() {
+    if (!animations || animations.length < 1) return;
+
     var d, a = animations[current];
     
     switch (a.param) {
@@ -594,6 +606,7 @@ Celestial.display = function(config) {
       case "center": d = rotate({center:a.value}); break;
       case "zoom": d = zoomBy(a.value);
     }
+    if (a.callback) setTimeout(a.callback, d);
     current++;
     if (repeat === true && current === animations.length) current = 0;
     d = a.duration === 0 || a.duration < d ? d : a.duration;
@@ -602,7 +615,7 @@ Celestial.display = function(config) {
   
   function stop() {
     clearTimeout(aID);
-    current = 0;
+    //current = 0;
     repeat = false;
   }
   
@@ -633,6 +646,11 @@ Celestial.display = function(config) {
   this.apply = function(config) { apply(config); }; 
   this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
   this.zoomBy = function(factor) { if (!factor) return prjMap.scale(); zoomBy(factor); };
+  this.color = function(type) {
+    if (!type) return "#000";
+    if (has(cfg.dsos.symbols, type)) return cfg.dsos.symbols[type].fill;
+    return "#000";
+  };
   this.animate = function(anims, dorepeat) { 
     if (!anims) return; 
     animations = anims; 
@@ -641,6 +659,10 @@ Celestial.display = function(config) {
     animate(); 
   };
   this.stop = stop;
+  this.go = function(index) {
+    if (index) current = index;
+    animate(); 
+  };
   
   load();
 };
