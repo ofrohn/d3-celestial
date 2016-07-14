@@ -44,7 +44,7 @@ Celestial.display = function(config) {
       height = width / ratio,
       scale = proj.scale * width/1024,
       starbase = cfg.stars.size, 
-      dsobase = cfg.dsos.size || base,
+      dsobase = cfg.dsos.size || starbase,
       exp = -0.28, //Object size base & exponent
       adapt = 1,
       rotation = getAngles(cfg.center),
@@ -642,10 +642,10 @@ Celestial.display = function(config) {
     container.append("path").datum(circle).attr("class", "horizon");
     load(); 
   }; 
-  this.reproject = function(config) { reproject(config); }; 
   this.apply = function(config) { apply(config); }; 
-  this.rotate = function(config) { if (!config) return cfg.center; rotate(config); }; 
-  this.zoomBy = function(factor) { if (!factor) return prjMap.scale(); zoomBy(factor); };
+  this.reproject = function(config) { return reproject(config); }; 
+  this.rotate = function(config) { if (!config) return cfg.center; return rotate(config); }; 
+  this.zoomBy = function(factor) { if (!factor) return prjMap.scale(); return zoomBy(factor); };
   this.color = function(type) {
     if (!type) return "#000";
     if (has(cfg.dsos.symbols, type)) return cfg.dsos.symbols[type].fill;
@@ -658,7 +658,10 @@ Celestial.display = function(config) {
     repeat = dorepeat ? true : false; 
     animate(); 
   };
-  this.stop = stop;
+  this.stop  = function(wipe) {
+    stop();
+    if (wipe === true) animations = [];
+  };
   this.go = function(index) {
     if (index) current = index;
     animate(); 
