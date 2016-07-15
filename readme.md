@@ -224,19 +224,27 @@ __Exposed functions__
 
 __Exposed functions__  
 
-* `Celestial.animate(anims, dorepeat)`
+* `Celestial.animate(anims, dorepeat)`  
   Set the anmation sequence and start it.  
   anims: sequence data (see below)  
-  dorepeat: repeat sequence in endless loop
+  dorepeat: repeat sequence in endless loop  
   
-* `Celestial.stop()`
-  Stop the animation, if on repeat.
+* `Celestial.stop(wipe)`  
+  Stop the animation after the current step finishes.  
+  wipe: if true, delete the list of animation steps as well  
 
+* `Celestial.go(index)`  
+  Continue the animation, if animation steps set.  
+  index: if given, continue at that step,  
+  if not, continue where the animation was stopped  
+
+  
 __Animation sequence format:__  
  [  
  {param: Animated parameter projection|center|zoom  
    value: Adequate value for each parameter  
-   duration: in milliseconds, 0 = exact length of transition  
+   duration: in milliseconds, 0 = exact length of transition
+   callback: optional callback function called at the end of the transition   
  }, ...]   
   
 ### Files
