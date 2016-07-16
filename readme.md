@@ -235,7 +235,7 @@ __Exposed functions__
 
 * `Celestial.go(index)`  
   Continue the animation, if animation steps set.  
-  index: if given, continue at that step,  
+  index: if given, continue at step #index in the anims arrray,  
   if not, continue where the animation was stopped  
 
   

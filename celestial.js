@@ -617,7 +617,7 @@ Celestial.display = function(config) {
   function stop() {
     clearTimeout(aID);
     //current = 0;
-    repeat = false;
+    //repeat = false;
   }
   
   // Exported objects and functions for adding data
@@ -664,7 +664,8 @@ Celestial.display = function(config) {
     if (wipe === true) animations = [];
   };
   this.go = function(index) {
-    if (index) current = index;
+    if (animations.length < 1) return;
+    if (index && index < animations.length) current = index;
     animate(); 
   };
   
