@@ -646,7 +646,7 @@ Celestial.display = function(config) {
   this.apply = function(config) { apply(config); }; 
   this.reproject = function(config) { return reproject(config); }; 
   this.rotate = function(config) { if (!config) return cfg.center; return rotate(config); }; 
-  this.zoomBy = function(factor) { if (!factor) return prjMap.scale(); return zoomBy(factor); };
+  this.zoomBy = function(factor) { if (!factor) return prjMap.scale()/scale; return zoomBy(factor); };
   this.color = function(type) {
     if (!type) return "#000";
     if (has(cfg.dsos.symbols, type)) return cfg.dsos.symbols[type].fill;
