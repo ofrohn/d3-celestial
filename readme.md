@@ -14,6 +14,7 @@ __See some examples__:
 [Asterisms with locations & time selection](http://armchairastronautics.blogspot.com/p/asterisms.html)  
 [Asterisms with zoom & pan](http://armchairastronautics.blogspot.com/2016/05/asterisms-interactive-and-with.html)  
 [Zoom & pan animations](http://armchairastronautics.blogspot.com/2016/06/and-here-is-d3-celestial-057-with.html)  
+[A different kind of Messier marathon](http://armchairastronautics.blogspot.com/2016/07/a-different-kind-of-messier-marathon.html)  
 
 ### Usage
 
