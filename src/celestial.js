@@ -1,6 +1,6 @@
 /* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, Canvas, halfπ, $, px, Round, has, form, geo, setCenter, showHorizon, interpolateAngle */
 var Celestial = {
-  version: '0.5.9',
+  version: '0.6.0',
   container: null,
   data: []
 };
@@ -22,6 +22,7 @@ Celestial.display = function(config) {
   cfg = settings.set(config); 
   cfg.stars.size = cfg.stars.size || 7;  // Nothing works without these
   cfg.center = cfg.center || [0,0];     
+  if (!cfg.lang || cfg.lang.search(/^de|es$/) === -1) cfg.lang = "name";
   
   var parent = $(cfg.container);
   if (parent) { 
@@ -383,6 +384,7 @@ Celestial.display = function(config) {
         setTextStyle(cfg.constellations.namestyle);
         container.selectAll(".constname").each( function(d) { 
           if (clip(d.geometry.coordinates)) {
+            setConstStyle(d.properties.rank, cfg.constellations.namestyle.font);
             var pt = prjMap(d.geometry.coordinates);
             context.fillText(constName(d), pt[0], pt[1]); 
           }
@@ -411,7 +413,7 @@ Celestial.display = function(config) {
           context.fill();
           if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit*adapt) {
             setTextStyle(cfg.stars.namestyle);
-            context.fillText(starName(d), pt[0]+r, pt[1]+r);         
+            context.fillText(starName(d), pt[0]+r, pt[1]+r*0);         
           }
         }
       });
@@ -430,7 +432,7 @@ Celestial.display = function(config) {
           if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.namelimit)) {
             setTextStyle(cfg.dsos.namestyle);
             context.fillStyle = cfg.dsos.symbols[type].fill;
-            context.fillText(dsoName(d), pt[0]+r, pt[1]+r);         
+            context.fillText(dsoName(d), pt[0]+r, pt[1]-r);         
           }         
         }
       });
@@ -490,7 +492,15 @@ Celestial.display = function(config) {
     context.globalAlpha = s.opacity || 1;  
     context.font = s.font;
   }
-    
+
+  function setConstStyle(rank, font) {
+    if (!isArray(font)) context.font = font;
+    else if (font.length === 1) context.font = font[0];
+    else if (rank > font.length) context.font = font[font.length-1];
+    else context.font = font[rank-1];
+  }
+
+  
   function zoomState(sc) {
     var czi = $("celestial-zoomin"),
         czo = $("celestial-zoomout");
@@ -549,7 +559,7 @@ Celestial.display = function(config) {
   function starName(d) {
     var name = d.properties.desig;
     if (cfg.stars.proper && d.properties.name !== "") name = d.properties.name;
-    if (!cfg.stars.desig) return name.replace(/^H(D|IP).+/, ""); 
+    if (!cfg.stars.desig) return name.replace(/^(HD|HIP|V\d{3}).+/, ""); 
     
     return name; 
   }
@@ -568,7 +578,7 @@ Celestial.display = function(config) {
   }
   
   function constName(d) { 
-    return cfg.constellations.desig ? d.properties.desig : d.properties.name; 
+    return cfg.constellations.desig ? d.properties.desig : d.properties[cfg.lang]; 
   }
   
   function clear() {
@@ -627,6 +637,7 @@ Celestial.display = function(config) {
   this.context = context;
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;
+  this.setConstStyle = setConstStyle;
   this.redraw = redraw; 
   this.resize = function(config) { 
     if (config && has(config, "width")) cfg.width = config.width; 

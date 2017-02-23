@@ -13,6 +13,8 @@ var settings = {
   location: false,    // Display location settings 
   fullwidth: false,   // Display fullwidth button
   controls: true,     // Display zoom controls
+  lang: "",           // Language for names, so far only for constellations: de: german, es: spanish
+                      // Default:en or empty string for english
   container: "celestial-map",   // ID of parent element, e.g. div
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
@@ -83,7 +85,7 @@ var settings = {
     fill: "#000000", 
     opacity: 1, 
     stroke: "#000000", // Outline
-    width: 1 
+    width: 1.5 
   }, 
   horizon: {  //Show horizon marker
     show: false, 
