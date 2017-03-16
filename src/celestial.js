@@ -1,6 +1,6 @@
 /* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, Canvas, halfπ, $, px, Round, has, form, geo, setCenter, showHorizon, interpolateAngle */
 var Celestial = {
-  version: '0.6.0',
+  version: '0.5.10',
   container: null,
   data: []
 };
@@ -21,6 +21,7 @@ Celestial.display = function(config) {
   //Mash config with default settings
   cfg = settings.set(config); 
   cfg.stars.size = cfg.stars.size || 7;  // Nothing works without these
+	cfg.stars.exponent = cfg.stars.exponent || -0.28;
   cfg.center = cfg.center || [0,0];     
   if (!cfg.lang || cfg.lang.search(/^de|es$/) === -1) cfg.lang = "name";
   
@@ -46,7 +47,8 @@ Celestial.display = function(config) {
       scale = proj.scale * width/1024,
       starbase = cfg.stars.size, 
       dsobase = cfg.dsos.size || starbase,
-      exp = -0.28, //Object size base & exponent
+      starexp = cfg.stars.exponent,
+      dsoexp = cfg.dsos.exponent || starexp, //Object size base & exponent
       adapt = 1,
       rotation = getAngles(cfg.center),
       path = cfg.datapath || "";
@@ -102,13 +104,23 @@ Celestial.display = function(config) {
       if (!has(cfg.lines, key)) continue;
       if (key === "graticule") {
         container.append("path").datum(graticule).attr("class", "graticule"); 
+				if (cfg.lines.graticule.lon.pos.length > 0) 
+          container.selectAll(".gridvalues_lon")
+            .data(getGridValues("lon", cfg.lines.graticule.lon.pos))
+            .enter().append("path")
+            .attr("class", "graticule_lon"); 
+				if (cfg.lines.graticule.lat.pos.length > 0) 
+          container.selectAll(".gridvalues_lat")
+            .data(getGridValues("lat", cfg.lines.graticule.lat.pos))
+            .enter().append("path")
+            .attr("class", "graticule_lat"); 
       } else {
         container.append("path")
           .datum(d3.geo.circle().angle([90]).origin(transformDeg(poles[key], euler[trans])) )
           .attr("class", key);
       }
     }
-    
+
     //Milky way outline
     d3.json(path + "mw.json", function(error, json) {
       if (error) { 
@@ -357,8 +369,6 @@ Celestial.display = function(config) {
       rot[2] = cfg.center[2]; 
       prjMap.rotate(rot);
     }
-    //starbase = cfg.stars.size * adapt;
-    //dsobase = cfg.dsos.size * adapt;
     cfg.center = [-rot[0], -rot[1], rot[2]];
     
     setCenter(cfg.center, cfg.transform);
@@ -379,7 +389,33 @@ Celestial.display = function(config) {
       context.stroke();    
     }
 
+
+    setTextStyle(cfg.lines.graticule.lon);
+    container.selectAll(".graticule_lon").each(function(d, i) { 
+      if (clip(d.geometry.coordinates)) {
+        var pt = prjMap(d.geometry.coordinates);
+        pt = gridOrientation(pt, d.properties.orientation)
+        context.fillText(d.properties.value, pt[0], pt[1]); 
+      }
+	  });
+    
+    setTextStyle(cfg.lines.graticule.lat);
+    container.selectAll(".graticule_lat").each(function(d, i) { 
+      if (clip(d.geometry.coordinates)) {
+        var pt = prjMap(d.geometry.coordinates);
+        pt = gridOrientation(pt, d.properties.orientation)
+        context.fillText(d.properties.value, pt[0], pt[1]); 
+      }
+	  });
+		
+    drawOutline(true);
+
     if (cfg.constellations.show) {     
+      if (cfg.constellations.bounds) { 
+        container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
+        drawOutline(true);
+      }
+
       if (cfg.constellations.names) { 
         setTextStyle(cfg.constellations.namestyle);
         container.selectAll(".constname").each( function(d) { 
@@ -395,11 +431,9 @@ Celestial.display = function(config) {
         container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
       }
       
-      if (cfg.constellations.bounds) { 
-        container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
-      }
     }
       
+
     if (cfg.stars.show) { 
       setStyle(cfg.stars.style);
       container.selectAll(".star").each(function(d) {
@@ -444,7 +478,7 @@ Celestial.display = function(config) {
       });
     }
     
-    drawOutline(true);
+//    drawOutline(true);
     
     if (cfg.location && cfg.horizon.show && !proj.clip) {
       circle.origin(Celestial.nadir());
@@ -541,7 +575,7 @@ Celestial.display = function(config) {
 
   function dsoSize(prop) {
     if (!prop.mag || prop.mag == 999) return Math.pow(parseInt(prop.dim) * dsobase * adapt / 7, 0.5); 
-    return Math.pow(2 * dsobase * adapt - prop.mag, 1.4);
+    return Math.pow(2 * dsobase * adapt - prop.mag, dsoexp);
   }
  
 
@@ -558,7 +592,7 @@ Celestial.display = function(config) {
             p=true,  d=true  proper name || any desig  */
   function starName(d) {
     var name = d.properties.desig;
-    if (cfg.stars.proper && d.properties.name !== "") name = d.properties.name;
+    if (cfg.stars.proper && d.properties.mag < cfg.stars.propernamelimit && d.properties.name !== "") name = d.properties.name;
     if (!cfg.stars.desig) return name.replace(/^(HD|HIP|V\d{3}).+/, ""); 
     
     return name; 
@@ -567,7 +601,7 @@ Celestial.display = function(config) {
   function starSize(d) {
     var mag = d.properties.mag;
     if (mag === null) return 0.1; 
-    var r = starbase * adapt * Math.exp(exp * (mag+2));
+    var r = starbase * adapt * Math.exp(starexp * (mag+2));
     return Math.max(r, 0.1);
   }
   
@@ -579,6 +613,21 @@ Celestial.display = function(config) {
   
   function constName(d) { 
     return cfg.constellations.desig ? d.properties.desig : d.properties[cfg.lang]; 
+  }
+
+  function gridOrientation(pos, orient) {
+    var o = orient.split(""), h = "center", v = "middle"; 
+    for (var i=0; i < o.length; i++) {
+      switch(o[i]) {
+        case "N": v = "bottom"; break;
+        case "S": v = "top"; break;
+        case "E": h = "left"; pos[0] += 4; break;
+        case "W": h = "right";  pos[0] -= 8; break;
+      }
+    }
+    context.textAlign = h;
+    context.textBaseline = v;
+    return pos;
   }
   
   function clear() {

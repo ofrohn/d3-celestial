@@ -27,7 +27,9 @@ var settings = {
     desig: false,   // Show all names, including Draper and Hipparcos
     namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
+    propernamelimit: 1.5,  // Show proper names for stars brighter than propernamelimit
     size: 7,       // Scale size (radius) of star circle in pixels
+    exponent: -0.28, // Scale exponent for star size, larger = more linear
     data: "stars.6.json" // Data source for stellar data
   },
   dsos: {
@@ -38,6 +40,7 @@ var settings = {
     namestyle: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", align: "left", baseline: "top" },
     namelimit: 4,  // Show only names for DSOs brighter than namelimit
     size: null,    // Optional seperate scale size for DSOs, null = stars.size
+    exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear
     data: "dsos.bright.json",  // Data source for DSOs
     symbols: {  //DSO symbol styles
       gg: {shape: "circle", fill: "#ff0000"},                                 // Galaxy cluster
@@ -63,7 +66,10 @@ var settings = {
     show: true,    // Show constellations 
     names: true,   // Show constellation names 
     desig: true,   // Show short constellation names (3 letter designations)
-    namestyle: { fill:"#cccc99", font: "12px Helvetica, Arial, sans-serif", align: "center", baseline: "middle", opacity:0.8 },
+    namestyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8, 
+		             font: ["14px Helvetica, Arial, sans-serif",  // Different fonts for brighter &
+								        "12px Helvetica, Arial, sans-serif",  // sdarker constellations
+												"11px Helvetica, Arial, sans-serif"]},
     lines: true,   // Show constellation lines 
     linestyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries 
@@ -71,10 +77,14 @@ var settings = {
   },
   mw: {
     show: true,    // Show Milky Way as filled polygons 
-    style: { fill: "#ffffff", opacity: "0.15" }
+    style: { fill: "#ffffff", opacity: "0.15" } // style for each MW-layer (5 on top of each other)
   },
   lines: {
-    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8 },     // Show graticule lines 
+    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,      // Show graticule lines 
+			// grid values: "outline", "center", or [lat,...] specific position
+      lon: {pos: ["center"], fill: "#eee", font: "42px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}, 
+			// grid values: "outline", "center", or [lon,...] specific position
+      lat: {pos: ["outline"], fill: "#666", font: "42px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}],
     equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },    // Show equatorial plane 
     ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane 
     galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 
@@ -140,7 +150,7 @@ var bvcolor =
 */
 var projections = {
   "airy": {n:"Airy’s Minimum Error", arg:Math.PI/2, scale:360, ratio:1.0, clip:true},
-  "aitoff": {n:"Aitoff", arg:null, scale:162},
+  "aitoff": {n:"Aitoff", arg:null, scale:161},
   "armadillo": {n:"Armadillo", arg:0, scale:250}, 
   "august": {n:"August", arg:null, scale:94, ratio:1.4},
   "azimuthalEqualArea": {n:"Azimuthal Equal Area", arg:null, scale:340, ratio:1.0, clip:true},
