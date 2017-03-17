@@ -27,6 +27,7 @@ var settings = {
     desig: false,   // Show all names, including Draper and Hipparcos
     namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
+    propernamestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
     propernamelimit: 1.5,  // Show proper names for stars brighter than propernamelimit
     size: 7,       // Scale size (radius) of star circle in pixels
     exponent: -0.28, // Scale exponent for star size, larger = more linear
@@ -82,9 +83,9 @@ var settings = {
   lines: {
     graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,      // Show graticule lines 
 			// grid values: "outline", "center", or [lat,...] specific position
-      lon: {pos: ["center"], fill: "#eee", font: "42px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}, 
+      lon: {pos: [""], fill: "#eee", font: "bold 10px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}, 
 			// grid values: "outline", "center", or [lon,...] specific position
-      lat: {pos: ["outline"], fill: "#666", font: "42px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}],
+		  lat: {pos: [""], fill: "#666", font: "bold 10px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}},
     equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },    // Show equatorial plane 
     ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane 
     galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 
@@ -150,7 +151,7 @@ var bvcolor =
 */
 var projections = {
   "airy": {n:"Airy’s Minimum Error", arg:Math.PI/2, scale:360, ratio:1.0, clip:true},
-  "aitoff": {n:"Aitoff", arg:null, scale:161},
+  "aitoff": {n:"Aitoff", arg:null, scale:162},
   "armadillo": {n:"Armadillo", arg:0, scale:250}, 
   "august": {n:"August", arg:null, scale:94, ratio:1.4},
   "azimuthalEqualArea": {n:"Azimuthal Equal Area", arg:null, scale:340, ratio:1.0, clip:true},

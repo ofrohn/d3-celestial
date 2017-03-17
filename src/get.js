@@ -1,4 +1,4 @@
-/* global Celestial, euler, transformDeg */
+/* global Celestial, euler, transformDeg, isArray, isNumber, cfg */
 //load data and transform coordinates
 
 function getPoint(coords, trans) {
@@ -48,6 +48,7 @@ function getGridValues(type, loc) {
           lines = lines.concat(getLine(type, cfg.center[1]-89.99, "S"));
           lines = lines.concat(getLine(type, cfg.center[1]+89.99), "N");
         } else {
+					// hemi
           lines = lines.concat(getLine(type, cfg.center[0]-179.99, "E"));
           lines = lines.concat(getLine(type, cfg.center[0]+179.99, "W"));
         }
@@ -62,7 +63,7 @@ function getGridValues(type, loc) {
 function jsonGridValues(lines) {
   var res = [];
   for (var i=0; i < lines.length; i++) {
-    var f = {type: "Feature", "id":i, properties: {}, geometry:{type:"Point"}}
+    var f = {type: "Feature", "id":i, properties: {}, geometry:{type:"Point"}};
     f.properties.value = lines[i].value;
     f.properties.orientation = lines[i].orientation;
     f.geometry.coordinates = lines[i].coordinates;
@@ -74,7 +75,7 @@ function jsonGridValues(lines) {
 function getLine(type, loc, orient) {
   var min, max, step, val, coord,
       tp = type,
-      res = []
+      res = [],
       lr = loc;
   if (cfg.transform === "equatorial" && tp === "lon") tp = "ra";
   
@@ -86,7 +87,7 @@ function getLine(type, loc, orient) {
     min = -80; max = 80; step = 10;    
   }
   for (var i=min; i<=max; i+=step) {
-    o = orient;
+    var o = orient;
     if (tp === "lat") {
       coord = [lr, i];
       val = i.toString() + "\u00b0";
@@ -99,7 +100,7 @@ function getLine(type, loc, orient) {
       val = i.toString() + "\u00b0";
     }
   
-    res.push({coordinates: coord, value: val, orientation: o})
+    res.push({coordinates: coord, value: val, orientation: o});
   }
   return res;
 }

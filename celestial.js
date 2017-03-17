@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.5.9',
+  version: '0.5.10',
   container: null,
   data: []
 };
@@ -22,7 +22,9 @@ Celestial.display = function(config) {
   //Mash config with default settings
   cfg = settings.set(config); 
   cfg.stars.size = cfg.stars.size || 7;  // Nothing works without these
+	cfg.stars.exponent = cfg.stars.exponent || -0.28;
   cfg.center = cfg.center || [0,0];     
+  if (!cfg.lang || cfg.lang.search(/^de|es$/) === -1) cfg.lang = "name";
   
   var parent = $(cfg.container);
   if (parent) { 
@@ -37,6 +39,7 @@ Celestial.display = function(config) {
   var margin = [16, 16],
       width = getWidth(),
       proj = getProjection(cfg.projection);
+  if (cfg.lines.graticule.lat.pos[0] === "outline") proj.scale -= 2;
   
   if (!proj) return;
       
@@ -46,7 +49,8 @@ Celestial.display = function(config) {
       scale = proj.scale * width/1024,
       starbase = cfg.stars.size, 
       dsobase = cfg.dsos.size || starbase,
-      exp = -0.28, //Object size base & exponent
+      starexp = cfg.stars.exponent,
+      dsoexp = cfg.dsos.exponent || starexp, //Object size base & exponent
       adapt = 1,
       rotation = getAngles(cfg.center),
       path = cfg.datapath || "";
@@ -102,13 +106,23 @@ Celestial.display = function(config) {
       if (!has(cfg.lines, key)) continue;
       if (key === "graticule") {
         container.append("path").datum(graticule).attr("class", "graticule"); 
+				if (cfg.lines.graticule.lon.pos.length > 0) 
+          container.selectAll(".gridvalues_lon")
+            .data(getGridValues("lon", cfg.lines.graticule.lon.pos))
+            .enter().append("path")
+            .attr("class", "graticule_lon"); 
+				if (cfg.lines.graticule.lat.pos.length > 0) 
+          container.selectAll(".gridvalues_lat")
+            .data(getGridValues("lat", cfg.lines.graticule.lat.pos))
+            .enter().append("path")
+            .attr("class", "graticule_lat"); 
       } else {
         container.append("path")
           .datum(d3.geo.circle().angle([90]).origin(transformDeg(poles[key], euler[trans])) )
           .attr("class", key);
       }
     }
-    
+
     //Milky way outline
     d3.json(path + "mw.json", function(error, json) {
       if (error) { 
@@ -357,8 +371,6 @@ Celestial.display = function(config) {
       rot[2] = cfg.center[2]; 
       prjMap.rotate(rot);
     }
-    //starbase = cfg.stars.size * adapt;
-    //dsobase = cfg.dsos.size * adapt;
     cfg.center = [-rot[0], -rot[1], rot[2]];
     
     setCenter(cfg.center, cfg.transform);
@@ -379,11 +391,38 @@ Celestial.display = function(config) {
       context.stroke();    
     }
 
+
+    setTextStyle(cfg.lines.graticule.lon);
+    container.selectAll(".graticule_lon").each(function(d, i) { 
+      if (clip(d.geometry.coordinates)) {
+        var pt = prjMap(d.geometry.coordinates);
+        pt = gridOrientation(pt, d.properties.orientation);
+        context.fillText(d.properties.value, pt[0], pt[1]); 
+      }
+	  });
+    
+    setTextStyle(cfg.lines.graticule.lat);
+    container.selectAll(".graticule_lat").each(function(d, i) { 
+      if (clip(d.geometry.coordinates)) {
+        var pt = prjMap(d.geometry.coordinates);
+        pt = gridOrientation(pt, d.properties.orientation);
+        context.fillText(d.properties.value, pt[0], pt[1]); 
+      }
+	  });
+		
+    drawOutline(true);
+
     if (cfg.constellations.show) {     
+      if (cfg.constellations.bounds) { 
+        container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
+        drawOutline(true);
+      }
+
       if (cfg.constellations.names) { 
         setTextStyle(cfg.constellations.namestyle);
         container.selectAll(".constname").each( function(d) { 
           if (clip(d.geometry.coordinates)) {
+            setConstStyle(d.properties.rank, cfg.constellations.namestyle.font);
             var pt = prjMap(d.geometry.coordinates);
             context.fillText(constName(d), pt[0], pt[1]); 
           }
@@ -394,11 +433,9 @@ Celestial.display = function(config) {
         container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
       }
       
-      if (cfg.constellations.bounds) { 
-        container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
-      }
     }
       
+
     if (cfg.stars.show) { 
       setStyle(cfg.stars.style);
       container.selectAll(".star").each(function(d) {
@@ -412,7 +449,11 @@ Celestial.display = function(config) {
           context.fill();
           if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit*adapt) {
             setTextStyle(cfg.stars.namestyle);
-            context.fillText(starName(d), pt[0]+r, pt[1]+r);         
+            context.fillText(starName(d), pt[0]+r, pt[1]);         
+          }
+          if (cfg.stars.proper && d.properties.mag <= cfg.stars.propernamelimit*adapt) {
+            setTextStyle(cfg.stars.propernamestyle);
+            context.fillText(starProperName(d), pt[0]-r, pt[1]);         
           }
         }
       });
@@ -431,7 +472,7 @@ Celestial.display = function(config) {
           if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.namelimit)) {
             setTextStyle(cfg.dsos.namestyle);
             context.fillStyle = cfg.dsos.symbols[type].fill;
-            context.fillText(dsoName(d), pt[0]+r, pt[1]+r);         
+            context.fillText(dsoName(d), pt[0]+r, pt[1]-r);         
           }         
         }
       });
@@ -443,7 +484,7 @@ Celestial.display = function(config) {
       });
     }
     
-    drawOutline(true);
+//    drawOutline(true);
     
     if (cfg.location && cfg.horizon.show && !proj.clip) {
       circle.origin(Celestial.nadir());
@@ -491,7 +532,15 @@ Celestial.display = function(config) {
     context.globalAlpha = s.opacity || 1;  
     context.font = s.font;
   }
-    
+
+  function setConstStyle(rank, font) {
+    if (!isArray(font)) context.font = font;
+    else if (font.length === 1) context.font = font[0];
+    else if (rank > font.length) context.font = font[font.length-1];
+    else context.font = font[rank-1];
+  }
+
+  
   function zoomState(sc) {
     var czi = $("celestial-zoomin"),
         czo = $("celestial-zoomout");
@@ -532,7 +581,7 @@ Celestial.display = function(config) {
 
   function dsoSize(prop) {
     if (!prop.mag || prop.mag == 999) return Math.pow(parseInt(prop.dim) * dsobase * adapt / 7, 0.5); 
-    return Math.pow(2 * dsobase * adapt - prop.mag, 1.4);
+    return Math.pow(2 * dsobase * adapt - prop.mag, dsoexp);
   }
  
 
@@ -543,14 +592,15 @@ Celestial.display = function(config) {
     return prop.name;
   }
   
-  /*n=true, p=false, d=false non-hd/hip desig
-            p=true,  d=false proper name || non-hd/hip desig
-            p=false, d=true  any desig
-            p=true,  d=true  proper name || any desig  */
+  /*Star designation, if desig = false, no long desigs  */
   function starName(d) {
     var name = d.properties.desig;
-    if (cfg.stars.proper && d.properties.name !== "") name = d.properties.name;
-    if (!cfg.stars.desig) return name.replace(/^H(D|IP).+/, ""); 
+    if (!cfg.stars.desig) return name.replace(/^(HD|HIP|V\d{3}).+/, ""); 
+    return name; 
+  }
+
+  function starProperName(d) {
+    var name = d.properties.name;
     
     return name; 
   }
@@ -558,7 +608,7 @@ Celestial.display = function(config) {
   function starSize(d) {
     var mag = d.properties.mag;
     if (mag === null) return 0.1; 
-    var r = starbase * adapt * Math.exp(exp * (mag+2));
+    var r = starbase * adapt * Math.exp(starexp * (mag+2));
     return Math.max(r, 0.1);
   }
   
@@ -569,7 +619,22 @@ Celestial.display = function(config) {
   }
   
   function constName(d) { 
-    return cfg.constellations.desig ? d.properties.desig : d.properties.name; 
+    return cfg.constellations.desig ? d.properties.desig : d.properties[cfg.lang]; 
+  }
+
+  function gridOrientation(pos, orient) {
+    var o = orient.split(""), h = "center", v = "middle"; 
+    for (var i=0; i < o.length; i++) {
+      switch(o[i]) {
+        case "N": v = "bottom"; break;
+        case "S": v = "top"; break;
+        case "E": h = "left"; pos[0] += 4; break;
+        case "W": h = "right";  pos[0] -= 8; break;
+      }
+    }
+    context.textAlign = h;
+    context.textBaseline = v;
+    return pos;
   }
   
   function clear() {
@@ -628,6 +693,7 @@ Celestial.display = function(config) {
   this.context = context;
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;
+  this.setConstStyle = setConstStyle;
   this.redraw = redraw; 
   this.resize = function(config) { 
     if (config && has(config, "width")) cfg.width = config.width; 
@@ -954,6 +1020,81 @@ function translate(d, leo) {
   return res;
 }
 
+function getGridValues(type, loc) {
+  var lines = [];
+  if (!loc) return [];
+  if (!isArray(loc)) loc = [loc];
+  //center, outline, values
+  for (var i=0; i < loc.length; i++) {
+    switch (loc[i]) {
+      case "center": 
+        if (type === "lat")
+          lines = lines.concat(getLine(type, cfg.center[0], "NE"));
+        else
+          lines = lines.concat(getLine(type, cfg.center[1], "SW")); 
+        break;
+      case "outline": 
+        if (type === "lon") { 
+          lines = lines.concat(getLine(type, cfg.center[1]-89.99, "S"));
+          lines = lines.concat(getLine(type, cfg.center[1]+89.99), "N");
+        } else {
+					// hemi
+          lines = lines.concat(getLine(type, cfg.center[0]-179.99, "E"));
+          lines = lines.concat(getLine(type, cfg.center[0]+179.99, "W"));
+        }
+        break;
+      default: if (isNumber(loc[i])) lines.concat(getLine(type, loc[i], "NE"));
+    }
+  }
+  //return [{coordinates, value, orientation}, ...]
+  return jsonGridValues(lines);
+}
+
+function jsonGridValues(lines) {
+  var res = [];
+  for (var i=0; i < lines.length; i++) {
+    var f = {type: "Feature", "id":i, properties: {}, geometry:{type:"Point"}};
+    f.properties.value = lines[i].value;
+    f.properties.orientation = lines[i].orientation;
+    f.geometry.coordinates = lines[i].coordinates;
+    res.push(f);
+  }
+  return res;
+}
+
+function getLine(type, loc, orient) {
+  var min, max, step, val, coord,
+      tp = type,
+      res = [],
+      lr = loc;
+  if (cfg.transform === "equatorial" && tp === "lon") tp = "ra";
+  
+  if (tp === "ra") {
+    min = 0; max = 23; step = 1;
+  } else if (tp === "lon") {
+    min = 0; max = 350; step = 10;    
+  } else {
+    min = -80; max = 80; step = 10;    
+  }
+  for (var i=min; i<=max; i+=step) {
+    var o = orient;
+    if (tp === "lat") {
+      coord = [lr, i];
+      val = i.toString() + "\u00b0";
+      if (i < 0) o += "S"; else o += "N";
+    } else if (tp === "ra") {
+      coord = [i * 15, lr];
+      val = i.toString() + "\u02b0";
+    } else {
+      coord = [i, lr];
+      val = i.toString() + "\u00b0";
+    }
+  
+    res.push({coordinates: coord, value: val, orientation: o});
+  }
+  return res;
+}
+
 function transLine(c, leo) {
   var line = [];
   
@@ -989,6 +1130,8 @@ var settings = {
   location: false,    // Display location settings 
   fullwidth: false,   // Display fullwidth button
   controls: true,     // Display zoom controls
+  lang: "",           // Language for names, so far only for constellations: de: german, es: spanish
+                      // Default:en or empty string for english
   container: "celestial-map",   // ID of parent element, e.g. div
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
@@ -1001,7 +1144,10 @@ var settings = {
     desig: false,   // Show all names, including Draper and Hipparcos
     namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
+    propernamestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
+    propernamelimit: 1.5,  // Show proper names for stars brighter than propernamelimit
     size: 7,       // Scale size (radius) of star circle in pixels
+    exponent: -0.28, // Scale exponent for star size, larger = more linear
     data: "stars.6.json" // Data source for stellar data
   },
   dsos: {
@@ -1012,6 +1158,7 @@ var settings = {
     namestyle: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", align: "left", baseline: "top" },
     namelimit: 4,  // Show only names for DSOs brighter than namelimit
     size: null,    // Optional seperate scale size for DSOs, null = stars.size
+    exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear
     data: "dsos.bright.json",  // Data source for DSOs
     symbols: {  //DSO symbol styles
       gg: {shape: "circle", fill: "#ff0000"},                                 // Galaxy cluster
@@ -1037,7 +1184,10 @@ var settings = {
     show: true,    // Show constellations 
     names: true,   // Show constellation names 
     desig: true,   // Show short constellation names (3 letter designations)
-    namestyle: { fill:"#cccc99", font: "12px Helvetica, Arial, sans-serif", align: "center", baseline: "middle", opacity:0.8 },
+    namestyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8, 
+		             font: ["14px Helvetica, Arial, sans-serif",  // Different fonts for brighter &
+								        "12px Helvetica, Arial, sans-serif",  // sdarker constellations
+												"11px Helvetica, Arial, sans-serif"]},
     lines: true,   // Show constellation lines 
     linestyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries 
@@ -1045,10 +1195,14 @@ var settings = {
   },
   mw: {
     show: true,    // Show Milky Way as filled polygons 
-    style: { fill: "#ffffff", opacity: "0.15" }
+    style: { fill: "#ffffff", opacity: "0.15" } // style for each MW-layer (5 on top of each other)
   },
   lines: {
-    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8 },     // Show graticule lines 
+    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,      // Show graticule lines 
+			// grid values: "outline", "center", or [lat,...] specific position
+      lon: {pos: [""], fill: "#eee", font: "bold 10px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}, 
+			// grid values: "outline", "center", or [lon,...] specific position
+		  lat: {pos: [""], fill: "#666", font: "bold 10px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}},
     equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },    // Show equatorial plane 
     ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane 
     galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 
@@ -1059,7 +1213,7 @@ var settings = {
     fill: "#000000", 
     opacity: 1, 
     stroke: "#000000", // Outline
-    width: 1 
+    width: 1.5 
   }, 
   horizon: {  //Show horizon marker
     show: false, 
@@ -1454,10 +1608,9 @@ function stopPropagation(e) {
 }
 
 function dateDiff(dt1, dt2, type) {
-  var diff, t, con;
-  diff = dt2.valueOf() - dt1.valueOf();
-  t = type || "d";
-  switch (t) {
+  var diff = dt2.valueOf() - dt1.valueOf(),
+      tp = type || "d";
+  switch (tp) {
     case 'y': case 'yr': diff /= 31556926080; break;
     case 'm': case 'mo': diff /= 2629800000; break;
     case 'd': case 'dy': diff /= 86400000; break;
@@ -1493,7 +1646,7 @@ function form(cfg) {
   var col = frm.append("div").attr("class", "col");
   
   col.append("label").attr("title", "Map width in pixel, 0 indicates full width").attr("for", "width").html("Width ");
-  col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "9999").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", config.width).on("change", resize);
+  col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "20000").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", config.width).on("change", resize);
   col.append("span").html("px");
 
   col.append("label").attr("title", "Map projection, (hemi) indicates hemispherical projection").attr("for", "projection").html("Projection");

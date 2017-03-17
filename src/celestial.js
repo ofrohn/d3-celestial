@@ -1,4 +1,4 @@
-/* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, Canvas, halfπ, $, px, Round, has, form, geo, setCenter, showHorizon, interpolateAngle */
+/* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, form, geo, setCenter, showHorizon, interpolateAngle */
 var Celestial = {
   version: '0.5.10',
   container: null,
@@ -38,6 +38,7 @@ Celestial.display = function(config) {
   var margin = [16, 16],
       width = getWidth(),
       proj = getProjection(cfg.projection);
+  if (cfg.lines.graticule.lat.pos[0] === "outline") proj.scale -= 2;
   
   if (!proj) return;
       
@@ -394,7 +395,7 @@ Celestial.display = function(config) {
     container.selectAll(".graticule_lon").each(function(d, i) { 
       if (clip(d.geometry.coordinates)) {
         var pt = prjMap(d.geometry.coordinates);
-        pt = gridOrientation(pt, d.properties.orientation)
+        pt = gridOrientation(pt, d.properties.orientation);
         context.fillText(d.properties.value, pt[0], pt[1]); 
       }
 	  });
@@ -403,7 +404,7 @@ Celestial.display = function(config) {
     container.selectAll(".graticule_lat").each(function(d, i) { 
       if (clip(d.geometry.coordinates)) {
         var pt = prjMap(d.geometry.coordinates);
-        pt = gridOrientation(pt, d.properties.orientation)
+        pt = gridOrientation(pt, d.properties.orientation);
         context.fillText(d.properties.value, pt[0], pt[1]); 
       }
 	  });
@@ -447,7 +448,11 @@ Celestial.display = function(config) {
           context.fill();
           if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit*adapt) {
             setTextStyle(cfg.stars.namestyle);
-            context.fillText(starName(d), pt[0]+r, pt[1]+r*0);         
+            context.fillText(starName(d), pt[0]+r, pt[1]);         
+          }
+          if (cfg.stars.proper && d.properties.mag <= cfg.stars.propernamelimit*adapt) {
+            setTextStyle(cfg.stars.propernamestyle);
+            context.fillText(starProperName(d), pt[0]-r, pt[1]);         
           }
         }
       });
@@ -586,14 +591,15 @@ Celestial.display = function(config) {
     return prop.name;
   }
   
-  /*n=true, p=false, d=false non-hd/hip desig
-            p=true,  d=false proper name || non-hd/hip desig
-            p=false, d=true  any desig
-            p=true,  d=true  proper name || any desig  */
+  /*Star designation, if desig = false, no long desigs  */
   function starName(d) {
     var name = d.properties.desig;
-    if (cfg.stars.proper && d.properties.mag < cfg.stars.propernamelimit && d.properties.name !== "") name = d.properties.name;
     if (!cfg.stars.desig) return name.replace(/^(HD|HIP|V\d{3}).+/, ""); 
+    return name; 
+  }
+
+  function starProperName(d) {
+    var name = d.properties.name;
     
     return name; 
   }

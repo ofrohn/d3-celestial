@@ -43,7 +43,7 @@ function stopPropagation(e) {
 }
 
 function dateDiff(dt1, dt2, type) {
-  var diff = dt2.valueOf() - dt1.valueOf();
+  var diff = dt2.valueOf() - dt1.valueOf(),
       tp = type || "d";
   switch (tp) {
     case 'y': case 'yr': diff /= 31556926080; break;
