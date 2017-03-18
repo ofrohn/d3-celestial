@@ -16,9 +16,9 @@ function geo(cfg) {
   var col = ctrl.append("div").attr("class", "col");
   //Latitude & longitude fields
   col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");
-  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("placeholder", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change",  function() { if (testNumber(this) === true) go(); });
+  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("placeholder", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change",  function () { if (testNumber(this) === true) go(); });
   col.append("span").html("\u00b0");
-  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("placeholder", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change",  function() { if (testNumber(this) === true) go(); });
+  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("placeholder", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change",  function () { if (testNumber(this) === true) go(); });
   col.append("span").html("\u00b0");
   //Here-button if supported
   if ("geolocation" in navigator) {
@@ -27,7 +27,7 @@ function geo(cfg) {
   //Datetime field with dtpicker-button
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Date/time");
   col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(dt, zone))
-  .on("click", showpick, true).on("input", function() { 
+  .on("click", showpick, true).on("input", function () { 
     this.value = dateFormat(dt, zone); 
     if (!dtpick.isVisible()) showpick(); 
   });
@@ -39,7 +39,7 @@ function geo(cfg) {
   col.append("label").attr("title", "Show horizon marker").attr("for", "horizon-show").html(" Horizon marker");
   col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", cfg.horizon.show).on("change", go);    
   
-  d3.select(document).on("mousedown", function() { 
+  d3.select(document).on("mousedown", function () { 
     if (!hasParent(d3.event.target, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
   });
   
@@ -104,8 +104,8 @@ function showHorizon(clip) {
   hs.previousSibling.style.display = hs.style.display;    
 }
 
-Celestial.zenith = function() { return zenith; };
-Celestial.nadir = function() {
+Celestial.zenith = function () { return zenith; };
+Celestial.nadir = function () {
   var b = -zenith[1],
       l = zenith[0] + 180;
   if (l > 180) l -= 360;    

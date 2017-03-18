@@ -56,7 +56,7 @@ function form(cfg) {
     col.append("input").attr("type", "checkbox").attr("id", "orientationfixed").property("checked", config.orientationfixed).on("change", apply);    
   //}
   if (config.fullwidth)
-    col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Full Width \u25ba").on("click", function() {
+    col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Full Width \u25ba").on("click", function () {
     $("sidebar-wrapper").style.display = "none";
     $("outer-wrapper").style.width = "100%";
     $("main-wrapper").style.width = "100%";
@@ -83,17 +83,21 @@ function form(cfg) {
   col.append("input").attr("type", "color").attr("autocomplete", "off").attr("id", "stars-style-fill").attr("title", "Star color").property("value", config.stars.style.fill).on("change", apply);
   col.append("br");
   
-  col.append("label").attr("for", "stars-names").html("Show names");
+  col.append("label").attr("for", "stars-names").html("Show designations");
   col.append("input").attr("type", "checkbox").attr("id", "stars-names").property("checked", config.stars.names).on("change", apply);
+
+  col.append("label").attr("for", "stars-namelimit").html("down to mag");
+  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star designaton display limit (magnitude)").attr("value", config.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
   
-  col.append("label").attr("for", "stars-proper").html("proper names (if any)");
+  col.append("label").attr("for", "stars-desig").attr("title", "include HD/HIP designations").html("all");
+  col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", config.stars.desig).on("change", apply);
+
+
+  col.append("label").attr("for", "stars-proper").html("proper names");
   col.append("input").attr("type", "checkbox").attr("id", "stars-proper").property("checked", config.stars.proper).on("change", apply);
   
-  col.append("label").attr("for", "stars-desig").attr("title", "include HD/HIP designations").html("all designations");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", config.stars.desig).on("change", apply);
-  
-  col.append("label").attr("for", "stars-namelimit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star name display limit (magnitude)").attr("value", config.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
+  col.append("label").attr("for", "stars-propernamelimit").html("down to mag");
+  col.append("input").attr("type", "number").attr("id", "stars-propernamelimit").attr("title", "Star name display limit (magnitude)").attr("value", config.stars.propernamelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
 
   enable($("stars-show"));
   
@@ -254,6 +258,7 @@ function form(cfg) {
 var depends = {
   "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-names"],
   "stars-names": ["stars-proper", "stars-desig", "stars-namelimit"],
+  "stars-proper": ["stars-propernamelimit"],
   "dsos-show": ["dsos-limit", "dsos-names"],
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
   "constellations-names": ["constellations-desig"]
@@ -271,6 +276,10 @@ function enable(source) {
     case "stars-names": 
       off = !$("stars-names").checked || !$("stars-show").checked;      
       for (i=0; i< depends["stars-names"].length; i++) { fldEnable(depends["stars-names"][i], off); }
+      /* falls through */
+    case "stars-proper": 
+      off = !$("stars-names").checked || !$("stars-show").checked || !$("stars-proper").checked;
+      for (i=0; i< depends["stars-proper"].length; i++) { fldEnable(depends["stars-proper"][i], off); }
       break;
     case "dsos-show": 
       off = !$(fld).checked;

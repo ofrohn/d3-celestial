@@ -64,7 +64,7 @@ var euler = {
   "inverse galactic": [122.9319, 62.8717, -167.1405],
   "supergalactic": [283.7542, 74.2911, 26.4504],
   "inverse supergalactic": [26.4504, 74.2911, 283.7542],
-  "init": function() {
+  "init": function () {
     for (var key in this) {
       if (this[key].constructor == Array) { 
         this[key] = this[key].map( function(val) { return val * deg2rad; } );
@@ -79,4 +79,4 @@ var euler = {
 };
 
 euler.init();
-Celestial.euler = function() { return euler; };
+Celestial.euler = function () { return euler; };

@@ -136,7 +136,7 @@ var settings = {
   
 };
 
-Celestial.settings = function() { return settings; };
+Celestial.settings = function () { return settings; };
 
 //b-v color index to rgb color value scale
 var bvcolor = 
@@ -220,5 +220,5 @@ var projections = {
   "winkel3": {n:"Winkel Tripel", arg:null, scale:196, ratio:1.7}
 };
 
-Celestial.projections = function() { return projections; };
+Celestial.projections = function () { return projections; };
 

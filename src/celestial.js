@@ -83,8 +83,8 @@ Celestial.display = function(config) {
   d3.select(window).on('resize', resize);
 
   if (cfg.controls === true && $("celestial-zoomin") === null) {
-    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function() { zoomBy(1.111); });
-    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function () { zoomBy(1.111); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function () { zoomBy(0.9); });
   }
   
   if (cfg.location === true) {
@@ -224,13 +224,13 @@ Celestial.display = function(config) {
     if (sc1 < ext[0]) sc1 = ext[0];
     if (sc1 > ext[1]) sc1 = ext[1];
     var zTween = d3.interpolateNumber(sc0, sc1);
-    d3.select({}).transition().duration(interval).tween("scale", function() {
+    d3.select({}).transition().duration(interval).tween("scale", function () {
         return function(t) {
           var z = zTween(t);
           prjMap.scale(z); 
           redraw(); 
         };      
-    }).transition().duration(0).tween("scale", function() {
+    }).transition().duration(0).tween("scale", function () {
       zoom.scale(sc1); 
       redraw(); 
     });
@@ -263,17 +263,17 @@ Celestial.display = function(config) {
     } else {
       // Zoom interpolator
       if (sc > scale * ANIMSCALE) zTween = d3.interpolateNumber(sc, scale);
-      else zTween = function() { return sc; };
+      else zTween = function () { return sc; };
       // Orientation interpolator
-      if (o === 0) oTween = function() { return rot[2]; };
+      if (o === 0) oTween = function () { return rot[2]; };
       else oTween = interpolateAngle(cFrom[2], cfg.center[2]);
       if (d > 3.14) cfg.center[0] -= 0.01; //180deg turn doesn't work well
       cfg.orientationfixed = false;  
       // Rotation interpolator
-      if (d === 0) cTween = function() { return cfg.center; };
+      if (d === 0) cTween = function () { return cfg.center; };
       else cTween = d3.geo.interpolate(cFrom, cfg.center);
       interval = (d !== 0) ? interval * d : interval * o; // duration scaled by ang. distance
-      d3.select({}).transition().duration(interval).tween("center", function() {
+      d3.select({}).transition().duration(interval).tween("center", function () {
         return function(t) {
           var c = getAngles(cTween(t));
           c[2] = oTween(t);
@@ -283,7 +283,7 @@ Celestial.display = function(config) {
           prjMap.rotate(c);
           redraw();
         };
-      }).transition().duration(0).tween("center", function() {
+      }).transition().duration(0).tween("center", function () {
         cfg.orientationfixed = oof;
         rotation = getAngles(cfg.center);
         prjMap.rotate(rotation);
@@ -331,7 +331,7 @@ Celestial.display = function(config) {
     prjMap = projectionTween(prjFrom, prjTo);
     cfg.adaptable = false;
 
-    d3.select({}).transition().duration(interval).tween("projection", function() {
+    d3.select({}).transition().duration(interval).tween("projection", function () {
       return function(_) {
         prjMap.alpha(_).rotate(rot);
         map.projection(prjMap);
@@ -342,7 +342,7 @@ Celestial.display = function(config) {
         if (parent) parent.style.height = px(height);
         redraw();
       };
-    }).transition().duration(0).tween("projection", function() {
+    }).transition().duration(0).tween("projection", function () {
       proj = prj;
       ratio = proj.ratio;
       height = width / proj.ratio;

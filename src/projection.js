@@ -69,5 +69,5 @@ var poles = {
 //  "mars": [-42.3186, 52.8865]
 };
 
-Celestial.eulerAngles = function() { return eulerAngles; };
-Celestial.poles = function() { return poles; };
+Celestial.eulerAngles = function () { return eulerAngles; };
+Celestial.poles = function () { return poles; };

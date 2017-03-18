@@ -79,7 +79,7 @@ var datetimepicker = function(callback) {
   }
   
   function nav(dir) {
-    var lnk = picker.append("div").attr("id", dir).on("click", function() {
+    var lnk = picker.append("div").attr("id", dir).on("click", function () {
       var mon = $("mon"), yr = $("yr");
       
       if (dir === "left") {
@@ -98,11 +98,11 @@ var datetimepicker = function(callback) {
   }
 
   function timeSel() { 
-    picker.append("input").attr("type", "number").attr("id", "hr").attr("title", "Hours").attr("max", "24").attr("min", "-1").attr("step", "1").attr("value", date.getHours()).on("change", function() { if (testNumber(this) === true) pick(); });
+    picker.append("input").attr("type", "number").attr("id", "hr").attr("title", "Hours").attr("max", "24").attr("min", "-1").attr("step", "1").attr("value", date.getHours()).on("change", function () { if (testNumber(this) === true) pick(); });
 
-    picker.append("input").attr("type", "number").attr("id", "min").attr("title", "Minutes").attr("max", "60").attr("min", "-1").attr("step", "1").attr("value", date.getMinutes()).on("change", function() { if (testNumber(this) === true) pick(); });
+    picker.append("input").attr("type", "number").attr("id", "min").attr("title", "Minutes").attr("max", "60").attr("min", "-1").attr("step", "1").attr("value", date.getMinutes()).on("change", function () { if (testNumber(this) === true) pick(); });
     
-    picker.append("input").attr("type", "number").attr("id", "sec").attr("title", "Seconds").attr("max", "60").attr("min", "-1").attr("step", "1").attr("value", date.getSeconds()).on("change", function() { if (testNumber(this) === true) pick(); });
+    picker.append("input").attr("type", "number").attr("id", "sec").attr("title", "Seconds").attr("max", "60").attr("min", "-1").attr("step", "1").attr("value", date.getSeconds()).on("change", function () { if (testNumber(this) === true) pick(); });
   }
   
   function tzSel() { 
@@ -162,11 +162,11 @@ var datetimepicker = function(callback) {
     }
   };
   
-  this.isVisible = function() {
+  this.isVisible = function () {
     return $("celestial-date").offsetTop !== -9999;
   };
 
-  this.hide = function() {
+  this.hide = function () {
     vanish();
   };
   
@@ -174,7 +174,7 @@ var datetimepicker = function(callback) {
     d3.select("#celestial-date").style("opacity", 0);
     d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} ); 
     d3.select("#datepick").classed("active", false);
-    setTimeout(function() { $("celestial-date").style.top = px(-9999); }, 600);    
+    setTimeout(function () { $("celestial-date").style.top = px(-9999); }, 600);    
   }
   
   function pick() {
