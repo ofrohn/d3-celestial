@@ -6,8 +6,16 @@ Features display of stars and deep sky objects (DSOs) with a selectable magnitud
 
 Since it uses D3.js and HTML5 canvas, it needs a modern browser with canvas support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at <a href="http://armchairastronautics.blogspot.com/p/skymap.html">armchairastronautics.blogspot.com</a> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment, quite easy to do with node.js.
 
-__See some examples__:  
-[Interactive form demo](http://armchairastronautics.blogspot.com/p/skymap.html)  
+__Demos__:  
+[Simple map](./demo/map.html)  
+[Interactive form](./demo/viewer.html)  
+[Wall map](./demo/wallmap.html)  
+[Setting time/location](./demo/location.html)  
+[Starry sky](./demo/sky.html)  
+
+
+__Some more examples__:  
+[Embedded interactive form](http://armchairastronautics.blogspot.com/p/skymap.html)  
 [Spinning sky globe](http://armchairastronautics.blogspot.com/2016/04/interactive-skymap-version-05.html)  
 [The Milky Way halo, globular clusters & satellite galaxies](http://armchairastronautics.blogspot.com/p/milky-way-halo.html)  
 [The Local Group of galaxies](http://armchairastronautics.blogspot.com/p/local-group.html)  
@@ -43,14 +51,18 @@ var config = {
     limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use default color
     style: { fill: "#ffffff", opacity: 1 }, // Style for stars
-    names: true,   // Show star names (Bayer, Flamsteed, Variable star, Gliese, 
+    names: true,   // Show star designation (Bayer, Flamsteed, Variable star, Gliese, 
                       whichever applies first in that order)
-    proper: false, // Show proper name (if present, above name otherwise)
-    desig: false,  // Show all names, including Draper and Hipparcos
+    proper: false, // Show proper name (if one exists)
+    desig: false,  // Show all designations, including Draper and Hipparcos
     namelimit: 2.5,  // Show only names/designations for stars brighter than namelimit
     namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", 
-                 align: "left", baseline: "top" },  // Style for star names
+                 align: "left", baseline: "top" },  // Style for star designations
+    propernamestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", 
+                       align: "right", baseline: "bottom" }, // Styles for star names
+    propernamelimit: 1.5,  // Show proper names for stars brighter than propernamelimit
     size: 7,       // Maximum size (radius) of star circle in pixels
+    exponent: -0.28, // Scale exponent for star size, larger = more linear
     data: 'stars.6.json' // Data source for stellar data, 
                          // number indicates limit magnitude
   },
@@ -62,6 +74,8 @@ var config = {
     namestyle: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", 
                  align: "left", baseline: "top" }, // Style for DSO names
     namelimit: 6,  // Show only names for DSOs brighter than namelimit
+    size: null,    // Optional seperate scale size for DSOs, null = stars.size
+    exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear
     data: 'dsos.bright.json', // Data source for DSOs, 
                               // opt. number indicates limit magnitude
     symbols: {  //DSO symbol styles, 'stroke'-parameter present = outline
@@ -93,8 +107,10 @@ var config = {
     show: true,    // Show constellations 
     names: true,   // Show constellation names 
     desig: true,   // Show short constellation names (3 letter designations)
-    namestyle: { fill:"#cccc99", font: "12px Helvetica, Arial, sans-serif", 
-                 align: "center", baseline: "middle" }, // Style for constellations
+    namestyle: { fill:"#cccc99", align: "center", baseline: "middle", 
+                 font: ["14px Helvetica, Arial, sans-serif",  // Style for constellations
+                        "12px Helvetica, Arial, sans-serif",  // Different fonts for diff.
+                        "11px Helvetica, Arial, sans-serif"]},// ranked constellations
     lines: true,   // Show constellation lines, style below
     linestyle: { stroke: "#cccccc", width: 1, opacity: 0.6 }, 
     bounds: false, // Show constellation boundaries, style below
@@ -102,10 +118,14 @@ var config = {
   },
   mw: {
     show: true     // Show Milky Way as filled multi-polygon outlines 
-    style: { fill: "#ffffff", opacity: 0.15 }  // Style for MW
+    style: { fill: "#ffffff", opacity: 0.15 }  // Style for MW layers
   },
   lines: {  // Display & styles for graticule & some planes
-    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8 },   
+    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,   
+      // grid values: "outline", "center", or [lat,...] specific position
+      lon: {pos: [""], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}, 
+      // grid values: "outline", "center", or [lon,...] specific position
+      lat: {pos: [""], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}},    
     equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },  
     ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },     
     galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },    
@@ -115,7 +135,7 @@ var config = {
     fill: "#000000",   // Area fill
     opacity: 1, 
     stroke: "#000000", // Outline
-    width: 1 
+    width: 1.5
   }, 
   horizon: {  //Show horizon marker, if location is set and map projection is all-sky
     show: false, 
@@ -292,8 +312,11 @@ __Other files__
 * `LICENSE`
 * `readme.md` this file
 * `style.css` stylesheet
-* `map.html` simple map viewer with editable configuration
-* `viewer.html` interactive map viewer/demo
+* `demo/map.html` simple map with editable configuration
+* `demo/viewer.html` interactive map viewer/demo
+* `demo/location.html` map with location/time setting
+* `demo/wallmap.html` wall map for print
+* `demo/sky.html` just the stars
 * `lib/d3.*.js`  necessary d3 libraries
 * `src/*.js` source code for all modules
 

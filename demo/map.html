@@ -2,10 +2,10 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <title>D3-Celestial Star Map</title>
-  <script type="text/javascript" src="lib/d3.min.js"></script>
-  <script type="text/javascript" src="lib/d3.geo.projection.min.js"></script>
-  <script type="text/javascript" src="celestial.min.js"></script>
-  <link rel="stylesheet" href="celestial.css">
+  <script type="text/javascript" src="../lib/d3.min.js"></script>
+  <script type="text/javascript" src="../lib/d3.geo.projection.min.js"></script>
+  <script type="text/javascript" src="../celestial.min.js"></script>
+  <link rel="stylesheet" href="../celestial.css">
 </head><body>
 <script type="text/javascript">
 /* D3-Celestial sky map
@@ -19,24 +19,33 @@ var config = {
   width: 0,     // Default width, 0 = full parent width; height is determined by projection
   projection: "aitoff",  // Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
   transform: "equatorial", // Coordinate transformation: equatorial (default), ecliptic, galactic, supergalactic
-  center: null,       // Initial center coordinates in equatorial transformation only [hours, degrees], null = default center
+  center: null,       // Initial center coordinates in equatorial transformation [hours, degrees, degrees], 
+                      // otherwise [degrees, degrees, degrees], 3rd parameter is orientation, null = default center
+  orientationfixed: true,  // Keep orientation angle the same as center[2]
   background: { fill: "#000000", stroke: "#000000", opacity: 1 }, // Background style
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
+  location: false,    // Display location settings 
+  controls: true,     // Display zoom controls
+  lang: "",           // Language for names, so far only for constellations: de: german, es: spanish
+                      // Default:en or empty string for english
   container: "celestial-map",   // ID of parent element, e.g. div
-  datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
+  datapath: "../data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use "color"
     style: { fill: "#ffffff", opacity: 1 }, // Default style for stars
     names: true,   // Show star names (Bayer, Flamsteed, Variable star, Gliese, whichever applies first)
-    proper: false, // Show proper name (if present)
+    proper: true, // Show proper name (if present)
     desig: false,  // Show all names, including Draper and Hipparcos
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
     namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
+    propernamestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
+    propernamelimit: 1.5,  // Show proper names for stars brighter than propernamelimit
     size: 7,       // Maximum size (radius) of star circle in pixels
+    exponent: -0.28, // Scale exponent for star size, larger = more linear
     data: 'stars.6.json' // Data source for stellar data
     //data: 'stars.8.json' // Alternative deeper data source for stellar data
   },
@@ -47,6 +56,8 @@ var config = {
     desig: true,   // Show short DSO names
     namelimit: 4,  // Show only names for DSOs brighter than namelimit
     namestyle: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", align: "left", baseline: "top" },
+    size: null,    // Optional seperate scale size for DSOs, null = stars.size
+    exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear
     data: 'dsos.bright.json',  // Data source for DSOs
     //data: 'dsos.6.json'  // Alternative broader data source for DSOs
     //data: 'dsos.14.json' // Alternative deeper data source for DSOs
@@ -74,7 +85,10 @@ var config = {
     show: true,    // Show constellations 
     names: true,   // Show constellation names 
     desig: true,   // Show short constellation names (3 letter designations)
-    namestyle: { fill:"#cccc99", font: "12px Helvetica, Arial, sans-serif", align: "center", baseline: "middle" },
+    namestyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8, 
+		             font: ["bold 14px Helvetica, Arial, sans-serif",  // Different fonts for brighter &
+								        "bold 12px Helvetica, Arial, sans-serif",  // sdarker constellations
+												"bold 11px Helvetica, Arial, sans-serif"]},
     lines: true,   // Show constellation lines 
     linestyle: { stroke: "#cccccc", width: 1, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries 
@@ -85,7 +99,11 @@ var config = {
     style: { fill: "#ffffff", opacity: "0.15" }
   },
   lines: {
-    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8 },     // Show graticule lines 
+    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,      // Show graticule lines 
+			// grid values: "outline", "center", or [lat,...] specific position
+      lon: {pos: ["center"], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}, 
+			// grid values: "outline", "center", or [lon,...] specific position
+		  lat: {pos: ["center"], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}},
     equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },    // Show equatorial plane 
     ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane 
     galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 

@@ -39,7 +39,7 @@ Celestial.display = function(config) {
   var margin = [16, 16],
       width = getWidth(),
       proj = getProjection(cfg.projection);
-  if (cfg.lines.graticule.lat.pos[0] === "outline") proj.scale -= 2;
+  if (cfg.lines.graticule.lat && cfg.lines.graticule.lat.pos[0] === "outline") proj.scale -= 2;
   
   if (!proj) return;
       
@@ -106,12 +106,12 @@ Celestial.display = function(config) {
       if (!has(cfg.lines, key)) continue;
       if (key === "graticule") {
         container.append("path").datum(graticule).attr("class", "graticule"); 
-				if (cfg.lines.graticule.lon.pos.length > 0) 
+				if (has(cfg.lines.graticule, "lon") && cfg.lines.graticule.lon.pos.length > 0) 
           container.selectAll(".gridvalues_lon")
             .data(getGridValues("lon", cfg.lines.graticule.lon.pos))
             .enter().append("path")
             .attr("class", "graticule_lon"); 
-				if (cfg.lines.graticule.lat.pos.length > 0) 
+				if (has(cfg.lines.graticule, "lat") && cfg.lines.graticule.lat.pos.length > 0) 
           container.selectAll(".gridvalues_lat")
             .data(getGridValues("lat", cfg.lines.graticule.lat.pos))
             .enter().append("path")
@@ -391,25 +391,28 @@ Celestial.display = function(config) {
       context.stroke();    
     }
 
-
-    setTextStyle(cfg.lines.graticule.lon);
-    container.selectAll(".graticule_lon").each(function(d, i) { 
-      if (clip(d.geometry.coordinates)) {
-        var pt = prjMap(d.geometry.coordinates);
-        pt = gridOrientation(pt, d.properties.orientation);
-        context.fillText(d.properties.value, pt[0], pt[1]); 
-      }
-	  });
+    if (has(cfg.lines.graticule, "lon")) {
+      setTextStyle(cfg.lines.graticule.lon);
+      container.selectAll(".graticule_lon").each(function(d, i) { 
+        if (clip(d.geometry.coordinates)) {
+          var pt = prjMap(d.geometry.coordinates);
+          gridOrientation(pt, d.properties.orientation);
+          context.fillText(d.properties.value, pt[0], pt[1]); 
+        }
+      });
+    }
     
-    setTextStyle(cfg.lines.graticule.lat);
-    container.selectAll(".graticule_lat").each(function(d, i) { 
-      if (clip(d.geometry.coordinates)) {
-        var pt = prjMap(d.geometry.coordinates);
-        pt = gridOrientation(pt, d.properties.orientation);
-        context.fillText(d.properties.value, pt[0], pt[1]); 
-      }
-	  });
-		
+    if (has(cfg.lines.graticule, "lat")) {
+      setTextStyle(cfg.lines.graticule.lat);
+      container.selectAll(".graticule_lat").each(function(d, i) { 
+        if (clip(d.geometry.coordinates)) {
+          var pt = prjMap(d.geometry.coordinates);
+          gridOrientation(pt, d.properties.orientation);
+          context.fillText(d.properties.value, pt[0], pt[1]); 
+        }
+      });
+	  }
+    
     drawOutline(true);
 
     if (cfg.constellations.show) {     
@@ -624,12 +627,12 @@ Celestial.display = function(config) {
 
   function gridOrientation(pos, orient) {
     var o = orient.split(""), h = "center", v = "middle"; 
-    for (var i=0; i < o.length; i++) {
+    for (var i = o.length-1; i >= 0; i--) {
       switch(o[i]) {
         case "N": v = "bottom"; break;
         case "S": v = "top"; break;
-        case "E": h = "left"; pos[0] += 4; break;
-        case "W": h = "right";  pos[0] -= 8; break;
+        case "E": h = "left"; pos[0] += 2; break;
+        case "W": h = "right";  pos[0] -= 2; break;
       }
     }
     context.textAlign = h;
@@ -1029,21 +1032,27 @@ function getGridValues(type, loc) {
     switch (loc[i]) {
       case "center": 
         if (type === "lat")
-          lines = lines.concat(getLine(type, cfg.center[0], "NE"));
+          lines = lines.concat(getLine(type, cfg.center[0], "N"));
         else
-          lines = lines.concat(getLine(type, cfg.center[1], "SW")); 
+          lines = lines.concat(getLine(type, cfg.center[1], "S")); 
         break;
       case "outline": 
         if (type === "lon") { 
           lines = lines.concat(getLine(type, cfg.center[1]-89.99, "S"));
           lines = lines.concat(getLine(type, cfg.center[1]+89.99), "N");
         } else {
-					// hemi
+					// TODO: hemi
           lines = lines.concat(getLine(type, cfg.center[0]-179.99, "E"));
           lines = lines.concat(getLine(type, cfg.center[0]+179.99, "W"));
         }
         break;
-      default: if (isNumber(loc[i])) lines.concat(getLine(type, loc[i], "NE"));
+      default: if (isNumber(loc[i])) {
+        if (type === "lat")
+          lines = lines.concat(getLine(type, loc[i], "N"));
+        else
+          lines = lines.concat(getLine(type, loc[i], "S")); 
+        break;        
+      }
     }
   }
   //return [{coordinates, value, orientation}, ...]
@@ -1141,7 +1150,7 @@ var settings = {
     style: { fill: "#ffffff", opacity: 1 }, // Default style for stars
     names: true,   // Show star names (Bayer, Flamsteed, Variable star, Gliese, whichever applies first)
     proper: false, // Show proper name (if present)
-    desig: false,   // Show all names, including Draper and Hipparcos
+    desig: false,  // Show all names, including Draper and Hipparcos
     namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
     propernamestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
@@ -1160,7 +1169,7 @@ var settings = {
     size: null,    // Optional seperate scale size for DSOs, null = stars.size
     exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear
     data: "dsos.bright.json",  // Data source for DSOs
-    symbols: {  //DSO symbol styles
+    symbols: {  // DSO symbol styles
       gg: {shape: "circle", fill: "#ff0000"},                                 // Galaxy cluster
       g:  {shape: "ellipse", fill: "#ff0000"},                                // Generic galaxy
       s:  {shape: "ellipse", fill: "#ff0000"},                                // Spiral galaxy
@@ -1200,9 +1209,9 @@ var settings = {
   lines: {
     graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,      // Show graticule lines 
 			// grid values: "outline", "center", or [lat,...] specific position
-      lon: {pos: [""], fill: "#eee", font: "bold 10px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}, 
+      lon: {pos: [""], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}, 
 			// grid values: "outline", "center", or [lon,...] specific position
-		  lat: {pos: [""], fill: "#666", font: "bold 10px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}},
+		  lat: {pos: [""], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}},
     equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },    // Show equatorial plane 
     ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane 
     galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 
@@ -1215,14 +1224,14 @@ var settings = {
     stroke: "#000000", // Outline
     width: 1.5 
   }, 
-  horizon: {  //Show horizon marker
+  horizon: {  //Show horizon marker, if geo-position is set
     show: false, 
     stroke: null, // Line
     width: 1.0, 
     fill: "#000000", // Area below horizon
     opacity: 0.5
   },  
-  daylight: {  //Show daylight marker (tbi)
+  daylight: {  // Show daylight marker (tbi)
     show: false, 
     fill: "#fff", 
     opacity: 0.4 

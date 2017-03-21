@@ -39,21 +39,27 @@ function getGridValues(type, loc) {
     switch (loc[i]) {
       case "center": 
         if (type === "lat")
-          lines = lines.concat(getLine(type, cfg.center[0], "NE"));
+          lines = lines.concat(getLine(type, cfg.center[0], "N"));
         else
-          lines = lines.concat(getLine(type, cfg.center[1], "SW")); 
+          lines = lines.concat(getLine(type, cfg.center[1], "S")); 
         break;
       case "outline": 
         if (type === "lon") { 
           lines = lines.concat(getLine(type, cfg.center[1]-89.99, "S"));
           lines = lines.concat(getLine(type, cfg.center[1]+89.99), "N");
         } else {
-					// hemi
+					// TODO: hemi
           lines = lines.concat(getLine(type, cfg.center[0]-179.99, "E"));
           lines = lines.concat(getLine(type, cfg.center[0]+179.99, "W"));
         }
         break;
-      default: if (isNumber(loc[i])) lines.concat(getLine(type, loc[i], "NE"));
+      default: if (isNumber(loc[i])) {
+        if (type === "lat")
+          lines = lines.concat(getLine(type, loc[i], "N"));
+        else
+          lines = lines.concat(getLine(type, loc[i], "S")); 
+        break;        
+      }
     }
   }
   //return [{coordinates, value, orientation}, ...]

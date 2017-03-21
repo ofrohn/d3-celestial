@@ -38,7 +38,7 @@ Celestial.display = function(config) {
   var margin = [16, 16],
       width = getWidth(),
       proj = getProjection(cfg.projection);
-  if (cfg.lines.graticule.lat.pos[0] === "outline") proj.scale -= 2;
+  if (cfg.lines.graticule.lat && cfg.lines.graticule.lat.pos[0] === "outline") proj.scale -= 2;
   
   if (!proj) return;
       
@@ -105,12 +105,12 @@ Celestial.display = function(config) {
       if (!has(cfg.lines, key)) continue;
       if (key === "graticule") {
         container.append("path").datum(graticule).attr("class", "graticule"); 
-				if (cfg.lines.graticule.lon.pos.length > 0) 
+				if (has(cfg.lines.graticule, "lon") && cfg.lines.graticule.lon.pos.length > 0) 
           container.selectAll(".gridvalues_lon")
             .data(getGridValues("lon", cfg.lines.graticule.lon.pos))
             .enter().append("path")
             .attr("class", "graticule_lon"); 
-				if (cfg.lines.graticule.lat.pos.length > 0) 
+				if (has(cfg.lines.graticule, "lat") && cfg.lines.graticule.lat.pos.length > 0) 
           container.selectAll(".gridvalues_lat")
             .data(getGridValues("lat", cfg.lines.graticule.lat.pos))
             .enter().append("path")
@@ -390,25 +390,28 @@ Celestial.display = function(config) {
       context.stroke();    
     }
 
-
-    setTextStyle(cfg.lines.graticule.lon);
-    container.selectAll(".graticule_lon").each(function(d, i) { 
-      if (clip(d.geometry.coordinates)) {
-        var pt = prjMap(d.geometry.coordinates);
-        pt = gridOrientation(pt, d.properties.orientation);
-        context.fillText(d.properties.value, pt[0], pt[1]); 
-      }
-	  });
+    if (has(cfg.lines.graticule, "lon")) {
+      setTextStyle(cfg.lines.graticule.lon);
+      container.selectAll(".graticule_lon").each(function(d, i) { 
+        if (clip(d.geometry.coordinates)) {
+          var pt = prjMap(d.geometry.coordinates);
+          gridOrientation(pt, d.properties.orientation);
+          context.fillText(d.properties.value, pt[0], pt[1]); 
+        }
+      });
+    }
     
-    setTextStyle(cfg.lines.graticule.lat);
-    container.selectAll(".graticule_lat").each(function(d, i) { 
-      if (clip(d.geometry.coordinates)) {
-        var pt = prjMap(d.geometry.coordinates);
-        pt = gridOrientation(pt, d.properties.orientation);
-        context.fillText(d.properties.value, pt[0], pt[1]); 
-      }
-	  });
-		
+    if (has(cfg.lines.graticule, "lat")) {
+      setTextStyle(cfg.lines.graticule.lat);
+      container.selectAll(".graticule_lat").each(function(d, i) { 
+        if (clip(d.geometry.coordinates)) {
+          var pt = prjMap(d.geometry.coordinates);
+          gridOrientation(pt, d.properties.orientation);
+          context.fillText(d.properties.value, pt[0], pt[1]); 
+        }
+      });
+	  }
+    
     drawOutline(true);
 
     if (cfg.constellations.show) {     
@@ -623,12 +626,12 @@ Celestial.display = function(config) {
 
   function gridOrientation(pos, orient) {
     var o = orient.split(""), h = "center", v = "middle"; 
-    for (var i=0; i < o.length; i++) {
+    for (var i = o.length-1; i >= 0; i--) {
       switch(o[i]) {
         case "N": v = "bottom"; break;
         case "S": v = "top"; break;
-        case "E": h = "left"; pos[0] += 4; break;
-        case "W": h = "right";  pos[0] -= 8; break;
+        case "E": h = "left"; pos[0] += 2; break;
+        case "W": h = "right";  pos[0] -= 2; break;
       }
     }
     context.textAlign = h;

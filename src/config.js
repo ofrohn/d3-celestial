@@ -24,7 +24,7 @@ var settings = {
     style: { fill: "#ffffff", opacity: 1 }, // Default style for stars
     names: true,   // Show star names (Bayer, Flamsteed, Variable star, Gliese, whichever applies first)
     proper: false, // Show proper name (if present)
-    desig: false,   // Show all names, including Draper and Hipparcos
+    desig: false,  // Show all names, including Draper and Hipparcos
     namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
     propernamestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
@@ -43,7 +43,7 @@ var settings = {
     size: null,    // Optional seperate scale size for DSOs, null = stars.size
     exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear
     data: "dsos.bright.json",  // Data source for DSOs
-    symbols: {  //DSO symbol styles
+    symbols: {  // DSO symbol styles
       gg: {shape: "circle", fill: "#ff0000"},                                 // Galaxy cluster
       g:  {shape: "ellipse", fill: "#ff0000"},                                // Generic galaxy
       s:  {shape: "ellipse", fill: "#ff0000"},                                // Spiral galaxy
@@ -83,9 +83,9 @@ var settings = {
   lines: {
     graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,      // Show graticule lines 
 			// grid values: "outline", "center", or [lat,...] specific position
-      lon: {pos: [""], fill: "#eee", font: "bold 10px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}, 
+      lon: {pos: [""], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}, 
 			// grid values: "outline", "center", or [lon,...] specific position
-		  lat: {pos: [""], fill: "#666", font: "bold 10px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}},
+		  lat: {pos: [""], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}},
     equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },    // Show equatorial plane 
     ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane 
     galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 
@@ -98,14 +98,14 @@ var settings = {
     stroke: "#000000", // Outline
     width: 1.5 
   }, 
-  horizon: {  //Show horizon marker
+  horizon: {  //Show horizon marker, if geo-position is set
     show: false, 
     stroke: null, // Line
     width: 1.0, 
     fill: "#000000", // Area below horizon
     opacity: 0.5
   },  
-  daylight: {  //Show daylight marker (tbi)
+  daylight: {  // Show daylight marker (tbi)
     show: false, 
     fill: "#fff", 
     opacity: 0.4 
