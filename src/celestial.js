@@ -366,6 +366,11 @@ Celestial.display = function(config) {
     
     if (cfg.adaptable) adapt = Math.sqrt(prjMap.scale()/scale);
     if (!adapt) adapt = 1;
+    starbase = cfg.stars.size;
+    starexp = cfg.stars.exponent;
+    dsobase = cfg.dsos.size || starbase;
+    dsoexp = cfg.dsos.exponent;
+    
     if (cfg.orientationfixed) {
       rot[2] = cfg.center[2]; 
       prjMap.rotate(rot);
