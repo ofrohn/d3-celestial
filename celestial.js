@@ -1833,7 +1833,7 @@ function form(cfg) {
   col.append("input").attr("type", "color").attr("id", "mw-style-fill").attr("title", "Milky Way color").attr("value", config.mw.style.fill).on("change", apply);
 
   col.append("label").attr("for", "mw-style-opacity").html(" opacity");
-  col.append("input").attr("type", "number").attr("id", "mw-style-opacity").attr("title", "Transparency of each Milky Way layer").attr("value", config.mw.style.opacity).attr("max", "1").attr("min", "0").attr("step", "0.1").on("change", apply);
+  col.append("input").attr("type", "number").attr("id", "mw-style-opacity").attr("title", "Transparency of each Milky Way layer").attr("value", config.mw.style.opacity).attr("max", "1").attr("min", "0").attr("step", "0.01").on("change", apply);
   col.append("br");
   
   col.append("label").attr("for", "background").html("Background color");
