@@ -85,14 +85,14 @@ target.build = function() {
   fs.writeFileSync(filename + '.min.js', out);
   */
 
-  echo('Writing data');
+  //echo('Writing data');
 
   // zip data + prod. code + css
-  tar.pack('./', {
-       entries: ['celestial.css', 'readme.md', 'LICENSE', 'celestial.min.js', 'celestial.js', 'dtpick.png', 'data', 'demo', 'lib/d3.min.js', 'lib/d3.geo.projection.min.js'] 
+  /*tar.pack('./', {
+       entries: ['celestial.css', 'readme.md', 'LICENSE', 'celestial.min.js', 'celestial.js', 'images/dtpick.png', 'data', 'demo', 'lib/d3.min.js', 'lib/d3.geo.projection.min.js'] 
      })
      .pipe(zlib.createGzip())
      .pipe(fs.createWriteStream(filename + '.tar.gz'))
-
+  */
   echo('Done');
 };

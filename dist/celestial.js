@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.5.9',
+  version: '0.5.10',
   container: null,
   data: []
 };
@@ -22,7 +22,9 @@ Celestial.display = function(config) {
   //Mash config with default settings
   cfg = settings.set(config); 
   cfg.stars.size = cfg.stars.size || 7;  // Nothing works without these
+	cfg.stars.exponent = cfg.stars.exponent || -0.28;
   cfg.center = cfg.center || [0,0];     
+  if (!cfg.lang || cfg.lang.search(/^de|es$/) === -1) cfg.lang = "name";
   
   var parent = $(cfg.container);
   if (parent) { 
@@ -37,6 +39,7 @@ Celestial.display = function(config) {
   var margin = [16, 16],
       width = getWidth(),
       proj = getProjection(cfg.projection);
+  if (cfg.lines.graticule.lat && cfg.lines.graticule.lat.pos[0] === "outline") proj.scale -= 2;
   
   if (!proj) return;
       
@@ -46,7 +49,8 @@ Celestial.display = function(config) {
       scale = proj.scale * width/1024,
       starbase = cfg.stars.size, 
       dsobase = cfg.dsos.size || starbase,
-      exp = -0.28, //Object size base & exponent
+      starexp = cfg.stars.exponent,
+      dsoexp = cfg.dsos.exponent || starexp, //Object size base & exponent
       adapt = 1,
       rotation = getAngles(cfg.center),
       path = cfg.datapath || "";
@@ -80,8 +84,8 @@ Celestial.display = function(config) {
   d3.select(window).on('resize', resize);
 
   if (cfg.controls === true && $("celestial-zoomin") === null) {
-    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function() { zoomBy(1.111); });
-    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function() { zoomBy(0.9); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function () { zoomBy(1.111); });
+    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function () { zoomBy(0.9); });
   }
   
   if (cfg.location === true) {
@@ -102,13 +106,23 @@ Celestial.display = function(config) {
       if (!has(cfg.lines, key)) continue;
       if (key === "graticule") {
         container.append("path").datum(graticule).attr("class", "graticule"); 
+				if (has(cfg.lines.graticule, "lon") && cfg.lines.graticule.lon.pos.length > 0) 
+          container.selectAll(".gridvalues_lon")
+            .data(getGridValues("lon", cfg.lines.graticule.lon.pos))
+            .enter().append("path")
+            .attr("class", "graticule_lon"); 
+				if (has(cfg.lines.graticule, "lat") && cfg.lines.graticule.lat.pos.length > 0) 
+          container.selectAll(".gridvalues_lat")
+            .data(getGridValues("lat", cfg.lines.graticule.lat.pos))
+            .enter().append("path")
+            .attr("class", "graticule_lat"); 
       } else {
         container.append("path")
           .datum(d3.geo.circle().angle([90]).origin(transformDeg(poles[key], euler[trans])) )
           .attr("class", key);
       }
     }
-    
+
     //Milky way outline
     d3.json(path + "mw.json", function(error, json) {
       if (error) { 
@@ -211,13 +225,13 @@ Celestial.display = function(config) {
     if (sc1 < ext[0]) sc1 = ext[0];
     if (sc1 > ext[1]) sc1 = ext[1];
     var zTween = d3.interpolateNumber(sc0, sc1);
-    d3.select({}).transition().duration(interval).tween("scale", function() {
+    d3.select({}).transition().duration(interval).tween("scale", function () {
         return function(t) {
           var z = zTween(t);
           prjMap.scale(z); 
           redraw(); 
         };      
-    }).transition().duration(0).tween("scale", function() {
+    }).transition().duration(0).tween("scale", function () {
       zoom.scale(sc1); 
       redraw(); 
     });
@@ -250,17 +264,17 @@ Celestial.display = function(config) {
     } else {
       // Zoom interpolator
       if (sc > scale * ANIMSCALE) zTween = d3.interpolateNumber(sc, scale);
-      else zTween = function() { return sc; };
+      else zTween = function () { return sc; };
       // Orientation interpolator
-      if (o === 0) oTween = function() { return rot[2]; };
+      if (o === 0) oTween = function () { return rot[2]; };
       else oTween = interpolateAngle(cFrom[2], cfg.center[2]);
       if (d > 3.14) cfg.center[0] -= 0.01; //180deg turn doesn't work well
       cfg.orientationfixed = false;  
       // Rotation interpolator
-      if (d === 0) cTween = function() { return cfg.center; };
+      if (d === 0) cTween = function () { return cfg.center; };
       else cTween = d3.geo.interpolate(cFrom, cfg.center);
       interval = (d !== 0) ? interval * d : interval * o; // duration scaled by ang. distance
-      d3.select({}).transition().duration(interval).tween("center", function() {
+      d3.select({}).transition().duration(interval).tween("center", function () {
         return function(t) {
           var c = getAngles(cTween(t));
           c[2] = oTween(t);
@@ -270,7 +284,7 @@ Celestial.display = function(config) {
           prjMap.rotate(c);
           redraw();
         };
-      }).transition().duration(0).tween("center", function() {
+      }).transition().duration(0).tween("center", function () {
         cfg.orientationfixed = oof;
         rotation = getAngles(cfg.center);
         prjMap.rotate(rotation);
@@ -318,7 +332,7 @@ Celestial.display = function(config) {
     prjMap = projectionTween(prjFrom, prjTo);
     cfg.adaptable = false;
 
-    d3.select({}).transition().duration(interval).tween("projection", function() {
+    d3.select({}).transition().duration(interval).tween("projection", function () {
       return function(_) {
         prjMap.alpha(_).rotate(rot);
         map.projection(prjMap);
@@ -329,7 +343,7 @@ Celestial.display = function(config) {
         if (parent) parent.style.height = px(height);
         redraw();
       };
-    }).transition().duration(0).tween("projection", function() {
+    }).transition().duration(0).tween("projection", function () {
       proj = prj;
       ratio = proj.ratio;
       height = width / proj.ratio;
@@ -353,12 +367,15 @@ Celestial.display = function(config) {
     
     if (cfg.adaptable) adapt = Math.sqrt(prjMap.scale()/scale);
     if (!adapt) adapt = 1;
+    starbase = cfg.stars.size;
+    starexp = cfg.stars.exponent;
+    dsobase = cfg.dsos.size || starbase;
+    dsoexp = cfg.dsos.exponent;
+    
     if (cfg.orientationfixed) {
       rot[2] = cfg.center[2]; 
       prjMap.rotate(rot);
     }
-    //starbase = cfg.stars.size * adapt;
-    //dsobase = cfg.dsos.size * adapt;
     cfg.center = [-rot[0], -rot[1], rot[2]];
     
     setCenter(cfg.center, cfg.transform);
@@ -379,11 +396,41 @@ Celestial.display = function(config) {
       context.stroke();    
     }
 
+    if (has(cfg.lines.graticule, "lon")) {
+      setTextStyle(cfg.lines.graticule.lon);
+      container.selectAll(".graticule_lon").each(function(d, i) { 
+        if (clip(d.geometry.coordinates)) {
+          var pt = prjMap(d.geometry.coordinates);
+          gridOrientation(pt, d.properties.orientation);
+          context.fillText(d.properties.value, pt[0], pt[1]); 
+        }
+      });
+    }
+    
+    if (has(cfg.lines.graticule, "lat")) {
+      setTextStyle(cfg.lines.graticule.lat);
+      container.selectAll(".graticule_lat").each(function(d, i) { 
+        if (clip(d.geometry.coordinates)) {
+          var pt = prjMap(d.geometry.coordinates);
+          gridOrientation(pt, d.properties.orientation);
+          context.fillText(d.properties.value, pt[0], pt[1]); 
+        }
+      });
+	  }
+    
+    drawOutline(true);
+
     if (cfg.constellations.show) {     
+      if (cfg.constellations.bounds) { 
+        container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
+        drawOutline(true);
+      }
+
       if (cfg.constellations.names) { 
         setTextStyle(cfg.constellations.namestyle);
         container.selectAll(".constname").each( function(d) { 
           if (clip(d.geometry.coordinates)) {
+            setConstStyle(d.properties.rank, cfg.constellations.namestyle.font);
             var pt = prjMap(d.geometry.coordinates);
             context.fillText(constName(d), pt[0], pt[1]); 
           }
@@ -394,11 +441,9 @@ Celestial.display = function(config) {
         container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
       }
       
-      if (cfg.constellations.bounds) { 
-        container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
-      }
     }
       
+
     if (cfg.stars.show) { 
       setStyle(cfg.stars.style);
       container.selectAll(".star").each(function(d) {
@@ -412,7 +457,11 @@ Celestial.display = function(config) {
           context.fill();
           if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit*adapt) {
             setTextStyle(cfg.stars.namestyle);
-            context.fillText(starName(d), pt[0]+r, pt[1]+r);         
+            context.fillText(starName(d), pt[0]+r, pt[1]);         
+          }
+          if (cfg.stars.proper && d.properties.mag <= cfg.stars.propernamelimit*adapt) {
+            setTextStyle(cfg.stars.propernamestyle);
+            context.fillText(starProperName(d), pt[0]-r, pt[1]);         
           }
         }
       });
@@ -431,7 +480,7 @@ Celestial.display = function(config) {
           if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.namelimit)) {
             setTextStyle(cfg.dsos.namestyle);
             context.fillStyle = cfg.dsos.symbols[type].fill;
-            context.fillText(dsoName(d), pt[0]+r, pt[1]+r);         
+            context.fillText(dsoName(d), pt[0]+r, pt[1]-r);         
           }         
         }
       });
@@ -443,7 +492,7 @@ Celestial.display = function(config) {
       });
     }
     
-    drawOutline(true);
+//    drawOutline(true);
     
     if (cfg.location && cfg.horizon.show && !proj.clip) {
       circle.origin(Celestial.nadir());
@@ -491,7 +540,15 @@ Celestial.display = function(config) {
     context.globalAlpha = s.opacity || 1;  
     context.font = s.font;
   }
-    
+
+  function setConstStyle(rank, font) {
+    if (!isArray(font)) context.font = font;
+    else if (font.length === 1) context.font = font[0];
+    else if (rank > font.length) context.font = font[font.length-1];
+    else context.font = font[rank-1];
+  }
+
+  
   function zoomState(sc) {
     var czi = $("celestial-zoomin"),
         czo = $("celestial-zoomout");
@@ -532,7 +589,7 @@ Celestial.display = function(config) {
 
   function dsoSize(prop) {
     if (!prop.mag || prop.mag == 999) return Math.pow(parseInt(prop.dim) * dsobase * adapt / 7, 0.5); 
-    return Math.pow(2 * dsobase * adapt - prop.mag, 1.4);
+    return Math.pow(2 * dsobase * adapt - prop.mag, dsoexp);
   }
  
 
@@ -543,14 +600,15 @@ Celestial.display = function(config) {
     return prop.name;
   }
   
-  /*n=true, p=false, d=false non-hd/hip desig
-            p=true,  d=false proper name || non-hd/hip desig
-            p=false, d=true  any desig
-            p=true,  d=true  proper name || any desig  */
+  /*Star designation, if desig = false, no long desigs  */
   function starName(d) {
     var name = d.properties.desig;
-    if (cfg.stars.proper && d.properties.name !== "") name = d.properties.name;
-    if (!cfg.stars.desig) return name.replace(/^H(D|IP).+/, ""); 
+    if (!cfg.stars.desig) return name.replace(/^(HD|HIP|V\d{3}).+/, ""); 
+    return name; 
+  }
+
+  function starProperName(d) {
+    var name = d.properties.name;
     
     return name; 
   }
@@ -558,7 +616,7 @@ Celestial.display = function(config) {
   function starSize(d) {
     var mag = d.properties.mag;
     if (mag === null) return 0.1; 
-    var r = starbase * adapt * Math.exp(exp * (mag+2));
+    var r = starbase * adapt * Math.exp(starexp * (mag+2));
     return Math.max(r, 0.1);
   }
   
@@ -569,7 +627,22 @@ Celestial.display = function(config) {
   }
   
   function constName(d) { 
-    return cfg.constellations.desig ? d.properties.desig : d.properties.name; 
+    return cfg.constellations.desig ? d.properties.desig : d.properties[cfg.lang]; 
+  }
+
+  function gridOrientation(pos, orient) {
+    var o = orient.split(""), h = "center", v = "middle"; 
+    for (var i = o.length-1; i >= 0; i--) {
+      switch(o[i]) {
+        case "N": v = "bottom"; break;
+        case "S": v = "top"; break;
+        case "E": h = "left"; pos[0] += 2; break;
+        case "W": h = "right";  pos[0] -= 2; break;
+      }
+    }
+    context.textAlign = h;
+    context.textBaseline = v;
+    return pos;
   }
   
   function clear() {
@@ -628,6 +701,7 @@ Celestial.display = function(config) {
   this.context = context;
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;
+  this.setConstStyle = setConstStyle;
   this.redraw = redraw; 
   this.resize = function(config) { 
     if (config && has(config, "width")) cfg.width = config.width; 
@@ -743,8 +817,8 @@ var poles = {
 //  "mars": [-42.3186, 52.8865]
 };
 
-Celestial.eulerAngles = function() { return eulerAngles; };
-Celestial.poles = function() { return poles; };
+Celestial.eulerAngles = function () { return eulerAngles; };
+Celestial.poles = function () { return poles; };
 
 
 var τ = Math.PI*2,
@@ -812,7 +886,7 @@ var euler = {
   "inverse galactic": [122.9319, 62.8717, -167.1405],
   "supergalactic": [283.7542, 74.2911, 26.4504],
   "inverse supergalactic": [26.4504, 74.2911, 283.7542],
-  "init": function() {
+  "init": function () {
     for (var key in this) {
       if (this[key].constructor == Array) { 
         this[key] = this[key].map( function(val) { return val * deg2rad; } );
@@ -827,7 +901,7 @@ var euler = {
 };
 
 euler.init();
-Celestial.euler = function() { return euler; };
+Celestial.euler = function () { return euler; };
 
 
 var horizontal = function(dt, pos, loc) {
@@ -954,6 +1028,87 @@ function translate(d, leo) {
   return res;
 }
 
+function getGridValues(type, loc) {
+  var lines = [];
+  if (!loc) return [];
+  if (!isArray(loc)) loc = [loc];
+  //center, outline, values
+  for (var i=0; i < loc.length; i++) {
+    switch (loc[i]) {
+      case "center": 
+        if (type === "lat")
+          lines = lines.concat(getLine(type, cfg.center[0], "N"));
+        else
+          lines = lines.concat(getLine(type, cfg.center[1], "S")); 
+        break;
+      case "outline": 
+        if (type === "lon") { 
+          lines = lines.concat(getLine(type, cfg.center[1]-89.99, "S"));
+          lines = lines.concat(getLine(type, cfg.center[1]+89.99), "N");
+        } else {
+					// TODO: hemi
+          lines = lines.concat(getLine(type, cfg.center[0]-179.99, "E"));
+          lines = lines.concat(getLine(type, cfg.center[0]+179.99, "W"));
+        }
+        break;
+      default: if (isNumber(loc[i])) {
+        if (type === "lat")
+          lines = lines.concat(getLine(type, loc[i], "N"));
+        else
+          lines = lines.concat(getLine(type, loc[i], "S")); 
+        break;        
+      }
+    }
+  }
+  //return [{coordinates, value, orientation}, ...]
+  return jsonGridValues(lines);
+}
+
+function jsonGridValues(lines) {
+  var res = [];
+  for (var i=0; i < lines.length; i++) {
+    var f = {type: "Feature", "id":i, properties: {}, geometry:{type:"Point"}};
+    f.properties.value = lines[i].value;
+    f.properties.orientation = lines[i].orientation;
+    f.geometry.coordinates = lines[i].coordinates;
+    res.push(f);
+  }
+  return res;
+}
+
+function getLine(type, loc, orient) {
+  var min, max, step, val, coord,
+      tp = type,
+      res = [],
+      lr = loc;
+  if (cfg.transform === "equatorial" && tp === "lon") tp = "ra";
+  
+  if (tp === "ra") {
+    min = 0; max = 23; step = 1;
+  } else if (tp === "lon") {
+    min = 0; max = 350; step = 10;    
+  } else {
+    min = -80; max = 80; step = 10;    
+  }
+  for (var i=min; i<=max; i+=step) {
+    var o = orient;
+    if (tp === "lat") {
+      coord = [lr, i];
+      val = i.toString() + "\u00b0";
+      if (i < 0) o += "S"; else o += "N";
+    } else if (tp === "ra") {
+      coord = [i * 15, lr];
+      val = i.toString() + "\u02b0";
+    } else {
+      coord = [i, lr];
+      val = i.toString() + "\u00b0";
+    }
+  
+    res.push({coordinates: coord, value: val, orientation: o});
+  }
+  return res;
+}
+
 function transLine(c, leo) {
   var line = [];
   
@@ -989,6 +1144,8 @@ var settings = {
   location: false,    // Display location settings 
   fullwidth: false,   // Display fullwidth button
   controls: true,     // Display zoom controls
+  lang: "",           // Language for names, so far only for constellations: de: german, es: spanish
+                      // Default:en or empty string for english
   container: "celestial-map",   // ID of parent element, e.g. div
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
@@ -998,10 +1155,13 @@ var settings = {
     style: { fill: "#ffffff", opacity: 1 }, // Default style for stars
     names: true,   // Show star names (Bayer, Flamsteed, Variable star, Gliese, whichever applies first)
     proper: false, // Show proper name (if present)
-    desig: false,   // Show all names, including Draper and Hipparcos
+    desig: false,  // Show all names, including Draper and Hipparcos
     namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
+    propernamestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
+    propernamelimit: 1.5,  // Show proper names for stars brighter than propernamelimit
     size: 7,       // Scale size (radius) of star circle in pixels
+    exponent: -0.28, // Scale exponent for star size, larger = more linear
     data: "stars.6.json" // Data source for stellar data
   },
   dsos: {
@@ -1012,8 +1172,9 @@ var settings = {
     namestyle: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", align: "left", baseline: "top" },
     namelimit: 4,  // Show only names for DSOs brighter than namelimit
     size: null,    // Optional seperate scale size for DSOs, null = stars.size
+    exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear
     data: "dsos.bright.json",  // Data source for DSOs
-    symbols: {  //DSO symbol styles
+    symbols: {  // DSO symbol styles
       gg: {shape: "circle", fill: "#ff0000"},                                 // Galaxy cluster
       g:  {shape: "ellipse", fill: "#ff0000"},                                // Generic galaxy
       s:  {shape: "ellipse", fill: "#ff0000"},                                // Spiral galaxy
@@ -1037,7 +1198,10 @@ var settings = {
     show: true,    // Show constellations 
     names: true,   // Show constellation names 
     desig: true,   // Show short constellation names (3 letter designations)
-    namestyle: { fill:"#cccc99", font: "12px Helvetica, Arial, sans-serif", align: "center", baseline: "middle", opacity:0.8 },
+    namestyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8, 
+		             font: ["14px Helvetica, Arial, sans-serif",  // Different fonts for brighter &
+								        "12px Helvetica, Arial, sans-serif",  // sdarker constellations
+												"11px Helvetica, Arial, sans-serif"]},
     lines: true,   // Show constellation lines 
     linestyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries 
@@ -1045,10 +1209,14 @@ var settings = {
   },
   mw: {
     show: true,    // Show Milky Way as filled polygons 
-    style: { fill: "#ffffff", opacity: "0.15" }
+    style: { fill: "#ffffff", opacity: "0.15" } // style for each MW-layer (5 on top of each other)
   },
   lines: {
-    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8 },     // Show graticule lines 
+    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,      // Show graticule lines 
+			// grid values: "outline", "center", or [lat,...] specific position
+      lon: {pos: [""], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}, 
+			// grid values: "outline", "center", or [lon,...] specific position
+		  lat: {pos: [""], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}},
     equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },    // Show equatorial plane 
     ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane 
     galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 
@@ -1059,16 +1227,16 @@ var settings = {
     fill: "#000000", 
     opacity: 1, 
     stroke: "#000000", // Outline
-    width: 1 
+    width: 1.5 
   }, 
-  horizon: {  //Show horizon marker
+  horizon: {  //Show horizon marker, if geo-position is set
     show: false, 
     stroke: null, // Line
     width: 1.0, 
     fill: "#000000", // Area below horizon
     opacity: 0.5
   },  
-  daylight: {  //Show daylight marker (tbi)
+  daylight: {  // Show daylight marker (tbi)
     show: false, 
     fill: "#fff", 
     opacity: 0.4 
@@ -1099,7 +1267,7 @@ var settings = {
   
 };
 
-Celestial.settings = function() { return settings; };
+Celestial.settings = function () { return settings; };
 
 //b-v color index to rgb color value scale
 var bvcolor = 
@@ -1183,13 +1351,13 @@ var projections = {
   "winkel3": {n:"Winkel Tripel", arg:null, scale:196, ratio:1.7}
 };
 
-Celestial.projections = function() { return projections; };
+Celestial.projections = function () { return projections; };
 
 
 
 var Canvas = {}; 
 
-Canvas.symbol = function() {
+Canvas.symbol = function () {
   // parameters and default values
   var type = d3.functor("circle"), 
       size = d3.functor(64), 
@@ -1318,7 +1486,7 @@ Celestial.Canvas = Canvas;
 
 /*var color = "#fff", angle = 0, align = "center", baseline = "middle", font = "10px sans-serif", padding = [0,0], aPos, sText;
 
-canvas.text = function() {
+canvas.text = function () {
 
   function txt(ctx){
     ctx.fillStyle = color;
@@ -1454,10 +1622,9 @@ function stopPropagation(e) {
 }
 
 function dateDiff(dt1, dt2, type) {
-  var diff, t, con;
-  diff = dt2.valueOf() - dt1.valueOf();
-  t = type || "d";
-  switch (t) {
+  var diff = dt2.valueOf() - dt1.valueOf(),
+      tp = type || "d";
+  switch (tp) {
     case 'y': case 'yr': diff /= 31556926080; break;
     case 'm': case 'mo': diff /= 2629800000; break;
     case 'd': case 'dy': diff /= 86400000; break;
@@ -1493,7 +1660,7 @@ function form(cfg) {
   var col = frm.append("div").attr("class", "col");
   
   col.append("label").attr("title", "Map width in pixel, 0 indicates full width").attr("for", "width").html("Width ");
-  col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "9999").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", config.width).on("change", resize);
+  col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "20000").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", config.width).on("change", resize);
   col.append("span").html("px");
 
   col.append("label").attr("title", "Map projection, (hemi) indicates hemispherical projection").attr("for", "projection").html("Projection");
@@ -1523,8 +1690,9 @@ function form(cfg) {
   //if (!config.location) {
     col.append("br");
     col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
-    col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
+    col.append("input").attr("type", "number").attr("id", "centerx").attr("list", "centerx-list").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
     col.append("span").attr("id", "cxunit").html("h");
+    //addList("centerx", "ra");
     
     col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
     col.append("span").html("\u00b0");
@@ -1537,7 +1705,7 @@ function form(cfg) {
     col.append("input").attr("type", "checkbox").attr("id", "orientationfixed").property("checked", config.orientationfixed).on("change", apply);    
   //}
   if (config.fullwidth)
-    col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Full Width \u25ba").on("click", function() {
+    col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Full Width \u25ba").on("click", function () {
     $("sidebar-wrapper").style.display = "none";
     $("outer-wrapper").style.width = "100%";
     $("main-wrapper").style.width = "100%";
@@ -1564,18 +1732,29 @@ function form(cfg) {
   col.append("input").attr("type", "color").attr("autocomplete", "off").attr("id", "stars-style-fill").attr("title", "Star color").property("value", config.stars.style.fill).on("change", apply);
   col.append("br");
   
-  col.append("label").attr("for", "stars-names").html("Show names");
+  col.append("label").attr("for", "stars-names").html("Show designations");
   col.append("input").attr("type", "checkbox").attr("id", "stars-names").property("checked", config.stars.names).on("change", apply);
+
+  col.append("label").attr("for", "stars-namelimit").html("down to mag");
+  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star designaton display limit (magnitude)").attr("value", config.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
   
-  col.append("label").attr("for", "stars-proper").html("proper names (if any)");
+  col.append("label").attr("for", "stars-desig").attr("title", "include HD/HIP designations").html("all");
+  col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", config.stars.desig).on("change", apply);
+
+  col.append("label").attr("for", "stars-proper").html("proper names");
   col.append("input").attr("type", "checkbox").attr("id", "stars-proper").property("checked", config.stars.proper).on("change", apply);
   
-  col.append("label").attr("for", "stars-desig").attr("title", "include HD/HIP designations").html("all designations");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", config.stars.desig).on("change", apply);
-  
-  col.append("label").attr("for", "stars-namelimit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star name display limit (magnitude)").attr("value", config.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
+  col.append("label").attr("for", "stars-propernamelimit").html("down to mag");
+  col.append("input").attr("type", "number").attr("id", "stars-propernamelimit").attr("title", "Star name display limit (magnitude)").attr("value", config.stars.propernamelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
+  col.append("br");
 
+  col.append("label").attr("for", "stars-size").html("Stellar disk size: base");
+  col.append("input").attr("type", "number").attr("id", "stars-size").attr("title", "Size of the displayed star disk; base").attr("value", config.stars.size).attr("max", "100").attr("min", "0").attr("step", "0.1").on("change", apply);
+
+  col.append("label").attr("for", "stars-exponent").html(" * e ^ (exponent");
+  col.append("input").attr("type", "number").attr("id", "stars-exponent").attr("title", "Size of the displayed star disk; exponent").attr("value", config.stars.exponent).attr("max", "3").attr("min", "-1").attr("step", "0.01").on("change", apply);
+  col.append("span").text(" * (magnitude + 2))  [* adaptation]");
+  
   enable($("stars-show"));
   
   // DSOs 
@@ -1595,6 +1774,13 @@ function form(cfg) {
   
   col.append("label").attr("for", "dsos-namelimit").html("down to mag");
   col.append("input").attr("type", "number").attr("id", "dsos-namelimit").attr("title", "DSO name display limit (magnitude)").attr("value", config.dsos.namelimit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
+  col.append("br");
+
+  col.append("label").attr("for", "dsos-size").html("DSO symbol size: (base");
+  col.append("input").attr("type", "number").attr("id", "dsos-size").attr("title", "Size of the displayed symbol: base").attr("value", config.dsos.size).attr("max", "100").attr("min", "0").attr("step", "0.1").on("change", apply);
+
+  col.append("label").attr("for", "dsos-exponent").html(" * 2 [* adaptation] - magnitude) ^ exponent");
+  col.append("input").attr("type", "number").attr("id", "dsos-exponent").attr("title", "Size of the displayed symbol; exponent").attr("value", config.dsos.exponent).attr("max", "3").attr("min", "-1").attr("step", "0.01").on("change", apply);
 
   enable($("dsos-show"));
 
@@ -1621,7 +1807,7 @@ function form(cfg) {
   col = frm.append("div").attr("class", "col");
   col.append("label").attr("class", "header").html("Lines");
   
-  col.append("label").attr("title", "X/Y grid lines").attr("for", "lines-graticule").html("Graticule");
+  col.append("label").attr("title", "Laitudet/longitude grid lines").attr("for", "lines-graticule").html("Graticule");
   col.append("input").attr("type", "checkbox").attr("id", "lines-graticule-show").property("checked", config.lines.graticule.show).on("change", apply);
   
   col.append("label").attr("for", "lines-equatorial").html("Equator");
@@ -1643,10 +1829,17 @@ function form(cfg) {
   col.append("label").attr("for", "mw-show").html("Milky Way");
   col.append("input").attr("type", "checkbox").attr("id", "mw-show").property("checked", config.mw.show).on("change", apply);
   
+  col.append("label").attr("for", "mw-style-fill").html(" color");
+  col.append("input").attr("type", "color").attr("id", "mw-style-fill").attr("title", "Milky Way color").attr("value", config.mw.style.fill).on("change", apply);
+
+  col.append("label").attr("for", "mw-style-opacity").html(" opacity");
+  col.append("input").attr("type", "number").attr("id", "mw-style-opacity").attr("title", "Transparency of each Milky Way layer").attr("value", config.mw.style.opacity).attr("max", "1").attr("min", "0").attr("step", "0.01").on("change", apply);
+  col.append("br");
+  
   col.append("label").attr("for", "background").html("Background color");
   col.append("input").attr("type", "color").attr("id", "background-fill").attr("title", "Background color").attr("value", config.background.fill).on("change", apply);
   
-  col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable sizes");
+  col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").html("Adaptable object sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").property("checked", config.adaptable).on("change", apply);
    
   setLimits();
@@ -1701,6 +1894,21 @@ function form(cfg) {
     return cx.value !== "" && cy.value !== "";
   }
   
+  /*
+  function addList(id, type) {
+    var step = 1,
+        sel = col.append("datalist").attr("id",id + "-list"),
+        box = d3.select("#" + id),
+        min = +box.attr("min"),
+        max = +box.attr("max");
+    if (type === "lat" || type === "lon") step = 10;
+
+    for (var i = min; i < max; i += step) {
+      sel.append("option").text(i + ".0");
+    }
+    return sel;
+  }
+  */
   function apply() {
     var value, src = this;
 
@@ -1733,10 +1941,12 @@ function form(cfg) {
 
 // Dependend fields relations
 var depends = {
-  "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-names"],
+  "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-names", "stars-size", "stars-exponent"],
   "stars-names": ["stars-proper", "stars-desig", "stars-namelimit"],
-  "dsos-show": ["dsos-limit", "dsos-names"],
+  "stars-proper": ["stars-propernamelimit"],
+  "dsos-show": ["dsos-limit", "dsos-names", "dsos-size", "dsos-exponent"],
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
+   "mw-show": ["mw-style-opacity", "mw-style-fill"],
   "constellations-names": ["constellations-desig"]
 };
 
@@ -1752,6 +1962,10 @@ function enable(source) {
     case "stars-names": 
       off = !$("stars-names").checked || !$("stars-show").checked;      
       for (i=0; i< depends["stars-names"].length; i++) { fldEnable(depends["stars-names"][i], off); }
+      /* falls through */
+    case "stars-proper": 
+      off = !$("stars-names").checked || !$("stars-show").checked || !$("stars-proper").checked;
+      for (i=0; i< depends["stars-proper"].length; i++) { fldEnable(depends["stars-proper"][i], off); }
       break;
     case "dsos-show": 
       off = !$(fld).checked;
@@ -1762,6 +1976,10 @@ function enable(source) {
       for (i=0; i< depends["dsos-names"].length; i++) { fldEnable(depends["dsos-names"][i], off); }
       break;
     case "constellations-show": 
+      off = !$(fld).checked;
+      for (i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
+      break;
+    case "mw-show": 
       off = !$(fld).checked;
       for (i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
       break;
@@ -1906,9 +2124,9 @@ function geo(cfg) {
   var col = ctrl.append("div").attr("class", "col");
   //Latitude & longitude fields
   col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");
-  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("placeholder", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change",  function() { if (testNumber(this) === true) go(); });
+  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("placeholder", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change",  function () { if (testNumber(this) === true) go(); });
   col.append("span").html("\u00b0");
-  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("placeholder", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change",  function() { if (testNumber(this) === true) go(); });
+  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("placeholder", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change",  function () { if (testNumber(this) === true) go(); });
   col.append("span").html("\u00b0");
   //Here-button if supported
   if ("geolocation" in navigator) {
@@ -1917,7 +2135,7 @@ function geo(cfg) {
   //Datetime field with dtpicker-button
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Date/time");
   col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(dt, zone))
-  .on("click", showpick, true).on("input", function() { 
+  .on("click", showpick, true).on("input", function () { 
     this.value = dateFormat(dt, zone); 
     if (!dtpick.isVisible()) showpick(); 
   });
@@ -1929,7 +2147,7 @@ function geo(cfg) {
   col.append("label").attr("title", "Show horizon marker").attr("for", "horizon-show").html(" Horizon marker");
   col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", cfg.horizon.show).on("change", go);    
   
-  d3.select(document).on("mousedown", function() { 
+  d3.select(document).on("mousedown", function () { 
     if (!hasParent(d3.event.target, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
   });
   
@@ -1994,8 +2212,8 @@ function showHorizon(clip) {
   hs.previousSibling.style.display = hs.style.display;    
 }
 
-Celestial.zenith = function() { return zenith; };
-Celestial.nadir = function() {
+Celestial.zenith = function () { return zenith; };
+Celestial.nadir = function () {
   var b = -zenith[1],
       l = zenith[0] + 180;
   if (l > 180) l -= 360;    
@@ -2083,7 +2301,7 @@ var datetimepicker = function(callback) {
   }
   
   function nav(dir) {
-    var lnk = picker.append("div").attr("id", dir).on("click", function() {
+    var lnk = picker.append("div").attr("id", dir).on("click", function () {
       var mon = $("mon"), yr = $("yr");
       
       if (dir === "left") {
@@ -2102,11 +2320,11 @@ var datetimepicker = function(callback) {
   }
 
   function timeSel() { 
-    picker.append("input").attr("type", "number").attr("id", "hr").attr("title", "Hours").attr("max", "24").attr("min", "-1").attr("step", "1").attr("value", date.getHours()).on("change", function() { if (testNumber(this) === true) pick(); });
+    picker.append("input").attr("type", "number").attr("id", "hr").attr("title", "Hours").attr("max", "24").attr("min", "-1").attr("step", "1").attr("value", date.getHours()).on("change", function () { if (testNumber(this) === true) pick(); });
 
-    picker.append("input").attr("type", "number").attr("id", "min").attr("title", "Minutes").attr("max", "60").attr("min", "-1").attr("step", "1").attr("value", date.getMinutes()).on("change", function() { if (testNumber(this) === true) pick(); });
+    picker.append("input").attr("type", "number").attr("id", "min").attr("title", "Minutes").attr("max", "60").attr("min", "-1").attr("step", "1").attr("value", date.getMinutes()).on("change", function () { if (testNumber(this) === true) pick(); });
     
-    picker.append("input").attr("type", "number").attr("id", "sec").attr("title", "Seconds").attr("max", "60").attr("min", "-1").attr("step", "1").attr("value", date.getSeconds()).on("change", function() { if (testNumber(this) === true) pick(); });
+    picker.append("input").attr("type", "number").attr("id", "sec").attr("title", "Seconds").attr("max", "60").attr("min", "-1").attr("step", "1").attr("value", date.getSeconds()).on("change", function () { if (testNumber(this) === true) pick(); });
   }
   
   function tzSel() { 
@@ -2166,11 +2384,11 @@ var datetimepicker = function(callback) {
     }
   };
   
-  this.isVisible = function() {
+  this.isVisible = function () {
     return $("celestial-date").offsetTop !== -9999;
   };
 
-  this.hide = function() {
+  this.hide = function () {
     vanish();
   };
   
@@ -2178,7 +2396,7 @@ var datetimepicker = function(callback) {
     d3.select("#celestial-date").style("opacity", 0);
     d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} ); 
     d3.select("#datepick").classed("active", false);
-    setTimeout(function() { $("celestial-date").style.top = px(-9999); }, 600);    
+    setTimeout(function () { $("celestial-date").style.top = px(-9999); }, 600);    
   }
   
   function pick() {
