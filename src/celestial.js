@@ -1,6 +1,6 @@
-/* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, form, geo, setCenter, showHorizon, interpolateAngle */
+/* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, form, geo, setCenter, showHorizon, interpolateAngle */
 var Celestial = {
-  version: '0.5.11',
+  version: '0.6.0',
   container: null,
   data: []
 };
@@ -201,6 +201,20 @@ Celestial.display = function(config) {
          .data(ds.features)
          .enter().append("path")
          .attr("class", "dso" );
+
+      redraw();
+    });
+
+    //Planets, (Moon & Sun tbi)
+    d3.json(path + "planets.json", function(error, json) {
+      if (error) return console.warn(error);
+      
+      var pl = getPlanets(json, trans);
+
+      container.selectAll(".planets")
+         .data(pl)
+         .enter().append("path")
+         .attr("class", "planet" );
 
       redraw();
     });
@@ -481,6 +495,19 @@ Celestial.display = function(config) {
             context.fillStyle = cfg.dsos.symbols[type].fill;
             context.fillText(dsoName(d), pt[0]+r, pt[1]-r);         
           }         
+        }
+      });
+    }
+
+    if (cfg.location && cfg.planets.show && Celestial.origin) { 
+      var dt = Celestial.date(),
+          o = Celestial.origin(dt).cartesian();
+      container.selectAll(".planet").each(function(d) {
+        var p = d(dt).equatorial(o);
+        if (clip(p.pos)) {
+          var pt = prjMap(p.pos);
+          setTextStyle(cfg.planets.style);
+          context.fillText(d.symbol(), pt[0], pt[1]);   
         }
       });
     }

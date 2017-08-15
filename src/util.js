@@ -1,4 +1,4 @@
-/* global τ, deg2rad */
+/* global τ, halfπ, deg2rad */
 function $(id) { return document.getElementById(id); }
 function px(n) { return n + "px"; } 
 function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
@@ -57,13 +57,46 @@ function dateDiff(dt1, dt2, type) {
   return Math.floor(diff);
 }
 
+function dateParse(s) {
+  if (!s) return; 
+  var t = s.split(".");
+  if (t.length < 1) return; 
+  t = t[0].split("-");
+  t[0] = t[0].replace(/\D/g, "");
+  if (!t[0]) return; 
+  t[1] = t[1] ? t[1].replace(/\D/g, "") : "1";
+  t[2] = t[2] ? t[2].replace(/\D/g, "") : "1";
+  
+  return new Date(Date.UTC(t[0], t[1]-1, t[2]));
+}
+
+
 function interpolateAngle(a1, a2, t) {
   a1 = (a1*deg2rad +τ) % τ;
   a2 = (a2*deg2rad + τ) % τ;
-  var diff = Math.abs(a1 - a2);
-  if (diff > Math.PI) {
+  if (Math.abs(a1 - a2) > Math.PI) {
     if (a1 > a2) a1 = a1 - τ;
     else if (a2 > a1) a2 = a2 - τ;
   }
   return d3.interpolateNumber(a1/deg2rad, a2/deg2rad);
 }
+
+var Trig = {
+  sinh: function (val) { return (Math.pow(Math.E, val)-Math.pow(Math.E, -val))/2; },
+  cosh: function (val) { return (Math.pow(Math.E, val)+Math.pow(Math.E, -val))/2; },
+  tanh: function (val) { return 2.0 / (1.0 + Math.exp(-2.0 * val)) - 1.0; },
+  asinh: function (val) { return Math.log(val + Math.sqrt(val * val + 1)); },
+  acosh: function (val) { return Math.log(val + Math.sqrt(val * val - 1)); },
+  normalize0: function(val) {  return ((val + Math.PI*3) % (Math.PI*2)) - Math.PI; },
+  normalize: function(val) {  return ((val + Math.PI*2) % (Math.PI*2)); },  
+  cartesian: function(p) {
+    var ϕ = p[0], θ = halfπ - p[1], r = p[2];
+    return {"x": r * Math.sin(θ) * Math.cos(ϕ), "y": r * Math.sin(θ) * Math.sin(ϕ), "z": r * Math.cos(θ)};
+  },
+  spherical: function(p) {
+    var r = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z),
+        θ = Math.atan(p.y / p.x),
+        ϕ = Math.acos(p.z / r);
+    return  [θ / deg2rad, ϕ / deg2rad, r];
+  }
+};

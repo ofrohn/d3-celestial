@@ -1,11 +1,12 @@
 /* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, hasParent */
-var zenith = [0,0];
+var zenith = [0,0],
+    date = new Date();
 
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("id", "loc"),
-      dt = new Date(), geopos = [0,0], 
+      geopos = [0,0], 
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
-      zone = dt.getTimezoneOffset();
+      zone = date.getTimezoneOffset();
 
   var dtpick = new datetimepicker( function(date, tz) { 
     $("datetime").value = dateFormat(date, tz); 
@@ -26,9 +27,9 @@ function geo(cfg) {
   }
   //Datetime field with dtpicker-button
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Date/time");
-  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(dt, zone))
+  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(date, zone))
   .on("click", showpick, true).on("input", function () { 
-    this.value = dateFormat(dt, zone); 
+    this.value = dateFormat(date, zone); 
     if (!dtpick.isVisible()) showpick(); 
   });
   col.append("div").attr("id", "datepick").on("click", showpick);
@@ -38,14 +39,16 @@ function geo(cfg) {
   col.append("br");
   col.append("label").attr("title", "Show horizon marker").attr("for", "horizon-show").html(" Horizon marker");
   col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", cfg.horizon.show).on("change", go);    
+  col.append("label").attr("title", " Show planets").attr("for", "planets-show").html(" Planets");
+  col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", cfg.planets.show).on("change", go);    
   
   d3.select(document).on("mousedown", function () { 
     if (!hasParent(d3.event.target, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
   });
   
   function now() {
-    dt.setTime(Date.now());
-    $("datetime").value = dateFormat(dt, zone);
+    date.setTime(Date.now());
+    $("datetime").value = dateFormat(date, zone);
     go();
   }
 
@@ -59,7 +62,7 @@ function geo(cfg) {
   }
   
   function showpick() {
-    dtpick.show(dt);
+    dtpick.show(date);
   }
   
   function dateFormat(dt, tz) {
@@ -76,15 +79,15 @@ function geo(cfg) {
   
   function go() {
     var lon = $("lon").value,
-        lat = $("lat").value,
-        dm = !!$("horizon-show").checked; 
+        lat = $("lat").value;
 
-    dt = dtFormat.parse($("datetime").value.slice(0,-6));
+    date = dtFormat.parse($("datetime").value.slice(0,-6));
 
-    var tz = dt.getTimezoneOffset();
-    var dtc = new Date(dt.valueOf() + (zone - tz) * 60000);
+    var tz = date.getTimezoneOffset();
+    var dtc = new Date(date.valueOf() + (zone - tz) * 60000);
 
-    cfg.horizon.show = dm;
+    cfg.horizon.show = !!$("horizon-show").checked;
+    cfg.planets.show = !!$("planets-show").checked;
     
     if (lon !== "" && lat !== "") {
       geopos = [parseFloat(lat), parseFloat(lon)];
@@ -104,6 +107,7 @@ function showHorizon(clip) {
   hs.previousSibling.style.display = hs.style.display;    
 }
 
+Celestial.date = function () { return date; };
 Celestial.zenith = function () { return zenith; };
 Celestial.nadir = function () {
   var b = -zenith[1],

@@ -25,9 +25,9 @@ var settings = {
     names: true,   // Show star names (Bayer, Flamsteed, Variable star, Gliese, whichever applies first)
     proper: false, // Show proper name (if present)
     desig: false,  // Show all names, including Draper and Hipparcos
-    namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
+    namestyle: { fill: "#ddddbb", font: "11px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
-    propernamestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
+    propernamestyle: { fill: "#ddddbb", font: "11px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
     propernamelimit: 1.5,  // Show proper names for stars brighter than propernamelimit
     size: 7,       // Scale size (radius) of star circle in pixels
     exponent: -0.28, // Scale exponent for star size, larger = more linear
@@ -38,7 +38,7 @@ var settings = {
     limit: 6,      // Show only DSOs brighter than limit magnitude
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
-    namestyle: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", align: "left", baseline: "top" },
+    namestyle: { fill: "#cccccc", font: "11px 'Lucida Sans Unicode', Helvetica, Arial, serif", align: "left", baseline: "top" },
     namelimit: 4,  // Show only names for DSOs brighter than namelimit
     size: null,    // Optional seperate scale size for DSOs, null = stars.size
     exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear
@@ -68,9 +68,9 @@ var settings = {
     names: true,   // Show constellation names 
     desig: true,   // Show short constellation names (3 letter designations)
     namestyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8, 
-		             font: ["14px Helvetica, Arial, sans-serif",  // Different fonts for brighter &
-								        "12px Helvetica, Arial, sans-serif",  // sdarker constellations
-												"11px Helvetica, Arial, sans-serif"]},
+		             font: ["14px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // Different fonts for brighter &
+								        "12px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // sdarker constellations
+												"11px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"]},
     lines: true,   // Show constellation lines 
     linestyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries 
@@ -83,9 +83,9 @@ var settings = {
   lines: {
     graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,      // Show graticule lines 
 			// grid values: "outline", "center", or [lat,...] specific position
-      lon: {pos: [""], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}, 
+      lon: {pos: [""], fill: "#eee", font: "10px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"}, 
 			// grid values: "outline", "center", or [lon,...] specific position
-		  lat: {pos: [""], fill: "#eee", font: "10px Helvetica, Arial, sans-serif"}},
+		  lat: {pos: [""], fill: "#eee", font: "10px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"}},
     equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },    // Show equatorial plane 
     ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane 
     galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 
@@ -98,13 +98,34 @@ var settings = {
     stroke: "#000000", // Outline
     width: 1.5 
   }, 
-  horizon: {  //Show horizon marker, if geo-position is set
+  horizon: {  //Show horizon marker, if geo-position and date-time is set
     show: false, 
     stroke: null, // Line
     width: 1.0, 
     fill: "#000000", // Area below horizon
     opacity: 0.5
   },  
+  planets: {  //Show planet locations, if date-time is set
+    show: false,
+    which: ["mer", "ven", "ter", "mar", "jup", "sat", "ura", "nep"],
+    style: { fill: "#00ccff", font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", align: "center", baseline: "middle" },
+    symbols: {
+      "sol": {symbol: "\u2609", fill: "#cccccc"},
+      "mer": {symbol: "\u263f", fill: "#cccccc"},
+      "ven": {symbol: "\u2640", fill: "#cccccc"},
+      "ter": {symbol: "\u2295", fill: "#cccccc"},
+      "lun": {symbol: "\u25cf", fill: "#cccccc"},
+      "mar": {symbol: "\u2642", fill: "#cccccc"},
+      "cer": {symbol: "\u26b3", fill: "#cccccc"},
+      "ves": {symbol: "\u26b6", fill: "#cccccc"},
+      "jup": {symbol: "\u2643", fill: "#cccccc"},
+      "sat": {symbol: "\u2644", fill: "#cccccc"},
+      "ura": {symbol: "\u2645", fill: "#cccccc"},
+      "nep": {symbol: "\u2646", fill: "#cccccc"},
+      "plu": {symbol: "\u2647", fill: "#cccccc"},
+      "eri": {symbol: "\u26aa", fill: "#cccccc"}
+    }
+  },
   daylight: {  // Show daylight marker (tbi)
     show: false, 
     fill: "#fff", 
