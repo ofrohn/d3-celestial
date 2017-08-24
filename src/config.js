@@ -107,23 +107,23 @@ var settings = {
   },  
   planets: {  //Show planet locations, if date-time is set
     show: false,
-    which: ["mer", "ven", "ter", "mar", "jup", "sat", "ura", "nep"],
+    which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep"],
     style: { fill: "#00ccff", font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", align: "center", baseline: "middle" },
     symbols: {
-      "sol": {symbol: "\u2609", fill: "#cccccc"},
+      "sol": {symbol: "\u2609", fill: "#ffff00"},
       "mer": {symbol: "\u263f", fill: "#cccccc"},
-      "ven": {symbol: "\u2640", fill: "#cccccc"},
-      "ter": {symbol: "\u2295", fill: "#cccccc"},
-      "lun": {symbol: "\u25cf", fill: "#cccccc"},
-      "mar": {symbol: "\u2642", fill: "#cccccc"},
+      "ven": {symbol: "\u2640", fill: "#eeeeee"},
+      "ter": {symbol: "\u2295", fill: "#00ffff"},
+      "lun": {symbol: "\u25cf", fill: "#ffff00"},
+      "mar": {symbol: "\u2642", fill: "#ffcccc"},
       "cer": {symbol: "\u26b3", fill: "#cccccc"},
       "ves": {symbol: "\u26b6", fill: "#cccccc"},
-      "jup": {symbol: "\u2643", fill: "#cccccc"},
-      "sat": {symbol: "\u2644", fill: "#cccccc"},
-      "ura": {symbol: "\u2645", fill: "#cccccc"},
-      "nep": {symbol: "\u2646", fill: "#cccccc"},
-      "plu": {symbol: "\u2647", fill: "#cccccc"},
-      "eri": {symbol: "\u26aa", fill: "#cccccc"}
+      "jup": {symbol: "\u2643", fill: "#ffcc99"},
+      "sat": {symbol: "\u2644", fill: "#ffcccc"},
+      "ura": {symbol: "\u2645", fill: "#ccccff"},
+      "nep": {symbol: "\u2646", fill: "#9999ff"},
+      "plu": {symbol: "\u2647", fill: "#aaaaaa"},
+      "eri": {symbol: "\u26aa", fill: "#eeeeee"}
     }
   },
   daylight: {  // Show daylight marker (tbi)

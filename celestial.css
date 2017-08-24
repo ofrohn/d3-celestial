@@ -65,15 +65,17 @@ input[type="number"]::-webkit-outer-spin-button { height: auto; }
 #celestial-date input, #celestial-date select { font:inherit; }
 #celestial-date #yr, #celestial-date #mon { margin: 2px 3px; vertical-align:middle; }
 #celestial-date #left, #celestial-date #right { display:inline-block; width:12px; height:24px; margin:0; vertical-align:-8px; cursor:pointer;  background-image: url('images/dtpick.png'); }
-#celestial-date #left { background-position: -8px 0px; }
-#celestial-date #right { background-position: -30px 0px; }
+#celestial-form #day-left, #celestial-form #day-right { display:inline-block; float:none; width:12px; height:24px; margin:0; padding:0; vertical-align:0px; cursor:pointer; border: 0 none; background-color:transparent; background-image: url('images/dtpick.png'); }
+#celestial-form #day-right { position:relative; left:-30px; }
+#celestial-date #left, #celestial-form #day-left { background-position: -8px 0px; }
+#celestial-date #right, #celestial-form #day-right { background-position: -30px 0px; }
 #celestial-date #hr, #celestial-date #min, #celestial-date #sec { margin: 0 0 2px 0; width:34px; }
 #celestial-date #hr { border-right: 0px none; border-radius: 3px 0 0 3px;  }
 #celestial-date #min { border-right: 0px none; border-left: 0px none;  border-radius: 0; }
 #celestial-date #sec { border-left: 0px none;  border-radius: 0 3px 3px 0; }
 #celestial-date #tz { margin: 0 0 2px 4px; }
 #celestial-date #cal { display:inline-block; width:182px; margin:0 4px;  }
-#celestial-date .date { display:inline-block; width:20px; height:14px; border:1px solid #fff; color:#000; font-weight: bold; text-align:right; vertical-align:middle; padding:2px 4px 2px 0; cursor:pointer; }
+#celestial-date .date { display:inline-block; width:19px; height:14px; border:1px solid #fff; color:#000; font-weight: bold; text-align:right; vertical-align:middle; padding:2px 4px 2px 0; cursor:pointer; }
 #celestial-date .grey { color:#ccc; }
 #celestial-date .weekday { color:#999; fomt-sixe:11px; }
 #celestial-date .weekend { color:#f00; }

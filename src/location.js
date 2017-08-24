@@ -1,10 +1,10 @@
 /* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, hasParent */
 var zenith = [0,0],
+    geopos = [0,0], 
     date = new Date();
 
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("id", "loc"),
-      geopos = [0,0], 
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zone = date.getTimezoneOffset();
 
@@ -27,12 +27,14 @@ function geo(cfg) {
   }
   //Datetime field with dtpicker-button
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Date/time");
+  col.append("input").attr("type", "button").attr("id", "day-left").attr("title", "One day back").on("click", function () { date.setDate(date.getDate() - 1); $("datetime").value = dateFormat(date, zone); go(); });
   col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(date, zone))
   .on("click", showpick, true).on("input", function () { 
     this.value = dateFormat(date, zone); 
     if (!dtpick.isVisible()) showpick(); 
   });
   col.append("div").attr("id", "datepick").on("click", showpick);
+  col.append("input").attr("type", "button").attr("id", "day-right").attr("title", "One day forward").on("click", function () { date.setDate(date.getDate() + 1); $("datetime").value = dateFormat(date, zone); go(); });
   //Now -button sets current time & date of device  
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
   //Horizon marker
@@ -108,6 +110,7 @@ function showHorizon(clip) {
 }
 
 Celestial.date = function () { return date; };
+Celestial.position = function () { return geopos; };
 Celestial.zenith = function () { return zenith; };
 Celestial.nadir = function () {
   var b = -zenith[1],

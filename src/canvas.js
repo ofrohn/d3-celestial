@@ -5,6 +5,7 @@ Canvas.symbol = function () {
   // parameters and default values
   var type = d3.functor("circle"), 
       size = d3.functor(64), 
+      age = d3.functor(Math.PI), //crescent shape 0..2Pi
       color = d3.functor("#fff"),  
       text = d3.functor(""),  
       padding = d3.functor([2,2]),  
@@ -97,6 +98,33 @@ Canvas.symbol = function () {
       ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    
       ctx.closePath();
       return r;
+    }, 
+    "crescent": function(ctx) {
+      var s = Math.sqrt(size()), 
+          r = s/2,
+          ag = age(),
+          ph = 0.5 * (1 - Math.cos(ag)),
+          e = 1.6 * Math.abs(ph - 0.5) + 0.01,
+          dir = ag > Math.PI,
+          termdir = Math.abs(ph) > 0.5 ? dir : !dir; 
+
+      ctx.fillStyle = "#557";
+      ctx.moveTo(pos[0], pos[1]);
+      ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    
+      ctx.closePath();
+      ctx.fill();
+      ctx.save();
+      ctx.fillStyle = "#eee";
+      ctx.beginPath();
+      ctx.moveTo(pos[0], pos[1]);
+      ctx.arc(pos[0], pos[1], r, -Math.PI/2, Math.PI/2, dir); 
+      ctx.scale(e, 1);
+      ctx.arc(pos[0]/e, pos[1], r, Math.PI/2, -Math.PI/2, termdir); 
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      return r;
     } 
   };
 
@@ -109,6 +137,11 @@ Canvas.symbol = function () {
   canvas_symbol.size = function(_) {
     if (!arguments.length) return size; 
     size = d3.functor(_);
+    return canvas_symbol;
+  };
+  canvas_symbol.age = function(_) {
+    if (!arguments.length) return age; 
+    age = d3.functor(_);
     return canvas_symbol;
   };
   canvas_symbol.text = function(_) {
