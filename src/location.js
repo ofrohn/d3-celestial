@@ -1,4 +1,4 @@
-/* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, hasParent */
+/* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, has, hasParent */
 var zenith = [0,0],
     geopos = [0,0], 
     date = new Date();
@@ -14,6 +14,7 @@ function geo(cfg) {
     go(); 
   });
   
+  if (has(cfg, "geopos") && cfg.geopos!== null && cfg.geopos.length === 2) geopos = cfg.geopos;
   var col = ctrl.append("div").attr("class", "col");
   //Latitude & longitude fields
   col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");

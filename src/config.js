@@ -6,6 +6,7 @@ var settings = {
   transform: "equatorial", // Coordinate transformation: equatorial (default), ecliptic, galactic, supergalactic
   center: null,       // Initial center coordinates in equatorial transformation [hours, degrees, degrees], 
                       // otherwise [degrees, degrees, degrees], 3rd parameter is orientation, null = default center
+  geopos: null,       // optional initial geographic position [lat,lon] in degrees, overrides center
   orientationfixed: true,  // Keep orientation angle the same as center[2]
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
@@ -100,7 +101,7 @@ var settings = {
   }, 
   horizon: {  //Show horizon marker, if geo-position and date-time is set
     show: false, 
-    stroke: null, // Line
+    stroke: "#000099", // Line
     width: 1.0, 
     fill: "#000000", // Area below horizon
     opacity: 0.5
