@@ -1,4 +1,4 @@
-/* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, has, hasParent */
+/* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, fldEnable, has, hasParent */
 var zenith = [0,0],
     geopos = [0,0], 
     date = new Date();
@@ -42,7 +42,7 @@ function geo(cfg) {
   col.append("br");
   col.append("label").attr("title", "Show horizon marker").attr("for", "horizon-show").html(" Horizon marker");
   col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", cfg.horizon.show).on("change", go);    
-  col.append("label").attr("title", " Show planets").attr("for", "planets-show").html(" Planets");
+  col.append("label").attr("title", " Show planets, Sun & Moon").attr("for", "planets-show").html(" Planets");
   col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", cfg.planets.show).on("change", go);    
   
   d3.select(document).on("mousedown", function () { 
@@ -104,10 +104,12 @@ function geo(cfg) {
 }
 
 function showHorizon(clip) {
-  var hs = $("horizon-show");
+  /*var hs = $("horizon-show");
   if (!hs) return;
   hs.style.display = clip === true ? "none" : "inline-block";
   hs.previousSibling.style.display = hs.style.display;    
+  */
+  fldEnable("horizon-show", clip);
 }
 
 Celestial.date = function () { return date; };
