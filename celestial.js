@@ -1298,16 +1298,16 @@ var settings = {
     symbols: {
       "sol": {symbol: "\u2609", fill: "#ffff00"},
       "mer": {symbol: "\u263f", fill: "#cccccc"},
-      "ven": {symbol: "\u2640", fill: "#eeeeee"},
+      "ven": {symbol: "\u2640", fill: "#eeeecc"},
       "ter": {symbol: "\u2295", fill: "#00ffff"},
-      "lun": {symbol: "\u25cf", fill: "#ffff00"},
-      "mar": {symbol: "\u2642", fill: "#ffcccc"},
+      "lun": {symbol: "\u25cf", fill: "#ffffff"},
+      "mar": {symbol: "\u2642", fill: "#ff9999"},
       "cer": {symbol: "\u26b3", fill: "#cccccc"},
       "ves": {symbol: "\u26b6", fill: "#cccccc"},
-      "jup": {symbol: "\u2643", fill: "#ffcc99"},
-      "sat": {symbol: "\u2644", fill: "#ffcccc"},
-      "ura": {symbol: "\u2645", fill: "#ccccff"},
-      "nep": {symbol: "\u2646", fill: "#9999ff"},
+      "jup": {symbol: "\u2643", fill: "#ff9966"},
+      "sat": {symbol: "\u2644", fill: "#ffcc66"},
+      "ura": {symbol: "\u2645", fill: "#66ccff"},
+      "nep": {symbol: "\u2646", fill: "#6666ff"},
       "plu": {symbol: "\u2647", fill: "#aaaaaa"},
       "eri": {symbol: "\u26aa", fill: "#eeeeee"}
     }
