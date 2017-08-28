@@ -2308,9 +2308,9 @@ function geo(cfg) {
 
   function here() {
     navigator.geolocation.getCurrentPosition( function(pos) {
-      geopos = [pos.coords.latitude.toFixed(4), pos.coords.longitude.toFixed(4)];
-      d3.select("#lat").attr("value", geopos[0]);
-      d3.select("#lon").attr("value", geopos[1]);
+      geopos = [Round(pos.coords.latitude, 4), Round(pos.coords.longitude, 4)];
+      $("lat").value = geopos[0];
+      $("lon").value = geopos[1];
       go();
     });  
   }

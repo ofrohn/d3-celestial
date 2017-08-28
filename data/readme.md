@@ -171,3 +171,23 @@ __Asterisms__
   }, { } ]
 }
 ```
+
+__Planets__
+Not geojson, because positions need to be calculated by date from keplerian elements  
+All element values in degrees, except a (AU|km) and e (dimensionless)  
+  
+```js
+"id":{                // (usually) 3-letter id
+  "name": "",         // full name
+  "trajectory": bool, // show trajectory (tbi)
+  "H": n,             // absolute magnitude
+  "elements":[{
+    "a": "da": Semimajor axis / change per century (all 'dx' fields)
+    "e": "de": Eccentricity
+    "i": "di": Inclination
+    "L": "dL": or "M": "dM": mean longitude (M*Q) or mean anomaly
+    "W": "dW": or "w": "dw": longitude of periapsis (w*N) or argument of periapsis
+    "N": "dn": longitude of the ascending node
+    "ep":"2000-01-01" epoch, default date
+  }]}
+```

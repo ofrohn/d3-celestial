@@ -1,4 +1,4 @@
-/* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, fldEnable, has, hasParent */
+/* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, fldEnable, Round, has, hasParent */
 var zenith = [0,0],
     geopos = [0,0], 
     date = new Date();
@@ -57,9 +57,9 @@ function geo(cfg) {
 
   function here() {
     navigator.geolocation.getCurrentPosition( function(pos) {
-      geopos = [pos.coords.latitude.toFixed(4), pos.coords.longitude.toFixed(4)];
-      d3.select("#lat").attr("value", geopos[0]);
-      d3.select("#lon").attr("value", geopos[1]);
+      geopos = [Round(pos.coords.latitude, 4), Round(pos.coords.longitude, 4)];
+      $("lat").value = geopos[0];
+      $("lon").value = geopos[1];
       go();
     });  
   }
