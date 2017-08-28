@@ -39,11 +39,15 @@ var config = {
                       // [longitude, latitude, orientation] all in degrees 
                       // null = default center [0,0,0]
   orientationfixed: true,  // Keep orientation angle the same as center[2]
+  geopos: null,       // optional initial geographic position [lat,lon] in degrees, 
+                      // overrides center
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: true,         // Display form for interactive settings
   location: false,    // Display location settings (no center setting on form)
   controls: true,     // Display zoom controls
+  lang: "",           // Language for names, so far only for constellations: 
+                      // de: german, es: spanish. Default:en or empty string for english
   container: "map",   // ID of parent element, e.g. div, null = html-body
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
@@ -103,6 +107,30 @@ var config = {
            stroke: "#cccccc", width: 1.5}              // Generic marker
     }
   },
+  planets: {  //Show planet locations, if date-time is set
+    show: false,
+    // List of all objects to show
+    which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep"],
+    // Font styles for planetary symbols
+    style: { fill: "#00ccff", font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", 
+             align: "center", baseline: "middle" },
+    symbols: {  // Character and color for each symbol in 'which', simple circle \u25cf
+      "sol": {symbol: "\u2609", fill: "#ffff00"},
+      "mer": {symbol: "\u263f", fill: "#cccccc"},
+      "ven": {symbol: "\u2640", fill: "#eeeecc"},
+      "ter": {symbol: "\u2295", fill: "#00ffff"},
+      "lun": {symbol: "\u25cf", fill: "#ffffff"}, // overridden by generated cresent
+      "mar": {symbol: "\u2642", fill: "#ff9999"},
+      "cer": {symbol: "\u26b3", fill: "#cccccc"},
+      "ves": {symbol: "\u26b6", fill: "#cccccc"},
+      "jup": {symbol: "\u2643", fill: "#ff9966"},
+      "sat": {symbol: "\u2644", fill: "#ffcc66"},
+      "ura": {symbol: "\u2645", fill: "#66ccff"},
+      "nep": {symbol: "\u2646", fill: "#6666ff"},
+      "plu": {symbol: "\u2647", fill: "#aaaaaa"},
+      "eri": {symbol: "\u25cf", fill: "#eeeeee"}
+    }
+  },
   constellations: {
     show: true,    // Show constellations 
     names: true,   // Show constellation names 
@@ -115,7 +143,7 @@ var config = {
     linestyle: { stroke: "#cccccc", width: 1, opacity: 0.6 }, 
     bounds: false, // Show constellation boundaries, style below
     boundstyle: { stroke: "#cccc00", width: 0.5, opacity: 0.8, dash: [2, 4] }
-  },
+  },  
   mw: {
     show: true     // Show Milky Way as filled multi-polygon outlines 
     style: { fill: "#ffffff", opacity: 0.15 }  // Style for MW layers
@@ -139,9 +167,9 @@ var config = {
   }, 
   horizon: {  //Show horizon marker, if location is set and map projection is all-sky
     show: false, 
-    stroke: null, // Line
+    stroke: "#000099", // Line
     width: 1.0, 
-    fill: "#000000", // Area below horizon
+    fill: "#000000",   // Area below horizon
     opacity: 0.5
   }
 };
@@ -165,6 +193,7 @@ _Text styles_
 `baseline`: vertical align (alphabetic|top|hanging|middle|ideographic|bottom)  
 _Symbol style_  
 `shape`: symbol shape (circle|square|diamond|ellipse|marker or whatever else is defined in canvas.js)  
+`symbol`: unicode charcter to represent solar system object.
 
 ### Adding Data
 
@@ -285,6 +314,7 @@ __GeoJSON data files__
 * `constellations.lines.json` Constellation lines \[3\]
 * `asterisms.json` Asterism data  \[7\]
 * `mw.json` Milky Way outlines in 5 brightness steps \[5\]
+* `planets.json` Keplerian Elements for Approximate Positions of the Major Planets \[9\]
 * `templ.json` GeoJSON templates for all the different object types used
   
 __Sources__
@@ -302,6 +332,7 @@ __Sources__
 * \[6\] Lots of sources, see [blog](http://armchairastronautics.blogspot.com/p/milky-way-halo.html) [pages](http://armchairastronautics.blogspot.com/p/local-group.html) for complete list  
 * \[7\] [Saguaro Astronomy Club Asterisms](http://www.saguaroastro.org/content/downloads.htm) \(scroll down\)  
 * \[8\] [Messier Objects with Data](http://messier.seds.org/data.html), H.Frommert/seds.org  
+* \[9\] [Keplerian Elements for Approximate Positions of the Major Planets](https://ssd.jpl.nasa.gov/?planet_pos)  
 All data converted to GeoJSON at J2000 epoch, positions converted from 0...24h right ascension to -180...180 degrees longitude as per GeoJSON requirements, 0...12h -> 0...180º; 12...24h -> -180...0º
 
 __Other files__
