@@ -12,7 +12,7 @@ __Demos__:
 [Wall map](./demo/wallmap.html)  
 [Setting time/location](./demo/location.html)  
 [Starry sky](./demo/sky.html)  
-
+  
 
 __Some more examples__:  
 [Embedded interactive form](http://armchairastronautics.blogspot.com/p/skymap.html)  

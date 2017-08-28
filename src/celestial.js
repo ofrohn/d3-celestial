@@ -1,4 +1,4 @@
-/* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, form, geo, setCenter, showHorizon, interpolateAngle */
+/* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
   version: '0.6.2',
   container: null,
@@ -92,7 +92,7 @@ Celestial.display = function(config) {
     container.append("path").datum(circle).attr("class", "horizon");
     if ($("loc") === null) geo(cfg);
     else rotate({center:Celestial.zenith()});
-    showHorizon(proj.clip);
+    fldEnable("horizon-show", proj.clip);
   }
   
   if (cfg.form === true && $("params") === null) form(cfg);
@@ -340,7 +340,7 @@ Celestial.display = function(config) {
       return delay + interval;
     }
     
-    showHorizon(prj.clip);
+    fldEnable("horizon-show", prj.clip);
     
     prjMap = projectionTween(prjFrom, prjTo);
     cfg.adaptable = false;
@@ -499,7 +499,7 @@ Celestial.display = function(config) {
       });
     }
 
-    if (cfg.location && cfg.planets.show && Celestial.origin) { 
+    if (cfg.location && cfg.transform === "equatorial" && cfg.planets.show && Celestial.origin) { 
       var dt = Celestial.date(),
           o = Celestial.origin(dt).spherical();
       container.selectAll(".planet").each(function(d) {

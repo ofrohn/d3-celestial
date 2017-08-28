@@ -23,7 +23,7 @@ symbols = {
 ε = 23.43928 * deg2rad,
 sinε = Math.sin(ε),
 cosε = Math.cos(ε),
-elements = ["a","e","i","w","M","L","W","N","n","ep","ref","lecl","becl","Tilt"];
+kelements = ["a","e","i","w","M","L","W","N","n","ep","ref","lecl","becl","Tilt"];
 /*
     ep = epoch (iso-date)
     N = longitude of the ascending node (deg) Ω
@@ -50,7 +50,7 @@ elements = ["a","e","i","w","M","L","W","N","n","ep","ref","lecl","becl","Tilt"]
 var Kepler = function () {
   var gm = gmdat.sol, 
       parentBody = "sol", 
-      elem = [], dat = {},
+      elem = {}, dat = {},
       id, name, symbol;
 
 
@@ -68,8 +68,9 @@ var Kepler = function () {
 
   var dates = function(date) {
     var dt;
+    dat = [];
     if (date) {
-      if (date instanceof Date) { dt = date; }
+      if (date instanceof Date) { dt = new Date(date.valueOf()); }
       else { dt = dateParse(date); }
     }
     if (!dt) { dt = new Date(); }
@@ -84,12 +85,11 @@ var Kepler = function () {
 
   var coordinates = function() {
     var key;
-    
     if (id === "lun") {
       moon_elements(dat);
     } else {
-      for (var i=0; i<elements.length; i++) {
-        key = elements[i];
+      for (var i=0; i<kelements.length; i++) {
+        key = kelements[i];
         if (!has(elem, key)) continue; 
         if (has(elem, "d"+key)) {
           dat[key] = elem[key] + elem["d"+key] * dat.cy;
@@ -101,8 +101,8 @@ var Kepler = function () {
         dat.M += (dat.n * dat.d);
       }
     }
-    derive(dat);
-    trueAnomaly(dat);
+    derive();
+    trueAnomaly();
     cartesian();    
   };
 
@@ -130,8 +130,8 @@ var Kepler = function () {
     
     if (!arguments.length) return elem;
     
-    for (var i=0; i<elements.length; i++) {
-      key = elements[i];
+    for (var i=0; i<kelements.length; i++) {
+      key = kelements[i];
       if (!has(_, key)) continue; 
       elem[key] = _[key];
       
@@ -144,7 +144,6 @@ var Kepler = function () {
         if (key === "da" || key === "de") elem[key] *= 1.0; 
         else elem[key] *= deg2rad;
       } 
-      
     }
     return kepler;
   };
@@ -190,7 +189,7 @@ var Kepler = function () {
     return(rval);
   }
 
-  function anomaly(dat) {
+  function anomaly() {
     var curr, err, trial, tmod,
         e = dat.e, M = dat.M,
         thresh = 1e-8,
@@ -267,8 +266,8 @@ var Kepler = function () {
     return( is_negative ? offset - curr : offset + curr);
   }
 
-  function trueAnomaly(dat) {
-    var v, r, x, y, r0, g, t;
+  function trueAnomaly() {
+    var x, y, r0, g, t;
 
     if (dat.e === 1.0) {   /* parabolic */
       t = dat.jd0 - dat.T;
@@ -277,7 +276,7 @@ var Kepler = function () {
       y = Math.pow(g + Math.sqrt(g * g + 1.0), 1/3);
       dat.v = 2.0 * Math.atan(y - 1.0 / y);
     } else {          /* got the mean anomaly;  compute eccentric,  then true */
-      dat.E = anomaly(dat);
+      dat.E = anomaly();
       if (dat.e > 1.0) {    /* hyperbolic case */
         x = (dat.e - Trig.cosh(dat.E));
         y = Trig.sinh(dat.E);
@@ -293,7 +292,7 @@ var Kepler = function () {
     dat.r = r0 / (1.0 + dat.e * Math.cos(dat.v));
   }
 
-  function derive(dat) {
+  function derive() {
     if (!dat.hasOwnProperty("w")) {
       dat.w = dat.W - dat.N;
     }
@@ -337,7 +336,7 @@ var Kepler = function () {
     ε = (23.439292 - 0.0130042 * dat.cy - 1.667e-7 * dat.cy * dat.cy + 5.028e-7 * dat.cy * dat.cy * dat.cy) * deg2rad;
     sinε = Math.sin(ε);
     cosε = Math.cos(ε);
-    var o = (id === "lun") ? {x:0, y:0, z:0} : pos;
+    var o = (id === "lun") ? {x:0, y:0, z:0} : {x:pos.x, y:pos.y, z:pos.z};
     dat.xeq = dat.x - o.x;
     dat.yeq = (dat.y - o.y) * cosε - (dat.z - o.z) * sinε;
     dat.zeq = (dat.y - o.y) * sinε + (dat.z - o.z) * cosε;

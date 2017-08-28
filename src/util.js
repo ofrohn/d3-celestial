@@ -66,7 +66,7 @@ function dateParse(s) {
   if (!t[0]) return; 
   t[1] = t[1] ? t[1].replace(/\D/g, "") : "1";
   t[2] = t[2] ? t[2].replace(/\D/g, "") : "1";
-  
+  //Fraction -> h:m:s
   return new Date(Date.UTC(t[0], t[1]-1, t[2]));
 }
 

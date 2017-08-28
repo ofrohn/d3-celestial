@@ -1,11 +1,11 @@
 /* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, fldEnable, Round, has, hasParent */
-var zenith = [0,0],
-    geopos = [0,0], 
-    date = new Date();
 
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("id", "loc"),
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
+      zenith = [0,0],
+      geopos = [0,0], 
+      date = new Date(),
       zone = date.getTimezoneOffset();
 
   var dtpick = new datetimepicker( function(date, tz) { 
@@ -100,24 +100,22 @@ function geo(cfg) {
     }
   }
 
+
+  Celestial.date = function (dt) { 
+    if (!dt) return date;  
+    date.setTime(dt.valueOf());
+    $("datetime").value = dateFormat(dt, zone); 
+    Celestial.redraw();
+  };
+  Celestial.position = function () { return geopos; };
+  Celestial.zenith = function () { return zenith; };
+  Celestial.nadir = function () {
+    var b = -zenith[1],
+        l = zenith[0] + 180;
+    if (l > 180) l -= 360;    
+    return [l, b-0.001]; 
+  };
+
   setTimeout(go, 1000); 
+ 
 }
-
-function showHorizon(clip) {
-  /*var hs = $("horizon-show");
-  if (!hs) return;
-  hs.style.display = clip === true ? "none" : "inline-block";
-  hs.previousSibling.style.display = hs.style.display;    
-  */
-  fldEnable("horizon-show", clip);
-}
-
-Celestial.date = function () { return date; };
-Celestial.position = function () { return geopos; };
-Celestial.zenith = function () { return zenith; };
-Celestial.nadir = function () {
-  var b = -zenith[1],
-      l = zenith[0] + 180;
-  if (l > 180) l -= 360;    
-  return [l, b-0.001]; 
-};

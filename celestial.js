@@ -93,7 +93,7 @@ Celestial.display = function(config) {
     container.append("path").datum(circle).attr("class", "horizon");
     if ($("loc") === null) geo(cfg);
     else rotate({center:Celestial.zenith()});
-    showHorizon(proj.clip);
+    fldEnable("horizon-show", proj.clip);
   }
   
   if (cfg.form === true && $("params") === null) form(cfg);
@@ -341,7 +341,7 @@ Celestial.display = function(config) {
       return delay + interval;
     }
     
-    showHorizon(prj.clip);
+    fldEnable("horizon-show", prj.clip);
     
     prjMap = projectionTween(prjFrom, prjTo);
     cfg.adaptable = false;
@@ -500,7 +500,7 @@ Celestial.display = function(config) {
       });
     }
 
-    if (cfg.location && cfg.planets.show && Celestial.origin) { 
+    if (cfg.location && cfg.transform === "equatorial" && cfg.planets.show && Celestial.origin) { 
       var dt = Celestial.date(),
           o = Celestial.origin(dt).spherical();
       container.selectAll(".planet").each(function(d) {
@@ -1754,7 +1754,7 @@ function dateParse(s) {
   if (!t[0]) return; 
   t[1] = t[1] ? t[1].replace(/\D/g, "") : "1";
   t[2] = t[2] ? t[2].replace(/\D/g, "") : "1";
-  
+  //Fraction -> h:m:s
   return new Date(Date.UTC(t[0], t[1]-1, t[2]));
 }
 
@@ -2250,13 +2250,13 @@ function setLimits() {
 }
 
 
-var zenith = [0,0],
-    geopos = [0,0], 
-    date = new Date();
 
 function geo(cfg) {
   var ctrl = d3.select("#celestial-form").append("div").attr("id", "loc"),
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
+      zenith = [0,0],
+      geopos = [0,0], 
+      date = new Date(),
       zone = date.getTimezoneOffset();
 
   var dtpick = new datetimepicker( function(date, tz) { 
@@ -2351,27 +2351,25 @@ function geo(cfg) {
     }
   }
 
+
+  Celestial.date = function (dt) { 
+    if (!dt) return date;  
+    date.setTime(dt.valueOf());
+    $("datetime").value = dateFormat(dt, zone); 
+    Celestial.redraw();
+  };
+  Celestial.position = function () { return geopos; };
+  Celestial.zenith = function () { return zenith; };
+  Celestial.nadir = function () {
+    var b = -zenith[1],
+        l = zenith[0] + 180;
+    if (l > 180) l -= 360;    
+    return [l, b-0.001]; 
+  };
+
   setTimeout(go, 1000); 
+ 
 }
-
-function showHorizon(clip) {
-  /*var hs = $("horizon-show");
-  if (!hs) return;
-  hs.style.display = clip === true ? "none" : "inline-block";
-  hs.previousSibling.style.display = hs.style.display;    
-  */
-  fldEnable("horizon-show", clip);
-}
-
-Celestial.date = function () { return date; };
-Celestial.position = function () { return geopos; };
-Celestial.zenith = function () { return zenith; };
-Celestial.nadir = function () {
-  var b = -zenith[1],
-      l = zenith[0] + 180;
-  if (l > 180) l -= 360;    
-  return [l, b-0.001]; 
-};
 
 ﻿
 var gmdat = {
@@ -2398,7 +2396,7 @@ symbols = {
 ε = 23.43928 * deg2rad,
 sinε = Math.sin(ε),
 cosε = Math.cos(ε),
-elements = ["a","e","i","w","M","L","W","N","n","ep","ref","lecl","becl","Tilt"];
+kelements = ["a","e","i","w","M","L","W","N","n","ep","ref","lecl","becl","Tilt"];
 /*
     ep = epoch (iso-date)
     N = longitude of the ascending node (deg) Ω
@@ -2425,7 +2423,7 @@ elements = ["a","e","i","w","M","L","W","N","n","ep","ref","lecl","becl","Tilt"]
 var Kepler = function () {
   var gm = gmdat.sol, 
       parentBody = "sol", 
-      elem = [], dat = {},
+      elem = {}, dat = {},
       id, name, symbol;
 
 
@@ -2443,8 +2441,9 @@ var Kepler = function () {
 
   var dates = function(date) {
     var dt;
+    dat = [];
     if (date) {
-      if (date instanceof Date) { dt = date; }
+      if (date instanceof Date) { dt = new Date(date.valueOf()); }
       else { dt = dateParse(date); }
     }
     if (!dt) { dt = new Date(); }
@@ -2459,12 +2458,11 @@ var Kepler = function () {
 
   var coordinates = function() {
     var key;
-    
     if (id === "lun") {
       moon_elements(dat);
     } else {
-      for (var i=0; i<elements.length; i++) {
-        key = elements[i];
+      for (var i=0; i<kelements.length; i++) {
+        key = kelements[i];
         if (!has(elem, key)) continue; 
         if (has(elem, "d"+key)) {
           dat[key] = elem[key] + elem["d"+key] * dat.cy;
@@ -2476,8 +2474,8 @@ var Kepler = function () {
         dat.M += (dat.n * dat.d);
       }
     }
-    derive(dat);
-    trueAnomaly(dat);
+    derive();
+    trueAnomaly();
     cartesian();    
   };
 
@@ -2505,8 +2503,8 @@ var Kepler = function () {
     
     if (!arguments.length) return elem;
     
-    for (var i=0; i<elements.length; i++) {
-      key = elements[i];
+    for (var i=0; i<kelements.length; i++) {
+      key = kelements[i];
       if (!has(_, key)) continue; 
       elem[key] = _[key];
       
@@ -2519,7 +2517,6 @@ var Kepler = function () {
         if (key === "da" || key === "de") elem[key] *= 1.0; 
         else elem[key] *= deg2rad;
       } 
-      
     }
     return kepler;
   };
@@ -2565,7 +2562,7 @@ var Kepler = function () {
     return(rval);
   }
 
-  function anomaly(dat) {
+  function anomaly() {
     var curr, err, trial, tmod,
         e = dat.e, M = dat.M,
         thresh = 1e-8,
@@ -2642,8 +2639,8 @@ var Kepler = function () {
     return( is_negative ? offset - curr : offset + curr);
   }
 
-  function trueAnomaly(dat) {
-    var v, r, x, y, r0, g, t;
+  function trueAnomaly() {
+    var x, y, r0, g, t;
 
     if (dat.e === 1.0) {   /* parabolic */
       t = dat.jd0 - dat.T;
@@ -2652,7 +2649,7 @@ var Kepler = function () {
       y = Math.pow(g + Math.sqrt(g * g + 1.0), 1/3);
       dat.v = 2.0 * Math.atan(y - 1.0 / y);
     } else {          /* got the mean anomaly;  compute eccentric,  then true */
-      dat.E = anomaly(dat);
+      dat.E = anomaly();
       if (dat.e > 1.0) {    /* hyperbolic case */
         x = (dat.e - Trig.cosh(dat.E));
         y = Trig.sinh(dat.E);
@@ -2668,7 +2665,7 @@ var Kepler = function () {
     dat.r = r0 / (1.0 + dat.e * Math.cos(dat.v));
   }
 
-  function derive(dat) {
+  function derive() {
     if (!dat.hasOwnProperty("w")) {
       dat.w = dat.W - dat.N;
     }
@@ -2712,7 +2709,7 @@ var Kepler = function () {
     ε = (23.439292 - 0.0130042 * dat.cy - 1.667e-7 * dat.cy * dat.cy + 5.028e-7 * dat.cy * dat.cy * dat.cy) * deg2rad;
     sinε = Math.sin(ε);
     cosε = Math.cos(ε);
-    var o = (id === "lun") ? {x:0, y:0, z:0} : pos;
+    var o = (id === "lun") ? {x:0, y:0, z:0} : {x:pos.x, y:pos.y, z:pos.z};
     dat.xeq = dat.x - o.x;
     dat.yeq = (dat.y - o.y) * cosε - (dat.z - o.z) * sinε;
     dat.zeq = (dat.y - o.y) * sinε + (dat.z - o.z) * cosε;
