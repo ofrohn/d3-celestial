@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <title>D3-Celestial Starmap</title>
+  <script type="text/javascript" src="../lib/d3.min.js"></script>
+  <script type="text/javascript" src="../lib/d3.geo.projection.min.js"></script>
+  <script type="text/javascript" src="../celestial.min.js"></script>
+  <link rel="stylesheet" href="../celestial.css">
+</head><body>
+<div style="overflow:hidden;"><div id="celestial-map"></div></div>
+<div id="celestial-form"></div>
+<script type="text/javascript">
+  var cfg = Celestial.settings().set({
+        location: true, 
+        projection: "equirectangular", 
+        datapath: "http://ofrohn.github.io/data/", 
+        planets: {show: true}, 
+        stars: {names: false, limit: 4.6},
+        dsos: {show: false}, 
+        constellations: {names: false}
+      }),
+      reqID, 
+      reqAnimFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame  || 
+                     window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || 
+                     window.oRequestAnimationFrame,
+      cncAnimFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || 
+                     window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || 
+                     window.oCancelAnimationFrame,
+      dt = new Date();
+
+  Celestial.display(cfg);
+   
+  function animate() {
+    reqID = reqAnimFrame(animate);
+    dt.setDate(dt.getDate()+1);
+    Celestial.date(dt);
+  }
+  
+   d3.select('#celestial-map').on('mousedown', function() { cncAnimFrame(reqID) } )
+   d3.select('#celestial-map').on('mouseup', function() { reqAnimFrame(animate) } )
+  
+  reqID = reqAnimFrame(animate);
+</script>
+
+<footer>
+<p><a href="https://github.com/ofrohn/d3-celestial"><b>D3-Celestial</b></a> released under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a>. Copyright 2015-17 <a href="http://armchairastronautics.blogspot.com/" rel="author">Olaf Frohn</a>.
+</p></footer>
+  </body>
+</html>

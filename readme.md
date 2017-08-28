@@ -4,15 +4,16 @@ Interactive, adaptable celestial map done with the [D3.js](http://d3js.org/) vis
 
 Features display of stars and deep sky objects (DSOs) with a selectable magnitude limit up to 6, or choose different GeoJSON data source for higher magnitudes. Also shows constellations with names, lines and/or boundaries, the Milky Way band and grid lines. Alternate coordinate spaces e.g. ecliptc, galactic or supergalactic are also possible. Full support for zoom and rotation with mouse or gestures.
 
-Since it uses D3.js and HTML5 canvas, it needs a modern browser with canvas support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at <a href="http://armchairastronautics.blogspot.com/p/skymap.html">armchairastronautics.blogspot.com</a> or download the tarball `celestial.tar.gz` containing everything for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment, quite easy to do with node.js.
+Since it uses D3.js and HTML5 canvas, it needs a modern browser with canvas support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at <a href="http://armchairastronautics.blogspot.com/p/skymap.html">armchairastronautics.blogspot.com</a> or clone/download it for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment, quite easy to do with node.js.
 
 __Demos__:  
-[Simple map](./demo/map.html)  
-[Interactive form](./demo/viewer.html)  
-[Wall map](./demo/wallmap.html)  
-[Setting time/location](./demo/location.html)  
-[Starry sky](./demo/sky.html)  
-  
+[Simple map](http://ofrohn.github.io/celestial-demo/map.html)  
+[Interactive form](http://ofrohn.github.io/celestial-demo/viewer.html)  
+[Wall map](http://ofrohn.github.io/celestial-demo/wallmap.html)  
+[Setting time/location](http://ofrohn.github.io/celestial-demo/location.html)  
+[Animated planets](http://ofrohn.github.io/celestial-demo/planets-animation.html)  
+[Starry sky](http://ofrohn.github.io/celestial-demo/sky.html)  
+\([Sources](./demo/)\)
 
 __Some more examples__:  
 [Embedded interactive form](http://armchairastronautics.blogspot.com/p/skymap.html)  
@@ -270,6 +271,11 @@ __Exposed functions__
   Change the map projection. 
   projection: new projection to set
 
+* `Celestial.date(date)`
+  Change the set date, return date w/o parameter. 
+  date: javascript date-object
+
+  
 ### Animations  
 
 __Exposed functions__  
