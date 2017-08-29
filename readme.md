@@ -5,14 +5,14 @@ Interactive, adaptable celestial map done with the [D3.js](http://d3js.org/) vis
 Features display of stars and deep sky objects (DSOs) with a selectable magnitude limit up to 6, or choose different GeoJSON data source for higher magnitudes. Also shows constellations with names, lines and/or boundaries, the Milky Way band and grid lines. Alternate coordinate spaces e.g. ecliptc, galactic or supergalactic are also possible. Full support for zoom and rotation with mouse or gestures.
 
 Since it uses D3.js and HTML5 canvas, it needs a modern browser with canvas support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at <a href="http://armchairastronautics.blogspot.com/p/skymap.html">armchairastronautics.blogspot.com</a> or clone/download it for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment, quite easy to do with node.js.
-  
+
 __Demos__:  
-[Simple map](http://ofrohn.github.io/celestial-demo/map.html)  
-[Interactive form](http://ofrohn.github.io/celestial-demo/viewer.html)  
-[Wall map](http://ofrohn.github.io/celestial-demo/wallmap.html)  
-[Setting time/location](http://ofrohn.github.io/celestial-demo/location.html)  
-[Animated planets](http://ofrohn.github.io/celestial-demo/planets-animation.html)  
-[Starry sky](http://ofrohn.github.io/celestial-demo/sky.html)  
+[Simple map](http://ofrohn.github.io/celestial-demo/map.html) with editable configuration  
+[Interactive form](http://ofrohn.github.io/celestial-demo/viewer.html) map viewer with all config options  
+[Wall map](http://ofrohn.github.io/celestial-demo/wallmap.html) for printing  
+[Setting time/location](http://ofrohn.github.io/celestial-demo/location.html) and see the current sky  
+[Animated planets](http://ofrohn.github.io/celestial-demo/planets-animation.html) moving about the ecliptic  
+[Starry sky](http://ofrohn.github.io/celestial-demo/sky.html) just the stars  
 \([Sources](./demo/)\)  
 
 __Some more examples__:  
@@ -349,12 +349,7 @@ __Other files__
 * `celestial.tar.gz`  data, minified script and viewer, all you need for local display 
 * `LICENSE`
 * `readme.md` this file
-* `style.css` stylesheet
-* `demo/map.html` simple map with editable configuration
-* `demo/viewer.html` interactive map viewer/demo
-* `demo/location.html` map with location/time setting
-* `demo/wallmap.html` wall map for print
-* `demo/sky.html` just the stars
+* `celestial.css` stylesheet
 * `lib/d3.*.js`  necessary d3 libraries
 * `src/*.js` source code for all modules
 
