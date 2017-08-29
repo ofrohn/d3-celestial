@@ -5,7 +5,7 @@ Interactive, adaptable celestial map done with the [D3.js](http://d3js.org/) vis
 Features display of stars and deep sky objects (DSOs) with a selectable magnitude limit up to 6, or choose different GeoJSON data source for higher magnitudes. Also shows constellations with names, lines and/or boundaries, the Milky Way band and grid lines. Alternate coordinate spaces e.g. ecliptc, galactic or supergalactic are also possible. Full support for zoom and rotation with mouse or gestures.
 
 Since it uses D3.js and HTML5 canvas, it needs a modern browser with canvas support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at <a href="http://armchairastronautics.blogspot.com/p/skymap.html">armchairastronautics.blogspot.com</a> or clone/download it for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment, quite easy to do with node.js.
-
+  
 __Demos__:  
 [Simple map](http://ofrohn.github.io/celestial-demo/map.html)  
 [Interactive form](http://ofrohn.github.io/celestial-demo/viewer.html)  
@@ -13,7 +13,7 @@ __Demos__:
 [Setting time/location](http://ofrohn.github.io/celestial-demo/location.html)  
 [Animated planets](http://ofrohn.github.io/celestial-demo/planets-animation.html)  
 [Starry sky](http://ofrohn.github.io/celestial-demo/sky.html)  
-\([Sources](./demo/)\)
+\([Sources](./demo/)\)  
 
 __Some more examples__:  
 [Embedded interactive form](http://armchairastronautics.blogspot.com/p/skymap.html)  
@@ -24,6 +24,7 @@ __Some more examples__:
 [Asterisms with zoom & pan](http://armchairastronautics.blogspot.com/2016/05/asterisms-interactive-and-with.html)  
 [Zoom & pan animations](http://armchairastronautics.blogspot.com/2016/06/and-here-is-d3-celestial-057-with.html)  
 [A different kind of Messier marathon](http://armchairastronautics.blogspot.com/2016/07/a-different-kind-of-messier-marathon.html)  
+
 
 ### Usage
 
