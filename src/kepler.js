@@ -86,7 +86,8 @@ var Kepler = function () {
   var coordinates = function() {
     var key;
     if (id === "lun") {
-      moon_elements(dat);
+      dat = moon_elements(dat);
+      if (!dat) return;
     } else {
       for (var i=0; i<kelements.length; i++) {
         key = kelements[i];
@@ -343,7 +344,7 @@ var Kepler = function () {
 
     dat.ra = Trig.normalize(Math.atan2(dat.yeq, dat.xeq));
     dat.dec = Math.atan2(dat.zeq, Math.sqrt(dat.xeq*dat.xeq + dat.yeq*dat.yeq));
-    if (id === "lun") moon_corr(pos);
+    if (id === "lun") dat = moon_corr(dat, pos);
     dat.pos = [dat.ra / deg2rad, dat.dec / deg2rad];
     dat.rt = Math.sqrt(dat.xeq*dat.xeq + dat.yeq*dat.yeq + dat.zeq*dat.zeq);
   }
@@ -393,41 +394,7 @@ var Kepler = function () {
     return (18.697374558 + 24.06570982441908 * dat.d) * 15 + l;
   }
   
-  function moon_corr(sol) {
-    var M = Trig.normalize(sol.M + Math.PI),
-        w = Trig.normalize(sol.w + Math.PI),
-        L = dat.M + dat.w,             // Argument of latitude 
-        E = L + dat.N - M - w; // Mean elongation
     
-    var lon = 
-      -0.022234 * Math.sin(dat.M - 2*E) +  // Evection
-       0.011494 * Math.sin(2*E) +          // Variation
-      -0.003246 * Math.sin(M) +        // Yearly Equation
-      -0.001029 * Math.sin(2*dat.M - 2*E) +
-      -9.94838e-4 * Math.sin(dat.M - 2*E + M) +
-       9.25025e-4 * Math.sin(dat.M + 2*E) +
-       8.02851e-4 * Math.sin(2*E - M) +
-       7.15585e-4 * Math.sin(dat.M - M) +
-      -6.10865e-4 * Math.sin(E) + 
-      -5.41052e-4 * Math.sin(dat.M + M) +
-      -2.61799e-4 * Math.sin(2*L - 2*E) +
-       1.91986e-4 * Math.sin(dat.M - 4*E);
-    dat.ra += lon;
-    var lat =
-      -0.003019 * Math.sin(L - 2*E) +
-      -9.59931e-4 * Math.sin(dat.M - L - 2*E) +
-      -8.02851e-4 * Math.sin(dat.M + L - 2*E) +
-       5.75958e-4 * Math.sin(L + 2*E) +
-       2.96706e-4 * Math.sin(2*dat.M + L);  
-    dat.dec += lat;
-  
-    spherical();
-    dat.age = Trig.normalize(dat.l - sol.l + Math.PI);   
-    dat.phase = 0.5 * (1 - Math.cos(dat.age));
-
-  }
-  
-  
   function observer(pos) {
     var flat = 298.257223563,    // WGS84 flatening of earth
         re = 6378.137,           // GRS80/WGS84 semi major axis of earth ellipsoid
@@ -465,5 +432,10 @@ var Kepler = function () {
     if ((typeof Moon !== "undefined")) return Moon.elements(dat);
   }
   
+  function moon_corr(dat, pos) {
+    spherical();
+    if ((typeof Moon !== "undefined")) return Moon.corr(dat, pos);
+  }
+
   return kepler;  
 };

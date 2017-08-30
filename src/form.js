@@ -58,9 +58,9 @@ function form(cfg) {
   //}
   if (config.fullwidth)
     col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Full Width \u25ba").on("click", function () {
-    $("sidebar-wrapper").style.display = "none";
-    $("outer-wrapper").style.width = "100%";
-    $("main-wrapper").style.width = "100%";
+    document.getElementsByClassName("fauxcolumn-right-outer")[0].style.display = "none";
+    document.getElementsByClassName("fauxcolumn-center-outer")[0].style.width = "100%";
+    //$("main-wrapper").style.width = "100%";
     this.style.display = "none";
     Celestial.display(config);
     return false;
