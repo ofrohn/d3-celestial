@@ -1540,12 +1540,12 @@ Canvas.symbol = function () {
           dir = ag > Math.PI,
           termdir = Math.abs(ph) > 0.5 ? dir : !dir; 
 
+      ctx.save();
       ctx.fillStyle = "#557";
       ctx.moveTo(pos[0], pos[1]);
       ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    
       ctx.closePath();
       ctx.fill();
-      ctx.save();
       ctx.fillStyle = "#eee";
       ctx.beginPath();
       ctx.moveTo(pos[0], pos[1]);
@@ -1555,7 +1555,7 @@ Canvas.symbol = function () {
       ctx.closePath();
       ctx.fill();
       ctx.restore();
-
+      
       return r;
     } 
   };
