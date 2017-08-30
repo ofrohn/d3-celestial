@@ -21,6 +21,7 @@ var shell = require('shelljs/make'),
     './src/form.js',
     './src/location.js',
     './src/kepler.js',
+    './src/moon.js',
     './src/datetimepicker.js',
     './lib/d3.geo.zoom.js'
     ],

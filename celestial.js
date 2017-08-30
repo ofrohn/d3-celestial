@@ -2835,6 +2835,14 @@ var Kepler = function () {
   }
 
   function moon_elements(dat) {
+    if ((typeof Moon !== "undefined")) return Moon.elements(dat);
+  }
+  
+  return kepler;  
+};
+﻿
+var Moon = {
+  elements: function(dat) {
     var t = (dat.jd - 2451545) / 36525,
         t2 = t * t,
         t3 = t * t2,
@@ -3335,8 +3343,6 @@ var Kepler = function () {
      dat.N = Trig.normalize(deg2rad * raan);
      dat.M = Trig.normalize(deg2rad * (lambda - lp));
   }
-  
-  return kepler;  
 };
 
 var datetimepicker = function(callback) {
