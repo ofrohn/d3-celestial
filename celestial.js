@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.2',
+  version: '0.6.3',
   container: null,
   data: []
 };
@@ -149,7 +149,26 @@ Celestial.display = function(config) {
          .data(con.features)
          .enter().append("text")
          .attr("class", "constname");
-      redraw();
+
+      var l = getConstellationList(json, trans);
+      if ($("constellation")) {
+        var sel = d3.select("#constellation"),
+            selected = 0,
+            list = Object.keys(l).map( function (key, i) { 
+              if (key === config.constellation) selected = i;
+              return {o:key, n:l[key].name};
+            });
+        list = [{o:"", n:"(Select constellation)"}].concat(list);
+        
+        sel.selectAll('option').data(list).enter().append('option')
+           .attr("value", function (d) { return d.o; })
+           .text(function (d) { return d.n; });
+        sel.property("selectedIndex", selected);
+        //$("constellation").firstChild.disabled = true;
+      }
+      Celestial.constellations = l;
+      
+      redraw();      
     });
 
     //Constellation boundaries
@@ -157,7 +176,7 @@ Celestial.display = function(config) {
       if (error) return console.warn(error);
 
       var conb = getData(json, trans);
-
+      
       container.selectAll(".bounds")
          .data(conb.features)
          .enter().append("path")
@@ -436,7 +455,11 @@ Celestial.display = function(config) {
 
     if (cfg.constellations.show) {     
       if (cfg.constellations.bounds) { 
-        container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
+        container.selectAll(".boundaryline").each(function(d) { 
+          setStyle(cfg.constellations.boundstyle); 
+          map(d); 
+          context.stroke(); 
+        });
         drawOutline(true);
       }
 
@@ -452,7 +475,11 @@ Celestial.display = function(config) {
       }
 
       if (cfg.constellations.lines) { 
-        container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
+        container.selectAll(".constline").each(function(d) { 
+          setStyle(cfg.constellations.linestyle); 
+          map(d); 
+          context.stroke(); 
+        });
       }
       
     }
@@ -1042,10 +1069,10 @@ function getData(d, trans) {
   if (trans === "equatorial") return d;
 
   var leo = euler[trans],
-      coll = d.features;
+      f = d.features;
 
-  for (var i=0; i<coll.length; i++)
-    coll[i].geometry.coordinates = translate(coll[i], leo);
+  for (var i=0; i<f.length; i++)
+    f[i].geometry.coordinates = translate(f[i], leo);
   
   return d;
 }
@@ -1068,6 +1095,22 @@ function getPlanets(d) {
   res.push(Kepler().id("lun"));
   return res;
 }
+
+function getConstellationList(d, trans) {
+  var res = {},
+      leo = euler[trans],
+      f = d.features;
+      
+  for (var i=0; i<f.length; i++) {
+    res[f[i].id] = {
+      name: f[i].properties.name,
+      center: f[i].properties.display.slice(0,2),
+      scale: f[i].properties.display[2]
+    };
+  }
+  return res;
+}
+
 
 function translate(d, leo) {
   var res = [];
@@ -1830,32 +1873,25 @@ function form(cfg) {
      .attr("value", function (d) { return d.o; })
      .text(function (d) { return d.n; });
   sel.property("selectedIndex", selected);
-  //if (!config.location) {
-    col.append("br");
-    col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
-    col.append("input").attr("type", "number").attr("id", "centerx").attr("list", "centerx-list").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
-    col.append("span").attr("id", "cxunit").html("h");
-    //addList("centerx", "ra");
-    
-    col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
-    col.append("span").html("\u00b0");
 
-    col.append("label").attr("title", "Orientation").attr("for", "centerz").html("Orientation");
-    col.append("input").attr("type", "number").attr("id", "centerz").attr("title", "Center orientation").attr("max", "180").attr("min", "-180").attr("step", "0.1").on("change", turn);
-    col.append("span").html("\u00b0");
+  col.append("br");
+  col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
+  col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
+  col.append("span").attr("id", "cxunit").html("h");
+  //addList("centerx", "ra");
+  
+  col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
+  col.append("span").html("\u00b0");
 
-    col.append("label").attr("for", "orientationfixed").html("Fixed");
-    col.append("input").attr("type", "checkbox").attr("id", "orientationfixed").property("checked", config.orientationfixed).on("change", apply);    
-  //}
-  if (config.fullwidth)
-    col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Full Width \u25ba").on("click", function () {
-    document.getElementsByClassName("fauxcolumn-right-outer")[0].style.display = "none";
-    document.getElementsByClassName("fauxcolumn-center-outer")[0].style.width = "100%";
-    //$("main-wrapper").style.width = "100%";
-    this.style.display = "none";
-    Celestial.display(config);
-    return false;
-  });
+  col.append("label").attr("title", "Orientation").attr("for", "centerz").html("Orientation");
+  col.append("input").attr("type", "number").attr("id", "centerz").attr("title", "Center orientation").attr("max", "180").attr("min", "-180").attr("step", "0.1").on("change", turn);
+  col.append("span").html("\u00b0");
+
+  col.append("label").attr("for", "orientationfixed").html("Fixed");
+  col.append("input").attr("type", "checkbox").attr("id", "orientationfixed").property("checked", config.orientationfixed).on("change", apply);    
+
+  col.append("label").attr("title", "Center and zoom in on this constellation").attr("for", "constellation").html("Show");
+  col.append("select").attr("id", "constellation").on("change", showConstellation);
 
   setCenter(config.center, config.transform);
 
@@ -2037,21 +2073,24 @@ function form(cfg) {
     return cx.value !== "" && cy.value !== "";
   }
   
-  /*
-  function addList(id, type) {
-    var step = 1,
-        sel = col.append("datalist").attr("id",id + "-list"),
-        box = d3.select("#" + id),
-        min = +box.attr("min"),
-        max = +box.attr("max");
-    if (type === "lat" || type === "lon") step = 10;
-
-    for (var i = min; i < max; i += step) {
-      sel.append("option").text(i + ".0");
-    }
-    return sel;
+  function showConstellation() {
+    var id = this.value, anims = [];
+    if (id === "") return;
+    var con = Celestial.constellations[id];
+    config.center = con.center;
+    setCenter(config.center, config.transform);
+    //Celestial.rotate(config);
+    //Celestial.zoomBy(5);
+    //if zoomed, zoom out
+    //var z = Celestial.zoomBy();
+    //if (z !== 1) anims.push({param:"zoom", value:1/z, duration:0});
+    //rotate
+    anims.push({param:"center", value:con.center, duration:0});
+    //and zoom in
+    anims.push({param:"zoom", value:con.scale, duration:0});
+    Celestial.animate(anims, false);    
   }
-  */
+  
   function apply() {
     var value, src = this;
 

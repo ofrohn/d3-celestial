@@ -10,10 +10,10 @@ function getData(d, trans) {
   if (trans === "equatorial") return d;
 
   var leo = euler[trans],
-      coll = d.features;
+      f = d.features;
 
-  for (var i=0; i<coll.length; i++)
-    coll[i].geometry.coordinates = translate(coll[i], leo);
+  for (var i=0; i<f.length; i++)
+    f[i].geometry.coordinates = translate(f[i], leo);
   
   return d;
 }
@@ -36,6 +36,22 @@ function getPlanets(d) {
   res.push(Kepler().id("lun"));
   return res;
 }
+
+function getConstellationList(d, trans) {
+  var res = {},
+      leo = euler[trans],
+      f = d.features;
+      
+  for (var i=0; i<f.length; i++) {
+    res[f[i].id] = {
+      name: f[i].properties.name,
+      center: f[i].properties.display.slice(0,2),
+      scale: f[i].properties.display[2]
+    };
+  }
+  return res;
+}
+
 
 function translate(d, leo) {
   var res = [];

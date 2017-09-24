@@ -1,6 +1,6 @@
-/* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, form, geo, fldEnable, setCenter, interpolateAngle */
+/* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
-  version: '0.6.2',
+  version: '0.6.3',
   container: null,
   data: []
 };
@@ -148,7 +148,26 @@ Celestial.display = function(config) {
          .data(con.features)
          .enter().append("text")
          .attr("class", "constname");
-      redraw();
+
+      var l = getConstellationList(json, trans);
+      if ($("constellation")) {
+        var sel = d3.select("#constellation"),
+            selected = 0,
+            list = Object.keys(l).map( function (key, i) { 
+              if (key === config.constellation) selected = i;
+              return {o:key, n:l[key].name};
+            });
+        list = [{o:"", n:"(Select constellation)"}].concat(list);
+        
+        sel.selectAll('option').data(list).enter().append('option')
+           .attr("value", function (d) { return d.o; })
+           .text(function (d) { return d.n; });
+        sel.property("selectedIndex", selected);
+        //$("constellation").firstChild.disabled = true;
+      }
+      Celestial.constellations = l;
+      
+      redraw();      
     });
 
     //Constellation boundaries
@@ -156,7 +175,7 @@ Celestial.display = function(config) {
       if (error) return console.warn(error);
 
       var conb = getData(json, trans);
-
+      
       container.selectAll(".bounds")
          .data(conb.features)
          .enter().append("path")
@@ -435,7 +454,11 @@ Celestial.display = function(config) {
 
     if (cfg.constellations.show) {     
       if (cfg.constellations.bounds) { 
-        container.selectAll(".boundaryline").each(function(d) { setStyle(cfg.constellations.boundstyle); map(d); context.stroke(); });
+        container.selectAll(".boundaryline").each(function(d) { 
+          setStyle(cfg.constellations.boundstyle); 
+          map(d); 
+          context.stroke(); 
+        });
         drawOutline(true);
       }
 
@@ -451,7 +474,11 @@ Celestial.display = function(config) {
       }
 
       if (cfg.constellations.lines) { 
-        container.selectAll(".constline").each(function(d) { setStyle(cfg.constellations.linestyle); map(d); context.stroke(); });
+        container.selectAll(".constline").each(function(d) { 
+          setStyle(cfg.constellations.linestyle); 
+          map(d); 
+          context.stroke(); 
+        });
       }
       
     }

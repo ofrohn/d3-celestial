@@ -24,6 +24,9 @@ input[type="number"]::-webkit-outer-spin-button { height: auto; }
 #celestial-form #datepick.active { background-position: -69px 1px; }
 #celestial-form #datetime { cursor:default; } 
 #celestial-form input#now { position:relative; left:-24px; }
+#celestial-form #constellation { } 
+#celestial-form #constellation option { color:#000; } 
+#celestial-form #constellation option[value=''] { color:#ccc; } 
 
 #celestial-form input[type='button'] { width:64px; padding-bottom:1px; margin-top:4px; float:right; background: #f7f7f7; }
 #celestial-form input#fullwidth { width:108px; }

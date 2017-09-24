@@ -39,32 +39,25 @@ function form(cfg) {
      .attr("value", function (d) { return d.o; })
      .text(function (d) { return d.n; });
   sel.property("selectedIndex", selected);
-  //if (!config.location) {
-    col.append("br");
-    col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
-    col.append("input").attr("type", "number").attr("id", "centerx").attr("list", "centerx-list").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
-    col.append("span").attr("id", "cxunit").html("h");
-    //addList("centerx", "ra");
-    
-    col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
-    col.append("span").html("\u00b0");
 
-    col.append("label").attr("title", "Orientation").attr("for", "centerz").html("Orientation");
-    col.append("input").attr("type", "number").attr("id", "centerz").attr("title", "Center orientation").attr("max", "180").attr("min", "-180").attr("step", "0.1").on("change", turn);
-    col.append("span").html("\u00b0");
+  col.append("br");
+  col.append("label").attr("title", "Center coordinates long/lat in selected coordinate space").attr("for", "centerx").html("Center");
+  col.append("input").attr("type", "number").attr("id", "centerx").attr("title", "Center right ascension/longitude").attr("max", "24").attr("min", "0").attr("step", "0.1").on("change", turn);
+  col.append("span").attr("id", "cxunit").html("h");
+  //addList("centerx", "ra");
+  
+  col.append("input").attr("type", "number").attr("id", "centery").attr("title", "Center declination/latitude").attr("max", "90").attr("min", "-90").attr("step", "0.1").on("change", turn);
+  col.append("span").html("\u00b0");
 
-    col.append("label").attr("for", "orientationfixed").html("Fixed");
-    col.append("input").attr("type", "checkbox").attr("id", "orientationfixed").property("checked", config.orientationfixed).on("change", apply);    
-  //}
-  if (config.fullwidth)
-    col.append("input").attr("type", "button").attr("id", "fullwidth").attr("value", "\u25c4 Full Width \u25ba").on("click", function () {
-    document.getElementsByClassName("fauxcolumn-right-outer")[0].style.display = "none";
-    document.getElementsByClassName("fauxcolumn-center-outer")[0].style.width = "100%";
-    //$("main-wrapper").style.width = "100%";
-    this.style.display = "none";
-    Celestial.display(config);
-    return false;
-  });
+  col.append("label").attr("title", "Orientation").attr("for", "centerz").html("Orientation");
+  col.append("input").attr("type", "number").attr("id", "centerz").attr("title", "Center orientation").attr("max", "180").attr("min", "-180").attr("step", "0.1").on("change", turn);
+  col.append("span").html("\u00b0");
+
+  col.append("label").attr("for", "orientationfixed").html("Fixed");
+  col.append("input").attr("type", "checkbox").attr("id", "orientationfixed").property("checked", config.orientationfixed).on("change", apply);    
+
+  col.append("label").attr("title", "Center and zoom in on this constellation").attr("for", "constellation").html("Show");
+  col.append("select").attr("id", "constellation").on("change", showConstellation);
 
   setCenter(config.center, config.transform);
 
@@ -246,21 +239,23 @@ function form(cfg) {
     return cx.value !== "" && cy.value !== "";
   }
   
-  /*
-  function addList(id, type) {
-    var step = 1,
-        sel = col.append("datalist").attr("id",id + "-list"),
-        box = d3.select("#" + id),
-        min = +box.attr("min"),
-        max = +box.attr("max");
-    if (type === "lat" || type === "lon") step = 10;
-
-    for (var i = min; i < max; i += step) {
-      sel.append("option").text(i + ".0");
-    }
-    return sel;
+  function showConstellation() {
+    var id = this.value, anims = [];
+    if (id === "") return;
+    var con = Celestial.constellations[id];
+    config.center = con.center;
+    setCenter(config.center, config.transform);
+    //if zoomed, zoom out
+    var z = Celestial.zoomBy();
+    if (z !== 1) anims.push({param:"zoom", value:0.2, duration:0});
+    //rotate
+    anims.push({param:"center", value:con.center, duration:0});
+    //and zoom in
+    var sc = con.scale > 5 ? 5 : con.scale;
+    anims.push({param:"zoom", value:sc, duration:0});
+    Celestial.animate(anims, false);    
   }
-  */
+  
   function apply() {
     var value, src = this;
 
