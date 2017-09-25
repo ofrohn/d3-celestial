@@ -360,7 +360,7 @@ Celestial.display = function(config) {
       return delay + interval;
     }
     
-    fldEnable("horizon-show", prj.clip);
+    if (cfg.location) fldEnable("horizon-show", prj.clip);
     
     prjMap = projectionTween(prjFrom, prjTo);
     cfg.adaptable = false;
