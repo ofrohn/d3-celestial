@@ -10,7 +10,8 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
     ANIMSCALE = 1.4,       // Zoom animation threshold, scale factor
     ANIMINTERVAL_R = 2000, // Rotation duration scale in ms
     ANIMINTERVAL_P = 2500, // Projection duration in ms
-    ANIMINTERVAL_Z = 1500; // Zoom duration scale in ms
+    ANIMINTERVAL_Z = 1500, // Zoom duration scale in ms
+    ZOOMEXTENT = 10;        // Maximum extent of zoom (max/min)
     
 var cfg, prjMap, zoom, map, circle;
 
@@ -61,7 +62,7 @@ Celestial.display = function(config) {
   
   prjMap = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale(scale);
     
-  zoom = d3.geo.zoom().projection(prjMap).center([width/2, height/2]).scaleExtent([scale, scale*5]).on("zoom.redraw", redraw);
+  zoom = d3.geo.zoom().projection(prjMap).center([width/2, height/2]).scaleExtent([scale, scale*ZOOMEXTENT]).on("zoom.redraw", redraw);
 
   var canvas = d3.selectAll("canvas");
   if (canvas[0].length === 0) canvas = d3.select(par).append("canvas");
@@ -333,7 +334,7 @@ Celestial.display = function(config) {
     height = width/ratio;
     scale = proj.scale * width/1024;
     canvas.attr("width", width).attr("height", height);
-    zoom.scaleExtent([scale, scale*5]).scale(scale);
+    zoom.scaleExtent([scale, scale*ZOOMEXTENT]).scale(scale);
     prjMap.translate([width/2, height/2]).scale(scale);
     if (parent) parent.style.height = px(height);
     redraw();
@@ -387,7 +388,7 @@ Celestial.display = function(config) {
       prjMap = Celestial.projection(config.projection).rotate(rot).translate([width/2, height/2]).scale(scale);
       map.projection(prjMap);
       setClip(proj.clip); 
-      zoom.projection(prjMap).scaleExtent([scale, scale*5]).scale(scale);
+      zoom.projection(prjMap).scaleExtent([scale, scale*ZOOMEXTENT]).scale(scale);
       cfg.adaptable = bAdapt;
       redraw();
     });
@@ -457,6 +458,10 @@ Celestial.display = function(config) {
       if (cfg.constellations.bounds) { 
         container.selectAll(".boundaryline").each(function(d) { 
           setStyle(cfg.constellations.boundstyle); 
+          if (Celestial.constellation && Celestial.constellation === d.id) {
+            context.lineWidth *= 1.5;
+            context.setLineDash([]);
+          }
           map(d); 
           context.stroke(); 
         });
@@ -614,7 +619,7 @@ Celestial.display = function(config) {
     var czi = $("celestial-zoomin"),
         czo = $("celestial-zoomout");
     if (!czi || !czo) return;
-    czi.disabled = sc >= scale*4.99;
+    czi.disabled = sc >= scale*ZOOMEXTENT*0.99;
     czo.disabled = sc <= scale;    
   }
   
@@ -2075,19 +2080,23 @@ function form(cfg) {
   
   function showConstellation() {
     var id = this.value, anims = [];
-    if (id === "") return;
+    if (id === "") { 
+      Celestial.constellation = null;
+      Celestial.redraw();
+      return;
+    }
     var con = Celestial.constellations[id];
     config.center = con.center;
     setCenter(config.center, config.transform);
-    //Celestial.rotate(config);
-    //Celestial.zoomBy(5);
     //if zoomed, zoom out
-    //var z = Celestial.zoomBy();
-    //if (z !== 1) anims.push({param:"zoom", value:1/z, duration:0});
+    var z = Celestial.zoomBy();
+    if (z !== 1) anims.push({param:"zoom", value:1/z, duration:0});
     //rotate
     anims.push({param:"center", value:con.center, duration:0});
     //and zoom in
-    anims.push({param:"zoom", value:con.scale, duration:0});
+    var sc = con.scale > 10 ? 10 : con.scale;
+    anims.push({param:"zoom", value:sc, duration:0});
+    Celestial.constellation = id;
     Celestial.animate(anims, false);    
   }
   

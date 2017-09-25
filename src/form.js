@@ -241,18 +241,23 @@ function form(cfg) {
   
   function showConstellation() {
     var id = this.value, anims = [];
-    if (id === "") return;
+    if (id === "") { 
+      Celestial.constellation = null;
+      Celestial.redraw();
+      return;
+    }
     var con = Celestial.constellations[id];
     config.center = con.center;
     setCenter(config.center, config.transform);
     //if zoomed, zoom out
     var z = Celestial.zoomBy();
-    if (z !== 1) anims.push({param:"zoom", value:0.2, duration:0});
+    if (z !== 1) anims.push({param:"zoom", value:1/z, duration:0});
     //rotate
     anims.push({param:"center", value:con.center, duration:0});
     //and zoom in
-    var sc = con.scale > 5 ? 5 : con.scale;
+    var sc = con.scale > 10 ? 10 : con.scale;
     anims.push({param:"zoom", value:sc, duration:0});
+    Celestial.constellation = id;
     Celestial.animate(anims, false);    
   }
   
