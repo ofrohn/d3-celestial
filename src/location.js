@@ -1,7 +1,7 @@
 /* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, fldEnable, Round, has, hasParent */
 
 function geo(cfg) {
-  var ctrl = d3.select("#celestial-form").append("div").attr("id", "loc"),
+  var frm = d3.select("#celestial-form").append("div").attr("id", "loc"),
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zenith = [0,0],
       geopos = [0,0], 
@@ -15,7 +15,7 @@ function geo(cfg) {
   });
   
   if (has(cfg, "geopos") && cfg.geopos!== null && cfg.geopos.length === 2) geopos = cfg.geopos;
-  var col = ctrl.append("div").attr("class", "col");
+  var col = frm.append("div").attr("class", "col").attr("id", "location");
   //Latitude & longitude fields
   col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");
   col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("placeholder", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change",  function () { if (testNumber(this) === true) go(); });

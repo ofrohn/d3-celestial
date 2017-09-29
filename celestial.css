@@ -10,6 +10,14 @@ footer a { text-decoration:none; color:#99f; }
 #celestial-form { font:12pt/1 'Arial Unicode MS', Arial, Helvetica, sans-serif;  display: inline-block; position: relative; }
 #error { position:absolute; min-width:100px; height:auto; padding: 2px 4px; color:#f00; background:#fff; border:2px solid #f00; border-radius:3px; font-weight:normal; display:block; top:-9999px; left:-9999px; opacity:0; transition:opacity 1s linear; }
 #celestial-form .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; }
+/* What parts to show */
+#celestial-form #general,
+#celestial-form #location,
+#celestial-form #stars,
+#celestial-form #dsos,
+#celestial-form #constellations,
+#celestial-form #lines,
+#celestial-form #other { display: block }
 
 #celestial-form input { vertical-align: 0px; }
 #celestial-form input[type='number'] { width:48px; height:18px; text-align:right; padding:0; }

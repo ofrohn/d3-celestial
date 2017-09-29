@@ -9,7 +9,7 @@ function form(cfg) {
   var frm = ctrl.append("form").attr("id", "params").attr("name", "params").attr("method", "get").attr("action" ,"#");
   
   //Map parameters    
-  var col = frm.append("div").attr("class", "col");
+  var col = frm.append("div").attr("class", "col").attr("id", "general");
   
   col.append("label").attr("title", "Map width in pixel, 0 indicates full width").attr("for", "width").html("Width ");
   col.append("input").attr("type", "number").attr("maxlength", "4").attr("max", "20000").attr("min", "0").attr("title", "Map width").attr("id", "width").attr("value", config.width).on("change", resize);
@@ -62,7 +62,7 @@ function form(cfg) {
   setCenter(config.center, config.transform);
 
   // Stars 
-  col = frm.append("div").attr("class", "col");
+  col = frm.append("div").attr("class", "col").attr("id", "stars");
   
   col.append("label").attr("class", "header").attr("for", "stars-show").html("Stars");
   col.append("input").attr("type", "checkbox").attr("id", "stars-show").property("checked", config.stars.show).on("change", apply);
@@ -103,7 +103,7 @@ function form(cfg) {
   enable($("stars-show"));
   
   // DSOs 
-  col = frm.append("div").attr("class", "col");
+  col = frm.append("div").attr("class", "col").attr("id", "dsos");
   
   col.append("label").attr("class", "header").attr("title", "Deep Space Objects").attr("for", "dsos-show").html("DSOs");
   col.append("input").attr("type", "checkbox").attr("id", "dsos-show").property("checked", config.dsos.show).on("change", apply);
@@ -130,7 +130,7 @@ function form(cfg) {
   enable($("dsos-show"));
 
   // Constellations 
-  col = frm.append("div").attr("class", "col");
+  col = frm.append("div").attr("class", "col").attr("id", "constellations");
   col.append("label").attr("class", "header").html("Constellations");
   //col.append("input").attr("type", "checkbox").attr("id", "constellations-show").property("checked", config.constellations.show).on("change", apply);
   
@@ -149,7 +149,7 @@ function form(cfg) {
   enable($("constellations-names"));
 
   // graticules & planes 
-  col = frm.append("div").attr("class", "col");
+  col = frm.append("div").attr("class", "col").attr("id", "lines");
   col.append("label").attr("class", "header").html("Lines");
   
   col.append("label").attr("title", "Laitudet/longitude grid lines").attr("for", "lines-graticule").html("Graticule");
@@ -168,7 +168,7 @@ function form(cfg) {
   col.append("input").attr("type", "checkbox").attr("id", "lines-supergalactic-show").property("checked", config.lines.supergalactic.show).on("change", apply);
 
   // Other
-  col = frm.append("div").attr("class", "col");
+  col = frm.append("div").attr("class", "col").attr("id", "other");
   col.append("label").attr("class", "header").html("Other");
   
   col.append("label").attr("for", "mw-show").html("Milky Way");
