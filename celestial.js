@@ -2088,6 +2088,10 @@ function form(cfg) {
     var con = Celestial.constellations[id];
     config.center = con.center;
     setCenter(config.center, config.transform);
+    //config.lines.graticule.lat.pos = [Round(con.center[0])];
+    //config.lines.graticule.lon.pos = [Round(con.center[1])];
+    //Celestial.apply(config);
+
     //if zoomed, zoom out
     var z = Celestial.zoomBy();
     if (z !== 1) anims.push({param:"zoom", value:1/z, duration:0});
