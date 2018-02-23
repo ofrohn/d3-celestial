@@ -184,6 +184,7 @@ var projections = {
   "bonne": {n:"Bonne", arg:Math.PI/5, scale:225, ratio:0.88},
   "bromley": {n:"Bromley", arg:null, scale:162},
 //  "butterfly": {n:"Butterfly", arg:null, scale:31, ratio:1.1, clip:true},
+  "cassini": {n:"Cassini", arg:null, scale:325, ratio:1.0, clip:true},
   "collignon": {n:"Collignon", arg:null, scale:100, ratio:2.6},
   "craig": {n:"Craig Retroazimuthal", arg:0, scale:310, ratio:1.5, clip:true},
   "craster": {n:"Craster Parabolic", arg:null, scale:160},

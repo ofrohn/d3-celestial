@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.3',
+  version: '0.6.4',
   container: null,
   data: []
 };
@@ -1261,7 +1261,7 @@ var settings = {
     desig: false,  // Show all names, including Draper and Hipparcos
     namestyle: { fill: "#ddddbb", font: "11px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     namelimit: 2.5,  // Show only names for stars brighter than namelimit
-    propernamestyle: { fill: "#ddddbb", font: "11px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
+    propernamestyle: { fill: "#ddddbb", font: "13px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
     propernamelimit: 1.5,  // Show proper names for stars brighter than propernamelimit
     size: 7,       // Scale size (radius) of star circle in pixels
     exponent: -0.28, // Scale exponent for star size, larger = more linear
@@ -1417,6 +1417,7 @@ var projections = {
   "bonne": {n:"Bonne", arg:Math.PI/5, scale:225, ratio:0.88},
   "bromley": {n:"Bromley", arg:null, scale:162},
 //  "butterfly": {n:"Butterfly", arg:null, scale:31, ratio:1.1, clip:true},
+  "cassini": {n:"Cassini", arg:null, scale:325, ratio:1.0, clip:true},
   "collignon": {n:"Collignon", arg:null, scale:100, ratio:2.6},
   "craig": {n:"Craig Retroazimuthal", arg:0, scale:310, ratio:1.5, clip:true},
   "craster": {n:"Craster Parabolic", arg:null, scale:160},
