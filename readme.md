@@ -324,7 +324,8 @@ var jsonLine = {
        // Location of name text on the map
        "loc": [-67.5, 52]
      }, "geometry":{
-       // the line object as an array of point coordinates
+       // the line object as an array of point coordinates, 
+       // always as [ra -180..180 degrees, dec -90..90 degrees]
        "type":"MultiLineString",
        "coordinates":[[
          [-80.7653, 38.7837],
