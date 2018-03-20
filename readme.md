@@ -338,7 +338,7 @@ var jsonLine = {
 }; 
 ```
 
-As you can see, this defines the Summer Triangle asterism, consisting of the bright stars Vega (? Lyr), Deneb (? Cyg) and Altair (? Aql).  
+As you can see, this defines the Summer Triangle asterism, consisting of the bright stars Vega (Alpha Lyr), Deneb (Alpha Cyg) and Altair (Alpha Aql).  
 
 You also need to define how the triangle is going to look like with some styles (see above):  
 
