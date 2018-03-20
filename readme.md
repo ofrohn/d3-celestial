@@ -309,7 +309,7 @@ __Animation sequence format:__
 
 __Add your own data__
 
-First of all, whatever you add needs to be valid geoJSON. The various types of objects are described in the redame of the [data folder](./data/). This can be a separate file or a JSON object filled at runtime or defined inline. Like so:  
+First of all, whatever you add needs to be valid geoJSON. The various types of objects are described in the readme of the [data folder](./data/). This can be a separate file or a JSON object filled at runtime or defined inline. Like so:  
 
 ```js
 var jsonLine = {
