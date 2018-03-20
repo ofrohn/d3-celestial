@@ -13,7 +13,8 @@ __Demos__:
 [Setting time/location](http://ofrohn.github.io/celestial-demo/location.html) and see the current sky  
 [Animated planets](http://ofrohn.github.io/celestial-demo/planets-animation.html) moving about the ecliptic  
 [Starry sky](http://ofrohn.github.io/celestial-demo/sky.html) just the stars  
-\([Sources](./demo/)\)  
+[Summer triangle](http://ofrohn.github.io/celestial-demo/triangle.html) adding data
+\([Source files on github](./demo/)\)  
 
 __Some more examples__:  
 [Embedded interactive form](http://armchairastronautics.blogspot.com/p/skymap.html)  
