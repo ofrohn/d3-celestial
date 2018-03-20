@@ -303,16 +303,126 @@ __Animation sequence format:__
    _duration_: in milliseconds, 0 = exact length of transition  
    _callback_: optional callback function called at the end of the transition   
  }, ...]   
-  
+
+### HowTo
+
+__Add your own data__
+
+First of all, whatever you add needs to be valid geoJSON. The various types of objects are described in the redame of the [data folder](./data/). This can be a separate file or a JSON object filled at runtime or defined inline. Like so:  
+
+```js
+var jsonLine = {
+  "type":"FeatureCollection",
+  // this is an array, add as many objects as you want
+  "features":[
+    {"type":"Feature",
+     "id":"SummerTriangle",
+     "properties": {
+       // Name
+       "n":"Summer Triangle",
+       // Location of name text on the map
+       "loc": [-67.5, 52]
+     }, "geometry":{
+       // the line object as an array of point coordinates
+       "type":"MultiLineString",
+       "coordinates":[[
+         [-80.7653, 38.7837],
+         [-62.3042, 8.8683],
+         [-49.642, 45.2803],
+         [-80.7653, 38.7837]
+       ]]
+     }
+    }  
+  ]
+}; 
+```
+
+As you can see, this defines the Summer Triangle asterism, consisting of the bright stars Vega (? Lyr), Deneb (? Cyg) and Altair (? Aql).  
+
+You also need to define how the triangle is going to look like with some styles (see above):  
+
+```js
+var lineStyle = { 
+      stroke:"#f00", 
+      fill: "rgba(255, 204, 204, 0.4)",
+      width:3 
+    };
+var textStyle = { 
+      fill:"#f00", 
+      font: "bold 15px Helvetica, Arial, sans-serif", 
+      align: "center", 
+      baseline: "bottom" 
+    };
+```
+
+Now we can get to work, with the function
+
+`Celestial.add({file:string, type:dso|line, callback:function, redraw:function)`
+
+The file argument is optional for providing an external geoJSON file, since we already defingd our data, we don't need it. Type is 'line', that leaves two function definiions, the first one gets called at loading, this is where we add our data to the d3-celestial data container, and redraw is called at every redraw event for the map. so here you need to define how to display the added object(s).  
+
+```js
+callback: function(error, json) {
+  if (error) return console.warn(error);
+  // Load the geoJSON file and transform to correct coordinate system, if necessary
+  var asterism = Celestial.getData(jsonLine, config.transform);
+
+  // Add to celestial objects container in d3
+  Celestial.container.selectAll(".asterisms")
+    .data(asterism.features)
+    .enter().append("path")
+    .attr("class", "ast"); 
+  // Trigger redraw to display changes
+  Celestial.redraw();
+}
+```
+
+The callback funtion is pretty straight forward: Load the data with Celestial.getData, add to Celestial.container in te usual d3 manner, and redraw. It also provides a json parameter that contains the parsed JSON if a file property is given, but we already have defined jsonLine above, so we use that.
+
+```js
+redraw: function() {   
+  // Select the added objects by class name as given previously
+  Celestial.container.selectAll(".ast").each(function(d) {
+    // Set line styles 
+    Celestial.setStyle(lineStyle);
+    // Project objects on map
+    Celestial.map(d);
+    // draw on canvas
+    Celestial.context.fill();
+    Celestial.context.stroke();
+    
+    // If point is visible (this doesn't work automatically for points)
+    if (Celestial.clip(d.properties.loc)) {
+      // get point coordinates
+      pt = Celestial.mapProjection(d.properties.loc);
+      // Set text styles       
+      Celestial.setTextStyle(textStyle);
+      // and draw text on canvas
+      Celestial.context.fillText(d.properties.n, pt[0], pt[1]);
+    }      
+  })
+}
+```
+
+And the redraw function with the actual display of the elements, contained in a d3.selectAll call on the previously set class property of the added objects. Celestial.setStyle applies the predefined canvas styles, Celestial.map projects each line on the map. However, that doesn't work for points, so that is done manually with Celestial.clip (true if point is currently visible) and Celestial.mapProjection. and the rest are standard canvas fill and stroke operations. The beginPath and closePath commands are done automatically.
+
+```js
+Celestial.display();
+```
+
+Finally, the whole map is displayed. The complete sample code is in the file [triangle.html](demo/triangle.html) in the demo folder
+
 ### Files
 
 __GeoJSON data files__  
-(See format specification in readme.md for the [data folder](./data/))  
+(See format specification in the readme for the [data folder](./data/))  
 
 * `stars.6.json` Stars down to 6th magnitude \[1\]
 * `stars.8.json` Stars down to 8.5th magnitude \[1\]
+* `stars.14.json` Stars down to 14th magnitude (large) \[1\]
 * `dsos.6.json` Deep space objects down to 6th magnitude \[2\]
 * `dsos.14.json` Deep space objects down to 14th magnitude \[2\]
+* `dsos.20.json` Deep space objects down to 20th magnitude \[2\]
 * `dsos.bright.json` Some of the brightest showpiece DSOs of my own choosing
 * `messier.json` Messier objects \[8\]
 * `lg.json` Local group and Milky Way halo galaxies/globiular clusters. My own compilation \[6\]
@@ -322,8 +432,7 @@ __GeoJSON data files__
 * `asterisms.json` Asterism data  \[7\]
 * `mw.json` Milky Way outlines in 5 brightness steps \[5\]
 * `planets.json` Keplerian Elements for Approximate Positions of the Major Planets \[9\]
-* `templ.json` GeoJSON templates for all the different object types used
-  
+
 __Sources__
 
 * \[1\] XHIP: An Extended Hipparcos Compilation; Anderson E., Francis C. (2012) [VizieR V/137D](http://cdsarc.u-strasbg.fr/viz-bin/Cat?V/137D)  
