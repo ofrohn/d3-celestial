@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.4',
+  version: '0.6.5',
   container: null,
   data: []
 };
@@ -579,7 +579,10 @@ Celestial.display = function(config) {
     prjMap.rotate([0,0]);
     setStyle(cfg.background);
     container.selectAll(".outline").attr("d", map);
-    if (stroke) context.stroke(); else context.fill();
+    if (stroke === true) 
+      context.stroke(); 
+    else 
+      context.fill();
     prjMap.rotate(rot);
   }
 

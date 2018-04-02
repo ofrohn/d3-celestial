@@ -1,6 +1,6 @@
 /* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
-  version: '0.6.4',
+  version: '0.6.5',
   container: null,
   data: []
 };
@@ -578,7 +578,10 @@ Celestial.display = function(config) {
     prjMap.rotate([0,0]);
     setStyle(cfg.background);
     container.selectAll(".outline").attr("d", map);
-    if (stroke) context.stroke(); else context.fill();
+    if (stroke === true) 
+      context.stroke(); 
+    else 
+      context.fill();
     prjMap.rotate(rot);
   }
 
