@@ -64,7 +64,7 @@ Celestial.display = function(config) {
     
   zoom = d3.geo.zoom().projection(prjMap).center([width/2, height/2]).scaleExtent([scale, scale*ZOOMEXTENT]).on("zoom.redraw", redraw);
 
-  var canvas = d3.selectAll("canvas");
+  var canvas = d3.select(par).selectAll("canvas");
   if (canvas[0].length === 0) canvas = d3.select(par).append("canvas");
   canvas.attr("width", width).attr("height", height);
   var context = canvas.node().getContext("2d");  
@@ -811,6 +811,8 @@ Celestial.display = function(config) {
     if (index && index < animations.length) current = index;
     animate(); 
   };
+  if (!has(this, "date"))
+    this.date = function() { console.log("Celestial.date() needs config.location = true to work." ); };
   
   load();
 };

@@ -4,6 +4,7 @@ var shell = require('shelljs/make'),
     vm = require('vm'),
     tar = require('tar-fs'),
     zlib = require('zlib'),
+    version = require('./package.json').version,
     copy = "// Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE\n",
     begin = "!(function() {",
     end = "this.Celestial = Celestial;\n})();",
@@ -65,12 +66,16 @@ target.build = function() {
 
   vm.runInThisContext(fs.readFileSync('./src/celestial.js', 'utf-8'), './src/celestial.js');
   echo('V' + Celestial.version);
+
   if (!FINAL) filename += Celestial.version;
   
+  if (version !== Celestial.version)
+    exec("npm version " + Celestial.version);
+
   var file = cat(filelist);
   file = copy + begin + file.replace(/\/\* global.*/g, '') + end;
   file.to(filename + '.js');
-
+  
   echo('Minifying');
 
   var out = ug.minify(filename + '.js');

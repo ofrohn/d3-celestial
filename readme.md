@@ -273,7 +273,7 @@ __Exposed functions__
   Change the map projection. 
   projection: new projection to set
 
-* `Celestial.date(date)`
+* `Celestial.date(<date object>)` (_needs config.location = true_)
   Change the set date, return date w/o parameter. 
   date: javascript date-object
 
