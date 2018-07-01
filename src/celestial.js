@@ -1,6 +1,6 @@
 /* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
-  version: '0.6.5',
+  version: '0.6.6',
   container: null,
   data: []
 };

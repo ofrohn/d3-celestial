@@ -375,12 +375,13 @@ function testNumber(node) {
 
 //Check color field
 function testColor(node) {
+  var v;
   if (node.validity) {
     v = node.validity;
     if (v.typeMismatch || v.badInput) { popError(node, node.title + ": check field value"); return false; }
     if (node.value.search(/^#[0-9A-F]{6}$/i) === -1) { popError(node, node.title + ": not a color value"); return false; }
   } else {
-    var v = node.value;
+    v = node.value;
     if (v === "") return true;
     if (v.search(/^#[0-9A-F]{6}$/i) === -1) { popError(node, node.title + ": not a color value"); return false; }
   }

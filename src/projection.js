@@ -18,13 +18,16 @@ Celestial.projection = function(projection) {
   };
 
   forward.invert = function(x, y) {
-    var coords = raw.invert(x, y);
-    coords[0] *= -1;
-    return coords;
+    try {
+      var coords = raw.invert(x, y);
+      coords[0] = coords && -coords[0];
+      return coords;
+    } catch(e) { console.log(e); }
   };
 
   return d3.geo.projection(forward);
 };
+
 
 function projectionTween(a, b) {
   var prj = d3.geo.projection(raw).scale(1),
