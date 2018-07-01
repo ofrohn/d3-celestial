@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.5',
+  version: '0.6.6',
   container: null,
   data: []
 };
@@ -837,13 +837,16 @@ Celestial.projection = function(projection) {
   };
 
   forward.invert = function(x, y) {
-    var coords = raw.invert(x, y);
-    coords[0] *= -1;
-    return coords;
+    try {
+      var coords = raw.invert(x, y);
+      coords[0] = coords && -coords[0];
+      return coords;
+    } catch(e) { console.log(e); }
   };
 
   return d3.geo.projection(forward);
 };
+
 
 function projectionTween(a, b) {
   var prj = d3.geo.projection(raw).scale(1),
@@ -1446,6 +1449,7 @@ var projections = {
   "ginzburg6": {n:"Ginzburg VI", arg:null, scale:190, ratio:1.4},
   "ginzburg8": {n:"Ginzburg VIII", arg:null, scale:205, ratio:1.3},
   "ginzburg9": {n:"Ginzburg IX", arg:null, scale:190, ratio:1.4},
+  //"guyou": {n:"Guyou", arg:null, scale:160, ratio:2, clip:true},
   "homolosine": {n:"Goode Homolosine", arg:null, scale:160, ratio:2.2},
   "hammer": {n:"Hammer", arg:2, scale:180},
   "hatano": {n:"Hatano", arg:null, scale:186},
@@ -1464,6 +1468,7 @@ var projections = {
   "orthographic": {n:"Orthographic", arg:null, scale:480, ratio:1.0, clip:true},
   "patterson": {n:"Patterson Cylindrical", arg:null, scale:160, ratio:1.75},
   "polyconic": {n:"Polyconic", arg:null, scale:160, ratio:1.3},
+  "quincuncial": {n:"Quincuncial", arg:null, scale:160, ratio:1.3},
   "rectangularPolyconic": {n:"Rectangular Polyconic", arg:0, scale:160, ratio:1.65},
   "robinson": {n:"Robinson", arg:null, scale:160},
   "sinusoidal": {n:"Sinusoidal", arg:null, scale:160, ratio:2},
@@ -2220,12 +2225,13 @@ function testNumber(node) {
 
 //Check color field
 function testColor(node) {
+  var v;
   if (node.validity) {
     v = node.validity;
     if (v.typeMismatch || v.badInput) { popError(node, node.title + ": check field value"); return false; }
     if (node.value.search(/^#[0-9A-F]{6}$/i) === -1) { popError(node, node.title + ": not a color value"); return false; }
   } else {
-    var v = node.value;
+    v = node.value;
     if (v === "") return true;
     if (v.search(/^#[0-9A-F]{6}$/i) === -1) { popError(node, node.title + ": not a color value"); return false; }
   }
