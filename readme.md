@@ -148,7 +148,7 @@ var config = {
     boundstyle: { stroke: "#cccc00", width: 0.5, opacity: 0.8, dash: [2, 4] }
   },  
   mw: {
-    show: true     // Show Milky Way as filled multi-polygon outlines 
+    show: true,     // Show Milky Way as filled multi-polygon outlines 
     style: { fill: "#ffffff", opacity: 0.15 }  // Style for MW layers
   },
   lines: {  // Display & styles for graticule & some planes
