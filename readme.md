@@ -59,7 +59,7 @@ var config = {
     colors: true,  // Show stars in spectral colors, if not use default color
     style: { fill: "#ffffff", opacity: 1 }, // Style for stars
     names: true,   // Show star designation (Bayer, Flamsteed, Variable star, Gliese, 
-                      whichever applies first in that order)
+                    //  whichever applies first in that order)
     proper: false, // Show proper name (if one exists)
     desig: false,  // Show all designations, including Draper and Hipparcos
     namelimit: 2.5,  // Show only names/designations for stars brighter than namelimit
