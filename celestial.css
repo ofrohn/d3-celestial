@@ -88,7 +88,7 @@ input[type="number"]::-webkit-outer-spin-button { height: auto; }
 #celestial-date #cal { display:inline-block; width:182px; margin:0 4px;  }
 #celestial-date .date { display:inline-block; width:19px; height:14px; border:1px solid #fff; color:#000; font-weight: bold; text-align:right; vertical-align:middle; padding:2px 4px 2px 0; cursor:pointer; }
 #celestial-date .grey { color:#ccc; }
-#celestial-date .weekday { color:#999; fomt-sixe:11px; }
+#celestial-date .weekday { color:#666; font-sixe:11px; background:#eee; border:1px solid #eee; }
 #celestial-date .weekend { color:#f00; }
 #celestial-date .selected { border:1px solid #000; border-radius:3px; }
 #celestial-date .today { background:#ff0; }
