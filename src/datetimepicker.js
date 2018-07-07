@@ -32,9 +32,9 @@ var datetimepicker = function(callback) {
     var nd = cal.node();
     while (nd.firstChild) nd.removeChild(nd.firstChild);
     
-    /*for (var i=0; i<7; i++) {
+    for (var i=0; i<7; i++) {
       cal.append("div").classed({"date": true, "weekday": true}).html(days[i]);
-    }*/
+    }
     for (var i=0; i<42; i++) {
       var curmon = curdt.getMonth(), curday = curdt.getDay(), curid = dateFormat(curdt);
       cal.append("div").classed({
@@ -51,11 +51,19 @@ var datetimepicker = function(callback) {
     }
   }
 
-  function yrSel() { 
-    var sel = picker.append("select").attr("title", "Year").attr("id", "yr").on("change", daySel),
+  function yrSel() {     
+    picker.append("select").attr("title", "Year").attr("id", "yr").on("change", daySel);   
+    
+    fillYrSel();
+  }
+
+  function fillYrSel() { 
+    var sel = d3.select("select#yr"),
+        year = date.getFullYear(),
         selected = 0,
-        year = date.getFullYear();
+        years = getYears(date);
         
+    sel.selectAll("*").remove();    
     sel.selectAll('option').data(years).enter().append('option')
        .text(function (d, i) { 
          if (d === year) selected = i; 
@@ -184,11 +192,7 @@ var datetimepicker = function(callback) {
     if (this.id && this.id.search(/^\d/) !== -1) {
       date = dateFormat.parse(this.id); 
     }
-    /*
-    var yr = date.getFullYear(), mo = date.getMonth();
-    select("yr", yr);
-    select("mon", mo);
-    daySel();*/
+    fillYrSel();
     
     date.setHours(h, m, s);
     set();

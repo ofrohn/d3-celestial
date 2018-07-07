@@ -103,6 +103,7 @@ function geo(cfg) {
 
   Celestial.date = function (dt) { 
     if (!dt) return date;  
+    if (dtpick.isVisible()) return;
     date.setTime(dt.valueOf());
     $("datetime").value = dateFormat(dt, zone); 
     Celestial.redraw();
