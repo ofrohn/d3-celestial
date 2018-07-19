@@ -8,13 +8,13 @@ function geo(cfg) {
       date = new Date(),
       zone = date.getTimezoneOffset();
 
-  var dtpick = new datetimepicker( function(date, tz) { 
+  var dtpick = new datetimepicker(cfg, function(date, tz) { 
     $("datetime").value = dateFormat(date, tz); 
     zone = tz;
     go(); 
   });
   
-  if (has(cfg, "geopos") && cfg.geopos!== null && cfg.geopos.length === 2) geopos = cfg.geopos;
+  if (has(cfg, "geopos") && cfg.geopos !== null && cfg.geopos.length === 2) geopos = cfg.geopos;
   var col = frm.append("div").attr("class", "col").attr("id", "location");
   //Latitude & longitude fields
   col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");

@@ -11,7 +11,8 @@ var settings = {
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
-  location: false,    // Display location settings 
+  location: false,    // Display location settings
+  daterange: [],  // Calender date range; null: displaydate-+10; [yr]: yr-+10; [yr, n<100]: [yr-n, yr+n]; [yr0, yr1]
   fullwidth: false,   // Display fullwidth button
   controls: true,     // Display zoom controls
   lang: "",           // Language for names, so far only for constellations: de: german, es: spanish
