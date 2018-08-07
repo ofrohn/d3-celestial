@@ -17,3 +17,13 @@ Celestial.add = function(dat) {
   if (has(dat, "redraw")) res.redraw = dat.redraw;
   Celestial.data.push(res);
 };
+
+Celestial.remove = function(i) {
+  if (i !== null && i < Celestial.data.length) {
+    return Celestial.data.splice(i,1);
+  }
+};
+
+Celestial.clear = function() {
+  Celestial.data = [];
+};

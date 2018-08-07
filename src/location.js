@@ -18,9 +18,13 @@ function geo(cfg) {
   var col = frm.append("div").attr("class", "col").attr("id", "location");
   //Latitude & longitude fields
   col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");
-  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("placeholder", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change",  function () { if (testNumber(this) === true) go(); });
+  col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("placeholder", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change",  function () {
+    if (testNumber(this) === true) go(); 
+  });
   col.append("span").html("\u00b0");
-  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("placeholder", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change",  function () { if (testNumber(this) === true) go(); });
+  col.append("input").attr("type", "number").attr("id", "lon").attr("title", "Longitude").attr("placeholder", "Longitude").attr("max", "180").attr("min", "-180").attr("step", "0.0001").attr("value", geopos[1]).on("change",  function () { 
+    if (testNumber(this) === true) go(); 
+  });
   col.append("span").html("\u00b0");
   //Here-button if supported
   if ("geolocation" in navigator) {
@@ -28,14 +32,22 @@ function geo(cfg) {
   }
   //Datetime field with dtpicker-button
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Date/time");
-  col.append("input").attr("type", "button").attr("id", "day-left").attr("title", "One day back").on("click", function () { date.setDate(date.getDate() - 1); $("datetime").value = dateFormat(date, zone); go(); });
+  col.append("input").attr("type", "button").attr("id", "day-left").attr("title", "One day back").on("click", function () {
+    date.setDate(date.getDate() - 1); 
+    $("datetime").value = dateFormat(date, zone); 
+    go(); 
+  });
   col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(date, zone))
   .on("click", showpick, true).on("input", function () { 
     this.value = dateFormat(date, zone); 
     if (!dtpick.isVisible()) showpick(); 
   });
   col.append("div").attr("id", "datepick").on("click", showpick);
-  col.append("input").attr("type", "button").attr("id", "day-right").attr("title", "One day forward").on("click", function () { date.setDate(date.getDate() + 1); $("datetime").value = dateFormat(date, zone); go(); });
+  col.append("input").attr("type", "button").attr("id", "day-right").attr("title", "One day forward").on("click", function () { 
+    date.setDate(date.getDate() + 1); 
+    $("datetime").value = dateFormat(date, zone); 
+    go(); 
+  });
   //Now -button sets current time & date of device  
   col.append("input").attr("type", "button").attr("value", "Now").attr("id", "now").on("click", now);
   //Horizon marker
