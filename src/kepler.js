@@ -396,7 +396,7 @@ var Kepler = function () {
   
     
   function observer(pos) {
-    var flat = 298.257223563,    // WGS84 flatening of earth
+    var flat = 298.257223563,    // WGS84 flattening of earth
         re = 6378.137,           // GRS80/WGS84 semi major axis of earth ellipsoid
         h = pos.h || 0,
         cart = {},

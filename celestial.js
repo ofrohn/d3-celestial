@@ -94,7 +94,7 @@ Celestial.display = function(config) {
     circle = d3.geo.circle().angle([90]);  
     container.append("path").datum(circle).attr("class", "horizon");
     if ($("loc") === null) geo(cfg);
-    else rotate({center:Celestial.zenith()});
+    else if (cfg.follow === "zenith") rotate({center:Celestial.zenith()});
     fldEnable("horizon-show", proj.clip);
   }
   
@@ -1260,7 +1260,7 @@ var settings = {
   center: null,       // Initial center coordinates in equatorial transformation [hours, degrees, degrees], 
                       // otherwise [degrees, degrees, degrees], 3rd parameter is orientation, null = default center
   geopos: null,       // optional initial geographic position [lat,lon] in degrees, overrides center
-  centeroverride: false,
+  follow: "zenith",   
   orientationfixed: true,  // Keep orientation angle the same as center[2]
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
@@ -2437,7 +2437,11 @@ function geo(cfg) {
       geopos = [parseFloat(lat), parseFloat(lon)];
       zenith = Celestial.getPoint(horizontal.inverse(dtc, [90, 0], geopos), cfg.transform);
       zenith[2] = 0;
-      Celestial.rotate({center:zenith, horizon:cfg.horizon});
+      if (cfg.follow === "zenith") {
+        Celestial.rotate({center:zenith, horizon:cfg.horizon});
+      } else {
+        Celestial.apply({horizon:cfg.horizon});
+      }
     }
   }
 
@@ -2860,7 +2864,7 @@ var Kepler = function () {
   
     
   function observer(pos) {
-    var flat = 298.257223563,    // WGS84 flatening of earth
+    var flat = 298.257223563,    // WGS84 flattening of earth
         re = 6378.137,           // GRS80/WGS84 semi major axis of earth ellipsoid
         h = pos.h || 0,
         cart = {},

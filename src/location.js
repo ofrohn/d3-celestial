@@ -108,7 +108,11 @@ function geo(cfg) {
       geopos = [parseFloat(lat), parseFloat(lon)];
       zenith = Celestial.getPoint(horizontal.inverse(dtc, [90, 0], geopos), cfg.transform);
       zenith[2] = 0;
-      Celestial.rotate({center:zenith, horizon:cfg.horizon});
+      if (cfg.follow === "zenith") {
+        Celestial.rotate({center:zenith, horizon:cfg.horizon});
+      } else {
+        Celestial.apply({horizon:cfg.horizon});
+      }
     }
   }
 
