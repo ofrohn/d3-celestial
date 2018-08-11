@@ -44,6 +44,8 @@ var config = {
   orientationfixed: true,  // Keep orientation angle the same as center[2]
   geopos: null,       // optional initial geographic position [lat,lon] in degrees, 
                       // overrides center
+  follow: "zenith",   // on which coordinates to center the map, default: zenith, if location enabled, 
+                      // otherwise center
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: true,         // Display form for interactive settings
