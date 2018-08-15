@@ -205,14 +205,18 @@ _Symbol style_
 ### Adding Data
 
 __Exposed functions & objects__  
-* `Celestial.add({file:string, type:dso|line, callback:function, redraw:function)`  
-   Function to add data in json-format (dso) or directly (line) to the display  
-   _file_: complete url/path to json data file (type:dso)  
+* `Celestial.add({file:string, type:json|raw, callback:function, redraw:function)`  
+   Add data in json-format (json) or directly (raw) to the display  
+   The redraw function is added to the internal call stack of the main display routine  
+   _file_: complete url/path to json data file (type:json)  
    _type_: type of data being added  
-   _callback_: callback function to call when json is loaded (dso)  
-               or to directly add elements to the path (line)  
-   _redraw_: for interactive display, call when view changes (optional)  
+   _callback_: callback function to call when json is loaded (json)  
+               or to directly add elements to the path (raw)  
+   _redraw_: for interactive display, callback when view changes (optional)  
 
+* `Celestial.clear()`  
+   Deletes all previously added functions from the display call stack  
+   
 * `Celestial.getData(geojson, transform)`  
    Function to convert geojson coordinates to transformation  
    (equatorial, ecliptic, galactic, supergalactic)  

@@ -116,6 +116,9 @@ function geo(cfg) {
     }
   }
 
+  Celestial.getPosition = function (p) {
+    
+  };
 
   Celestial.date = function (dt) { 
     if (!dt) return date;  

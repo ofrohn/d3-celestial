@@ -3,13 +3,13 @@
 
 Celestial.add = function(dat) {
   var res = {};
-  //dat: {file: path, type:'dso|line', callback: func(), redraw: func()} 
+  //dat: {file: path, type:'json|raw', callback: func(), redraw: func()} 
   //or {file:file, size:null, shape:null, color:null}  TBI
   //  with size,shape,color: "prop=val:result;.." || function(prop) { .. return res; } 
   if (!has(dat, "type")) return console.log("Missing type");
   
-  if (dat.type === "dso" && (!has(dat, "file") || !has(dat, "callback"))) return console.log("Can't add data file");
-  if (dat.type === "line" && !has(dat, "callback")) return console.log("Can't add line");
+  if ((dat.type === "dso" || dat.type === "json") && (!has(dat, "file") || !has(dat, "callback"))) return console.log("Can't add data file");
+  if ((dat.type === "line" || dat.type === "raw") && !has(dat, "callback")) return console.log("Can't add line");
   
   if (has(dat, "file")) res.file = dat.file;
   res.type = dat.type;
