@@ -1,6 +1,6 @@
 /* global settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
-  version: '0.6.7',
+  version: '0.6.8',
   container: null,
   data: []
 };
@@ -771,6 +771,7 @@ Celestial.display = function(config) {
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;
   this.setConstStyle = setConstStyle;
+  this.dsoSymbol = dsoSymbol;
   this.redraw = redraw; 
   this.resize = function(config) { 
     if (config && has(config, "width")) cfg.width = config.width; 
