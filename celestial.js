@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.7',
+  version: '0.6.8',
   container: null,
   data: []
 };
@@ -658,7 +658,7 @@ Celestial.display = function(config) {
   }
 
   function dsoSize(prop) {
-    if (!prop.mag || prop.mag == 999) return Math.pow(parseInt(prop.dim) * dsobase * adapt / 7, 0.5); 
+    if (!prop.mag || prop.mag === 999) return Math.pow(parseInt(prop.dim) * dsobase * adapt / 1, 0.5); 
     return Math.pow(2 * dsobase * adapt - prop.mag, dsoexp);
   }
  
@@ -772,6 +772,7 @@ Celestial.display = function(config) {
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;
   this.setConstStyle = setConstStyle;
+  this.dsoSymbol = dsoSymbol;
   this.redraw = redraw; 
   this.resize = function(config) { 
     if (config && has(config, "width")) cfg.width = config.width; 

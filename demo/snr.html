@@ -8,7 +8,7 @@
 </head><body>
   <script type="text/javascript" src="../lib/d3.min.js"></script>
   <script type="text/javascript" src="../lib/d3.geo.projection.min.js"></script>
-  <script type="text/javascript" src="../celestial.min.js"></script>
+  <script type="text/javascript" src="../celestial.js"></script>
   <link rel="stylesheet" href="../celestial.css">
 
 <div style="overflow:hidden;margin:0 auto;"><div id="celestial-map"></div></div>
@@ -20,6 +20,7 @@
 // Some prettifying styles
 var config = { 
   projection: "aitoff", 
+  transform: "galactic",
   //center: [-65, 0],
   background: { fill: "#fff", stroke: "#000", opacity: 1, width: 1 },
   datapath: "https://ofrohn.github.io/data/",
@@ -28,9 +29,9 @@ var config = {
     names: false, 
     style: { fill: "#000", opacity:1 }, 
     limit: 6, 
-    size:5 
+    size: 5 
   },
-  dsos: { show: false },
+  dsos: { show: false, size: 10 },
   mw: { 
     style: { fill:"#996", opacity: 0.1 } 
   },
@@ -38,40 +39,34 @@ var config = {
 
 
 // Asterisms canvas style properties for lines and text
-var lineStyle = { 
-      stroke:"#f00", 
-      fill: "rgba(255, 204, 204, 0.4)",
-      width:3 
+var pointStyle = { 
+      stroke: "rgba(255, 0, 204, 1)", 
+      fill: "rgba(255, 0, 204, 0.15)"
     },
     textStyle = { 
-      fill:"#f00", 
-      font: "bold 15px Helvetica, Arial, sans-serif", 
-      align: "center", 
-      baseline: "middle" 
+      fill:"rgba(255, 0, 204, 1)", 
+      font: "15px Helvetica, Arial, sans-serif", 
+      align: "left", 
+      baseline: "bottom" 
     };
 
 // JSON structure of the object to be displayed, in this case 
 // the Summer Triangle between Vega, Deneb and Altair
-var jsonLine = {
+var jsonSnr = {
   "type":"FeatureCollection",
   // this is an array, add as many objects as you want
   "features":[
     {"type":"Feature",
-     "id":"SummerTriangle",
+     "id":"SomeDesignator",
      "properties": {
        // Name
-       "n":"Summer Triangle",
-       // Location of name text on the map
-       "loc": [-67.5, 52]
+       "name":"Some Name",
+       // Size in arcminutes
+       "dim": 10
      }, "geometry":{
        // the line object as an array of point coordinates
-       "type":"MultiLineString",
-       "coordinates":[[
-         [-80.7653, 38.7837],
-         [-62.3042, 8.8683],
-         [-49.642, 45.2803],
-         [-80.7653, 38.7837]
-       ]]
+       "type":"Point",
+       "coordinates": [-80.7653, 38.7837]
      }
     }  
   ]};
@@ -91,29 +86,34 @@ Celestial.add({type:"json", file:"https://ofrohn.github.io/data/dsos.20.json", c
     .attr("class", "snr"); 
   // Trigger redraw to display changes
   Celestial.redraw();
-}, redraw: function() {   
+}, redraw: function() {
   // Select the added objects by class name as given previously
   Celestial.container.selectAll(".snr").each(function(d) {
-    // Set line styles 
-    Celestial.setStyle(lineStyle);
-    // Project objects on map
-    Celestial.map(d);
-    // draw on canvas
-    Celestial.context.fill();
-    Celestial.context.stroke();
-    
     // If point is visible (this doesn't work automatically for points)
-    if (Celestial.clip(d.properties.loc)) {
+    if (Celestial.clip(d.geometry.coordinates)) {
       // get point coordinates
-      pt = Celestial.mapProjection(d.properties.loc);
+      var pt = Celestial.mapProjection(d.geometry.coordinates);
+      // object radius in pixel, could be varable depending on e.g. magnitude
+      var r = Math.pow(parseInt(d.properties.dim) * 0.25, 0.5);
+   
+      //Celestial.setStyle(pointStyle);
+      // draw on canvas
+      //var r = Celestial.dsoSymbol(d, pt);
+      // Set line styles
+      Celestial.setStyle(pointStyle);
+      Celestial.context.beginPath();
+      Celestial.context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
+      Celestial.context.closePath();
+      Celestial.context.stroke();
+      Celestial.context.fill();     
+
       // Set text styles       
       Celestial.setTextStyle(textStyle);
       // and draw text on canvas
-      Celestial.context.fillText(d.properties.n, pt[0], pt[1]);
-    }         
-  });
-
-} });
+      Celestial.context.fillText(d.properties.name, pt[0]+r, pt[1]+r);
+    }      
+  }); 
+}});
 
 Celestial.display(config);
     
