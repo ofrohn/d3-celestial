@@ -96,10 +96,8 @@ Celestial.add({type:"json", file:"https://ofrohn.github.io/data/dsos.20.json", c
       // object radius in pixel, could be varable depending on e.g. magnitude
       var r = Math.pow(parseInt(d.properties.dim) * 0.25, 0.5);
    
-      //Celestial.setStyle(pointStyle);
       // draw on canvas
-      //var r = Celestial.dsoSymbol(d, pt);
-      // Set line styles
+      // Set object styles
       Celestial.setStyle(pointStyle);
       Celestial.context.beginPath();
       Celestial.context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
