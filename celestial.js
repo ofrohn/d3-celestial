@@ -658,7 +658,7 @@ Celestial.display = function(config) {
   }
 
   function dsoSize(prop) {
-    if (!prop.mag || prop.mag === 999) return Math.pow(parseInt(prop.dim) * dsobase * adapt / 1, 0.5); 
+    if (!prop.mag || prop.mag === 999) return Math.pow(parseInt(prop.dim) * dsobase * adapt / 7, 0.5); 
     return Math.pow(2 * dsobase * adapt - prop.mag, dsoexp);
   }
  
