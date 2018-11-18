@@ -511,7 +511,8 @@ callback: function(error, json) {
     .attr("class", "snr"); 
   // Trigger redraw to display changes
   Celestial.redraw();
-}```
+}
+```
 
 However you add the data, as long as the receive the same class name - 'snr' in the examples above - the display method is the same, as shown below. 
 
