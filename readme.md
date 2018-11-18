@@ -315,7 +315,7 @@ __Animation sequence format:__
 
 ### HowTo
 
-__Add your own data__
+__1. Add your own data__
 
 First of all, whatever you add needs to be valid geoJSON. The various types of objects are described in the readme of the [data folder](./data/). This can be a separate file or a JSON object filled at runtime or defined inline. Like so:  
 
@@ -355,16 +355,16 @@ function hour2degree(ra) {
 }
 ```  
 
-You also need to define how the triangle is going to look like with some styles (see above):  
+You also need to define how the triangle is going to look like with some styles (see definitions above). The parameters and values usually have the same formats as SVG- or CSS-data:  
 
 ```js
 var lineStyle = { 
-      stroke:"#f00", 
+      stroke: "#f00", 
       fill: "rgba(255, 204, 204, 0.4)",
-      width:3 
+      width: 3 
     };
 var textStyle = { 
-      fill:"#f00", 
+      fill: "#f00", 
       font: "bold 15px Helvetica, Arial, sans-serif", 
       align: "center", 
       baseline: "bottom" 
@@ -373,9 +373,9 @@ var textStyle = {
 
 Now we can get to work, with the function
 
-`Celestial.add({file:string, type:dso|line, callback:function, redraw:function)`
+`Celestial.add({file:string, type:json|raw, callback:function, redraw:function)`
 
-The file argument is optional for providing an external geoJSON file, since we already defingd our data, we don't need it. Type is 'line', that leaves two function definiions, the first one gets called at loading, this is where we add our data to the d3-celestial data container, and redraw is called at every redraw event for the map. so here you need to define how to display the added object(s).  
+The file argument is optional for providing an external geoJSON file; since we already defined our data, we don't need it. Type is 'json' for JSON-Formatted data. That leaves two function definitions, the first one gets called on loading, this is where we add our data to the d3-celestial data container, and redraw is called on every redraw event for the map, this is where you define how to display the added object(s).  
 
 ```js
 callback: function(error, json) {
@@ -393,7 +393,7 @@ callback: function(error, json) {
 }
 ```
 
-The callback funtion is pretty straight forward: Load the data with Celestial.getData, add to Celestial.container in te usual d3 manner, and redraw. It also provides a json parameter that contains the parsed JSON if a file property is given, but we already have defined jsonLine above, so we use that.
+The callback funtion is pretty straight forward: Load the data with Celestial.getData, add to Celestial.container in the usual d3 manner, and redraw. It also provides a json parameter that contains the parsed JSON if a file property is given, but we already have defined jsonLine above, so we use that.
 
 ```js
 redraw: function() {   
@@ -427,6 +427,138 @@ Celestial.display();
 ```
 
 Finally, the whole map is displayed. The complete sample code is in the file [triangle.html](demo/triangle.html) in the demo folder
+
+__2. Add point sources__
+
+First we have to define the objects as valid geoJSON data again, as described in in the readme of the [data folder](./data/). Since they are point sources, the definition is quite simple, since the geometry only needs single points. If distinct point sizes are desired, a size criterium in the properties section is required, like the magitude or extension of each object, and also a name if one should appear on the map. [This example](demo/snr.html) uses supernova remnants filtered from the main dso data file, but you can define your own data as below:   
+
+```js
+var jsonSN = {
+  "type":"FeatureCollection",
+  // this is an array, add as many objects as you want
+  "features":[
+    {"type":"Feature",
+     "id":"SomeDesignator",
+     "properties": {
+       // Name
+       "name":"Some Name",
+       // magnitude, dimension in arcseconds or any other size criterium
+       "mag": 10,
+       "dim": 30
+     }, "geometry":{
+       // the location of the object as a [ra, dec] array in degrees [-180..180, -90..90]
+       "type":"Point",
+       "coordinates": [-80.7653, 38.7837]
+     }
+    }  
+  ]};
+```
+
+Next we define the apperance of the objects and their names, as they should appear on the map. The values are again equivalent to CSS-formats. Fill and stroke colors are only necessary if the objects should appear solid (fill) or as an outline (stroke), or an outline with a semitransparent filling as below. Width gives the stroke-linewidth.  
+
+```js
+var pointStyle = { 
+      stroke: "#f0f", 
+      width: 3,
+      fill: "rgba(255, 204, 255, 0.4)"
+    };
+var textStyle = { 
+      fill:"#f0f", 
+      font: "bold 15px Helvetica, Arial, sans-serif", 
+      align: "left", 
+      baseline: "bottom" 
+    };
+```
+
+Now we are ready to add the functions that do the real work of putting the data on the map.
+
+```js
+Celestial.add({file:string, type:json|raw, callback:function, redraw:function)
+```
+
+The file argument is optional for providing an external geoJSON file; since we already defined our data, we don't need it. Type is 'line', that leaves two function definiions, the first one gets called at loading, this is where we add our data to the d3-celestial data container, and redraw is called at every redraw event for the map. so here you need to define how to display the added object(s).
+
+```js
+callback: function(error, json) {
+  if (error) return console.warn(error);
+  // Load the geoJSON file and transform to correct coordinate system, if necessary
+  var dsn = Celestial.getData(jsonSN, config.transform);
+
+  // Add to celestial objects container in d3
+  Celestial.container.selectAll(".snrs")
+    .data(asterism.features)
+    .enter().append("path")
+    .attr("class", "snr"); 
+  // Trigger redraw to display changes
+  Celestial.redraw();
+}
+```
+
+Here are two different possibilities to add data to the D3 data container, add the data defined as a JSO-Object in the page, as above in the jsonSN object. Or add dta from an external file with optional filtering, as shown below. In this case the file parameter of the Celsestial.add() funtion needs to give a valid file-url to the data file, while the filter function returns true for every object that meets the intended criteria. 
+
+```js
+callback: function(error, json) {
+  if (error) return console.warn(error);
+  // Load the geoJSON file and transform to correct coordinate system, if necessary
+  var dsos = Celestial.getData(json, config.transform);
+
+  // Filter SNRs and add to celestial objects container in d3
+  Celestial.container.selectAll(".snrs")
+    .data(dsos.features.filter(function(d) {
+      return d.properties.type === 'snr'
+    }))
+    .enter().append("path")
+    .attr("class", "snr"); 
+  // Trigger redraw to display changes
+  Celestial.redraw();
+}```
+
+However you add the data, as long as the receive the same class name - 'snr' in the examples above - the display method is the same, as shown below. 
+
+```js
+redraw: function() {
+  // Select the added objects by class name as given previously
+  Celestial.container.selectAll(".snr").each(function(d) {
+    // If point is visible (this doesn't work automatically for points)
+    if (Celestial.clip(d.geometry.coordinates)) {
+      // get point coordinates
+      var pt = Celestial.mapProjection(d.geometry.coordinates);
+      // object radius in pixel, could be varable depending on e.g. dimension or magnitude 
+      var r = Math.pow(20 - prop.mag, 0.7); // replace 20 with dimmest magnitude in the data
+   
+      // draw on canvas
+      //  Set object styles fill color, line color & width etc.
+      Celestial.setStyle(pointStyle);
+      // Start the drawing path
+      Celestial.context.beginPath();
+      // Thats a circle in html5 canvas
+      Celestial.context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
+      // Finish the drawing path
+      Celestial.context.closePath();
+      // Draw a line along the path with the prevoiusly set stroke color and line width      
+      Celestial.context.stroke();
+      // Fill the object path with the prevoiusly set fill color
+      Celestial.context.fill();     
+
+      // Set text styles       
+      Celestial.setTextStyle(textStyle);
+      // and draw text on canvas
+      Celestial.context.fillText(d.properties.name, pt[0]+r, pt[1]+r);
+    }      
+  }); 
+}});
+```
+
+With point data we can't rely on the map function to do all the work, we need to paint on the canvas step by step. First, check if the piont is currently displayed (clip), the get the location (mapProjection), size (whatever scaling formula you like).  
+
+Now follows the actual painting: set the styles (fill color, stroke color & width), followed by whatever canvas commands are requiered to draw the object shape, here a filled circle outline. And then the same for the adjacent object name offset by the previously calculated radius.  
+
+```js
+Celestial.display();
+```
+
+Finally, the whole map can be displaye. The complete sample code is in the file [snr.html](demo/snr.html) in the demo folder
+
 
 ### Files
 

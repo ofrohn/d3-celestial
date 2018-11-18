@@ -8,7 +8,7 @@
 </head><body>
   <script type="text/javascript" src="../lib/d3.min.js"></script>
   <script type="text/javascript" src="../lib/d3.geo.projection.min.js"></script>
-  <script type="text/javascript" src="../celestial.js"></script>
+  <script type="text/javascript" src="../celestial.min.js"></script>
   <link rel="stylesheet" href="../celestial.css">
 
 <div style="overflow:hidden;margin:0 auto;"><div id="celestial-map"></div></div>
@@ -99,10 +99,15 @@ Celestial.add({type:"json", file:"https://ofrohn.github.io/data/dsos.20.json", c
       // draw on canvas
       // Set object styles
       Celestial.setStyle(pointStyle);
+      // Start the drawing path
       Celestial.context.beginPath();
+      // Thats a circle in html5 canvas
       Celestial.context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
+      // Finish the drawing path
       Celestial.context.closePath();
+      // Draw a line along the path with the prevoiusly set stroke color and line width      
       Celestial.context.stroke();
+      // Fill the object path with the prevoiusly set fill color
       Celestial.context.fill();     
 
       // Set text styles       
