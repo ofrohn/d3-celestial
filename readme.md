@@ -558,7 +558,7 @@ Now follows the actual painting: set the styles (fill color, stroke color & widt
 Celestial.display();
 ```
 
-Finally, the whole map can be displaye. The complete sample code is in the file [snr.html](demo/snr.html) in the demo folder
+Finally, the whole map can be displayed. The complete sample code is in the file [snr.html](demo/snr.html) in the demo folder
 
 
 ### Files
