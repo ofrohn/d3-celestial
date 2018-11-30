@@ -8,7 +8,7 @@ Celestial.add = function(dat) {
   //  with size,shape,color: "prop=val:result;.." || function(prop) { .. return res; } 
   if (!has(dat, "type")) return console.log("Missing type");
   
-  if ((dat.type === "dso" || dat.type === "json") && (!has(dat, "file") || !has(dat, "callback"))) return console.log("Can't add data file");
+  if ((dat.type === "dso" || dat.type === "json") && (!has(dat, "file") && !has(dat, "callback"))) return console.log("Can't add data file");
   if ((dat.type === "line" || dat.type === "raw") && !has(dat, "callback")) return console.log("Can't add line");
   
   if (has(dat, "file")) res.file = dat.file;
