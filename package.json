@@ -6,7 +6,9 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "d3": "^3.5.17"
+  },
   "devDependencies": {
     "jsdom": "^3.1.0",
     "jshint": "^2.6.0",
