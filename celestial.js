@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.8',
+  version: '0.6.10',
   container: null,
   data: []
 };
@@ -816,6 +816,59 @@ Celestial.display = function(config) {
   if (!has(this, "date"))
     this.date = function() { console.log("Celestial.date() needs config.location = true to work." ); };
   
+
+  module.exports = {
+    container:  function() { return container; },
+    clip: function(coords) { clip(coords); },
+    map:  function() { return map; },
+    mapProjection:  function() { return prjMap; },
+    context:   function() { return context; },
+    setStyle:   function(s) { setStyle(s); },
+    setTextStyle:  function(s) { setTextStyle(s); },
+    setConstStyle: function(rank, font) { setConstStyle(rank, font); },
+    dsoSymbol: function(d, pt) { dsoSymbol(d, pt); },
+    redraw:  function() { redraw(); },
+    resize: function(config) { 
+      if (config && has(config, "width")) cfg.width = config.width; 
+      resize(true); 
+    }, 
+    reload: function(config) { 
+      if (!config || !has(config, "transform")) return;
+      trans = cfg.transform = config.transform; 
+      if (trans === "equatorial") graticule.minorStep([15,10]);
+      else  graticule.minorStep([10,10]);
+      container.selectAll("*").remove(); 
+      setClip();
+      container.append("path").datum(circle).attr("class", "horizon");
+      load(); 
+    }, 
+    apply: function(config) { apply(config); },
+    reproject: function(config) { return reproject(config); },
+    rotate: function(config) { if (!config) return cfg.center; return rotate(config); }, 
+    zoomBy: function(factor) { if (!factor) return prjMap.scale()/scale; return zoomBy(factor); },
+    color: function(type) {
+      if (!type) return "#000";
+      if (has(cfg.dsos.symbols, type)) return cfg.dsos.symbols[type].fill;
+      return "#000";
+    },
+    animate: function(anims, dorepeat) { 
+      if (!anims) return; 
+      animations = anims; 
+      current = 0; 
+      repeat = dorepeat ? true : false; 
+      animate(); 
+    },
+    stop: function(wipe) {
+      stop();
+      if (wipe === true) animations = [];
+    },
+    go: function(index) {
+        if (animations.length < 1) return;
+        if (index && index < animations.length) current = index;
+        animate(); 
+      }
+  };  
+  
   load();
 };
 
@@ -1064,7 +1117,7 @@ Celestial.add = function(dat) {
   if (!has(dat, "type")) return console.log("Missing type");
   
   if ((dat.type === "dso" || dat.type === "json") && (!has(dat, "file") || !has(dat, "callback"))) return console.log("Can't add data file");
-  if ((dat.type === "line" || dat.type === "raw") && !has(dat, "callback")) return console.log("Can't add line");
+  if ((dat.type === "line" || dat.type === "raw") && !has(dat, "callback")) return console.log("Can't add data");
   
   if (has(dat, "file")) res.file = dat.file;
   res.type = dat.type;
