@@ -816,8 +816,8 @@ Celestial.display = function(config) {
   if (!has(this, "date"))
     this.date = function() { console.log("Celestial.date() needs config.location = true to work." ); };
   
-
-  module.exports = {
+  /*
+  exports = {
     container:  function() { return container; },
     clip: function(coords) { clip(coords); },
     map:  function() { return map; },
@@ -868,7 +868,7 @@ Celestial.display = function(config) {
         animate(); 
       }
   };  
-  
+  */
   load();
 };
 

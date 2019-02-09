@@ -1,4 +1,4 @@
-/* global module, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, form, geo, fldEnable, setCenter, interpolateAngle */
+/* global exports, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
   version: '0.6.10',
   container: null,
@@ -815,8 +815,8 @@ Celestial.display = function(config) {
   if (!has(this, "date"))
     this.date = function() { console.log("Celestial.date() needs config.location = true to work." ); };
   
-
-  module.exports = {
+  /*
+  exports = {
     container:  function() { return container; },
     clip: function(coords) { clip(coords); },
     map:  function() { return map; },
@@ -867,6 +867,6 @@ Celestial.display = function(config) {
         animate(); 
       }
   };  
-  
+  */
   load();
 };
