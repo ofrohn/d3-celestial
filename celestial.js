@@ -872,6 +872,8 @@ Celestial.display = function(config) {
   load();
 };
 
+if (typeof module === "object" && module.exports) module.exports = Celestial;
+
 
 //Flipped projection generated on the fly
 Celestial.projection = function(projection) {
