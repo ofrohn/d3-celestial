@@ -45,7 +45,7 @@ var pointStyle = {
     },
     textStyle = { 
       fill:"rgba(255, 0, 204, 1)", 
-      font: "15px Helvetica, Arial, sans-serif", 
+      font: "normal bold 15px Helvetica, Arial, sans-serif", 
       align: "left", 
       baseline: "bottom" 
     };
@@ -70,7 +70,9 @@ var jsonSnr = {
      }
     }  
   ]};
-  
+
+// Closest distance between labels
+var PROXIMITY_LIMIT = 20;
 
 Celestial.add({type:"json", file:"https://ofrohn.github.io/data/dsos.20.json", callback: function(error, json) {
   if (error) return console.warn(error);
@@ -87,6 +89,10 @@ Celestial.add({type:"json", file:"https://ofrohn.github.io/data/dsos.20.json", c
   // Trigger redraw to display changes
   Celestial.redraw();
 }, redraw: function() {
+  var m = Celestial.metrics(), // Get the current map size in pixels
+      // empty quadtree, will be used for proximity check
+      quadtree = d3.geom.quadtree().extent([[-1, -1], [m.width + 1, m. height + 1]])([]);
+  
   // Select the added objects by class name as given previously
   Celestial.container.selectAll(".snr").each(function(d) {
     // If point is visible (this doesn't work automatically for points)
@@ -109,14 +115,29 @@ Celestial.add({type:"json", file:"https://ofrohn.github.io/data/dsos.20.json", c
       Celestial.context.stroke();
       // Fill the object path with the prevoiusly set fill color
       Celestial.context.fill();     
-
-      // Set text styles       
-      Celestial.setTextStyle(textStyle);
-      // and draw text on canvas
-      Celestial.context.fillText(d.properties.name, pt[0]+r, pt[1]+r);
+     
+      // Find nearest neighbor
+      var nearest = quadtree.find(pt);
+      
+      // If neigbor exists, check distance limit
+      if (!nearest || distance(nearest, pt) > PROXIMITY_LIMIT) { 
+        // Nothing too close, add it and go on
+        quadtree.add(pt)
+        // Set text styles       
+        Celestial.setTextStyle(textStyle);
+        // and draw text on canvas with offset
+        Celestial.context.fillText(d.properties.name, pt[0] + r + 2, pt[1] + r + 2);
+      }
     }      
   }); 
 }});
+
+// Simple point distance function
+function distance(p1, p2) {
+  var d1 = p2[0] - p1[0],
+      d2 = p2[1] - p1[1];
+  return Math.sqrt(d1 * d1 + d2 * d2);
+}
 
 Celestial.display(config);
     

@@ -98,5 +98,8 @@ var Trig = {
         θ = Math.atan(p.y / p.x),
         ϕ = Math.acos(p.z / r);
     return  [θ / deg2rad, ϕ / deg2rad, r];
+  },
+  distance: function(p1, p2) {
+    return Math.acos(Math.sin(p1[1])*Math.sin(p2[1]) + Math.cos(p1[1])*Math.cos(p2[1])*Math.cos(p1[0]-p2[0]));
   }
 };

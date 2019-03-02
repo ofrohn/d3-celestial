@@ -558,7 +558,31 @@ Now follows the actual painting: set the styles (fill color, stroke color & widt
 Celestial.display();
 ```
 
-Finally, the whole map can be displayed. The complete sample code is in the file [snr.html](demo/snr.html) in the demo folder
+Finally, the whole map can be displayed.  
+
+You will note that there is a lot of overlap between distinct labels. Fortunately, d3 already has a solution for this: d3.geom.quadtree, which builds a hiearchical data structure ordered by proximity.
+First we set the closest distance between two labels in pixels, get the map dimensions from Celestial.metrics, and create a quadtree object with the extent of those dimensions.
+
+```js
+var PROXIMITY_LIMIT = 20,
+    m = Celestial.metrics(), 
+    quadtree = d3.geom.quadtree().extent([[-1, -1], [m.width + 1, m. height + 1]])([]);
+```
+
+After getting the projected map position in pixelspace, drawing the snr symbol, we use the quadtree.find() function to find the nearest neighbor relative to this position, and if it is more distant than our limit above, add it to quadtree and draw the label.
+
+```js
+var nearest = quadtree.find(pt);
+
+if (!nearest || distance(nearest, pt) > PROXIMITY_LIMIT) { 
+  quadtree.add(pt)
+  // draw the label
+}
+```
+
+This will only draw non-overlapping labels and scales with zoom-level, since it checks in pixel-space and not in coordinate-space.  
+  
+The complete sample code is in the file [snr.html](demo/snr.html) in the demo folder.  
 
 
 ### Files

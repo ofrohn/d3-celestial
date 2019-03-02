@@ -769,6 +769,9 @@ Celestial.display = function(config) {
   this.map = map;
   this.mapProjection = prjMap;
   this.context = context;
+  this.metrics = function() {
+    return {"width": width, "height": height};
+  };
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;
   this.setConstStyle = setConstStyle;
@@ -816,62 +819,10 @@ Celestial.display = function(config) {
   if (!has(this, "date"))
     this.date = function() { console.log("Celestial.date() needs config.location = true to work." ); };
   
-  /*
-  exports = {
-    container:  function() { return container; },
-    clip: function(coords) { clip(coords); },
-    map:  function() { return map; },
-    mapProjection:  function() { return prjMap; },
-    context:   function() { return context; },
-    setStyle:   function(s) { setStyle(s); },
-    setTextStyle:  function(s) { setTextStyle(s); },
-    setConstStyle: function(rank, font) { setConstStyle(rank, font); },
-    dsoSymbol: function(d, pt) { dsoSymbol(d, pt); },
-    redraw:  function() { redraw(); },
-    resize: function(config) { 
-      if (config && has(config, "width")) cfg.width = config.width; 
-      resize(true); 
-    }, 
-    reload: function(config) { 
-      if (!config || !has(config, "transform")) return;
-      trans = cfg.transform = config.transform; 
-      if (trans === "equatorial") graticule.minorStep([15,10]);
-      else  graticule.minorStep([10,10]);
-      container.selectAll("*").remove(); 
-      setClip();
-      container.append("path").datum(circle).attr("class", "horizon");
-      load(); 
-    }, 
-    apply: function(config) { apply(config); },
-    reproject: function(config) { return reproject(config); },
-    rotate: function(config) { if (!config) return cfg.center; return rotate(config); }, 
-    zoomBy: function(factor) { if (!factor) return prjMap.scale()/scale; return zoomBy(factor); },
-    color: function(type) {
-      if (!type) return "#000";
-      if (has(cfg.dsos.symbols, type)) return cfg.dsos.symbols[type].fill;
-      return "#000";
-    },
-    animate: function(anims, dorepeat) { 
-      if (!anims) return; 
-      animations = anims; 
-      current = 0; 
-      repeat = dorepeat ? true : false; 
-      animate(); 
-    },
-    stop: function(wipe) {
-      stop();
-      if (wipe === true) animations = [];
-    },
-    go: function(index) {
-        if (animations.length < 1) return;
-        if (index && index < animations.length) current = index;
-        animate(); 
-      }
-  };  
-  */
   load();
 };
 
+//Export entire object if invoked by require
 if (typeof module === "object" && module.exports) module.exports = Celestial;
 
 
@@ -1916,6 +1867,9 @@ var Trig = {
         θ = Math.atan(p.y / p.x),
         ϕ = Math.acos(p.z / r);
     return  [θ / deg2rad, ϕ / deg2rad, r];
+  },
+  distance: function(p1, p2) {
+    return Math.acos(Math.sin(p1[1])*Math.sin(p2[1]) + Math.cos(p1[1])*Math.cos(p2[1])*Math.cos(p1[0]-p2[0]));
   }
 };
 
