@@ -560,6 +560,8 @@ Celestial.display();
 
 Finally, the whole map can be displayed.  
 
+__Bonus: Avoid overlapping labels__  
+
 You will note that there is a lot of overlap between distinct labels. Fortunately, d3 already has a solution for this: d3.geom.quadtree, which builds a hiearchical data structure ordered by proximity.
 First we set the closest distance between two labels in pixels, get the map dimensions from Celestial.metrics, and create a quadtree object with the extent of those dimensions.
 
