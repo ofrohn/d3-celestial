@@ -437,7 +437,7 @@ Finally, the whole map is displayed. The complete sample code is in the file [tr
 
 __2. Add point sources__
 
-First we have to define the objects as valid geoJSON data again, as described in the readme of the [data folder](./data/). Since we're dealing with point sources, the definition is quite simple, the geometry only needs single points. If distinct point sizes are desired, a size criterium in the properties section is required, like the magitude or extension of each object, and also a name if you want to label the objects on the map. This example uses supernova remnants filtered from the main deep space objects data file that comes with d3-celestial, but you can define your own data as below:
+First we have to define the objects as valid geoJSON data again, as described in the readme of the [data folder](./data/). Since we're dealing with point sources, the definition is quite simple, the geometry only needs single points. If distinct point sizes are desired, a size criterion in the properties section is required, like the magnitude or extension of each object, and also a name if you want to label the objects on the map. This example uses supernova remnants filtered from the main deep space objects data file that comes with d3-celestial, but you can define your own data as below:
     
 ```js
 var jsonSN = {
@@ -449,7 +449,7 @@ var jsonSN = {
      "properties": {
        // Name
        "name":"Some Name",
-       // magnitude, dimension in arcseconds or any other size criterium
+       // magnitude, dimension in arcseconds or any other size criterion
        "mag": 10,
        "dim": 30
      }, "geometry":{
@@ -461,7 +461,7 @@ var jsonSN = {
   ]};
 ```
 
-Next we define the apperance of the objects and labels as they will appear on the map. The values are equivalent to CSS-formats. Fill and stroke colors are only necessary if the objects should appear solid (fill) or as an outline (stroke), or an outline with a semitransparent filling as below. Width gives the line width for outlines.  
+Next we define the appearance of the objects and labels as they will appear on the map. The values are equivalent to CSS-formats. Fill and stroke colors are only necessary if the objects should appear solid (fill) or as an outline (stroke), or an outline with a semitransparent filling as below. Width gives the line width for outlines.  
 
 ```js
 var pointStyle = { 
@@ -501,7 +501,7 @@ callback: function(error, json) {
 }
 ```
 
-Or add data from an external file with optional filtering, as shown below. In this case the file parameter of the Celsestial.add() funtion needs to give a valid url to the data file, while the filter function returns true for every object that meets the intended criteria.  
+Or add data from an external file with optional filtering, as shown below. In this case the file parameter of the Celsestial.add() function needs to give a valid url to the data file, while the filter function returns true for every object that meets the intended criteria.  
 
 ```js
 callback: function(error, json) {
@@ -523,7 +523,7 @@ callback: function(error, json) {
 
 However you add the data, as long as they receive the same class name - 'snr' in the examples above - the display method is the same, as shown below. With point data we can't rely on the map function to do all the work, we need to paint on the canvas step by step. First, check if the point is currently displayed (clip), then get the location (mapProjection), size (whatever scaling formula you like) and styling.  
   
-Now we are ready to throw pixels at the canvas: set the styles (fill color, stroke color & width), followed by whatever canvas commands are requiered to draw the object shape, here a filled circle outline. And then the same for the adjacent object name offset by the previously calculated radius.  
+Now we are ready to throw pixels at the canvas: set the styles (fill color, stroke color & width), followed by whatever canvas commands are required to draw the object shape, here a filled circle outline. And then the same for the adjacent object name offset by the previously calculated radius.  
 
 ```js
 redraw: function() {
@@ -577,7 +577,7 @@ var PROXIMITY_LIMIT = 20,
     quadtree = d3.geom.quadtree().extent([[-1, -1], [m.width + 1, m. height + 1]])([]);
 ```
 
-After proceding as above - get the projected map position in pixelspace (pt) and draw the snr symbol - we use the quadtree.find() function to find the nearest neighbor relative to this position, and if it is more distant than our limit above, add it to quadtree and draw the label, otherwise don't.
+After proceeding as above - get the projected map position in pixelspace (pt) and draw the snr symbol - we use the quadtree.find() function to find the nearest neighbor relative to this position, and if it is more distant than our limit above, add it to quadtree and draw the label, otherwise don't.
 
 ```js
 var nearest = quadtree.find(pt);
@@ -590,7 +590,7 @@ if (!nearest || distance(nearest, pt) > PROXIMITY_LIMIT) {
 
 This will only draw non-overlapping labels and scales with zoom-level, since it checks in pixel-space and not in coordinate-space.  
   
-Now we need just one more thing, the distance function used above. Which is the standard Pythagorean square root of the sum of the differences squared function.  
+Now we need just one more thing, the distance function used above, which is the standard Pythagorean square root of the sum of the differences squared function.  
 
 
 ```js
