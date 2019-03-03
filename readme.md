@@ -202,6 +202,13 @@ _Symbol style_
 `shape`: symbol shape (circle|square|diamond|ellipse|marker or whatever else is defined in canvas.js)  
 `symbol`: unicode charcter to represent solar system object.
 
+### Getting Info
+
+__Exposed functions & objects__ 
+* `Celestial.metrics()`  
+   Return object literal with current map dimensions in pixels
+   {width, height}
+
 ### Adding Data
 
 __Exposed functions & objects__  
@@ -430,8 +437,8 @@ Finally, the whole map is displayed. The complete sample code is in the file [tr
 
 __2. Add point sources__
 
-First we have to define the objects as valid geoJSON data again, as described in in the readme of the [data folder](./data/). Since they are point sources, the definition is quite simple, since the geometry only needs single points. If distinct point sizes are desired, a size criterium in the properties section is required, like the magitude or extension of each object, and also a name if one should appear on the map. [This example](demo/snr.html) uses supernova remnants filtered from the main dso data file, but you can define your own data as below:   
-
+First we have to define the objects as valid geoJSON data again, as described in the readme of the [data folder](./data/). Since we're dealing with point sources, the definition is quite simple, the geometry only needs single points. If distinct point sizes are desired, a size criterium in the properties section is required, like the magitude or extension of each object, and also a name if you want to label the objects on the map. This example uses supernova remnants filtered from the main deep space objects data file that comes with d3-celestial, but you can define your own data as below:
+    
 ```js
 var jsonSN = {
   "type":"FeatureCollection",
@@ -454,7 +461,7 @@ var jsonSN = {
   ]};
 ```
 
-Next we define the apperance of the objects and their names, as they should appear on the map. The values are again equivalent to CSS-formats. Fill and stroke colors are only necessary if the objects should appear solid (fill) or as an outline (stroke), or an outline with a semitransparent filling as below. Width gives the stroke-linewidth.  
+Next we define the apperance of the objects and labels as they will appear on the map. The values are equivalent to CSS-formats. Fill and stroke colors are only necessary if the objects should appear solid (fill) or as an outline (stroke), or an outline with a semitransparent filling as below. Width gives the line width for outlines.  
 
 ```js
 var pointStyle = { 
@@ -476,7 +483,7 @@ Now we are ready to add the functions that do the real work of putting the data 
 Celestial.add({file:string, type:json|raw, callback:function, redraw:function)
 ```
 
-The file argument is optional for providing an external geoJSON file; since we already defined our data, we don't need it. Type is 'line', that leaves two function definiions, the first one gets called at loading, this is where we add our data to the d3-celestial data container, and redraw is called at every redraw event for the map. so here you need to define how to display the added object(s).
+The file argument is optional for providing an external geoJSON file; since we already defined our data, we don't need it. Type is 'line', that leaves two function definitions: the first one is called at loading, this is where we add our data to the d3-celestial data container, while the second function 'redraw' is called at every redraw event for the map. So here you need to define how to display the added object(s). Here are two different possibilities to add data to the D3 data container. Either add the data defined as a JSON-Object in-page, as below with the jsonSN object we defined before. 
 
 ```js
 callback: function(error, json) {
@@ -494,7 +501,7 @@ callback: function(error, json) {
 }
 ```
 
-Here are two different possibilities to add data to the D3 data container, add the data defined as a JSO-Object in the page, as above in the jsonSN object. Or add dta from an external file with optional filtering, as shown below. In this case the file parameter of the Celsestial.add() funtion needs to give a valid file-url to the data file, while the filter function returns true for every object that meets the intended criteria. 
+Or add data from an external file with optional filtering, as shown below. In this case the file parameter of the Celsestial.add() funtion needs to give a valid url to the data file, while the filter function returns true for every object that meets the intended criteria.  
 
 ```js
 callback: function(error, json) {
@@ -514,7 +521,9 @@ callback: function(error, json) {
 }
 ```
 
-However you add the data, as long as the receive the same class name - 'snr' in the examples above - the display method is the same, as shown below. 
+However you add the data, as long as they receive the same class name - 'snr' in the examples above - the display method is the same, as shown below. With point data we can't rely on the map function to do all the work, we need to paint on the canvas step by step. First, check if the point is currently displayed (clip), then get the location (mapProjection), size (whatever scaling formula you like) and styling.  
+  
+Now we are ready to throw pixels at the canvas: set the styles (fill color, stroke color & width), followed by whatever canvas commands are requiered to draw the object shape, here a filled circle outline. And then the same for the adjacent object name offset by the previously calculated radius.  
 
 ```js
 redraw: function() {
@@ -544,26 +553,23 @@ redraw: function() {
       // Set text styles       
       Celestial.setTextStyle(textStyle);
       // and draw text on canvas
-      Celestial.context.fillText(d.properties.name, pt[0]+r, pt[1]+r);
+      Celestial.context.fillText(d.properties.name, pt[0] + r - 1, pt[1] - r + 1);
     }      
   }); 
 }});
 ```
 
-With point data we can't rely on the map function to do all the work, we need to paint on the canvas step by step. First, check if the piont is currently displayed (clip), the get the location (mapProjection), size (whatever scaling formula you like).  
-
-Now follows the actual painting: set the styles (fill color, stroke color & width), followed by whatever canvas commands are requiered to draw the object shape, here a filled circle outline. And then the same for the adjacent object name offset by the previously calculated radius.  
+Finally, the whole map can be displayed.   
 
 ```js
 Celestial.display();
 ```
-
-Finally, the whole map can be displayed.  
+ 
 
 __Bonus: Avoid overlapping labels__  
 
 You will note that there is a lot of overlap between distinct labels. Fortunately, d3 already has a solution for this: d3.geom.quadtree, which builds a hiearchical data structure ordered by proximity.
-First we set the closest distance between two labels in pixels, get the map dimensions from Celestial.metrics, and create a quadtree object with the extent of those dimensions.
+First we set the closest allowed distance between two labels in pixels, get the map dimensions from Celestial.metrics, and create a quadtree object with the extent of those dimensions.
 
 ```js
 var PROXIMITY_LIMIT = 20,
@@ -571,21 +577,32 @@ var PROXIMITY_LIMIT = 20,
     quadtree = d3.geom.quadtree().extent([[-1, -1], [m.width + 1, m. height + 1]])([]);
 ```
 
-After getting the projected map position in pixelspace, drawing the snr symbol, we use the quadtree.find() function to find the nearest neighbor relative to this position, and if it is more distant than our limit above, add it to quadtree and draw the label.
+After proceding as above - get the projected map position in pixelspace (pt) and draw the snr symbol - we use the quadtree.find() function to find the nearest neighbor relative to this position, and if it is more distant than our limit above, add it to quadtree and draw the label, otherwise don't.
 
 ```js
 var nearest = quadtree.find(pt);
 
 if (!nearest || distance(nearest, pt) > PROXIMITY_LIMIT) { 
   quadtree.add(pt)
-  // draw the label
+  // draw the label as above
 }
 ```
 
 This will only draw non-overlapping labels and scales with zoom-level, since it checks in pixel-space and not in coordinate-space.  
   
-The complete sample code is in the file [snr.html](demo/snr.html) in the demo folder.  
+Now we need just one more thing, the distance function used above. Which is the standard Pythagorean square root of the sum of the differences squared function.  
 
+
+```js
+// Simple point distance function
+function distance(p1, p2) {
+  var d1 = p2[0] - p1[0],
+      d2 = p2[1] - p1[1];
+  return Math.sqrt(d1 * d1 + d2 * d2);
+}
+```
+  
+The complete sample code is in the file [snr.html](demo/snr.html) in the demo folder.  
 
 ### Files
 
