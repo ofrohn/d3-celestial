@@ -1,4 +1,4 @@
-/* global module, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, form, geo, fldEnable, setCenter, interpolateAngle */
+/* global module, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
   version: '0.6.10',
   container: null,
@@ -10,8 +10,9 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
     ANIMINTERVAL_R = 2000, // Rotation duration scale in ms
     ANIMINTERVAL_P = 2500, // Projection duration in ms
     ANIMINTERVAL_Z = 1500, // Zoom duration scale in ms
-    ZOOMEXTENT = 10;        // Maximum extent of zoom (max/min)
-    
+    zoomextent = 10,       // Default maximum extent of zoom (max/min)
+    zoomlevel = 1;         // Default zoom level, 1 = 100%
+
 var cfg, prjMap, zoom, map, circle;
 
 // Show it all, with the given config, otherwise with default settings
@@ -23,9 +24,11 @@ Celestial.display = function(config) {
   cfg = settings.set(config); 
   cfg.stars.size = cfg.stars.size || 7;  // Nothing works without these
 	cfg.stars.exponent = cfg.stars.exponent || -0.28;
-  cfg.center = cfg.center || [0,0];     
+  cfg.center = cfg.center || [0,0];
   if (!cfg.lang || cfg.lang.search(/^de|es$/) === -1) cfg.lang = "name";
-  
+  if (isNumber(cfg.zoomextend)) zoomextent = cfg.zoomextend;
+  if (isNumber(cfg.zoomlevel)) zoomlevel = cfg.zoomlevel;
+
   var parent = $(cfg.container);
   if (parent) { 
     par = "#"+cfg.container;
@@ -59,9 +62,11 @@ Celestial.display = function(config) {
       
   if (par != "body") $(cfg.container).style.height = px(height);
   
-  prjMap = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale(scale);
+  prjMap = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale(scale * zoomlevel);
     
-  zoom = d3.geo.zoom().projection(prjMap).center([width/2, height/2]).scaleExtent([scale, scale*ZOOMEXTENT]).on("zoom.redraw", redraw);
+  zoom = d3.geo.zoom().projection(prjMap).center([width/2, height/2]).scaleExtent([scale, scale * zoomextent]).on("zoom.redraw", redraw);
+  // Set initial zoom level
+  scale *= zoomlevel;
 
   var canvas = d3.select(par).selectAll("canvas");
   if (canvas[0].length === 0) canvas = d3.select(par).append("canvas");
@@ -334,9 +339,10 @@ Celestial.display = function(config) {
     height = width/ratio;
     scale = proj.scale * width/1024;
     canvas.attr("width", width).attr("height", height);
-    zoom.scaleExtent([scale, scale*ZOOMEXTENT]).scale(scale);
-    prjMap.translate([width/2, height/2]).scale(scale);
+    zoom.scaleExtent([scale, scale * zoomextent]).scale(scale * zoomlevel);
+    prjMap.translate([width/2, height/2]).scale(scale * zoomlevel);
     if (parent) parent.style.height = px(height);
+    scale *= zoomlevel;
     redraw();
   }
 
@@ -385,11 +391,12 @@ Celestial.display = function(config) {
       canvas.attr("width", width).attr("height", height);
       if (parent) parent.style.height = px(height);
       cfg.projection = config.projection;
-      prjMap = Celestial.projection(config.projection).rotate(rot).translate([width/2, height/2]).scale(scale);
+      prjMap = Celestial.projection(config.projection).rotate(rot).translate([width/2, height/2]).scale(scale * zoomlevel);
       map.projection(prjMap);
       setClip(proj.clip); 
-      zoom.projection(prjMap).scaleExtent([scale, scale*ZOOMEXTENT]).scale(scale);
+      zoom.projection(prjMap).scaleExtent([scale, scale * zoomextent]).scale(scale * zoomlevel);
       cfg.adaptable = bAdapt;
+      scale *= zoomlevel;
       redraw();
     });
     return interval;
@@ -620,10 +627,11 @@ Celestial.display = function(config) {
   
   function zoomState(sc) {
     var czi = $("celestial-zoomin"),
-        czo = $("celestial-zoomout");
+        czo = $("celestial-zoomout"),
+        defscale = proj.scale * width/1024;
     if (!czi || !czo) return;
-    czi.disabled = sc >= scale*ZOOMEXTENT*0.99;
-    czo.disabled = sc <= scale;    
+    czi.disabled = sc >= defscale * zoomextent * 0.99;
+    czo.disabled = sc <= defscale;    
   }
   
   function setClip(setit) {

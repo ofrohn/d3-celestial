@@ -163,7 +163,7 @@ var Kepler = function () {
     return kepler;
   };
 
-  kepler.name = function(_) {
+  kepler.Name = function(_) {
     if (!arguments.length) return name; 
     name = _;
     return kepler;
