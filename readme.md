@@ -14,6 +14,7 @@ __Demos__:
 [Animated planets](http://ofrohn.github.io/celestial-demo/planets-animation.html) moving about the ecliptic  
 [Starry sky](http://ofrohn.github.io/celestial-demo/sky.html) just the stars  
 [Summer triangle](http://ofrohn.github.io/celestial-demo/triangle.html) adding data
+[Supernova remnants](http://ofrohn.github.io/celestial-demo/snr.html) adding point data
 \([Source files on github](./demo/)\)  
 
 __Some more examples__:  
@@ -46,6 +47,8 @@ var config = {
                       // overrides center
   follow: "zenith",   // on which coordinates to center the map, default: zenith, if location enabled, 
                       // otherwise center
+  zoomlevel: null,    // initial zoom level 0...zoomextend; 0|null = default, 1 = 100%, 0 < x <= zoomextend
+  zoomextend: 10,     // maximum zoom level
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: true,         // Display form for interactive settings

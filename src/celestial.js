@@ -1,4 +1,4 @@
-/* global module, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
+/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
   version: '0.6.11',
   container: null,
@@ -830,4 +830,12 @@ Celestial.display = function(config) {
 };
 
 //Export entire object if invoked by require
-if (typeof module === "object" && module.exports) module.exports = Celestial;
+if (typeof module === "object" && module.exports) {
+  var d3 = require('./lib/d3.js'),
+      d3_geo_projection = require('./lib/d3.geo.projection.js');
+  module.exports = {
+    Celestial: function() { return Celestial; },
+    d3: function() { return d3; },
+    "d3.geo.projection": function() { return d3_geo_projection; }
+  };
+}

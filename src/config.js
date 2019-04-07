@@ -7,10 +7,10 @@ var settings = {
   center: null,       // Initial center coordinates in equatorial transformation [hours, degrees, degrees], 
                       // otherwise [degrees, degrees, degrees], 3rd parameter is orientation, null = default center
   geopos: null,       // optional initial geographic position [lat,lon] in degrees, overrides center
-  zoomlevel: null,    // initial zoom level 0...zoomextend; 0|null = default, 1 = 100%, 0 < x <= zoomextend
-  zoomextend: 10,     // maximum zoom level
   follow: "zenith",   // on which coordinates to center the map, default: zenith, if location enabled, otherwise center
   orientationfixed: true,  // Keep orientation angle the same as center[2]
+  zoomlevel: null,    // initial zoom level 0...zoomextend; 0|null = default, 1 = 100%, 0 < x <= zoomextend
+  zoomextend: 10,     // maximum zoom level
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
