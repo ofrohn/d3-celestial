@@ -829,7 +829,7 @@ Celestial.display = function(config) {
   
   load();
 };
-
+ 
 //Export entire object if invoked by require
 if (typeof module === "object" && module.exports) {
   var d3js = require('./lib/d3.js'),
