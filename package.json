@@ -7,8 +7,7 @@
     "test": "test"
   },
   "dependencies": {
-    "d3": "^3.5.17",
-    "npm": "^6.9.0"
+    "d3": "^3.5.17"
   },
   "devDependencies": {
     "jsdom": "^3.1.0",
