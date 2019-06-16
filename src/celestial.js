@@ -98,7 +98,7 @@ Celestial.display = function(config) {
     circle = d3.geo.circle().angle([90]);  
     container.append("path").datum(circle).attr("class", "horizon");
     if ($("loc") === null) geo(cfg);
-    else if (cfg.follow === "zenith") rotate({center:Celestial.zenith()});
+    else if (cfg.follow === "zenith") rotate({center: Celestial.zenith()});
     fldEnable("horizon-show", proj.clip);
   }
   
