@@ -1,6 +1,6 @@
 /* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
-  version: '0.6.11',
+  version: '0.6.12',
   container: null,
   data: []
 };
@@ -41,6 +41,7 @@ Celestial.display = function(config) {
    
   var margin = [16, 16],
       width = getWidth(),
+      pixelRatio = window.devicePixelRatio || 1,
       proj = getProjection(cfg.projection);
   if (cfg.lines.graticule.lat && cfg.lines.graticule.lat.pos[0] === "outline") proj.scale -= 2;
   
@@ -728,8 +729,8 @@ Celestial.display = function(config) {
   
   function getWidth() {
     if (cfg.width && cfg.width > 0) return cfg.width;
-    if (parent) return parent.clientWidth - margin[0];
-    return window.innerWidth - margin[0]*2;
+    if (parent) return parent.getBoundingClientRect().width - margin[0];
+    return window.getBoundingClientRect().width - margin[0]*2;
   }
   
   function getProjection(p) {
