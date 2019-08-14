@@ -53,11 +53,12 @@ function getConstellationList(d, trans) {
 }
 
 function getMwbackground(d) {
+  // geoJson object to darken the mw-outside, prevent greying of whole map in some orientations 
   var res = {'type': 'FeatureCollection', 'features': [ {'type': 'Feature', 
               'geometry': { 'type': 'MultiPolygon', 'coordinates' : [] }
             }]};
 
-  // array.slice().reverse();
+  // reverse the polygons, inside -> outside
   var l1 = d.features[0].geometry.coordinates[0];
   res.features[0].geometry.coordinates[0] = [];
   for (var i=0; i<l1.length; i++) {
