@@ -72,9 +72,11 @@ Celestial.display = function(config) {
 
   var canvas = d3.select(par).selectAll("canvas");
   if (canvas[0].length === 0) canvas = d3.select(par).append("canvas");
-  canvas.attr("width", width).attr("height", height);
+  //canvas.attr("width", width).attr("height", height);
+  canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height", height * pixelRatio);
   var context = canvas.node().getContext("2d");  
-  
+  context.setTransform(pixelRatio,0,0,pixelRatio,0,0);
+
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
   map = d3.geo.path().projection(prjMap).context(context);
@@ -139,11 +141,17 @@ Celestial.display = function(config) {
       }
 
       var mw = getData(json, trans);
+      var mw_back = getMwbackground(mw);
 
       container.selectAll(".mway")
          .data(mw.features)
          .enter().append("path")
          .attr("class", "mw");
+      container.selectAll(".mwaybg")
+         .data(mw_back.features)
+         .enter().append("path")
+         .attr("class", "mwbg");
+
       redraw();
     }); 
 
@@ -429,6 +437,7 @@ Celestial.display = function(config) {
     //Draw all types of objects on the canvas
     if (cfg.mw.show) { 
       container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
+      container.selectAll(".mwbg").each(function(d) { setStyle(cfg.background); map(d); context.fill(); });
     }
     
     for (var key in cfg.lines) {
@@ -527,14 +536,15 @@ Celestial.display = function(config) {
         if (clip(d.geometry.coordinates) && dsoDisplay(d.properties, cfg.dsos.limit)) {
           var pt = prjMap(d.geometry.coordinates),
               type = d.properties.type;
-          setStyle(cfg.dsos.symbols[type]);
+          if (cfg.dsos.colors === true) setStyle(cfg.dsos.symbols[type]);
+          else setStyle(cfg.dsos.style);
           var r = dsoSymbol(d, pt);
           if (has(cfg.dsos.symbols[type], "stroke")) context.stroke();
           else context.fill();
           
           if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.namelimit)) {
             setTextStyle(cfg.dsos.namestyle);
-            context.fillStyle = cfg.dsos.symbols[type].fill;
+            if (cfg.dsos.colors === true) context.fillStyle = cfg.dsos.symbols[type].fill;
             context.fillText(dsoName(d), pt[0]+r, pt[1]-r);         
           }         
         }
@@ -1159,6 +1169,20 @@ function getConstellationList(d, trans) {
   return res;
 }
 
+function getMwbackground(d) {
+  var res = {'type': 'FeatureCollection', 'features': [ {'type': 'Feature', 
+              'geometry': { 'type': 'MultiPolygon', 'coordinates' : [] }
+            }]};
+
+  // array.slice().reverse();
+  var l1 = d.features[0].geometry.coordinates[0];
+  res.features[0].geometry.coordinates[0] = [];
+  for (var i=0; i<l1.length; i++) {
+    res.features[0].geometry.coordinates[0][i] = l1[i].slice().reverse();
+  }
+
+  return res;
+}
 
 function translate(d, leo) {
   var res = [];
@@ -1317,6 +1341,8 @@ var settings = {
   dsos: {
     show: true,    // Show Deep Space Objects 
     limit: 6,      // Show only DSOs brighter than limit magnitude
+    colors: true,  // Show DSOs in symbol colors, if not use fill-style
+    style: { fill: "#cccccc", stroke: "#cccccc", width: 2, opacity: 1 }, // Default style for dsos
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
     namestyle: { fill: "#cccccc", font: "11px 'Lucida Sans Unicode', Helvetica, Arial, serif", align: "left", baseline: "top" },
@@ -1968,6 +1994,7 @@ function form(cfg) {
   
   col.append("label").attr("for", "stars-color").html("or default color ");
   col.append("input").attr("type", "color").attr("autocomplete", "off").attr("id", "stars-style-fill").attr("title", "Star color").property("value", config.stars.style.fill).on("change", apply);
+
   col.append("br");
   
   col.append("label").attr("for", "stars-names").html("Show designations");
@@ -1984,6 +2011,7 @@ function form(cfg) {
   
   col.append("label").attr("for", "stars-propernamelimit").html("down to mag");
   col.append("input").attr("type", "number").attr("id", "stars-propernamelimit").attr("title", "Star name display limit (magnitude)").attr("value", config.stars.propernamelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
+
   col.append("br");
 
   col.append("label").attr("for", "stars-size").html("Stellar disk size: base");
@@ -2003,8 +2031,17 @@ function form(cfg) {
   
   col.append("label").attr("for", "dsos-limit").html("down to mag");
   col.append("input").attr("type", "number").attr("id", "dsos-limit").attr("title", "DSO display limit (magnitude)").attr("value", config.dsos.limit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
+
+
+  col.append("label").attr("for", "dsos-colors").html("with symbol colors");
+  col.append("input").attr("type", "checkbox").attr("id", "dsos-colors").property("checked", config.dsos.colors).on("change", apply);
   
-  col.append("label").attr("for", "dsos-names").html("with names");
+  col.append("label").attr("for", "dsos-color").html("or default color ");
+  col.append("input").attr("type", "color").attr("autocomplete", "off").attr("id", "dsos-style-fill").attr("title", "DSO color").property("value", config.dsos.style.fill).on("change", apply);
+
+  col.append("br");
+  
+  col.append("label").attr("for", "dsos-names").html("Show names");
   col.append("input").attr("type", "checkbox").attr("id", "dsos-names").property("checked", config.dsos.names).on("change", apply);
   
   col.append("label").attr("for", "dsos-desig").html("or designations");
@@ -2173,6 +2210,10 @@ function form(cfg) {
     }
     if (value === null) return;
     set(src.id, value);
+    if (src.id === "dsos-style-fill") {
+      set("dsos-style-stroke", value);
+      set("dsos-namestyle-fill", value);
+    }
     getCenter();
     Celestial.apply(config);
   }
@@ -2193,7 +2234,7 @@ var depends = {
   "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-names", "stars-size", "stars-exponent"],
   "stars-names": ["stars-proper", "stars-desig", "stars-namelimit"],
   "stars-proper": ["stars-propernamelimit"],
-  "dsos-show": ["dsos-limit", "dsos-names", "dsos-size", "dsos-exponent"],
+  "dsos-show": ["dsos-limit", "dsos-colors", "dsos-style-fill", "dsos-names", "dsos-size", "dsos-exponent"],
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
    "mw-show": ["mw-style-opacity", "mw-style-fill"],
   "constellations-names": ["constellations-desig"]

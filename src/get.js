@@ -52,6 +52,20 @@ function getConstellationList(d, trans) {
   return res;
 }
 
+function getMwbackground(d) {
+  var res = {'type': 'FeatureCollection', 'features': [ {'type': 'Feature', 
+              'geometry': { 'type': 'MultiPolygon', 'coordinates' : [] }
+            }]};
+
+  // array.slice().reverse();
+  var l1 = d.features[0].geometry.coordinates[0];
+  res.features[0].geometry.coordinates[0] = [];
+  for (var i=0; i<l1.length; i++) {
+    res.features[0].geometry.coordinates[0][i] = l1[i].slice().reverse();
+  }
+
+  return res;
+}
 
 function translate(d, leo) {
   var res = [];

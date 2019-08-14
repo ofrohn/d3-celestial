@@ -75,6 +75,7 @@ function form(cfg) {
   
   col.append("label").attr("for", "stars-color").html("or default color ");
   col.append("input").attr("type", "color").attr("autocomplete", "off").attr("id", "stars-style-fill").attr("title", "Star color").property("value", config.stars.style.fill).on("change", apply);
+
   col.append("br");
   
   col.append("label").attr("for", "stars-names").html("Show designations");
@@ -91,6 +92,7 @@ function form(cfg) {
   
   col.append("label").attr("for", "stars-propernamelimit").html("down to mag");
   col.append("input").attr("type", "number").attr("id", "stars-propernamelimit").attr("title", "Star name display limit (magnitude)").attr("value", config.stars.propernamelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
+
   col.append("br");
 
   col.append("label").attr("for", "stars-size").html("Stellar disk size: base");
@@ -110,8 +112,17 @@ function form(cfg) {
   
   col.append("label").attr("for", "dsos-limit").html("down to mag");
   col.append("input").attr("type", "number").attr("id", "dsos-limit").attr("title", "DSO display limit (magnitude)").attr("value", config.dsos.limit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
+
+
+  col.append("label").attr("for", "dsos-colors").html("with symbol colors");
+  col.append("input").attr("type", "checkbox").attr("id", "dsos-colors").property("checked", config.dsos.colors).on("change", apply);
   
-  col.append("label").attr("for", "dsos-names").html("with names");
+  col.append("label").attr("for", "dsos-color").html("or default color ");
+  col.append("input").attr("type", "color").attr("autocomplete", "off").attr("id", "dsos-style-fill").attr("title", "DSO color").property("value", config.dsos.style.fill).on("change", apply);
+
+  col.append("br");
+  
+  col.append("label").attr("for", "dsos-names").html("Show names");
   col.append("input").attr("type", "checkbox").attr("id", "dsos-names").property("checked", config.dsos.names).on("change", apply);
   
   col.append("label").attr("for", "dsos-desig").html("or designations");
@@ -280,6 +291,10 @@ function form(cfg) {
     }
     if (value === null) return;
     set(src.id, value);
+    if (src.id === "dsos-style-fill") {
+      set("dsos-style-stroke", value);
+      set("dsos-namestyle-fill", value);
+    }
     getCenter();
     Celestial.apply(config);
   }
@@ -300,7 +315,7 @@ var depends = {
   "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-names", "stars-size", "stars-exponent"],
   "stars-names": ["stars-proper", "stars-desig", "stars-namelimit"],
   "stars-proper": ["stars-propernamelimit"],
-  "dsos-show": ["dsos-limit", "dsos-names", "dsos-size", "dsos-exponent"],
+  "dsos-show": ["dsos-limit", "dsos-colors", "dsos-style-fill", "dsos-names", "dsos-size", "dsos-exponent"],
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
    "mw-show": ["mw-style-opacity", "mw-style-fill"],
   "constellations-names": ["constellations-desig"]

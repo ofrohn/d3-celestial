@@ -1,4 +1,4 @@
-/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
+/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
   version: '0.6.12',
   container: null,
@@ -71,9 +71,11 @@ Celestial.display = function(config) {
 
   var canvas = d3.select(par).selectAll("canvas");
   if (canvas[0].length === 0) canvas = d3.select(par).append("canvas");
-  canvas.attr("width", width).attr("height", height);
+  //canvas.attr("width", width).attr("height", height);
+  canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height", height * pixelRatio);
   var context = canvas.node().getContext("2d");  
-  
+  context.setTransform(pixelRatio,0,0,pixelRatio,0,0);
+
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
   map = d3.geo.path().projection(prjMap).context(context);
@@ -138,11 +140,17 @@ Celestial.display = function(config) {
       }
 
       var mw = getData(json, trans);
+      var mw_back = getMwbackground(mw);
 
       container.selectAll(".mway")
          .data(mw.features)
          .enter().append("path")
          .attr("class", "mw");
+      container.selectAll(".mwaybg")
+         .data(mw_back.features)
+         .enter().append("path")
+         .attr("class", "mwbg");
+
       redraw();
     }); 
 
@@ -428,6 +436,7 @@ Celestial.display = function(config) {
     //Draw all types of objects on the canvas
     if (cfg.mw.show) { 
       container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
+      container.selectAll(".mwbg").each(function(d) { setStyle(cfg.background); map(d); context.fill(); });
     }
     
     for (var key in cfg.lines) {
@@ -526,14 +535,15 @@ Celestial.display = function(config) {
         if (clip(d.geometry.coordinates) && dsoDisplay(d.properties, cfg.dsos.limit)) {
           var pt = prjMap(d.geometry.coordinates),
               type = d.properties.type;
-          setStyle(cfg.dsos.symbols[type]);
+          if (cfg.dsos.colors === true) setStyle(cfg.dsos.symbols[type]);
+          else setStyle(cfg.dsos.style);
           var r = dsoSymbol(d, pt);
           if (has(cfg.dsos.symbols[type], "stroke")) context.stroke();
           else context.fill();
           
           if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.namelimit)) {
             setTextStyle(cfg.dsos.namestyle);
-            context.fillStyle = cfg.dsos.symbols[type].fill;
+            if (cfg.dsos.colors === true) context.fillStyle = cfg.dsos.symbols[type].fill;
             context.fillText(dsoName(d), pt[0]+r, pt[1]-r);         
           }         
         }
