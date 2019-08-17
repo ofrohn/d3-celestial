@@ -348,7 +348,8 @@ Celestial.display = function(config) {
     if (cfg.width === width && !set) return;
     height = width/ratio;
     scale = proj.scale * width/1024;
-    canvas.attr("width", width).attr("height", height);
+    //canvas.attr("width", width).attr("height", height);
+    canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height", height * pixelRatio);
     zoom.scaleExtent([scale, scale * zoomextent]).scale(scale * zoomlevel);
     prjMap.translate([width/2, height/2]).scale(scale * zoomlevel);
     if (parent) parent.style.height = px(height);
@@ -389,7 +390,8 @@ Celestial.display = function(config) {
         setClip(prj.clip);
         ratio = rTween(_);
         height = width/ratio;
-        canvas.attr("width", width).attr("height", height);
+        //canvas.attr("width", width).attr("height", height);
+        canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height",  height * pixelRatio);
         if (parent) parent.style.height = px(height);
         redraw();
       };
@@ -398,7 +400,8 @@ Celestial.display = function(config) {
       ratio = proj.ratio;
       height = width / proj.ratio;
       scale = proj.scale * width/1024;
-      canvas.attr("width", width).attr("height", height);
+      //canvas.attr("width", width).attr("height", height);
+      canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height", height * pixelRatio);
       if (parent) parent.style.height = px(height);
       cfg.projection = config.projection;
       prjMap = Celestial.projection(config.projection).rotate(rot).translate([width/2, height/2]).scale(scale * zoomlevel);
@@ -437,6 +440,7 @@ Celestial.display = function(config) {
     //Draw all types of objects on the canvas
     if (cfg.mw.show) { 
       container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
+      // paint mw-outside in background color
       container.selectAll(".mwbg").each(function(d) { setStyle(cfg.background); map(d); context.fill(); });
     }
     
