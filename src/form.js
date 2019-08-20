@@ -215,7 +215,7 @@ function form(cfg) {
         cx = setUnit(trans, config.transform); 
     if (cx !== null) config.center[0] = cx; 
     config.transform = trans;
-    Celestial.reload({transform:trans});
+    Celestial.reload(config);
   }  
   
   function reproject() {

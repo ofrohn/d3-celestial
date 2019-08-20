@@ -441,7 +441,8 @@ Celestial.display = function(config) {
     if (cfg.mw.show) { 
       container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
       // paint mw-outside in background color
-      container.selectAll(".mwbg").each(function(d) { setStyle(cfg.background); map(d); context.fill(); });
+      if (cfg.transform !== "supergalactic")
+        container.selectAll(".mwbg").each(function(d) { setStyle(cfg.background); map(d); context.fill(); });
     }
     
     for (var key in cfg.lines) {
@@ -2139,7 +2140,7 @@ function form(cfg) {
         cx = setUnit(trans, config.transform); 
     if (cx !== null) config.center[0] = cx; 
     config.transform = trans;
-    Celestial.reload({transform:trans});
+    Celestial.reload(config);
   }  
   
   function reproject() {
