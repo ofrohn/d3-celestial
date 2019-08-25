@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <title>D3-Celestial Starry Custom Sky Map</title>
+  <script type="text/javascript" src="../lib/d3.min.js"></script>
+  <script type="text/javascript" src="../lib/d3.geo.projection.min.js"></script>
+  <script type="text/javascript" src="../celestial.js"></script>
+  <link rel="stylesheet" href="../celestial.css">
+</head><body>
+<div style="overflow:hidden;"><div id="celestial-map"></div></div>
+<div id="celestial-form"></div>
+<button id="time_button">Change time</button>
+<button id="location_button">Change location</button>
+<script type="text/javascript">
+/* D3-Celestial sky map
+   Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
+
+*/
+// Properties different from default
+var config = {
+  location: true,
+  interactive: true,
+  controls: false,
+  projection: "stereographic",
+  datapath: "../data/",
+};
+Celestial.display(config);
+
+document.getElementById("time_button").onclick = () => {
+    Celestial.date(new Date(2019, 8-1, 25, 23, 0, 0));
+    Celestial._go();
+}
+
+document.getElementById("location_button").onclick = () => {
+    Celestial._location(-43, 42);
+    Celestial._go();
+}
+
+</script>
+<footer id="d3-celestial-footer">
+<p><a href="https://github.com/ofrohn/d3-celestial"><b>D3-Celestial</b></a> released under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a>. Copyright 2015-17 <a href="http://armchairastronautics.blogspot.com/" rel="author">Olaf Frohn</a>.
+</p></footer>
+</body>
+</html>
