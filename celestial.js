@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.13',
+  version: '0.6.14',
   container: null,
   data: []
 };
@@ -794,7 +794,7 @@ Celestial.display = function(config) {
   this.mapProjection = prjMap;
   this.context = context;
   this.metrics = function() {
-    return {"width": width, "height": height};
+    return {"width": width, "height": height, "margin": margin};
   };
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;

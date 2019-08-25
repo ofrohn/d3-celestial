@@ -1,6 +1,6 @@
 /* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
-  version: '0.6.13',
+  version: '0.6.14',
   container: null,
   data: []
 };
@@ -793,7 +793,7 @@ Celestial.display = function(config) {
   this.mapProjection = prjMap;
   this.context = context;
   this.metrics = function() {
-    return {"width": width, "height": height};
+    return {"width": width, "height": height, "margin": margin};
   };
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;
