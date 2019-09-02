@@ -30,7 +30,15 @@ __Some more examples__:
 
 ### Usage
 
-Include the necessary scripts d3.min.js, d3.geo.projection.min.js and celestial.js from the `lib` subfolder or the first two alternatively from the official d3.js server `http://d3js.org/`, and then simply edit the default options and display the map with `Celestial.display(config)`.
+* On your HTML add a div with some id, e.g.: `<div id="celestial-map"></div>`.
+
+* Optionally add a div with the id "celestial-form" if you are going to use some of the built-in forms: `<div id="celestial-form"></div>`.
+
+* Include the d3-celestial script, available as `celestial.js` or `celestial.min.js`.
+
+* Include the necessary d3 scripts: `d3.min.js` and `d3.geo.projection.min.js`. Available on the `lib` subfolder in this repository or from the official d3.js server `http://d3js.org/`.
+
+* On your script display the map with `Celestial.display(config)`. Remember to indicate the id of the div where the map will be shown. Check and edit the following default configuration file.
 
 ```js
 var config = { 
@@ -51,8 +59,10 @@ var config = {
   zoomextend: 10,     // maximum zoom level
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
-  form: true,         // Display form for interactive settings
-  location: false,    // Display location settings (no center setting on form)
+  form: true,         // Display form for interactive settings. Needs a div with
+                      // id="celestial-form"
+  location: false,    // Display location settings (no center setting on form).
+                      // Needs a div with id="celestial-form"
   daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
                       // [yr, n<100]: [yr-n, yr+n]; [yr0, yr1]  
   controls: true,     // Display zoom controls
@@ -186,7 +196,7 @@ var config = {
   }
 };
 
-// Display map with the configuration above or any subset therof
+// Display map with the configuration above or any subset thereof
 Celestial.display(config);
 ```
 
