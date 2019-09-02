@@ -76,7 +76,7 @@ input[type="number"]::-webkit-outer-spin-button { height: auto; }
 #celestial-date input, #celestial-date select { font:inherit; }
 #celestial-date #yr, #celestial-date #mon { margin: 2px 3px; vertical-align:middle; }
 #celestial-date #left, #celestial-date #right { display:inline-block; width:12px; height:24px; margin:0; vertical-align:-8px; cursor:pointer;  background-image: url('images/dtpick.png'); }
-#celestial-form #day-left, #celestial-form #day-right { display:inline-block; float:none; width:12px; height:24px; margin:0; padding:0; vertical-align:0px; cursor:pointer; border: 0 none; background-color:transparent; background-image: url('images/dtpick.png'); }
+#celestial-form #day-left, #celestial-form #day-right { display:inline-block; float:none; width:12px; height:24px; margin:0; padding:0; vertical-align:middle; cursor:pointer; border: 0 none; background-color:transparent; background-image: url('images/dtpick.png'); }
 #celestial-form #day-right { position:relative; left:-30px; }
 #celestial-date #left, #celestial-form #day-left { background-position: -8px 0px; }
 #celestial-date #right, #celestial-form #day-right { background-position: -30px 0px; }

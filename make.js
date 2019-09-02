@@ -30,8 +30,8 @@ var shell = require('shelljs/make'),
 
     
 target.all = function() {
-  target.test()
-  target.build()
+  target.test();
+  target.build();
 };
 
 target.test = function() {

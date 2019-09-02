@@ -83,7 +83,7 @@ var config = {
   dsos: {
     show: true,    // Show Deep Space Objects 
     limit: 6,      // Show only DSOs brighter than limit magnitude
-    colors: true,  // Show DSOs in symbol colors, if not use fill-style
+    colors: true,  // // Show DSOs in symbol colors if true, use style setting below if false
     style: { fill: "#cccccc", stroke: "#cccccc", width: 2, opacity: 1 }, // Default style for dsos
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names

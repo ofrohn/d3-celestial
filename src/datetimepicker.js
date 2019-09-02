@@ -186,7 +186,7 @@ var datetimepicker = function(cfg, callback) {
   };
   
   this.isVisible = function () {
-    return $("celestial-date").offsetTop !== -9999;
+    return d3.select("#datepick").classed("active") === true;
   };
 
   this.hide = function () {

@@ -97,11 +97,13 @@ Celestial.display = function(config) {
     d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function () { zoomBy(0.8); return false; });
   }
   
+  circle = d3.geo.circle().angle([90]);  
+  container.append("path").datum(circle).attr("class", "horizon");
+  if ($("loc") === null) geo(cfg);
+  else if (cfg.follow === "zenith") rotate({center: Celestial.zenith()});
+
   if (cfg.location === true) {
-    circle = d3.geo.circle().angle([90]);  
-    container.append("path").datum(circle).attr("class", "horizon");
-    if ($("loc") === null) geo(cfg);
-    else if (cfg.follow === "zenith") rotate({center: Celestial.zenith()});
+    d3.select("#location").style("display", "inline-block");
     fldEnable("horizon-show", proj.clip);
   }
   

@@ -15,7 +15,7 @@ function geo(cfg) {
   });
   
   if (has(cfg, "geopos") && cfg.geopos !== null && cfg.geopos.length === 2) geopos = cfg.geopos;
-  var col = frm.append("div").attr("class", "col").attr("id", "location");
+  var col = frm.append("div").attr("class", "col").attr("id", "location").style("display", "none");
   //Latitude & longitude fields
   col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");
   col.append("input").attr("type", "number").attr("id", "lat").attr("title", "Latitude").attr("placeholder", "Latitude").attr("max", "90").attr("min", "-90").attr("step", "0.0001").attr("value", geopos[0]).on("change",  function () {
@@ -116,18 +116,40 @@ function geo(cfg) {
     }
   }
 
+  Celestial._location = function (lat, lon) {
+    $("lat").value = lat;
+    $("lon").value = lon;
+  };
+
+  Celestial._go = function () {
+    go();
+  };
+
   Celestial.getPosition = function (p) {
     
   };
 
   Celestial.date = function (dt) { 
     if (!dt) return date;  
-    if (dtpick.isVisible()) return;
+    if (dtpick.isVisible()) dtpick.hide();
     date.setTime(dt.valueOf());
     $("datetime").value = dateFormat(dt, zone); 
     Celestial.redraw();
   };
   Celestial.position = function () { return geopos; };
+  Celestial.location = function (loc) {
+    if (!loc || loc.length < 2) return geopos;
+  };
+  Celestial.skyview = function (dt, loc) {
+    if (!dt || !loc || loc.length < 2) {
+      return {date: date, location: geopos};
+    }
+    if (dtpick.isVisible()) dtpick.hide();
+    date.setTime(dt.valueOf());
+    $("datetime").value = dateFormat(dt, zone); 
+    Celestial.redraw();
+  };  
+  Celestial.dtLoc = Celestial.datelocation;
   Celestial.zenith = function () { return zenith; };
   Celestial.nadir = function () {
     var b = -zenith[1],
