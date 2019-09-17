@@ -12,6 +12,7 @@ function isNumber(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
 function isArray(o) { return Object.prototype.toString.call(o) === "[object Array]"; }
 function isObject(o) { var type = typeof o;  return type === 'function' || type === 'object' && !!o; }
 function isFunction(o) { return typeof o == 'function' || false; }
+function isValidDate(d) { return d instanceof Date && !isNaN(d); }
 
 function findPos(o) {
   var l = 0, t = 0;

@@ -26,14 +26,16 @@ var config = {
 };
 Celestial.display(config);
 
+var dt = new Date(2019, 8-1, 25, 23, 0, 0),
+    loc = [-43, 42];
 document.getElementById("time_button").onclick = () => {
-    Celestial.date(new Date(2019, 8-1, 25, 23, 0, 0));
-    Celestial._go();
+    Celestial.skyview({"date": dt});
+//    Celestial._go();
 }
 
 document.getElementById("location_button").onclick = () => {
-    Celestial._location(-43, 42);
-    Celestial._go();
+    Celestial.skyview({"location":loc});
+//    Celestial._go();
 }
 
 </script>

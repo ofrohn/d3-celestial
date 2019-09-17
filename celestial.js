@@ -1,7 +1,7 @@
 // Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.14',
+  version: '0.6.15',
   container: null,
   data: []
 };
@@ -1409,7 +1409,7 @@ var settings = {
   }, 
   horizon: {  //Show horizon marker, if geo-position and date-time is set
     show: false, 
-    stroke: "#000099", // Line
+    stroke: "#cccccc", // Line
     width: 1.0, 
     fill: "#000000", // Area below horizon
     opacity: 0.5
@@ -1825,6 +1825,7 @@ function isNumber(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
 function isArray(o) { return Object.prototype.toString.call(o) === "[object Array]"; }
 function isObject(o) { var type = typeof o;  return type === 'function' || type === 'object' && !!o; }
 function isFunction(o) { return typeof o == 'function' || false; }
+function isValidDate(d) { return d instanceof Date && !isNaN(d); }
 
 function findPos(o) {
   var l = 0, t = 0;
@@ -2489,6 +2490,15 @@ function geo(cfg) {
     return dtFormat(dt) + tzs;
   }  
   
+
+  function isValidLocation(loc) {
+    //[lat, lon] expected
+    if (!loc || !isArray(loc) || loc.length < 2) return false;
+    if (!isNumber(loc[0]) || loc[0] < -90 || loc[0] > 90)  return false;
+    if (!isNumber(loc[1]) || loc[1] < -180 || loc[1] > 180)  return false;
+    return true;
+  }
+
   function go() {
     var lon = $("lon").value,
         lat = $("lat").value;
@@ -2537,16 +2547,25 @@ function geo(cfg) {
   Celestial.location = function (loc) {
     if (!loc || loc.length < 2) return geopos;
   };
-  Celestial.skyview = function (dt, loc) {
-    if (!dt || !loc || loc.length < 2) {
-      return {date: date, location: geopos};
-    }
+  //{"date":dt, "location":loc}
+  Celestial.skyview = function (cfg) {
+    var valid = false;
     if (dtpick.isVisible()) dtpick.hide();
-    date.setTime(dt.valueOf());
-    $("datetime").value = dateFormat(dt, zone); 
-    Celestial.redraw();
+    if (isValidDate(cfg.date)) {
+      date.setTime(cfg.date.valueOf());
+      $("datetime").value = dateFormat(cfg.date, zone); 
+      valid = true;
+    }
+    if (isValidLocation(cfg.location)) {
+      geopos = cfg.location.slice();
+      $("lat").value = geopos[0];
+      $("lon").value = geopos[1];
+      valid = true;
+    }
+    if (valid === true) go();
+    else return {"date": date, "location": geopos};
   };  
-  Celestial.dtLoc = Celestial.datelocation;
+  Celestial.dtLoc = Celestial.skyview;
   Celestial.zenith = function () { return zenith; };
   Celestial.nadir = function () {
     var b = -zenith[1],

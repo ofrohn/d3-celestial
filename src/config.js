@@ -107,7 +107,7 @@ var settings = {
   }, 
   horizon: {  //Show horizon marker, if geo-position and date-time is set
     show: false, 
-    stroke: "#000099", // Line
+    stroke: "#cccccc", // Line
     width: 1.0, 
     fill: "#000000", // Area below horizon
     opacity: 0.5

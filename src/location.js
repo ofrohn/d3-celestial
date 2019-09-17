@@ -1,4 +1,4 @@
-/* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, fldEnable, Round, has, hasParent */
+/* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, isArray, isNumber, isValidDate, fldEnable, Round, has, hasParent */
 
 function geo(cfg) {
   var frm = d3.select("#celestial-form").append("div").attr("id", "loc"),
@@ -92,6 +92,15 @@ function geo(cfg) {
     return dtFormat(dt) + tzs;
   }  
   
+
+  function isValidLocation(loc) {
+    //[lat, lon] expected
+    if (!loc || !isArray(loc) || loc.length < 2) return false;
+    if (!isNumber(loc[0]) || loc[0] < -90 || loc[0] > 90)  return false;
+    if (!isNumber(loc[1]) || loc[1] < -180 || loc[1] > 180)  return false;
+    return true;
+  }
+
   function go() {
     var lon = $("lon").value,
         lat = $("lat").value;
@@ -140,16 +149,25 @@ function geo(cfg) {
   Celestial.location = function (loc) {
     if (!loc || loc.length < 2) return geopos;
   };
-  Celestial.skyview = function (dt, loc) {
-    if (!dt || !loc || loc.length < 2) {
-      return {date: date, location: geopos};
-    }
+  //{"date":dt, "location":loc}
+  Celestial.skyview = function (cfg) {
+    var valid = false;
     if (dtpick.isVisible()) dtpick.hide();
-    date.setTime(dt.valueOf());
-    $("datetime").value = dateFormat(dt, zone); 
-    Celestial.redraw();
+    if (isValidDate(cfg.date)) {
+      date.setTime(cfg.date.valueOf());
+      $("datetime").value = dateFormat(cfg.date, zone); 
+      valid = true;
+    }
+    if (isValidLocation(cfg.location)) {
+      geopos = cfg.location.slice();
+      $("lat").value = geopos[0];
+      $("lon").value = geopos[1];
+      valid = true;
+    }
+    if (valid === true) go();
+    else return {"date": date, "location": geopos};
   };  
-  Celestial.dtLoc = Celestial.datelocation;
+  Celestial.dtLoc = Celestial.skyview;
   Celestial.zenith = function () { return zenith; };
   Celestial.nadir = function () {
     var b = -zenith[1],
