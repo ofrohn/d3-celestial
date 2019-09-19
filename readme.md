@@ -268,36 +268,46 @@ __Exposed functions & objects__
 
 __Exposed functions__  
 
-* `Celestial.rotate({center:[long,lat,orient]})` 
-   Turn the map to the given center coordinates, without parameter returns the current center
+* `Celestial.rotate({center:[long,lat,orient]})`  
+   Turn the map to the given _center_ coordinates, without parameter returns the current center
 
-* `Celestial.zoomBy(factor)` 
-   Zoom the map by the given factor - &lt; 1 zooms out, > 1 zooms in, without parameter returns the 
+* `Celestial.zoomBy(factor)`  
+   Zoom the map by the given _factor_ - &lt; 1 zooms out, > 1 zooms in, without parameter returns the 
    current zoom level
 
-* `Celestial.apply(config)` 
+* `Celestial.apply(config)`  
    Apply configuration changes without reloading the complete map. Any parameter of the above 
-   config-object can be set except width, projection, transform, and \*.data, which need a reload
-   and interactive, form, controls, container, which control page structure & behaviour and shouls
-   only be set on the initial load
+   _config_-object can be set except width, projection, transform, and \*.data, which need a reload
+   and interactive, form, controls, container, which control page structure & behaviour and should
+   only be set on the initial load.
    
-* `Celestial.resize({width:px|0|null})` 
+* `Celestial.resize({width:px|0|null})`  
    Change the overall size of the map, canvas object needs a complete reload
-   Optional width: new size in pixels, null or 0 = full parent width
+   Optional _width_: new size in pixels, null or 0 = full parent width
 
-* `Celestial.redraw({transform:equatorial|ecliptic|galactic|supergalactic})`
+* `Celestial.redraw({transform:equatorial|ecliptic|galactic|supergalactic})`  
   Load all the data and redraw the whole map. 
-  Optional transform: change the coordinate space transformation
+  Optional _transform_: change the coordinate space transformation
 
-* `Celestial.reproject({projection:<see above>})`
+* `Celestial.reproject({projection:<see above>})`  
   Change the map projection. 
-  projection: new projection to set
+  _projection_: new projection to set
 
-* `Celestial.date(<date object>)` (_needs config.location = true_)
-  Change the set date, return date w/o parameter. 
-  date: javascript date-object
+* `Celestial.date(<date object>)`  
+  Change the set date, return current date w/o parameter.  
+  _date_: javascript date-object  
 
-  
+* `Celestial.location([lat, lon])`  
+  Change the set geolocation, return current location w/o parameter.  
+  _location_: [latitude, longitude] array in degrees  
+
+* `Celestial.skyview({date:<date object>, location:[lat, lon]})`  
+  Show the current celestial view for one specific date and/or location, 
+  independent of form fields, both parameters are optional  
+  called w/o parameter returns {date, location} in same format.  
+  _date_: javascript date-object  
+  _location_: [latitude, longitude] array in degrees  
+
 ### Animations  
 
 __Exposed functions__  

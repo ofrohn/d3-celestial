@@ -1,4 +1,4 @@
-// Copyright 2015 Olaf Frohn https://github.com/ofrohn, see LICENSE
+// Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
   version: '0.6.15',
@@ -2546,6 +2546,12 @@ function geo(cfg) {
   Celestial.position = function () { return geopos; };
   Celestial.location = function (loc) {
     if (!loc || loc.length < 2) return geopos;
+    if (isValidLocation(cfg.location)) {
+      geopos = cfg.location.slice();
+      $("lat").value = geopos[0];
+      $("lon").value = geopos[1];
+      go();
+    }
   };
   //{"date":dt, "location":loc}
   Celestial.skyview = function (cfg) {

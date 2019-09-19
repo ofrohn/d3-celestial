@@ -148,6 +148,12 @@ function geo(cfg) {
   Celestial.position = function () { return geopos; };
   Celestial.location = function (loc) {
     if (!loc || loc.length < 2) return geopos;
+    if (isValidLocation(cfg.location)) {
+      geopos = cfg.location.slice();
+      $("lat").value = geopos[0];
+      $("lon").value = geopos[1];
+      go();
+    }
   };
   //{"date":dt, "location":loc}
   Celestial.skyview = function (cfg) {
