@@ -100,7 +100,7 @@ Celestial.display = function(config) {
   circle = d3.geo.circle().angle([90]);  
   container.append("path").datum(circle).attr("class", "horizon");
   if ($("loc") === null) geo(cfg);
-  else if (cfg.follow === "zenith") rotate({center: Celestial.zenith()});
+  else if (cfg.location === true && cfg.follow === "zenith") rotate({center: Celestial.zenith()});
 
   if (cfg.location === true) {
     d3.select("#location").style("display", "inline-block");

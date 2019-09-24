@@ -11,10 +11,11 @@
 <div id="celestial-form"></div>
 <script type="text/javascript">
  var config = { 
-  width: 12000,   
+  width: 7680,   
   projection: "winkel3", 
   transform: "equatorial", 
   center: [180,0,0],
+  follow: false,
   background: { fill:"#000000", stroke:"#000000", width:2.5 }, 
   adaptable: false,    
   interactive: false, 
@@ -31,13 +32,13 @@
     colors: true,  //Show stars spectral colors, if not use "color"
     style: { fill:"#ffffff", opacity:1 }, // Default style for stars
     names: true,   //Show star names 
-    namestyle: { fill: "#ddddbb", font: "48px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
+    namestyle: { fill: "#ddddbb", font: "32px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     proper: true, //Show proper names (if none shows designation)
-    propernamestyle: { fill: "#ddddbb", font: "48px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
+    propernamestyle: { fill: "#ddddbb", font: "32px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
     desig: false,   //Show designation (Bayer, Flamsteed, Variable star, Gliese, Draper, Hipparcos, whichever applies first)
     namelimit: 5,   //Maximum magnitude with name
     propernamelimit: 2.5,   //Maximum magnitude with name
-    size: 30,
+    size: 28,
     exponent: -0.26,
     data: "stars.8.json" // Data source for stellar data  
   },
@@ -55,10 +56,10 @@
     show: true,    //Show Deep Space Objects
     limit: 16,      //up to maximum magnitude
     names: true,   //Show DSO names
-    namestyle: { fill: "#cccccc", font: "48px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif", align: "left", baseline: "bottom" },
+    namestyle: { fill: "#cccccc", font: "32px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif", align: "left", baseline: "bottom" },
     desig: true,   //Show short DSO names
     namelimit: 16,   //Maximum magnitude with name
-    size: 32,    
+    size: 30,    
     exponent: 1.4,
     data: "dsos.bright.json"
   },
@@ -82,7 +83,7 @@ Celestial.display(config);
   
 </script>
 <footer id="d3-celestial-footer">
-<p><a href="https://github.com/ofrohn/d3-celestial"><b>D3-Celestial</b></a> released under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a>. Copyright 2015-17 <a href="http://armchairastronautics.blogspot.com/" rel="author">Olaf Frohn</a>.
+<p><a href="https://github.com/ofrohn/d3-celestial"><b>D3-Celestial</b></a> released under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a>. Copyright 2015-19 <a href="http://armchairastronautics.blogspot.com/" rel="author">Olaf Frohn</a>.
 </p></footer>
 </body>
 </html>
