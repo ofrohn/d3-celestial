@@ -1924,7 +1924,13 @@ function form(cfg) {
   var config = settings.set(cfg); 
 
   var prj = Celestial.projections(), leo = Celestial.eulerAngles();
-  var ctrl = d3.select("#celestial-form").append("div").attr("class", "ctrl");
+  var div = d3.select("#celestial-form");
+  // if div doesn't exist, create it
+  /*if (!div) {
+    var container = (config.container || "celestial-form");
+    div = d3.select(container).append("div").attr("id", "celestial-form");
+  }*/
+  var ctrl = div.append("div").attr("class", "ctrl");
   var frm = ctrl.append("form").attr("id", "params").attr("name", "params").attr("method", "get").attr("action" ,"#");
   
   //Map parameters    
