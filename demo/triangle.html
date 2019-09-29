@@ -82,7 +82,7 @@ Celestial.add({type:"line", callback: function(error, json) {
   // Load the geoJSON file and transform to correct coordinate system, if necessary
   var asterism = Celestial.getData(jsonLine, config.transform);
 
-  // Add to celestiasl objects container in d3
+  // Add to celestial objects container in d3
   Celestial.container.selectAll(".asterisms")
     .data(asterism.features)
     .enter().append("path")

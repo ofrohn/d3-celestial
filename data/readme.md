@@ -1,9 +1,10 @@
-### Data Formats
+# Data Formats
 
 For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...180] deg, latitude as [-90...90] deg
 
-__Stars__  
-`stars.6.json`, `stars.8.json`; the number indicates limit magnitude  
+## Stars
+
+`stars.6.json`, `stars.8.json`: the number indicates limit magnitude  
 
 ```js
 {
@@ -25,7 +26,8 @@ __Stars__
 }
 ```
 
-__DSOs__  
+## DSOs
+
 `dsos.6.json`, `dsos.14.json`: the number indicates limit magnitude  
 `dsos.bright.json`: handselected  
 `lf.json`: Local group  
@@ -39,7 +41,7 @@ __DSOs__
     "properties": {
       "name": "",   // Proper name or most commonly used designator
       "desig": "",  // Designator
-      "type": "",   // Object type: gg, g, s, s0, ds, i, e, oc, gc, dn, bn, sfr, rn, pn, snr
+      "type": "",   // Object type: gg, g, s, s0, sd, i, e, oc, gc, dn, bn, sfr, rn, en, pn, snr
       "mag": "",    // Apparent magnitude, 999 if n.a.
       "dim": ""     // Angular dimensions in arcminutes
     },
@@ -49,17 +51,18 @@ __DSOs__
     }
   }, { } ]
 }
-```  
-___Object type___ _gg_: galaxy cluster, _g_: galaxy, _s_: spiral galaxy, _s0_: lenticular gal., _ds_: dwarf gal., _i_: irregular gal., _e_: elliptical gal.,  
-_oc_: open cluster, _gc_: globular cluster, _dn_: dark nebula, _bn_: bright nebula, _sfr_: star forming region, _rn_: reflection nebula, _pn_: planetary nebula, _snr_: supernova remnant  
+```
+
+___Object type:___ _gg_: galaxy cluster, _g_: galaxy, _s_: spiral galaxy, _s0_: lenticular gal., _sd_: dwarf spheroidal gal., _i_: irregular gal., _e_: elliptical gal., _oc_: open cluster, _gc_: globular cluster, _dn_: dark nebula, _bn_: bright nebula, _sfr_: star forming region, _rn_: reflection nebula, _en_: emission nebula, _pn_: planetary nebula, _snr_: supernova remnant
 
 ___additional lg.json properties:___  
 _sub_: Sub group membership: \[MW|M31|N3109|LG\]  (Milky way, Andromeda, NGC 3109, gen. LG)  
 _pop_: MW popultions \[OH|YH|BD\] (Old halo, young halo, bulge & disk), M31 populations \[M31|GP\]  (gen. M31, great plane)  
 _str_: Tidal streams \[Mag|Sgr|CMa|FLS\] (Magellanic Stream, Sagittarius Stream, Canis Major/Monoceros Stream, Fornax-Leo-Sculptor Great Circle)
 
-__Constellations__  
-`constellations.json`  
+## Constellations
+
+`constellations.json`
 
 ```js
 {
@@ -81,8 +84,9 @@ __Constellations__
 }
 ```
 
-__Constellation lines__  
-`constellations.lines.json`  
+## Constellation lines
+
+`constellations.lines.json`
 
 ```js
 {
@@ -98,8 +102,9 @@ __Constellation lines__
 }
 ```
 
-__Constellation boundaries__  
-`constellations.bounds.json`  
+## Constellation boundaries
+
+`constellations.bounds.json`
 
 ```js
 {
@@ -115,8 +120,9 @@ __Constellation boundaries__
 }
 ```
 
-__Milky way__  
-`mw.json`  
+## Milky way
+
+`mw.json`
 
 ```js
 {
@@ -133,7 +139,7 @@ __Milky way__
 }
 ```
 
-__Special Planes__
+## Special Planes
 
 ```js
 {
@@ -149,7 +155,7 @@ __Special Planes__
 }
 ```
 
-__Asterisms__  
+## Asterisms
 
 ```js
 {
@@ -172,10 +178,11 @@ __Asterisms__
 }
 ```
 
-__Planets__
+## Planets
+
 Not geojson, because positions need to be calculated by date from keplerian elements  
 All element values in degrees, except a (AU|km) and e (dimensionless)  
-  
+
 ```js
 "id":{                // (usually) 3-letter id
   "name": "",         // full name
