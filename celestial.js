@@ -2533,15 +2533,6 @@ function geo(cfg) {
     }
   }
 
-  Celestial._location = function (lat, lon) {
-    $("lat").value = lat;
-    $("lon").value = lon;
-  };
-
-  Celestial._go = function () {
-    go();
-  };
-
   Celestial.getPosition = function (p) {
     
   };
