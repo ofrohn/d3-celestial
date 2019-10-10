@@ -23,7 +23,7 @@ Celestial.display = function(config) {
   //Mash config with default settings
   cfg = settings.set(config); 
   cfg.stars.size = cfg.stars.size || 7;  // Nothing works without these
-	cfg.stars.exponent = cfg.stars.exponent || -0.28;
+  cfg.stars.exponent = cfg.stars.exponent || -0.28;
   cfg.center = cfg.center || [0,0];
   if (!cfg.lang || cfg.lang.search(/^de|es$/) === -1) cfg.lang = "name";
   if (isNumber(cfg.zoomextend)) zoomextent = cfg.zoomextend;
@@ -84,14 +84,17 @@ Celestial.display = function(config) {
   if (container) container.selectAll("*").remove();
   else container = d3.select(par).append("container");
 
-  if (cfg.interactive) canvas.call(zoom);
-  else canvas.attr("style", "cursor: default!important");
-  
+  if (cfg.interactive) {
+    canvas.call(zoom);
+    d3.select(par).on('dblclick', function () { zoomBy(1.5625); return false; });
+  } else {
+    canvas.attr("style", "cursor: default!important");
+  }
+
   setClip(proj.clip);
 
   d3.select(window).on('resize', resize);
-  d3.select(par).on('dblclick', function () { zoomBy(1.5625); return false; });
- 
+
   if (cfg.controls === true && $("celestial-zoomin") === null) {
     d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function () { zoomBy(1.25); return false; });
     d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function () { zoomBy(0.8); return false; });
@@ -117,12 +120,12 @@ Celestial.display = function(config) {
       if (!has(cfg.lines, key)) continue;
       if (key === "graticule") {
         container.append("path").datum(graticule).attr("class", "graticule"); 
-				if (has(cfg.lines.graticule, "lon") && cfg.lines.graticule.lon.pos.length > 0) 
+        if (has(cfg.lines.graticule, "lon") && cfg.lines.graticule.lon.pos.length > 0) 
           container.selectAll(".gridvalues_lon")
             .data(getGridValues("lon", cfg.lines.graticule.lon.pos))
             .enter().append("path")
             .attr("class", "graticule_lon"); 
-				if (has(cfg.lines.graticule, "lat") && cfg.lines.graticule.lat.pos.length > 0) 
+        if (has(cfg.lines.graticule, "lat") && cfg.lines.graticule.lat.pos.length > 0) 
           container.selectAll(".gridvalues_lat")
             .data(getGridValues("lat", cfg.lines.graticule.lat.pos))
             .enter().append("path")
@@ -474,7 +477,7 @@ Celestial.display = function(config) {
           context.fillText(d.properties.value, pt[0], pt[1]); 
         }
       });
-	  }
+    }
     
     drawOutline(true);
 

@@ -1,37 +1,41 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+<head>
   <meta charset="utf-8">
   <title>D3-Celestial Wall Map</title>
   <script type="text/javascript" src="../lib/d3.min.js"></script>
   <script type="text/javascript" src="../lib/d3.geo.projection.min.js"></script>
   <script type="text/javascript" src="../celestial.min.js"></script>
   <link rel="stylesheet" href="../celestial.css">
-</head><body>
-<div style="overflow:normal;"><div id="celestial-map"></div></div>
-<div id="celestial-form"></div>
-<script type="text/javascript">
- var config = { 
-  width: 7680,   
-  projection: "winkel3", 
-  transform: "equatorial", 
+</head>
+<body>
+  <div style="overflow:normal;"><div id="celestial-map"></div></div>
+  <div id="celestial-form"></div>
+
+  <script type="text/javascript">
+
+var config = {
+  width: 7680,
+  projection: "winkel3",
+  transform: "equatorial",
   center: [180,0,0],
   follow: false,
-  background: { fill:"#000000", stroke:"#000000", width:2.5 }, 
-  adaptable: false,    
-  interactive: false, 
+  background: { fill:"#000000", stroke:"#000000", width:2.5 },
+  adaptable: false,
+  interactive: false,
   form: false,
   location: false,
   fullwidth: false,
   controls: false,
   lang: "en",
   container: "celestial-map",
-  datapath: "../data/",  
+  datapath: "../data/",
   stars: {
     show: true,    //Show stars
     limit: 8,      //up to maximum stellar magnitude
     colors: true,  //Show stars spectral colors, if not use "color"
     style: { fill:"#ffffff", opacity:1 }, // Default style for stars
-    names: true,   //Show star names 
+    names: true,   //Show star names
     namestyle: { fill: "#ddddbb", font: "32px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     proper: true, //Show proper names (if none shows designation)
     propernamestyle: { fill: "#ddddbb", font: "32px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
@@ -40,16 +44,16 @@
     propernamelimit: 2.5,   //Maximum magnitude with name
     size: 28,
     exponent: -0.26,
-    data: "stars.8.json" // Data source for stellar data  
+    data: "stars.8.json" // Data source for stellar data
   },
   constellations: {
-    show: true,    //Show constellations 
-    names: true,   //Show constellation names 
+    show: true,    //Show constellations
+    names: true,   //Show constellation names
     namestyle: { fill: "#cccccc", font: ["bold 74px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif", "bold 62px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif", "bold 56px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"], align: "center", baseline: "middle" },
     desig: true,   //Show short constellation names (3 letter designations)
-    lines: true,   //Show constellation lines 
+    lines: true,   //Show constellation lines
     linestyle: { stroke: "#eeeeee", width: 2.5, opacity: 0.85 },
-    bounds: true,  //Show constellation boundaries 
+    bounds: true,  //Show constellation boundaries
     boundstyle: { stroke: "#ccff00", width: 1.5, opacity: 0.8, dash: [4, 8] }
   },
   dsos: {
@@ -59,7 +63,7 @@
     namestyle: { fill: "#cccccc", font: "32px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif", align: "left", baseline: "bottom" },
     desig: true,   //Show short DSO names
     namelimit: 16,   //Maximum magnitude with name
-    size: 30,    
+    size: 30,
     exponent: 1.4,
     data: "dsos.bright.json"
   },
@@ -68,22 +72,23 @@
     style: { fill:"#ffffff", opacity:"0.12" }
   },
   lines: {
-    graticule: { show: true, stroke:"#cccccc", width:1.5, opacity:.7, // Show graticule lines 
+    graticule: { show: true, stroke:"#cccccc", width:1.5, opacity:.7, // Show graticule lines
       lon: {pos: ["center"], fill: "#eee", font: "42px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}, // grid values: "outline", "center", or [lat,...] specific position
       lat: {pos: ["outline"], fill: "#666", font: "42px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif"}  // grid values: "outline", "center", or [lon,...] specific position
-    },   
-    equatorial: { show: true, stroke:"#aaaaaa", width:2.5, opacity:.7 }, // Show equatorial plane 
-    ecliptic: { show: true, stroke:"#66cc66", width:2.5, opacity:.7 },   // Show ecliptic plane 
-    galactic: { show: false, stroke:"#cc6666", width:1.5, opacity:.7 },  // Show galactic plane 
-    supergalactic: { show: true, stroke:"#cc66cc", width:1.5, opacity:.7 } // Show supergalactic plane 
+    },
+    equatorial: { show: true, stroke:"#aaaaaa", width:2.5, opacity:.7 }, // Show equatorial plane
+    ecliptic: { show: true, stroke:"#66cc66", width:2.5, opacity:.7 },   // Show ecliptic plane
+    galactic: { show: false, stroke:"#cc6666", width:1.5, opacity:.7 },  // Show galactic plane
+    supergalactic: { show: true, stroke:"#cc66cc", width:1.5, opacity:.7 } // Show supergalactic plane
   }
 };
 
 Celestial.display(config);
-  
-</script>
-<footer id="d3-celestial-footer">
-<p><a href="https://github.com/ofrohn/d3-celestial"><b>D3-Celestial</b></a> released under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a>. Copyright 2015-19 <a href="http://armchairastronautics.blogspot.com/" rel="author">Olaf Frohn</a>.
-</p></footer>
+
+  </script>
+
+  <footer id="d3-celestial-footer">
+    <p><a href="https://github.com/ofrohn/d3-celestial"><b>D3-Celestial</b></a> released under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a>. Copyright 2015-19 <a href="http://armchairastronautics.blogspot.com/" rel="author">Olaf Frohn</a>.</p>
+  </footer>
 </body>
 </html>

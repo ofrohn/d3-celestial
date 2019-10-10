@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>D3-Celestial Presets</title>
+  <script type="text/javascript" src="../lib/d3.min.js"></script>
+  <script type="text/javascript" src="../lib/d3.geo.projection.min.js"></script>
+  <script type="text/javascript" src="../celestial.js"></script>
+  <link rel="stylesheet" href="../celestial.css">
+</head>
+
+<body>
+  <div style="overflow:hidden;"><div id="celestial-map"></div></div>
+  <div id="celestial-form"></div>
+
+  <p>Locations</p>
+  <button id="location-paris">Paris</button>
+  <button id="location-tokyo">Tokyo</button>
+  <button id="location-buenos-aires">Buenos Aires</button>
+  <button id="location-new-york">New York</button>
+
+  <p>Moments</p>
+  <button id="date-first-flight">First powered flight</button>
+  <button id="date-hiroshima-bomb">Hiroshima bombing</button>
+  <button id="date-first-step-moon">First step on the Moon</button>
+  <button id="date-berlin-wall-fall">Berlin Wall fall</button>
+
+  <script type="text/javascript">
+
+var config = {
+  location: false,
+  interactive: false,
+  controls: false,
+  projection: "airy",
+  datapath: "../data/",
+};
+
+Celestial.display(config);
+
+document.getElementById("location-paris").onclick = () => {
+  Celestial.skyview({"location": [48.9, 2.3]});
+}
+document.getElementById("location-tokyo").onclick = () => {
+  Celestial.skyview({"location": [35.7, 139.7]});
+}
+document.getElementById("location-buenos-aires").onclick = () => {
+  Celestial.skyview({"location": [-34.6, -58.38]});
+}
+document.getElementById("location-new-york").onclick = () => {
+  Celestial.skyview({"location": [40.7, -73.9]});
+}
+
+document.getElementById("date-first-flight").onclick = () => {
+  Celestial.skyview({"date": new Date(Date.UTC(1903, 11, 23, 15, 35))});
+}
+document.getElementById("date-hiroshima-bomb").onclick = () => {
+  Celestial.skyview({"date": new Date(Date.UTC(1945, 7, 6, 23, 30))});
+}
+document.getElementById("date-first-step-moon").onclick = () => {
+  Celestial.skyview({"date": new Date(Date.UTC(1969, 6, 21, 2, 56))});
+}
+document.getElementById("date-berlin-wall-fall").onclick = () => {
+  Celestial.skyview({"date": new Date(Date.UTC(1989, 10, 9, 8, 45))});
+}
+
+  </script>
+
+  <footer id="d3-celestial-footer">
+    <p><a href="https://github.com/ofrohn/d3-celestial"><b>D3-Celestial</b></a> released under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a>. Copyright 2015-19 <a href="http://armchairastronautics.blogspot.com/" rel="author">Olaf Frohn</a>.</p>
+  </footer>
+</body>
+</html>
