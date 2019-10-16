@@ -89,7 +89,7 @@ Celestial.display = function(config) {
     canvas.call(zoom);
     d3.select(par).on('dblclick', function () { zoomBy(1.5625); return false; });
   } else {
-    canvas.attr("style", "cursor: default!important");
+    canvas.style("cursor", "default", "important");
   }
 
   setClip(proj.clip);
@@ -424,6 +424,7 @@ Celestial.display = function(config) {
   function redraw() {  
     var rot = prjMap.rotate();
     
+    context.setTransform(pixelRatio,0,0,pixelRatio,0,0);
     if (cfg.adaptable) adapt = Math.sqrt(prjMap.scale()/scale);
     if (!adapt) adapt = 1;
     starbase = cfg.stars.size;
