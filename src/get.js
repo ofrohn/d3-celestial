@@ -37,6 +37,7 @@ function getPlanets(d) {
   return res;
 }
 
+
 function getConstellationList(d, trans) {
   var res = {},
       leo = euler[trans],

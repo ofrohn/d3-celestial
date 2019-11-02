@@ -88,7 +88,7 @@ Celestial.display = function(config) {
     canvas.call(zoom);
     d3.select(par).on('dblclick', function () { zoomBy(1.5625); return false; });
   } else {
-    canvas.style("cursor", "default", "important");
+    canvas.attr("style", "cursor: default!important");
   }
 
   setClip(proj.clip);
@@ -102,6 +102,7 @@ Celestial.display = function(config) {
   
   circle = d3.geo.circle().angle([90]);  
   container.append("path").datum(circle).attr("class", "horizon");
+
   if ($("loc") === null) geo(cfg);
   else if (cfg.location === true && cfg.follow === "zenith") rotate({center: Celestial.zenith()});
 
@@ -155,8 +156,6 @@ Celestial.display = function(config) {
          .data(mw_back.features)
          .enter().append("path")
          .attr("class", "mwbg");
-
-      redraw();
     }); 
 
     //Constellation names or designation
@@ -186,9 +185,7 @@ Celestial.display = function(config) {
         sel.property("selectedIndex", selected);
         //$("constellation").firstChild.disabled = true;
       }
-      Celestial.constellations = l;
-      
-      redraw();      
+      Celestial.constellations = l;      
     });
 
     //Constellation boundaries
@@ -201,7 +198,6 @@ Celestial.display = function(config) {
          .data(conb.features)
          .enter().append("path")
          .attr("class", "boundaryline");
-      redraw();
     });
 
     //Constellation lines
@@ -214,7 +210,6 @@ Celestial.display = function(config) {
          .data(conl.features)
          .enter().append("path")
          .attr("class", "constline");
-      redraw();
     });
     
     //Stars
@@ -227,8 +222,6 @@ Celestial.display = function(config) {
          .data(st.features)
          .enter().append("path")
          .attr("class", "star");
-
-      redraw();
     });
 
     //Deep space objects
@@ -241,11 +234,9 @@ Celestial.display = function(config) {
          .data(ds.features)
          .enter().append("path")
          .attr("class", "dso" );
-
-      redraw();
     });
 
-    //Planets, Sun & (Moon tbi)
+    //Planets, Sun & Moon
     d3.json(path + "planets.json", function(error, json) {
       if (error) return console.warn(error);
       
@@ -255,8 +246,6 @@ Celestial.display = function(config) {
          .data(pl)
          .enter().append("path")
          .attr("class", "planet");
-
-      redraw();
     });
 
     if (Celestial.data.length > 0) { 
@@ -265,6 +254,7 @@ Celestial.display = function(config) {
         else setTimeout(d.callback, 0);
       }, this);
     }
+    redraw();
   }
   
   // Zoom by factor; >1 larger <1 smaller 
@@ -561,7 +551,7 @@ Celestial.display = function(config) {
       });
     }
 
-    if (cfg.location && cfg.transform === "equatorial" && cfg.planets.show && Celestial.origin) { 
+    if (cfg.location && cfg.transform === "equatorial" && cfg.planets.show) { 
       var dt = Celestial.date(),
           o = Celestial.origin(dt).spherical();
       container.selectAll(".planet").each(function(d) {
@@ -596,6 +586,7 @@ Celestial.display = function(config) {
       context.fill();    
       if (cfg.horizon.stroke) context.stroke();    
     }
+
 
     if (cfg.controls) { 
       zoomState(prjMap.scale());
@@ -791,6 +782,7 @@ Celestial.display = function(config) {
     //current = 0;
     //repeat = false;
   }
+
   
   // Exported objects and functions for adding data
   this.container = container;

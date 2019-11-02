@@ -133,11 +133,6 @@ var settings = {
       "eri": {symbol: "\u26aa", fill: "#eeeeee"}
     }
   },
-  daylight: {  // Show daylight marker (tbi)
-    show: false, 
-    fill: "#fff", 
-    opacity: 0.4 
-  },  
   set: function(cfg) {  // Override defaults with values of cfg
     var prop, key, res = {};
     if (!cfg) return this; 
