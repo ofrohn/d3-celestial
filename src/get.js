@@ -38,6 +38,18 @@ function getPlanets(d) {
 }
 
 
+function getPlanet(id, dt) {
+  dt = dt || Celestial.date();
+  var o = Celestial.origin(dt).spherical(), res;
+     
+  Celestial.container.selectAll(".planet").each(function(d) {
+    if (id === d.id()) {
+      res = d(dt).equatorial(o);
+    }
+  });
+  return res;
+}
+
 function getConstellationList(d, trans) {
   var res = {},
       leo = euler[trans],
@@ -183,3 +195,4 @@ function transMultiLine(c, leo) {
 
 Celestial.getData = getData;
 Celestial.getPoint = getPoint;
+Celestial.getPlanet = getPlanet;
