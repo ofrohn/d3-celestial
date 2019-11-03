@@ -1,7 +1,7 @@
 // Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.15',
+  version: '0.6.16',
   container: null,
   data: []
 };
@@ -12,7 +12,7 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
     ANIMINTERVAL_P = 2500, // Projection duration in ms
     ANIMINTERVAL_Z = 1500, // Zoom duration scale in ms
     zoomextent = 10,       // Default maximum extent of zoom (max/min)
-    zoomlevel = 1;         // Default zoom level, 1 = 100%
+    zoomlevel = 1;      // Default zoom level, 1 = 100%
 
 var cfg, prjMap, zoom, map, circle;
 
@@ -186,7 +186,7 @@ Celestial.display = function(config) {
         sel.property("selectedIndex", selected);
         //$("constellation").firstChild.disabled = true;
       }
-      Celestial.constellations = l;      
+      Celestial.constellations = l;
     });
 
     //Constellation boundaries
@@ -274,7 +274,7 @@ Celestial.display = function(config) {
           var z = zTween(t);
           prjMap.scale(z); 
           redraw(); 
-        };      
+        };   
     }).transition().duration(0).tween("scale", function () {
       zoom.scale(sc1); 
       redraw(); 
@@ -362,7 +362,7 @@ Celestial.display = function(config) {
         delay = 0, 
         rTween = d3.interpolateNumber(ratio, prj.ratio);
 
-    if (proj.clip != prj.clip) interval = 0;   // Different clip = no transition
+    if (proj.clip != prj.clip) interval = 0;// Different clip = no transition
     
     var prjTo = Celestial.projection(config.projection).center(ctr).translate([width/2, width/prj.ratio/2]).scale([prj.scale * width/1024]);
     var bAdapt = cfg.adaptable;
@@ -446,7 +446,7 @@ Celestial.display = function(config) {
       if (cfg.lines[key].show !== true) continue;
       setStyle(cfg.lines[key]);
       container.selectAll("."+key).attr("d", map);  
-      context.stroke();    
+      context.stroke(); 
     }
 
     if (has(cfg.lines.graticule, "lon")) {
@@ -522,11 +522,11 @@ Celestial.display = function(config) {
           context.fill();
           if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit*adapt) {
             setTextStyle(cfg.stars.namestyle);
-            context.fillText(starName(d), pt[0]+r, pt[1]);         
+            context.fillText(starName(d), pt[0]+r, pt[1]);      
           }
           if (cfg.stars.proper && d.properties.mag <= cfg.stars.propernamelimit*adapt) {
             setTextStyle(cfg.stars.propernamestyle);
-            context.fillText(starProperName(d), pt[0]-r, pt[1]);         
+            context.fillText(starProperName(d), pt[0]-r, pt[1]);      
           }
         }
       });
@@ -546,13 +546,13 @@ Celestial.display = function(config) {
           if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.namelimit)) {
             setTextStyle(cfg.dsos.namestyle);
             if (cfg.dsos.colors === true) context.fillStyle = cfg.dsos.symbols[type].fill;
-            context.fillText(dsoName(d), pt[0]+r, pt[1]-r);         
+            context.fillText(dsoName(d), pt[0]+r, pt[1]-r);      
           }         
         }
       });
     }
 
-    if (cfg.location && cfg.transform === "equatorial" && cfg.planets.show) { 
+    if (cfg.location && cfg.transform === "equatorial" && cfg.planets.show && Celestial.origin) { 
       var dt = Celestial.date(),
           o = Celestial.origin(dt).spherical();
       container.selectAll(".planet").each(function(d) {
@@ -584,8 +584,8 @@ Celestial.display = function(config) {
       circle.origin(Celestial.nadir());
       setStyle(cfg.horizon);
       container.selectAll(".horizon").datum(circle).attr("d", map);  
-      context.fill();    
-      if (cfg.horizon.stroke) context.stroke();    
+      context.fill(); 
+      if (cfg.horizon.stroke) context.stroke(); 
     }
 
 
@@ -645,7 +645,7 @@ Celestial.display = function(config) {
         defscale = proj.scale * width/1024;
     if (!czi || !czo) return;
     czi.disabled = sc >= defscale * zoomextent * 0.99;
-    czo.disabled = sc <= defscale;    
+    czo.disabled = sc <= defscale; 
   }
   
   function setClip(setit) {
@@ -1153,9 +1153,10 @@ function getPlanets(d) {
   return res;
 }
 
-
+/*
 function getPlanet(id, dt) {
   dt = dt || Celestial.date();
+   
   var o = Celestial.origin(dt).spherical(), res;
      
   Celestial.container.selectAll(".planet").each(function(d) {
@@ -1165,7 +1166,7 @@ function getPlanet(id, dt) {
   });
   return res;
 }
-
+*/
 function getConstellationList(d, trans) {
   var res = {},
       leo = euler[trans],
@@ -1311,7 +1312,7 @@ function transMultiLine(c, leo) {
 
 Celestial.getData = getData;
 Celestial.getPoint = getPoint;
-Celestial.getPlanet = getPlanet;
+//Celestial.getPlanet = getPlanet;
 //Defaults
 var settings = { 
   width: 0,     // Default width; height is determined by projection
