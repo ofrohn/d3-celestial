@@ -1,7 +1,7 @@
 // Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.16',
+  version: '0.6.17',
   container: null,
   data: []
 };
@@ -588,12 +588,12 @@ Celestial.display = function(config) {
       if (cfg.horizon.stroke) context.stroke(); 
     }
 
-
     if (cfg.controls) { 
       zoomState(prjMap.scale());
     }
   }
     
+
   function drawOutline(stroke) {
     var rot = prjMap.rotate();
     
@@ -1153,10 +1153,11 @@ function getPlanets(d) {
   return res;
 }
 
-/*
+
 function getPlanet(id, dt) {
   dt = dt || Celestial.date();
-   
+  if (!Celestial.origin) return;
+
   var o = Celestial.origin(dt).spherical(), res;
      
   Celestial.container.selectAll(".planet").each(function(d) {
@@ -1166,7 +1167,7 @@ function getPlanet(id, dt) {
   });
   return res;
 }
-*/
+
 function getConstellationList(d, trans) {
   var res = {},
       leo = euler[trans],
@@ -1312,7 +1313,7 @@ function transMultiLine(c, leo) {
 
 Celestial.getData = getData;
 Celestial.getPoint = getPoint;
-//Celestial.getPlanet = getPlanet;
+Celestial.getPlanet = getPlanet;
 //Defaults
 var settings = { 
   width: 0,     // Default width; height is determined by projection

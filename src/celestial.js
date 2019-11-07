@@ -1,6 +1,6 @@
 /* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
-  version: '0.6.16',
+  version: '0.6.17',
   container: null,
   data: []
 };
@@ -587,12 +587,12 @@ Celestial.display = function(config) {
       if (cfg.horizon.stroke) context.stroke(); 
     }
 
-
     if (cfg.controls) { 
       zoomState(prjMap.scale());
     }
   }
     
+
   function drawOutline(stroke) {
     var rot = prjMap.rotate();
     
