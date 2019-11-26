@@ -54,6 +54,9 @@ function geo(cfg) {
   col.append("br");
   col.append("label").attr("title", "Show horizon marker").attr("for", "horizon-show").html(" Horizon marker");
   col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", cfg.horizon.show).on("change", go);    
+  //Daylight
+  col.append("label").attr("title", "Show daylight").attr("for", "daylight-show").html("Daylight sky");
+  col.append("input").attr("type", "checkbox").attr("id", "daylight-show").property("checked", cfg.daylight.show).on("change", go);    
   //Show planets
   col.append("label").attr("title", "Show solar system objects").attr("for", "planets-show").html(" Planets, Sun & Moon");
   col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", cfg.planets.show).on("change", go);    
@@ -112,6 +115,7 @@ function geo(cfg) {
     var dtc = new Date(date.valueOf() + (zone - tz) * 60000);
 
     cfg.horizon.show = !!$("horizon-show").checked;
+    cfg.daylight.show = !!$("daylight-show").checked;
     cfg.planets.show = !!$("planets-show").checked;
     
     if (lon !== "" && lat !== "") {
@@ -130,8 +134,9 @@ function geo(cfg) {
     
   };
 
-  Celestial.date = function (dt) { 
+  Celestial.date = function (dt, tz) { 
     if (!dt) return date;  
+    zone = tz || zone;
     if (dtpick.isVisible()) dtpick.hide();
     date.setTime(dt.valueOf());
     $("datetime").value = dateFormat(dt, zone); 
@@ -147,7 +152,7 @@ function geo(cfg) {
       go();
     }
   };
-  //{"date":dt, "location":loc}
+  //{"date":dt, "location":loc, "timezone":tz}
   Celestial.skyview = function (cfg) {
     var valid = false;
     if (dtpick.isVisible()) dtpick.hide();
@@ -156,6 +161,7 @@ function geo(cfg) {
       $("datetime").value = dateFormat(cfg.date, zone); 
       valid = true;
     }
+    zone = cfg.timezone || zone;
     if (isValidLocation(cfg.location)) {
       geopos = cfg.location.slice();
       $("lat").value = geopos[0];

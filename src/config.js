@@ -112,6 +112,9 @@ var settings = {
     fill: "#000000", // Area below horizon
     opacity: 0.5
   },  
+  daylight: {  //Show approximate stae of sky at selected time
+    show: false
+  },
   planets: {  //Show planet locations, if date-time is set
     show: false,
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep"],

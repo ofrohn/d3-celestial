@@ -1,6 +1,6 @@
-/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
+/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
-  version: '0.6.17',
+  version: '0.6.18',
   container: null,
   data: []
 };
@@ -13,7 +13,7 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
     zoomextent = 10,       // Default maximum extent of zoom (max/min)
     zoomlevel = 1;      // Default zoom level, 1 = 100%
 
-var cfg, prjMap, zoom, map, circle;
+var cfg, prjMap, zoom, map, circle, daylight;
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
@@ -102,6 +102,8 @@ Celestial.display = function(config) {
   
   circle = d3.geo.circle().angle([90]);  
   container.append("path").datum(circle).attr("class", "horizon");
+  daylight = d3.geo.circle().angle([179.9]);
+  container.append("path").datum(daylight).attr("class", "daylight");
 
   if ($("loc") === null) geo(cfg);
   else if (cfg.location === true && cfg.follow === "zenith") rotate({center: Celestial.zenith()});
@@ -579,6 +581,27 @@ Celestial.display = function(config) {
     
 //    drawOutline(true);
     
+    if (cfg.location && cfg.daylight.show && proj.clip) {
+      var sol = getPlanet("sol");
+      if (sol) {
+        var up = Celestial.zenith(),
+            dist = d3.geo.distance(up, sol.pos),
+            pt = prjMap(sol.pos);
+
+        daylight.origin(sol.pos);
+        setSkyStyle(dist, pt);
+        container.selectAll(".daylight").datum(daylight).attr("d", map);
+        context.fill();    
+        context.fillStyle = "#fff"; 
+        if (clip(sol.pos)) {
+          context.beginPath();
+          context.arc(pt[0], pt[1], 6, 0, 2 * Math.PI);
+          context.closePath();
+          context.fill();
+        }
+      }
+    }
+
     if (cfg.location && cfg.horizon.show && !proj.clip) {
       circle.origin(Celestial.nadir());
       setStyle(cfg.horizon);
@@ -637,6 +660,35 @@ Celestial.display = function(config) {
     else context.font = font[rank-1];
   }
 
+  function setSkyStyle(dist, pt) {
+    var factor, color1, color2, color3,
+        upper = 1.36, 
+        lower = 1.885;
+    
+    if (dist > lower) {
+      context.fillStyle = "transparent"; 
+      context.globalAlpha = 0;
+      return;
+    }
+    
+    if (dist <= upper) { 
+      color1 = "#daf1fa";
+      color2 = "#93d7f0"; 
+      color3 = "#57c0e8"; 
+      factor = -(upper-dist) / 10; 
+    } else {
+      factor = (dist - upper) / (lower - upper);
+      color1 = d3.interpolateLab("#daf1fa", "#e8c866")(factor);
+      color2 = d3.interpolateLab("#93d7f0", "#ff854a")(factor);
+      color3 = d3.interpolateLab("#57c0e8", "#6caae2")(factor);
+    }
+    var grad = context.createRadialGradient(pt[0],pt[1],0, pt[0],pt[1],300);
+    grad.addColorStop(0, color1);
+    grad.addColorStop(0.2+0.4*factor, color2);
+    grad.addColorStop(1, color3);
+    context.fillStyle = grad;
+    context.globalAlpha = 0.9 * (1 - Math.pow(factor, 4));
+  }
   
   function zoomState(sc) {
     var czi = $("celestial-zoomin"),

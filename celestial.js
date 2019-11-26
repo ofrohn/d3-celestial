@@ -1,7 +1,7 @@
 // Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.17',
+  version: '0.6.18',
   container: null,
   data: []
 };
@@ -14,7 +14,7 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
     zoomextent = 10,       // Default maximum extent of zoom (max/min)
     zoomlevel = 1;      // Default zoom level, 1 = 100%
 
-var cfg, prjMap, zoom, map, circle;
+var cfg, prjMap, zoom, map, circle, daylight;
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
@@ -103,6 +103,8 @@ Celestial.display = function(config) {
   
   circle = d3.geo.circle().angle([90]);  
   container.append("path").datum(circle).attr("class", "horizon");
+  daylight = d3.geo.circle().angle([179.9]);
+  container.append("path").datum(daylight).attr("class", "daylight");
 
   if ($("loc") === null) geo(cfg);
   else if (cfg.location === true && cfg.follow === "zenith") rotate({center: Celestial.zenith()});
@@ -580,6 +582,27 @@ Celestial.display = function(config) {
     
 //    drawOutline(true);
     
+    if (cfg.location && cfg.daylight.show && proj.clip) {
+      var sol = getPlanet("sol");
+      if (sol) {
+        var up = Celestial.zenith(),
+            dist = d3.geo.distance(up, sol.pos),
+            pt = prjMap(sol.pos);
+
+        daylight.origin(sol.pos);
+        setSkyStyle(dist, pt);
+        container.selectAll(".daylight").datum(daylight).attr("d", map);
+        context.fill();    
+        context.fillStyle = "#fff"; 
+        if (clip(sol.pos)) {
+          context.beginPath();
+          context.arc(pt[0], pt[1], 6, 0, 2 * Math.PI);
+          context.closePath();
+          context.fill();
+        }
+      }
+    }
+
     if (cfg.location && cfg.horizon.show && !proj.clip) {
       circle.origin(Celestial.nadir());
       setStyle(cfg.horizon);
@@ -638,6 +661,35 @@ Celestial.display = function(config) {
     else context.font = font[rank-1];
   }
 
+  function setSkyStyle(dist, pt) {
+    var factor, color1, color2, color3,
+        upper = 1.36, 
+        lower = 1.885;
+    
+    if (dist > lower) {
+      context.fillStyle = "transparent"; 
+      context.globalAlpha = 0;
+      return;
+    }
+    
+    if (dist <= upper) { 
+      color1 = "#daf1fa";
+      color2 = "#93d7f0"; 
+      color3 = "#57c0e8"; 
+      factor = -(upper-dist) / 10; 
+    } else {
+      factor = (dist - upper) / (lower - upper);
+      color1 = d3.interpolateLab("#daf1fa", "#e8c866")(factor);
+      color2 = d3.interpolateLab("#93d7f0", "#ff854a")(factor);
+      color3 = d3.interpolateLab("#57c0e8", "#6caae2")(factor);
+    }
+    var grad = context.createRadialGradient(pt[0],pt[1],0, pt[0],pt[1],300);
+    grad.addColorStop(0, color1);
+    grad.addColorStop(0.2+0.4*factor, color2);
+    grad.addColorStop(1, color3);
+    context.fillStyle = grad;
+    context.globalAlpha = 0.9 * (1 - Math.pow(factor, 4));
+  }
   
   function zoomState(sc) {
     var czi = $("celestial-zoomin"),
@@ -1427,6 +1479,9 @@ var settings = {
     fill: "#000000", // Area below horizon
     opacity: 0.5
   },  
+  daylight: {  //Show approximate stae of sky at selected time
+    show: false
+  },
   planets: {  //Show planet locations, if date-time is set
     show: false,
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep"],
@@ -2466,6 +2521,9 @@ function geo(cfg) {
   col.append("br");
   col.append("label").attr("title", "Show horizon marker").attr("for", "horizon-show").html(" Horizon marker");
   col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", cfg.horizon.show).on("change", go);    
+  //Daylight
+  col.append("label").attr("title", "Show daylight").attr("for", "daylight-show").html("Daylight sky");
+  col.append("input").attr("type", "checkbox").attr("id", "daylight-show").property("checked", cfg.daylight.show).on("change", go);    
   //Show planets
   col.append("label").attr("title", "Show solar system objects").attr("for", "planets-show").html(" Planets, Sun & Moon");
   col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", cfg.planets.show).on("change", go);    
@@ -2524,6 +2582,7 @@ function geo(cfg) {
     var dtc = new Date(date.valueOf() + (zone - tz) * 60000);
 
     cfg.horizon.show = !!$("horizon-show").checked;
+    cfg.daylight.show = !!$("daylight-show").checked;
     cfg.planets.show = !!$("planets-show").checked;
     
     if (lon !== "" && lat !== "") {
@@ -2542,8 +2601,9 @@ function geo(cfg) {
     
   };
 
-  Celestial.date = function (dt) { 
+  Celestial.date = function (dt, tz) { 
     if (!dt) return date;  
+    zone = tz || zone;
     if (dtpick.isVisible()) dtpick.hide();
     date.setTime(dt.valueOf());
     $("datetime").value = dateFormat(dt, zone); 
@@ -2559,7 +2619,7 @@ function geo(cfg) {
       go();
     }
   };
-  //{"date":dt, "location":loc}
+  //{"date":dt, "location":loc, "timezone":tz}
   Celestial.skyview = function (cfg) {
     var valid = false;
     if (dtpick.isVisible()) dtpick.hide();
@@ -2568,6 +2628,7 @@ function geo(cfg) {
       $("datetime").value = dateFormat(cfg.date, zone); 
       valid = true;
     }
+    zone = cfg.timezone || zone;
     if (isValidLocation(cfg.location)) {
       geopos = cfg.location.slice();
       $("lat").value = geopos[0];
