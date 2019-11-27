@@ -112,6 +112,7 @@ Celestial.display = function(config) {
   if (cfg.location === true) {
     d3.select("#location").style("display", "inline-block");
     fldEnable("horizon-show", proj.clip);
+    fldEnable("daylight-show", !proj.clip);
   }
   
   if (cfg.form === true && $("params") === null) form(cfg);
@@ -375,7 +376,10 @@ Celestial.display = function(config) {
       return delay + interval;
     }
     
-    if (cfg.location) fldEnable("horizon-show", prj.clip);
+    if (cfg.location) { 
+      fldEnable("horizon-show", prj.clip);
+      fldEnable("daylight-show", !prj.clip);
+    }
     
     prjMap = projectionTween(prjFrom, prjTo);
     cfg.adaptable = false;
