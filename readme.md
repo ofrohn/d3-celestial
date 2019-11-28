@@ -18,14 +18,15 @@ __Demos__:
 \([Source files on github](./demo/)\)  
 
 __Some more examples__:  
-[Embedded interactive form](http://armchairastronautics.blogspot.com/p/skymap.html)  
-[Spinning sky globe](http://armchairastronautics.blogspot.com/2016/04/interactive-skymap-version-05.html)  
-[The Milky Way halo, globular clusters & satellite galaxies](http://armchairastronautics.blogspot.com/p/milky-way-halo.html)  
-[The Local Group of galaxies](http://armchairastronautics.blogspot.com/p/local-group.html)  
-[Asterisms with locations & time selection](http://armchairastronautics.blogspot.com/p/asterisms.html)  
-[Asterisms with zoom & pan](http://armchairastronautics.blogspot.com/2016/05/asterisms-interactive-and-with.html)  
-[Zoom & pan animations](http://armchairastronautics.blogspot.com/2016/06/and-here-is-d3-celestial-057-with.html)  
-[A different kind of Messier marathon](http://armchairastronautics.blogspot.com/2016/07/a-different-kind-of-messier-marathon.html)  
+[Embedded interactive form](https://armchairastronautics.blogspot.com/p/skymap.html)  
+[Spinning sky globe](https://armchairastronautics.blogspot.com/2016/04/interactive-skymap-version-05.html)  
+[The Milky Way halo, globular clusters & satellite galaxies](https://armchairastronautics.blogspot.com/p/milky-way-halo.html)  
+[The Local Group of galaxies](https://armchairastronautics.blogspot.com/p/local-group.html)  
+[Asterisms with locations & time selection](https://armchairastronautics.blogspot.com/p/asterisms.html)  
+[Asterisms with zoom & pan](https://armchairastronautics.blogspot.com/2016/05/asterisms-interactive-and-with.html)  
+[Zoom & pan animations](https://armchairastronautics.blogspot.com/2016/06/and-here-is-d3-celestial-057-with.html)  
+[A different kind of Messier marathon](https://armchairastronautics.blogspot.com/2016/07/a-different-kind-of-messier-marathon.html)  
+[Show coordinates, DSO colors, Download button ](https://armchairastronautics.blogspot.com/2019/08/d3-celestial-showboating_25.html)  
 
 
 ### Usage
@@ -193,6 +194,9 @@ var config = {
     width: 1.0, 
     fill: "#000000",   // Area below horizon
     opacity: 0.5
+  },  
+  daylight: {  //Show day sky as a gradient, if location is set and map projection is hemispheric
+    show: true
   }
 };
 
@@ -303,20 +307,22 @@ __Exposed functions__
   Change the map projection. 
   _projection_: new projection to set
 
-* `Celestial.date(<date object>)`  
+* `Celestial.date(<date object>, timezone)`  
   Change the set date, return current date w/o parameter.  
   _date_: javascript date-object  
-
+  _timezone_: offset from UTC in minutes  
+  
 * `Celestial.location([lat, lon])`  
   Change the set geolocation, return current location w/o parameter.  
   _location_: [latitude, longitude] array in degrees  
 
-* `Celestial.skyview({date:<date object>, location:[lat, lon]})`  
+* `Celestial.skyview({date:<date object>, location:[lat, lon], timezone: offset})`  
   Show the current celestial view for one specific date and/or location, 
   independent of form fields, both parameters are optional  
   called w/o parameter returns {date, location} in same format.  
   _date_: javascript date-object  
   _location_: [latitude, longitude] array in degrees  
+  _timezone_: offset from UTC in minutes  
 
 ### Animations  
 
