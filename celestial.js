@@ -1,7 +1,7 @@
 // Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.18',
+  version: '0.6.19',
   container: null,
   data: []
 };
@@ -14,12 +14,16 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
     zoomextent = 10,       // Default maximum extent of zoom (max/min)
     zoomlevel = 1;      // Default zoom level, 1 = 100%
 
-var cfg, prjMap, zoom, map, circle, daylight;
+var cfg, prjMap, zoom, map, circle, daylight, hasCallback = false;
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
-  var par, container = Celestial.container,
-      animations = [], current = 0, repeat = false, aID;
+  var parentElement, animationID,
+      container = Celestial.container,
+      animations = [], 
+      current = 0, 
+      repeat = false, 
+      callbackFunc = null;
   
   //Mash config with default settings
   cfg = settings.set(config); 
@@ -32,11 +36,11 @@ Celestial.display = function(config) {
 
   var parent = $(cfg.container);
   if (parent) { 
-    par = "#"+cfg.container;
+    parentElement = "#"+cfg.container;
     var st = window.getComputedStyle(parent, null);
     if (!parseInt(st.width) && !cfg.width) parent.style.width = px(parent.parentNode.clientWidth); 
   } else { 
-    par = "body"; 
+    parentElement = "body"; 
     parent = null; 
   }
    
@@ -62,7 +66,7 @@ Celestial.display = function(config) {
       path = path.replace(/([^\/]$)/, "$1\/");
   
       
-  if (par != "body") $(cfg.container).style.height = px(height);
+  if (parentElement != "body") $(cfg.container).style.height = px(height);
   
   prjMap = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale(scale * zoomlevel);
     
@@ -70,8 +74,8 @@ Celestial.display = function(config) {
   // Set initial zoom level
   scale *= zoomlevel;
 
-  var canvas = d3.select(par).selectAll("canvas");
-  if (canvas[0].length === 0) canvas = d3.select(par).append("canvas");
+  var canvas = d3.select(parentElement).selectAll("canvas");
+  if (canvas[0].length === 0) canvas = d3.select(parentElement).append("canvas");
   //canvas.attr("width", width).attr("height", height);
   canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height", height * pixelRatio);
   var context = canvas.node().getContext("2d");  
@@ -83,11 +87,11 @@ Celestial.display = function(config) {
    
   //parent div with id #celestial-map or body
   if (container) container.selectAll("*").remove();
-  else container = d3.select(par).append("container");
+  else container = d3.select(parentElement).append("container");
 
   if (cfg.interactive) {
     canvas.call(zoom);
-    d3.select(par).on('dblclick', function () { zoomBy(1.5625); return false; });
+    d3.select(parentElement).on('dblclick', function () { zoomBy(1.5625); return false; });
   } else {
     canvas.attr("style", "cursor: default!important");
   }
@@ -97,8 +101,8 @@ Celestial.display = function(config) {
   d3.select(window).on('resize', resize);
 
   if (cfg.controls === true && $("celestial-zoomin") === null) {
-    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function () { zoomBy(1.25); return false; });
-    d3.select(par).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function () { zoomBy(0.8); return false; });
+    d3.select(parentElement).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function () { zoomBy(1.25); return false; });
+    d3.select(parentElement).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function () { zoomBy(0.8); return false; });
   }
   
   circle = d3.geo.circle().angle([90]);  
@@ -618,6 +622,12 @@ Celestial.display = function(config) {
     if (cfg.controls) { 
       zoomState(prjMap.scale());
     }
+    
+    if (hasCallback) { 
+      hasCallback = false; // avoid infinite loops
+      callbackFunc();
+      hasCallback = true;
+    }
   }
     
 
@@ -831,11 +841,11 @@ Celestial.display = function(config) {
     current++;
     if (repeat === true && current === animations.length) current = 0;
     d = a.duration === 0 || a.duration < d ? d : a.duration;
-    if (current < animations.length) aID = setTimeout(animate, d);
+    if (current < animations.length) animationID = setTimeout(animate, d);
   }
   
   function stop() {
-    clearTimeout(aID);
+    clearTimeout(animationID);
     //current = 0;
     //repeat = false;
   }
@@ -894,9 +904,15 @@ Celestial.display = function(config) {
     if (index && index < animations.length) current = index;
     animate(); 
   };
+  this.setCallback = function(f) { 
+    callbackFunc = f;
+    hasCallback =  (f !== null);
+  };
+
+  /* obsolete
   if (!has(this, "date"))
     this.date = function() { console.log("Celestial.date() needs config.location = true to work." ); };
-  
+  */
   load();
 };
  
