@@ -1,4 +1,4 @@
-/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
+/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
   version: '0.6.19',
   container: null,
@@ -13,7 +13,7 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
     zoomextent = 10,       // Default maximum extent of zoom (max/min)
     zoomlevel = 1;      // Default zoom level, 1 = 100%
 
-var cfg, prjMap, zoom, map, circle, daylight, hasCallback = false;
+var cfg, prjMap, zoom, map, circle, daylight;
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
@@ -21,8 +21,7 @@ Celestial.display = function(config) {
       container = Celestial.container,
       animations = [], 
       current = 0, 
-      repeat = false, 
-      callbackFunc = null;
+      repeat = false;
   
   //Mash config with default settings
   cfg = settings.set(config); 
@@ -623,9 +622,7 @@ Celestial.display = function(config) {
     }
     
     if (hasCallback) { 
-      hasCallback = false; // avoid infinite loops
-      callbackFunc();
-      hasCallback = true;
+      Celestial.runCallback();
     }
   }
     
@@ -902,10 +899,6 @@ Celestial.display = function(config) {
     if (animations.length < 1) return;
     if (index && index < animations.length) current = index;
     animate(); 
-  };
-  this.setCallback = function(f) { 
-    callbackFunc = f;
-    hasCallback =  (f !== null);
   };
 
   /* obsolete

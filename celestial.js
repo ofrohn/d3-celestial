@@ -14,7 +14,7 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
     zoomextent = 10,       // Default maximum extent of zoom (max/min)
     zoomlevel = 1;      // Default zoom level, 1 = 100%
 
-var cfg, prjMap, zoom, map, circle, daylight, hasCallback = false;
+var cfg, prjMap, zoom, map, circle, daylight;
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
@@ -22,8 +22,7 @@ Celestial.display = function(config) {
       container = Celestial.container,
       animations = [], 
       current = 0, 
-      repeat = false, 
-      callbackFunc = null;
+      repeat = false;
   
   //Mash config with default settings
   cfg = settings.set(config); 
@@ -624,9 +623,7 @@ Celestial.display = function(config) {
     }
     
     if (hasCallback) { 
-      hasCallback = false; // avoid infinite loops
-      callbackFunc();
-      hasCallback = true;
+      Celestial.runCallback();
     }
   }
     
@@ -904,10 +901,6 @@ Celestial.display = function(config) {
     if (index && index < animations.length) current = index;
     animate(); 
   };
-  this.setCallback = function(f) { 
-    callbackFunc = f;
-    hasCallback =  (f !== null);
-  };
 
   /* obsolete
   if (!has(this, "date"))
@@ -1159,6 +1152,7 @@ function getMST(dt, lng)
 
 Celestial.horizontal = horizontal;
 //Add more JSON data to the map
+var hasCallback = false;
 
 Celestial.add = function(dat) {
   var res = {};
@@ -1187,6 +1181,16 @@ Celestial.clear = function() {
   Celestial.data = [];
 };
 
+Celestial.addCallback = function(dat) {
+  Celestial.callback = dat;
+  hasCallback = (dat !== null);
+};
+
+Celestial.runCallback = function(dat) {
+  hasCallback = false; // avoid recursion
+  Celestial.callback();
+  hasCallback = true;
+};
 //load data and transform coordinates
 
 

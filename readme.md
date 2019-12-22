@@ -277,7 +277,14 @@ __Exposed functions & objects__
 * `Celestial.Canvas.symbol()`  
    Draw symbol shapes directly on canvas context: circle, square, diamond, triangle, ellipse, marker,  
    stroke-circle, cross-circle
-   
+
+
+### Adding Behaviour
+  
+* `Celestial.addCallback(func)`  
+   Add a callback function that is executed every time the map is redrawn.
+   func: function that is execured in the client context 
+     
 ### Manipulating the Map
 
 __Exposed functions__  

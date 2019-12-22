@@ -1,5 +1,6 @@
 /* global Celestial, has */
 //Add more JSON data to the map
+var hasCallback = false;
 
 Celestial.add = function(dat) {
   var res = {};
@@ -26,4 +27,15 @@ Celestial.remove = function(i) {
 
 Celestial.clear = function() {
   Celestial.data = [];
+};
+
+Celestial.addCallback = function(dat) {
+  Celestial.callback = dat;
+  hasCallback = (dat !== null);
+};
+
+Celestial.runCallback = function(dat) {
+  hasCallback = false; // avoid recursion
+  Celestial.callback();
+  hasCallback = true;
 };
