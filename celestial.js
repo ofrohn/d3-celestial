@@ -1408,9 +1408,9 @@ var settings = {
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
-  location: true,    // Display location settings, deprecated, use formFields
+  location: false,    // Display location settings, deprecated, use formFields
   // Set visiblity for each group of fields of the form
-  formFields: {"location": false, "general": true, "stars": true, "dsos": true, "constellations": true, "lines": true, "other": true},
+  formFields: {"location": true, "general": true, "stars": true, "dsos": true, "constellations": true, "lines": true, "other": true},
   daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
                       // [yr, n<100]: [yr-n, yr+n]; [yr0, yr1]
   controls: true,     // Display zoom controls
