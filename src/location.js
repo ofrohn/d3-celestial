@@ -1,7 +1,7 @@
 /* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, isArray, isNumber, isValidDate, fldEnable, Round, has, hasParent */
 
 function geo(cfg) {
-  var frm = d3.select("#celestial-form").append("div").attr("id", "loc"),
+  var frm = d3.select("#celestial-form form").insert("div", "div#general").attr("id", "loc"),
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zenith = [0,0],
       geopos = [0,0], 
@@ -180,6 +180,11 @@ function geo(cfg) {
     return [l, b-0.001]; 
   };
 
-  setTimeout(go, 1000); 
+  if (has(cfg, "formFields")) {
+    d3.select("location").style( {"display": cfg.location === false || cfg.formFields.location === false ? "none" : "inline-block"} );
+  }
+  //only if appropriate
+  if (cfg.location === true && cfg.formFields.location === true)
+    setTimeout(go, 1000); 
  
 }

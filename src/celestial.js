@@ -1,6 +1,6 @@
 /* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
-  version: '0.6.19',
+  version: '0.6.20',
   container: null,
   data: []
 };
@@ -108,6 +108,11 @@ Celestial.display = function(config) {
   daylight = d3.geo.circle().angle([179.9]);
   container.append("path").datum(daylight).attr("class", "daylight");
 
+  form(cfg);
+  // hide if not desired
+  if (cfg.form === false) d3.select("#celestial-form").style("display", "none"); 
+  if ($("error") === null) d3.select("body").append("div").attr("id", "error");
+
   if ($("loc") === null) geo(cfg);
   else if (cfg.location === true && cfg.follow === "zenith") rotate({center: Celestial.zenith()});
 
@@ -117,8 +122,6 @@ Celestial.display = function(config) {
     fldEnable("daylight-show", !proj.clip);
   }
   
-  if (cfg.form === true && $("params") === null) form(cfg);
-  if ($("error") === null) d3.select("body").append("div").attr("id", "error");
 
 
   function load() {

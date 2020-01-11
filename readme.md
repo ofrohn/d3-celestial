@@ -61,8 +61,15 @@ var config = {
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: true,         // Display form for interactive settings. Needs a div with
-                      // id="celestial-form"
-  location: false,    // Display location settings (no center setting on form).
+                      // id="celestial-form", created automatically if not present
+  location: false,    // Display location settings. Deprecated, use formFields below
+  formFields: {"location": true,  // Set visiblity for each group of fields with the respective id
+               "general": true, 
+               "stars": true, 
+               "dsos": true,  
+               "constellations": true,  
+               "lines": true,  
+               "other": true},
                       // Needs a div with id="celestial-form"
   daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
                       // [yr, n<100]: [yr-n, yr+n]; [yr0, yr1]  

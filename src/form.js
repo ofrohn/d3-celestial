@@ -6,11 +6,11 @@ function form(cfg) {
 
   var prj = Celestial.projections(), leo = Celestial.eulerAngles();
   var div = d3.select("#celestial-form");
-  // if div doesn't exist, create it
-  /*if (!div) {
-    var container = (config.container || "celestial-form");
-    div = d3.select(container).append("div").attr("id", "celestial-form");
-  }*/
+  //if div doesn't exist, create it
+  if (div.size() < 1) {
+    var container = (config.container || "celestial-map");
+    div = d3.select("#" + container).select(function() { return this.parentNode; }).append("div").attr("id", "celestial-form");
+  }
   var ctrl = div.append("div").attr("class", "ctrl");
   var frm = ctrl.append("form").attr("id", "params").attr("name", "params").attr("method", "get").attr("action" ,"#");
   
@@ -206,7 +206,8 @@ function form(cfg) {
    
   setLimits();
   setUnit(config.transform);
-
+  setVisibility(cfg);
+  
   function resize() {
     var src = this,
         w = src.value;
@@ -482,4 +483,20 @@ function setLimits() {
   }
 
   return res;
+}
+
+function setVisibility(cfg, which) {
+   var vis;
+   if (!has(cfg, "formFields")) return;
+   if (which && has(cfg.formFields, which)) {
+     d3.select("#" + which).style( {"display": "none"} );
+     return;
+   }
+   for (var fld in cfg.formFields) {
+     if (!has(cfg.formFields, fld)) continue;
+     if (fld === "location") continue;
+     vis = cfg.formFields[fld] === false ? "none" : "inline-block";
+     d3.select("#" + fld).style( {"display": vis} );     
+   }
+  
 }

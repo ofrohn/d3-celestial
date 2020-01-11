@@ -1,7 +1,7 @@
 // Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.19',
+  version: '0.6.20',
   container: null,
   data: []
 };
@@ -109,6 +109,11 @@ Celestial.display = function(config) {
   daylight = d3.geo.circle().angle([179.9]);
   container.append("path").datum(daylight).attr("class", "daylight");
 
+  form(cfg);
+  // hide if not desired
+  if (cfg.form === false) d3.select("#celestial-form").style("display", "none"); 
+  if ($("error") === null) d3.select("body").append("div").attr("id", "error");
+
   if ($("loc") === null) geo(cfg);
   else if (cfg.location === true && cfg.follow === "zenith") rotate({center: Celestial.zenith()});
 
@@ -118,8 +123,6 @@ Celestial.display = function(config) {
     fldEnable("daylight-show", !proj.clip);
   }
   
-  if (cfg.form === true && $("params") === null) form(cfg);
-  if ($("error") === null) d3.select("body").append("div").attr("id", "error");
 
 
   function load() {
@@ -1405,7 +1408,9 @@ var settings = {
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
-  location: false,    // Display location settings
+  location: true,    // Display location settings, deprecated, use formFields
+  // Set visiblity for each group of fields of the form
+  formFields: {"location": false, "general": true, "stars": true, "dsos": true, "constellations": true, "lines": true, "other": true},
   daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
                       // [yr, n<100]: [yr-n, yr+n]; [yr0, yr1]
   controls: true,     // Display zoom controls
@@ -2012,11 +2017,11 @@ function form(cfg) {
 
   var prj = Celestial.projections(), leo = Celestial.eulerAngles();
   var div = d3.select("#celestial-form");
-  // if div doesn't exist, create it
-  /*if (!div) {
-    var container = (config.container || "celestial-form");
-    div = d3.select(container).append("div").attr("id", "celestial-form");
-  }*/
+  //if div doesn't exist, create it
+  if (div.size() < 1) {
+    var container = (config.container || "celestial-map");
+    div = d3.select("#" + container).select(function() { return this.parentNode; }).append("div").attr("id", "celestial-form");
+  }
   var ctrl = div.append("div").attr("class", "ctrl");
   var frm = ctrl.append("form").attr("id", "params").attr("name", "params").attr("method", "get").attr("action" ,"#");
   
@@ -2212,7 +2217,8 @@ function form(cfg) {
    
   setLimits();
   setUnit(config.transform);
-
+  setVisibility(cfg);
+  
   function resize() {
     var src = this,
         w = src.value;
@@ -2490,9 +2496,24 @@ function setLimits() {
   return res;
 }
 
+function setVisibility(cfg, which) {
+   var vis;
+   if (!has(cfg, "formFields")) return;
+   if (which && has(cfg.formFields, which)) {
+     d3.select("#" + which).style( {"display": "none"} );
+     return;
+   }
+   for (var fld in cfg.formFields) {
+     if (!has(cfg.formFields, fld)) continue;
+     if (fld === "location") continue;
+     vis = cfg.formFields[fld] === false ? "none" : "inline-block";
+     d3.select("#" + fld).style( {"display": vis} );     
+   }
+  
+}
 
 function geo(cfg) {
-  var frm = d3.select("#celestial-form").append("div").attr("id", "loc"),
+  var frm = d3.select("#celestial-form form").insert("div", "div#general").attr("id", "loc"),
       dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zenith = [0,0],
       geopos = [0,0], 
@@ -2671,7 +2692,12 @@ function geo(cfg) {
     return [l, b-0.001]; 
   };
 
-  setTimeout(go, 1000); 
+  if (has(cfg, "formFields")) {
+    d3.select("location").style( {"display": cfg.location === false || cfg.formFields.location === false ? "none" : "inline-block"} );
+  }
+  //only if appropriate
+  if (cfg.location === true && cfg.formFields.location === true)
+    setTimeout(go, 1000); 
  
 }
 ﻿
