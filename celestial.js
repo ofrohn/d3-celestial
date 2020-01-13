@@ -694,15 +694,19 @@ Celestial.display = function(config) {
     } else {
       factor = (dist - upper) / (lower - upper);
       color1 = d3.interpolateLab("#daf1fa", "#e8c866")(factor);
-      color2 = d3.interpolateLab("#93d7f0", "#ff854a")(factor);
-      color3 = d3.interpolateLab("#57c0e8", "#6caae2")(factor);
+      color2 = d3.interpolateLab("#93d7d0", "#ff854a")(factor);
+      color3 = d3.interpolateLab("#57c0c8", "#6caae2")(factor);
     }
     var grad = context.createRadialGradient(pt[0],pt[1],0, pt[0],pt[1],300);
     grad.addColorStop(0, color1);
     grad.addColorStop(0.2+0.4*factor, color2);
     grad.addColorStop(1, color3);
     context.fillStyle = grad;
-    context.globalAlpha = 0.9 * (1 - Math.pow(factor, 4));
+    context.globalAlpha = 0.9 * (1 - expF(factor, 1.5));
+  }
+  
+  function expF(t, a) {
+    return (Math.pow(Math.E, t*a) - 1) / (Math.pow(Math.E, a) - 1);
   }
   
   function zoomState(sc) {
