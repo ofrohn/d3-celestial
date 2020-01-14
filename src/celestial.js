@@ -109,8 +109,6 @@ Celestial.display = function(config) {
   container.append("path").datum(daylight).attr("class", "daylight");
 
   form(cfg);
-  // hide if not desired
-  if (cfg.form === false) d3.select("#celestial-form").style("display", "none"); 
   if ($("error") === null) d3.select("body").append("div").attr("id", "error");
 
   if ($("loc") === null) geo(cfg);
