@@ -2,21 +2,23 @@
   "name": "d3-celestial",
   "version": "0.6.20",
   "description": "A star map with D3.js",
-  "main": "index.js",
+  "main": "celestial.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {
-    "d3": "^3.5.17",
-    "jshint": "^2.10.2",
-    "shelljs": "^0.8.3"
+    "d3": "^3.5.17"
   },
   "devDependencies": {
-    "jsdom": "^3.1.0",
+    "jsdom": "^15.2.1",
+    "jshint": "^2.11.0-rc1",
+    "shelljs": "^0.8.3",
     "uglify-js": "^2.8.29"
   },
   "scripts": {
-    "test": "node test/celestial-test.js"
+    "build": "node make.js",
+    "test": "node test/celestial-test.js",
+    "jshint": "jshint src/**.js"
   },
   "repository": {
     "type": "git",
