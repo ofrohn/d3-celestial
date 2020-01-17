@@ -2669,6 +2669,13 @@ function geo(cfg) {
     $("datetime").value = dateFormat(dt, zone); 
     Celestial.redraw();
   };
+  Celestial.timezone = function (tz) { 
+    if (!tz) return zone;  
+    zone = tz || zone;
+    if (dtpick.isVisible()) dtpick.hide();
+    $("datetime").value = dateFormat(date, zone); 
+    Celestial.redraw();
+  };
   Celestial.position = function () { return geopos; };
   Celestial.location = function (loc) {
     if (!loc || loc.length < 2) return geopos;
