@@ -508,7 +508,7 @@ function setVisibility(cfg, which) {
    for (fld in cfg.formFields) {
      if (!has(cfg.formFields, fld)) continue;
      if (fld === "location") continue;
-     vis = cfg.formFields[fld] === false ? "none" : "inline-block";
+     vis = cfg.formFields[fld] === false ? "none" : "block";
      d3.select("#" + fld).style( {"display": vis} );     
    }
   

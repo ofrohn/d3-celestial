@@ -630,15 +630,21 @@ Celestial.display = function(config) {
     
 
   function drawOutline(stroke) {
-    var rot = prjMap.rotate();
+    var rot = prjMap.rotate(),
+        prj = getProjection(cfg.projection);
     
     prjMap.rotate([0,0]);
     setStyle(cfg.background);
     container.selectAll(".outline").attr("d", map);
     if (stroke === true) 
       context.stroke(); 
-    else 
+    else {
+      //container.selectAll(".outline").remove();
+      //container.append("path").datum(d3.geo.circle().angle([179.9])).attr("class", "outline");
+      //setClip(false);
       context.fill();
+      //setClip(prj.clip);    
+    }
     prjMap.rotate(rot);
   }
 
@@ -720,7 +726,7 @@ Celestial.display = function(config) {
     if (setit) {
       prjMap.clipAngle(90);
       container.selectAll(".outline").remove();
-      container.append("path").datum(d3.geo.circle().angle([90])).attr("class", "outline");
+      container.append("path").datum(d3.geo.circle().angle([179.9])).attr("class", "outline");
     } else {
       prjMap.clipAngle(null);
       container.selectAll(".outline").remove();
@@ -1418,6 +1424,7 @@ var settings = {
   controls: true,     // Display zoom controls
   lang: "",           // Language for names, so far only for constellations: de: german, es: spanish
                       // Default:en or empty string for english
+  culture: "",        // Constellation lines, default "iau"
   container: "celestial-map",   // ID of parent element, e.g. div
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
@@ -1920,6 +1927,12 @@ function isArray(o) { return Object.prototype.toString.call(o) === "[object Arra
 function isObject(o) { var type = typeof o;  return type === 'function' || type === 'object' && !!o; }
 function isFunction(o) { return typeof o == 'function' || false; }
 function isValidDate(d) { return d instanceof Date && !isNaN(d); }
+function fileExists(url) {
+  var http = new XMLHttpRequest();
+  http.open('HEAD', url, false);
+  http.send();
+  return http.status != 404;
+}
 
 function findPos(o) {
   var l = 0, t = 0;
@@ -2521,7 +2534,7 @@ function setVisibility(cfg, which) {
    for (fld in cfg.formFields) {
      if (!has(cfg.formFields, fld)) continue;
      if (fld === "location") continue;
-     vis = cfg.formFields[fld] === false ? "none" : "inline-block";
+     vis = cfg.formFields[fld] === false ? "none" : "block";
      d3.select("#" + fld).style( {"display": vis} );     
    }
   
@@ -2732,13 +2745,15 @@ var gmdat = {
   "mar": 319711652803400,
   "cer": 467549107200,
   "ves": 129071530155,
-  "jup": 945905743547733000,
-  "sat": 283225255921345000,
-  "ura": 43256076555832200,
-  "nep": 51034453325494200,
+  "jup": 945905718740635000,
+  "sat": 283224952705891000,
+  "ura": 43256077238632300,
+  "nep": 51034401552155700,
   "plu": 7327611364884,
   "eri": 8271175680000
-}, 
+},
+
+
 symbols = {
   "sol":"\u2609", "mer":"\u263f", "ven":"\u2640", "ter":"\u2295", "lun":"\u25cf", "mar":"\u2642", "cer":"\u26b3", 
   "ves":"\u26b6", "jup":"\u2643", "sat":"\u2644", "ura":"\u2645", "nep":"\u2646", "plu":"\u2647", "eri":"\u26aa"
