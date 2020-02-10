@@ -1,7 +1,7 @@
 // Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.20',
+  version: '0.6.21',
   container: null,
   data: []
 };
@@ -95,6 +95,7 @@ Celestial.display = function(config) {
     canvas.attr("style", "cursor: default!important");
   }
 
+  container.append("path").datum(graticule.outline).attr("class", "outline"); 
   setClip(proj.clip);
 
   d3.select(window).on('resize', resize);
@@ -363,13 +364,14 @@ Celestial.display = function(config) {
     var prj = getProjection(config.projection);
     if (!prj) return;
     
-    var rot = prjMap.rotate(), ctr = prjMap.center(), sc = prjMap.scale(), ext = zoom.scaleExtent(),
+    var rot = prjMap.rotate(), ctr = prjMap.center(), sc = prjMap.scale(), ext = zoom.scaleExtent(), clip = [],
         prjFrom = Celestial.projection(cfg.projection).center(ctr).translate([width/2, height/2]).scale([ext[0]]),
         interval = ANIMINTERVAL_P, 
         delay = 0, 
         rTween = d3.interpolateNumber(ratio, prj.ratio);
 
-    if (proj.clip != prj.clip) interval = 0;// Different clip = no transition
+    if (proj.clip != prj.clip) interval = 0; // Different clip = no transition
+    //if (proj.clip != prj.clip) clip = [proj.clip, prj.clip]; // Clipangle from - to
     
     var prjTo = Celestial.projection(config.projection).center(ctr).translate([width/2, width/prj.ratio/2]).scale([prj.scale * width/1024]);
     var bAdapt = cfg.adaptable;
@@ -725,12 +727,13 @@ Celestial.display = function(config) {
   function setClip(setit) {
     if (setit) {
       prjMap.clipAngle(90);
-      container.selectAll(".outline").remove();
-      container.append("path").datum(d3.geo.circle().angle([179.9])).attr("class", "outline");
+      //container.selectAll(".outline").remove();
+      //container.append("path").datum(graticule.outline).attr("class", "outline"); 
+      //container.append("path").datum(d3.geo.circle().angle([179.9])).attr("class", "outline");
     } else {
       prjMap.clipAngle(null);
-      container.selectAll(".outline").remove();
-      container.append("path").datum(graticule.outline).attr("class", "outline"); 
+      //container.selectAll(".outline").remove();
+      //container.append("path").datum(graticule.outline).attr("class", "outline"); 
     }        
   }
   
@@ -3903,6 +3906,7 @@ var datetimepicker = function(cfg, callback) {
   };
   
   this.isVisible = function () {
+    if (!document.getElementById("datepick")) return false;
     return d3.select("#datepick").classed("active") === true;
   };
 

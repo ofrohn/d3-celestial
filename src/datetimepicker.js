@@ -186,6 +186,7 @@ var datetimepicker = function(cfg, callback) {
   };
   
   this.isVisible = function () {
+    if (!document.getElementById("datepick")) return false;
     return d3.select("#datepick").classed("active") === true;
   };
 
