@@ -1,4 +1,8 @@
 /* global d3, Celestial, has */
+
+// Central configuration object
+var globalConfig = {};
+
 //Defaults
 var settings = { 
   width: 0,     // Default width; height is determined by projection
@@ -140,26 +144,29 @@ var settings = {
     }
   },
   set: function(cfg) {  // Override defaults with values of cfg
-    var prop, key, res = {};
-    if (!cfg) return this; 
-    for (prop in this) {
-      if (!has(this, prop)) continue; 
-      //if (typeof(this[prop]) === 'function'); 
+    var prop, key, config = {}, res = {};
+    if (Object.entries(globalConfig).length === 0) Object.assign(config, this);
+    else Object.assign(config, globalConfig);
+    if (!cfg) return config; 
+    for (prop in config) {
+      if (!has(config, prop)) continue; 
+      //if (typeof(config[prop]) === 'function'); 
       if (!has(cfg, prop) || cfg[prop] === null) { 
-        res[prop] = this[prop]; 
-      } else if (this[prop] === null || this[prop].constructor != Object ) {
+        res[prop] = config[prop]; 
+      } else if (config[prop] === null || config[prop].constructor != Object ) {
         res[prop] = cfg[prop];
       } else {
         res[prop] = {};
-        for (key in this[prop]) {
+        for (key in config[prop]) {
           if (has(cfg[prop], key)) {
             res[prop][key] = cfg[prop][key];
           } else {
-            res[prop][key] = this[prop][key];
+            res[prop][key] = config[prop][key];
           }            
         }
       }
     }
+    Object.assign(globalConfig, res);
     return res;
   }
   

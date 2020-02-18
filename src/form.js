@@ -285,6 +285,8 @@ function form(cfg) {
   
   function apply() {
     var value, src = this;
+    //Get current configuration
+    Object.assign(config, settings.set());
 
     switch (src.type) {
       case "checkbox": value = src.checked; enable(src); break;

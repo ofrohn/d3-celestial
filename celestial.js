@@ -1,7 +1,7 @@
 // Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.21',
+  version: '0.6.22',
   container: null,
   data: []
 };
@@ -367,11 +367,13 @@ Celestial.display = function(config) {
     var rot = prjMap.rotate(), ctr = prjMap.center(), sc = prjMap.scale(), ext = zoom.scaleExtent(), clip = [],
         prjFrom = Celestial.projection(cfg.projection).center(ctr).translate([width/2, height/2]).scale([ext[0]]),
         interval = ANIMINTERVAL_P, 
-        delay = 0, 
+        delay = 0, clipTween = null,
         rTween = d3.interpolateNumber(ratio, prj.ratio);
 
     if (proj.clip != prj.clip) interval = 0; // Different clip = no transition
-    //if (proj.clip != prj.clip) clip = [proj.clip, prj.clip]; // Clipangle from - to
+    /*if (proj.clip !== prj.clip) {
+      clipTween = d3.interpolateNumber(proj.clip ? 90 : 180, prj.clip ? 90 : 180); // Clipangle from - to
+    } else*/ setClip(prj.clip);
     
     var prjTo = Celestial.projection(config.projection).center(ctr).translate([width/2, width/prj.ratio/2]).scale([prj.scale * width/1024]);
     var bAdapt = cfg.adaptable;
@@ -394,7 +396,8 @@ Celestial.display = function(config) {
       return function(_) {
         prjMap.alpha(_).rotate(rot);
         map.projection(prjMap);
-        setClip(prj.clip);
+        /*if (clipTween) prjMap.clipAngle(clipTween(_));
+        else*/setClip(prj.clip);
         ratio = rTween(_);
         height = width/ratio;
         //canvas.attr("width", width).attr("height", height);
@@ -1404,6 +1407,10 @@ function transMultiLine(c, leo) {
 Celestial.getData = getData;
 Celestial.getPoint = getPoint;
 Celestial.getPlanet = getPlanet;
+
+// Central configuration object
+var globalConfig = {};
+
 //Defaults
 var settings = { 
   width: 0,     // Default width; height is determined by projection
@@ -1545,26 +1552,29 @@ var settings = {
     }
   },
   set: function(cfg) {  // Override defaults with values of cfg
-    var prop, key, res = {};
-    if (!cfg) return this; 
-    for (prop in this) {
-      if (!has(this, prop)) continue; 
-      //if (typeof(this[prop]) === 'function'); 
+    var prop, key, config = {}, res = {};
+    if (Object.entries(globalConfig).length === 0) Object.assign(config, this);
+    else Object.assign(config, globalConfig);
+    if (!cfg) return config; 
+    for (prop in config) {
+      if (!has(config, prop)) continue; 
+      //if (typeof(config[prop]) === 'function'); 
       if (!has(cfg, prop) || cfg[prop] === null) { 
-        res[prop] = this[prop]; 
-      } else if (this[prop] === null || this[prop].constructor != Object ) {
+        res[prop] = config[prop]; 
+      } else if (config[prop] === null || config[prop].constructor != Object ) {
         res[prop] = cfg[prop];
       } else {
         res[prop] = {};
-        for (key in this[prop]) {
+        for (key in config[prop]) {
           if (has(cfg[prop], key)) {
             res[prop][key] = cfg[prop][key];
           } else {
-            res[prop][key] = this[prop][key];
+            res[prop][key] = config[prop][key];
           }            
         }
       }
     }
+    Object.assign(globalConfig, res);
     return res;
   }
   
@@ -2314,6 +2324,8 @@ function form(cfg) {
   
   function apply() {
     var value, src = this;
+    //Get current configuration
+    Object.assign(config, settings.set());
 
     switch (src.type) {
       case "checkbox": value = src.checked; enable(src); break;
@@ -2549,15 +2561,16 @@ function geo(cfg) {
       zenith = [0,0],
       geopos = [0,0], 
       date = new Date(),
-      zone = date.getTimezoneOffset();
+      zone = date.getTimezoneOffset(),
+      config = settings.set(cfg);
 
-  var dtpick = new datetimepicker(cfg, function(date, tz) { 
+  var dtpick = new datetimepicker(config, function(date, tz) { 
     $("datetime").value = dateFormat(date, tz); 
     zone = tz;
     go(); 
   });
   
-  if (has(cfg, "geopos") && cfg.geopos !== null && cfg.geopos.length === 2) geopos = cfg.geopos;
+  if (has(config, "geopos") && config.geopos !== null && config.geopos.length === 2) geopos = config.geopos;
   var col = frm.append("div").attr("class", "col").attr("id", "location").style("display", "none");
   //Latitude & longitude fields
   col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");
@@ -2596,13 +2609,13 @@ function geo(cfg) {
   //Horizon marker
   col.append("br");
   col.append("label").attr("title", "Show horizon marker").attr("for", "horizon-show").html(" Horizon marker");
-  col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", cfg.horizon.show).on("change", go);    
+  col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", config.horizon.show).on("change", go);    
   //Daylight
   col.append("label").attr("title", "Show daylight").attr("for", "daylight-show").html("Daylight sky");
-  col.append("input").attr("type", "checkbox").attr("id", "daylight-show").property("checked", cfg.daylight.show).on("change", go);    
+  col.append("input").attr("type", "checkbox").attr("id", "daylight-show").property("checked", config.daylight.show).on("change", go);    
   //Show planets
   col.append("label").attr("title", "Show solar system objects").attr("for", "planets-show").html(" Planets, Sun & Moon");
-  col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", cfg.planets.show).on("change", go);    
+  col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", config.planets.show).on("change", go);    
   
   d3.select(document).on("mousedown", function () { 
     if (!hasParent(d3.event.target, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
@@ -2651,24 +2664,25 @@ function geo(cfg) {
   function go() {
     var lon = $("lon").value,
         lat = $("lat").value;
+        //Get current configuration
+        Object.assign(config, settings.set());
 
     date = dtFormat.parse($("datetime").value.slice(0,-6));
 
     var tz = date.getTimezoneOffset();
     var dtc = new Date(date.valueOf() + (zone - tz) * 60000);
 
-    cfg.horizon.show = !!$("horizon-show").checked;
-    cfg.daylight.show = !!$("daylight-show").checked;
-    cfg.planets.show = !!$("planets-show").checked;
-    
+    config.horizon.show = !!$("horizon-show").checked;
+    config.daylight.show = !!$("daylight-show").checked;
+    config.planets.show = !!$("planets-show").checked;    
+    Celestial.apply(config);
+
     if (lon !== "" && lat !== "") {
       geopos = [parseFloat(lat), parseFloat(lon)];
-      zenith = Celestial.getPoint(horizontal.inverse(dtc, [90, 0], geopos), cfg.transform);
+      zenith = Celestial.getPoint(horizontal.inverse(dtc, [90, 0], geopos), config.transform);
       zenith[2] = 0;
-      if (cfg.follow === "zenith") {
-        Celestial.rotate({center:zenith, horizon:cfg.horizon});
-      } else {
-        Celestial.apply({horizon:cfg.horizon});
+      if (config.follow === "zenith") {
+        Celestial.rotate({center:zenith});
       }
     }
   }
@@ -2695,8 +2709,8 @@ function geo(cfg) {
   Celestial.position = function () { return geopos; };
   Celestial.location = function (loc) {
     if (!loc || loc.length < 2) return geopos;
-    if (isValidLocation(cfg.location)) {
-      geopos = cfg.location.slice();
+    if (isValidLocation(config.location)) {
+      geopos = config.location.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
       go();

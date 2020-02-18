@@ -1,6 +1,6 @@
 /* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
-  version: '0.6.21',
+  version: '0.6.22',
   container: null,
   data: []
 };
@@ -366,11 +366,13 @@ Celestial.display = function(config) {
     var rot = prjMap.rotate(), ctr = prjMap.center(), sc = prjMap.scale(), ext = zoom.scaleExtent(), clip = [],
         prjFrom = Celestial.projection(cfg.projection).center(ctr).translate([width/2, height/2]).scale([ext[0]]),
         interval = ANIMINTERVAL_P, 
-        delay = 0, 
+        delay = 0, clipTween = null,
         rTween = d3.interpolateNumber(ratio, prj.ratio);
 
     if (proj.clip != prj.clip) interval = 0; // Different clip = no transition
-    //if (proj.clip != prj.clip) clip = [proj.clip, prj.clip]; // Clipangle from - to
+    /*if (proj.clip !== prj.clip) {
+      clipTween = d3.interpolateNumber(proj.clip ? 90 : 180, prj.clip ? 90 : 180); // Clipangle from - to
+    } else*/ setClip(prj.clip);
     
     var prjTo = Celestial.projection(config.projection).center(ctr).translate([width/2, width/prj.ratio/2]).scale([prj.scale * width/1024]);
     var bAdapt = cfg.adaptable;
@@ -393,7 +395,8 @@ Celestial.display = function(config) {
       return function(_) {
         prjMap.alpha(_).rotate(rot);
         map.projection(prjMap);
-        setClip(prj.clip);
+        /*if (clipTween) prjMap.clipAngle(clipTween(_));
+        else*/setClip(prj.clip);
         ratio = rTween(_);
         height = width/ratio;
         //canvas.attr("width", width).attr("height", height);

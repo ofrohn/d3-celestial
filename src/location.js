@@ -1,4 +1,4 @@
-/* global Celestial, horizontal, datetimepicker, config, $, pad, testNumber, isArray, isNumber, isValidDate, fldEnable, Round, has, hasParent */
+/* global Celestial, settings, horizontal, datetimepicker, config, $, pad, testNumber, isArray, isNumber, isValidDate, fldEnable, Round, has, hasParent */
 
 function geo(cfg) {
   var frm = d3.select("#celestial-form form").insert("div", "div#general").attr("id", "loc"),
@@ -6,15 +6,16 @@ function geo(cfg) {
       zenith = [0,0],
       geopos = [0,0], 
       date = new Date(),
-      zone = date.getTimezoneOffset();
+      zone = date.getTimezoneOffset(),
+      config = settings.set(cfg);
 
-  var dtpick = new datetimepicker(cfg, function(date, tz) { 
+  var dtpick = new datetimepicker(config, function(date, tz) { 
     $("datetime").value = dateFormat(date, tz); 
     zone = tz;
     go(); 
   });
   
-  if (has(cfg, "geopos") && cfg.geopos !== null && cfg.geopos.length === 2) geopos = cfg.geopos;
+  if (has(config, "geopos") && config.geopos !== null && config.geopos.length === 2) geopos = config.geopos;
   var col = frm.append("div").attr("class", "col").attr("id", "location").style("display", "none");
   //Latitude & longitude fields
   col.append("label").attr("title", "Location coordinates long/lat").attr("for", "lat").html("Location");
@@ -53,13 +54,13 @@ function geo(cfg) {
   //Horizon marker
   col.append("br");
   col.append("label").attr("title", "Show horizon marker").attr("for", "horizon-show").html(" Horizon marker");
-  col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", cfg.horizon.show).on("change", go);    
+  col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", config.horizon.show).on("change", go);    
   //Daylight
   col.append("label").attr("title", "Show daylight").attr("for", "daylight-show").html("Daylight sky");
-  col.append("input").attr("type", "checkbox").attr("id", "daylight-show").property("checked", cfg.daylight.show).on("change", go);    
+  col.append("input").attr("type", "checkbox").attr("id", "daylight-show").property("checked", config.daylight.show).on("change", go);    
   //Show planets
   col.append("label").attr("title", "Show solar system objects").attr("for", "planets-show").html(" Planets, Sun & Moon");
-  col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", cfg.planets.show).on("change", go);    
+  col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", config.planets.show).on("change", go);    
   
   d3.select(document).on("mousedown", function () { 
     if (!hasParent(d3.event.target, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
@@ -108,24 +109,25 @@ function geo(cfg) {
   function go() {
     var lon = $("lon").value,
         lat = $("lat").value;
+        //Get current configuration
+        Object.assign(config, settings.set());
 
     date = dtFormat.parse($("datetime").value.slice(0,-6));
 
     var tz = date.getTimezoneOffset();
     var dtc = new Date(date.valueOf() + (zone - tz) * 60000);
 
-    cfg.horizon.show = !!$("horizon-show").checked;
-    cfg.daylight.show = !!$("daylight-show").checked;
-    cfg.planets.show = !!$("planets-show").checked;
-    
+    config.horizon.show = !!$("horizon-show").checked;
+    config.daylight.show = !!$("daylight-show").checked;
+    config.planets.show = !!$("planets-show").checked;    
+    Celestial.apply(config);
+
     if (lon !== "" && lat !== "") {
       geopos = [parseFloat(lat), parseFloat(lon)];
-      zenith = Celestial.getPoint(horizontal.inverse(dtc, [90, 0], geopos), cfg.transform);
+      zenith = Celestial.getPoint(horizontal.inverse(dtc, [90, 0], geopos), config.transform);
       zenith[2] = 0;
-      if (cfg.follow === "zenith") {
-        Celestial.rotate({center:zenith, horizon:cfg.horizon});
-      } else {
-        Celestial.apply({horizon:cfg.horizon});
+      if (config.follow === "zenith") {
+        Celestial.rotate({center:zenith});
       }
     }
   }
@@ -152,8 +154,8 @@ function geo(cfg) {
   Celestial.position = function () { return geopos; };
   Celestial.location = function (loc) {
     if (!loc || loc.length < 2) return geopos;
-    if (isValidLocation(cfg.location)) {
-      geopos = cfg.location.slice();
+    if (isValidLocation(config.location)) {
+      geopos = config.location.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
       go();
