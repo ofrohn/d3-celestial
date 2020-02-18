@@ -116,7 +116,7 @@ Celestial.display = function(config) {
   if ($("loc") === null) geo(cfg);
   else if (cfg.location === true && cfg.follow === "zenith") rotate({center: Celestial.zenith()});
 
-  if (cfg.location === true) {
+  if (cfg.location === true || cfg.formFields.location === true) {
     d3.select("#location").style("display", "inline-block");
     fldEnable("horizon-show", proj.clip);
     fldEnable("daylight-show", !proj.clip);
@@ -384,7 +384,7 @@ Celestial.display = function(config) {
       return delay + interval;
     }
     
-    if (cfg.location) { 
+    if (cfg.location || cfg.formFields.location) { 
       fldEnable("horizon-show", prj.clip);
       fldEnable("daylight-show", !prj.clip);
     }
@@ -567,7 +567,7 @@ Celestial.display = function(config) {
       });
     }
 
-    if (cfg.location && cfg.transform === "equatorial" && cfg.planets.show && Celestial.origin) { 
+    if ((cfg.location || cfg.formFields.location) && cfg.transform === "equatorial" && cfg.planets.show && Celestial.origin) { 
       var dt = Celestial.date(),
           o = Celestial.origin(dt).spherical();
       container.selectAll(".planet").each(function(d) {
@@ -595,7 +595,7 @@ Celestial.display = function(config) {
     
 //    drawOutline(true);
     
-    if (cfg.location && cfg.daylight.show && proj.clip) {
+    if ((cfg.location || cfg.formFields.location) && cfg.daylight.show && proj.clip) {
       var sol = getPlanet("sol");
       if (sol) {
         var up = Celestial.zenith(),
@@ -616,7 +616,7 @@ Celestial.display = function(config) {
       }
     }
 
-    if (cfg.location && cfg.horizon.show && !proj.clip) {
+    if ((cfg.location || cfg.formFields.location) && cfg.horizon.show && !proj.clip) {
       circle.origin(Celestial.nadir());
       setStyle(cfg.horizon);
       container.selectAll(".horizon").datum(circle).attr("d", map);  
