@@ -13,7 +13,7 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
     zoomextent = 10,       // Default maximum extent of zoom (max/min)
     zoomlevel = 1;      // Default zoom level, 1 = 100%
 
-var cfg, prjMap, zoom, map, circle, daylight;
+var cfg, prjMap, zoom, map, circle, daylight, starnames = {};
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
@@ -24,11 +24,7 @@ Celestial.display = function(config) {
       repeat = false;
   
   //Mash config with default settings
-  cfg = settings.set(config); 
-  cfg.stars.size = cfg.stars.size || 7;  // Nothing works without these
-  cfg.stars.exponent = cfg.stars.exponent || -0.28;
-  cfg.center = cfg.center || [0,0];
-  if (!cfg.lang || cfg.lang.search(/^de|es$/) === -1) cfg.lang = "name";
+  cfg = settings.set(config).applyDefaults(config); 
   if (isNumber(cfg.zoomextend)) zoomextent = cfg.zoomextend;
   if (isNumber(cfg.zoomlevel)) zoomlevel = cfg.zoomlevel;
 
@@ -149,7 +145,7 @@ Celestial.display = function(config) {
     //Milky way outline
     d3.json(path + "mw.json", function(error, json) {
       if (error) { 
-        window.alert("Your Browser doesn't support local file loading or the file doesn't exist. See readme.md");
+        window.alert("Data file could not be loaded or doesn't exist. See readme.md");
         return console.warn(error);  
       }
 
@@ -230,6 +226,18 @@ Celestial.display = function(config) {
          .data(st.features)
          .enter().append("path")
          .attr("class", "star");
+      redraw();
+    });
+
+    d3.json(path + "starnames.json", function(error, json) {
+      if (error) return console.warn(error);
+
+      Object.assign(starnames, json);
+
+      /*container.selectAll(".starnames")
+         .data(st.features)
+         .enter().append("path")
+         .attr("class", "starname");*/
     });
 
     //Deep space objects
@@ -242,6 +250,7 @@ Celestial.display = function(config) {
          .data(ds.features)
          .enter().append("path")
          .attr("class", "dso" );
+      redraw();
     });
 
     //Planets, Sun & Moon
@@ -534,13 +543,13 @@ Celestial.display = function(config) {
           context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
           context.closePath();
           context.fill();
-          if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit*adapt) {
-            setTextStyle(cfg.stars.namestyle);
-            context.fillText(starName(d), pt[0]+r, pt[1]);      
+          if (cfg.stars.designation && d.properties.mag <= cfg.stars.designationLimit*adapt) {
+            setTextStyle(cfg.stars.designationStyle);
+            context.fillText(starDesignation(d.id), pt[0]+r, pt[1]);      
           }
-          if (cfg.stars.proper && d.properties.mag <= cfg.stars.propernamelimit*adapt) {
-            setTextStyle(cfg.stars.propernamestyle);
-            context.fillText(starProperName(d), pt[0]-r, pt[1]);      
+          if (cfg.stars.propername && d.properties.mag <= cfg.stars.propernameLimit*adapt) {
+            setTextStyle(cfg.stars.propernameStyle);
+            context.fillText(starPropername(d.id), pt[0]-r, pt[1]);      
           }
         }
       });
@@ -770,17 +779,15 @@ Celestial.display = function(config) {
     return prop.name;
   }
   
-  /*Star designation, if desig = false, no long desigs  */
-  function starName(d) {
-    var name = d.properties.desig;
-    if (!cfg.stars.desig) return name.replace(/^(HD|HIP|V\d{3}).+/, ""); 
-    return name; 
+  /*Star designation  */
+  function starDesignation(id) {
+    if (!has(starnames, id)) return "";
+    return starnames[id][cfg.stars.designationType]; 
   }
 
-  function starProperName(d) {
-    var name = d.properties.name;
-    
-    return name; 
+  function starPropername(id) {
+    if (!has(starnames, id)) return "";
+    return starnames[id][cfg.stars.propernameType]; 
   }
   
   function starSize(d) {

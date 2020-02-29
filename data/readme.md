@@ -13,8 +13,6 @@ For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...1
     "type": "Feature",
     "id": "",        // Hipparcos number
     "properties": {
-      "name": "",    // Proper name
-      "desig": "",   // Bayer, Flamsteed, variable, Gliese, HD, HIP
       "mag": "",     // Apparent magnitude
       "bv": ""       // b-v color index
     },
@@ -23,6 +21,21 @@ For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...1
       "coordinates": [lon, lat]
     }
   }, { } ]
+}
+```
+
+`starnames.json`: Magnitude independent, all stars with a name/designation other than HIP/HD  
+
+```js
+{"id": {         // Hipparcos number  
+   "name": "",      // Proper name  
+   "desig": "",     // Standard designation, first from list below  
+   "bayer": "",     // Bayer  
+   "flam": "",      // Flamsteed  
+   "var": "",       // Variable star  
+   "gliese": "",    // Gliese  
+   "hd": ""         // Henry Draper  
+  }, "id": { }  
 }
 ```
 

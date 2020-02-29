@@ -4,17 +4,17 @@ Interactive, adaptable celestial map done with the [D3.js](http://d3js.org/) vis
 
 Features display of stars and deep sky objects (DSOs) with a selectable magnitude limit up to 6, or choose different GeoJSON data source for higher magnitudes. Also shows constellations with names, lines and/or boundaries, the Milky Way band and grid lines. Alternate coordinate spaces e.g. ecliptc, galactic or supergalactic are also possible. Full support for zoom and rotation with mouse or gestures.
 
-Since it uses D3.js and HTML5 canvas, it needs a modern browser with canvas support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at <a href="http://armchairastronautics.blogspot.com/p/skymap.html">armchairastronautics.blogspot.com</a> or clone/download it for local usage, which works with Firefox; Chrome needs to be started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment, quite easy to do with node.js.
+Since it uses D3.js and HTML5 canvas, it needs a modern browser with canvas support, so any recent flavor of Chrome/Firefox/Safari/Opera or IE 9 and above should suffice. Check out the demo at <a href="http://armchairastronautics.blogspot.com/p/skymap.html">armchairastronautics.blogspot.com</a> or clone/download it for local usage, which works with Chrome if it is started with command line parameter  `--allow-file-access-from-files` to load local json files. Or use a local web server environment, quite easy to do with node.js.
 
 __Demos__:  
-[Simple map](http://ofrohn.github.io/celestial-demo/map.html) with editable configuration  
-[Interactive form](http://ofrohn.github.io/celestial-demo/viewer.html) map viewer with all config options  
-[Wall map](http://ofrohn.github.io/celestial-demo/wallmap.html) for printing  
-[Setting time/location](http://ofrohn.github.io/celestial-demo/location.html) and see the current sky  
-[Animated planets](http://ofrohn.github.io/celestial-demo/planets-animation.html) moving about the ecliptic  
-[Starry sky](http://ofrohn.github.io/celestial-demo/sky.html) just the stars  
-[Summer triangle](http://ofrohn.github.io/celestial-demo/triangle.html) adding data  
-[Supernova remnants](http://ofrohn.github.io/celestial-demo/snr.html) adding point data  
+[Simple map](https://ofrohn.github.io/celestial-demo/map.html) with editable configuration  
+[Interactive form](https://ofrohn.github.io/celestial-demo/viewer.html) map viewer with all config options  
+[Wall map](https://ofrohn.github.io/celestial-demo/wallmap.html) for printing  
+[Setting time/location](https://ofrohn.github.io/celestial-demo/location.html) and see the current sky  
+[Animated planets](https://ofrohn.github.io/celestial-demo/planets-animation.html) moving about the ecliptic  
+[Starry sky](https://ofrohn.github.io/celestial-demo/sky.html) just the stars  
+[Summer triangle](https://ofrohn.github.io/celestial-demo/triangle.html) adding data  
+[Supernova remnants](https://ofrohn.github.io/celestial-demo/snr.html) adding point data  
 \([Source files on github](./demo/)\)  
 
 __Some more examples__:  
@@ -26,7 +26,8 @@ __Some more examples__:
 [Asterisms with zoom & pan](https://armchairastronautics.blogspot.com/2016/05/asterisms-interactive-and-with.html)  
 [Zoom & pan animations](https://armchairastronautics.blogspot.com/2016/06/and-here-is-d3-celestial-057-with.html)  
 [A different kind of Messier marathon](https://armchairastronautics.blogspot.com/2016/07/a-different-kind-of-messier-marathon.html)  
-[Show coordinates, DSO colors, Download button ](https://armchairastronautics.blogspot.com/2019/08/d3-celestial-showboating_25.html)  
+[Show coordinates, DSO colors, Download button](https://armchairastronautics.blogspot.com/2019/08/d3-celestial-showboating_25.html)  
+[Geolocator gadget part I: Geolocator globe](https://armchairastronautics.blogspot.com/2019/11/d3-celestial-geolocator.html) - [Part II: Daylight sky](https://armchairastronautics.blogspot.com/2019/12/d3-celestial-sky-color.html) - [Part III: Geomarker](https://armchairastronautics.blogspot.com/2019/12/d3-celestial-geomarker.html) - [Part IV: Night sky](http://armchairastronautics.blogspot.com/2020/01/d3-celestial-gelolocator-night-sky.html)
 
 
 ### Usage
@@ -76,6 +77,7 @@ var config = {
   controls: true,     // Display zoom controls
   lang: "",           // Language for names, so far only for constellations: 
                       // de: german, es: spanish. Default:en or empty string for english
+  culture: "",        // Constellation lines, default "iau"
   container: "map",   // ID of parent element, e.g. div, null = html-body
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
@@ -83,16 +85,15 @@ var config = {
     limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use default color
     style: { fill: "#ffffff", opacity: 1 }, // Style for stars
-    names: true,   // Show star designation (Bayer, Flamsteed, Variable star, Gliese, 
-                    //  whichever applies first in that order)
-    proper: false, // Show proper name (if one exists)
-    desig: false,  // Show all designations, including Draper and Hipparcos
-    namelimit: 2.5,  // Show only names/designations for stars brighter than namelimit
-    namestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", 
-                 align: "left", baseline: "top" },  // Style for star designations
-    propernamestyle: { fill: "#ddddbb", font: "11px Georgia, Times, 'Times Roman', serif", 
-                       align: "right", baseline: "bottom" }, // Styles for star names
-    propernamelimit: 1.5,  // Show proper names for stars brighter than propernamelimit
+    designation: true, // Show star names (Bayer, Flamsteed, Variable star, Gliese or designation, 
+                       // i.e. whichever of the previous applies first); may vary with culture setting
+    designationType: "desig",  // Which kind of name is displayed as designation (fieldname in starnames.json)
+    designationStyle: { fill: "#ddddbb", font: "11px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
+    designationLimit: 2.5,  // Show only names for stars brighter than nameLimit
+    propername: false,   // Show proper name (if present)
+    propernameType: "name", // Field in starnames.json that contains proper name; may vary with culture setting
+    propernameStyle: { fill: "#ddddbb", font: "13px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
+    propernameLimit: 1.5,  // Show proper names for stars brighter than propernameLimit
     size: 7,       // Maximum size (radius) of star circle in pixels
     exponent: -0.28, // Scale exponent for star size, larger = more linear
     data: 'stars.6.json' // Data source for stellar data, 
@@ -197,13 +198,13 @@ var config = {
   }, 
   horizon: {  //Show horizon marker, if location is set and map projection is all-sky
     show: false, 
-    stroke: "#000099", // Line
+    stroke: "#cccccc", // Line
     width: 1.0, 
     fill: "#000000",   // Area below horizon
     opacity: 0.5
   },  
   daylight: {  //Show day sky as a gradient, if location is set and map projection is hemispheric
-    show: true
+    show: false
   }
 };
 
@@ -657,6 +658,7 @@ __GeoJSON data files__
 * `stars.6.json` Stars down to 6th magnitude \[1\]
 * `stars.8.json` Stars down to 8.5th magnitude \[1\]
 * `stars.14.json` Stars down to 14th magnitude (large) \[1\]
+* `starnames.json` Star names and designations \[1b\]
 * `dsos.6.json` Deep space objects down to 6th magnitude \[2\]
 * `dsos.14.json` Deep space objects down to 14th magnitude \[2\]
 * `dsos.20.json` Deep space objects down to 20th magnitude \[2\]
@@ -673,7 +675,7 @@ __GeoJSON data files__
 __Sources__
 
 * \[1\] XHIP: An Extended Hipparcos Compilation; Anderson E., Francis C. (2012) [VizieR V/137D](http://cdsarc.u-strasbg.fr/viz-bin/Cat?V/137D)  
-    _Star names & designations:_  
+* \[1b\] _Star names & designations:_  
     HD-DM-GC-HR-HIP-Bayer-Flamsteed Cross Index (Kostjuk, 2002) [VizieR IV/27A](http://cdsarc.u-strasbg.fr/viz-bin/Cat?IV/27A)  
  FK5-SAO-HD-Common Name Cross Index (Smith 1996) [VizieR IV/22](http://cdsarc.u-strasbg.fr/viz-bin/Cat?IV/22)  
  General Catalogue of Variable Stars (Samus et.al. 2007-2013) [VizieR B/gcvs](http://cdsarc.u-strasbg.fr/viz-bin/Cat?B/gcvs)  

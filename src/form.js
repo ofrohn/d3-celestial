@@ -1,4 +1,4 @@
-/* global Celestial, settings, $, px, has, isNumber, findPos */
+/* global Celestial, settings, formats, $, px, has, isNumber, findPos */
 
 //display settings form in div with id "celestial-form"
 function form(cfg) {
@@ -84,21 +84,45 @@ function form(cfg) {
 
   col.append("br");
   
-  col.append("label").attr("for", "stars-names").html("Show designations");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-names").property("checked", config.stars.names).on("change", apply);
-
-  col.append("label").attr("for", "stars-namelimit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star designaton display limit (magnitude)").attr("value", config.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
+  var names = formats.starnames[config.culture];
   
-  col.append("label").attr("for", "stars-desig").attr("title", "include HD/HIP designations").html("all");
+  for (var fld in names) {
+    if (!has(names, fld)) continue;
+    var keys = Object.keys(names[fld]);
+    if (keys.length > 1) {
+      //Select List
+      col.append("label").attr("for", "stars-" + fld).html("Show");
+      
+      selected = 0;
+      col.append("label").attr("title", "Type of star name").attr("for", "stars-" + fld + "Type").html(" ");
+      sel = col.append("select").attr("id", "stars-" + fld + "Type").on("change", apply);
+      list = keys.map(function (key, i) {
+        if (key === config.stars[fld + "Type"]) selected = i;    
+        return {o:key, n:names[fld][key]}; 
+      });
+      sel.selectAll("option").data(list).enter().append('option')
+         .attr("value", function (d) { return d.o; })
+         .text(function (d) { return d.n; });
+      sel.property("selectedIndex", selected);
+
+      col.append("input").attr("type", "checkbox").attr("id", "stars-" + fld).property("checked", config.stars[fld]).on("change", apply);
+    } else if (keys.length === 1) {
+      //Simple field
+    col.append("label").attr("for", "stars-" + fld).html(" " + names[fld][keys[0]]);
+      col.append("input").attr("type", "checkbox").attr("id", "stars-" + fld).property("checked", config.stars[fld]).on("change", apply);      
+    }    
+    col.append("label").attr("for", "stars-" + fld + "Limit").html("down to mag");
+    col.append("input").attr("type", "number").attr("id", "stars-" + fld + "Limit").attr("title", "Star name display limit (magnitude)").attr("value", config.stars[fld + "Limit"]).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
+  
+  }
+
+/*  col.append("label").attr("for", "stars-desig").attr("title", "include HD/HIP designations").html("all");
   col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", config.stars.desig).on("change", apply);
-
-  col.append("label").attr("for", "stars-proper").html("proper names");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-proper").property("checked", config.stars.proper).on("change", apply);
+*/
   
-  col.append("label").attr("for", "stars-propernamelimit").html("down to mag");
+/*  col.append("label").attr("for", "stars-propernamelimit").html("down to mag");
   col.append("input").attr("type", "number").attr("id", "stars-propernamelimit").attr("title", "Star name display limit (magnitude)").attr("value", config.stars.propernamelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
-
+*/
   col.append("br");
 
   col.append("label").attr("for", "stars-size").html("Stellar disk size: base");
@@ -297,6 +321,7 @@ function form(cfg) {
       case "text": if (src.id.search(/fill$/) === -1) return;
                    if (testColor(src) === false) return; 
                    value = src.value; break;
+      case "select-one": value = src.value; break;
     }
     if (value === null) return;
     set(src.id, value);
@@ -321,9 +346,9 @@ function form(cfg) {
 
 // Dependend fields relations
 var depends = {
-  "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-names", "stars-size", "stars-exponent"],
-  "stars-names": ["stars-proper", "stars-desig", "stars-namelimit"],
-  "stars-proper": ["stars-propernamelimit"],
+  "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-designation", "stars-propername", "stars-size", "stars-exponent"],
+  "stars-designation": ["stars-designationLimit", "stars-designationType"],
+  "stars-propername": ["stars-propernameLimit", "stars-propernameType"],
   "dsos-show": ["dsos-limit", "dsos-colors", "dsos-style-fill", "dsos-names", "dsos-size", "dsos-exponent"],
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
    "mw-show": ["mw-style-opacity", "mw-style-fill"],
@@ -339,13 +364,13 @@ function enable(source) {
       off = !$(fld).checked;
       for (var i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
       /* falls through */
-    case "stars-names": 
-      off = !$("stars-names").checked || !$("stars-show").checked;      
-      for (i=0; i< depends["stars-names"].length; i++) { fldEnable(depends["stars-names"][i], off); }
+    case "stars-designation": 
+      off = !$("stars-designation").checked || !$("stars-show").checked;
+      for (i=0; i< depends["stars-designation"].length; i++) { fldEnable(depends["stars-designation"][i], off); }
       /* falls through */
-    case "stars-proper": 
-      off = !$("stars-names").checked || !$("stars-show").checked || !$("stars-proper").checked;
-      for (i=0; i< depends["stars-proper"].length; i++) { fldEnable(depends["stars-proper"][i], off); }
+    case "stars-propername": 
+      off = !$("stars-propername").checked || !$("stars-show").checked;
+      for (i=0; i< depends["stars-propername"].length; i++) { fldEnable(depends["stars-propername"][i], off); }
       break;
     case "dsos-show": 
       off = !$(fld).checked;
@@ -369,6 +394,7 @@ function enable(source) {
 // Enable/disable field d to status off
 function fldEnable(d, off) {
   var node = $(d);
+  if (!node) return;
   node.disabled = off;
   node.previousSibling.style.color = off ? "#999" : "#000";  
 }

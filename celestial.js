@@ -14,7 +14,7 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
     zoomextent = 10,       // Default maximum extent of zoom (max/min)
     zoomlevel = 1;      // Default zoom level, 1 = 100%
 
-var cfg, prjMap, zoom, map, circle, daylight;
+var cfg, prjMap, zoom, map, circle, daylight, starnames = {};
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
@@ -25,11 +25,7 @@ Celestial.display = function(config) {
       repeat = false;
   
   //Mash config with default settings
-  cfg = settings.set(config); 
-  cfg.stars.size = cfg.stars.size || 7;  // Nothing works without these
-  cfg.stars.exponent = cfg.stars.exponent || -0.28;
-  cfg.center = cfg.center || [0,0];
-  if (!cfg.lang || cfg.lang.search(/^de|es$/) === -1) cfg.lang = "name";
+  cfg = settings.set(config).applyDefaults(config); 
   if (isNumber(cfg.zoomextend)) zoomextent = cfg.zoomextend;
   if (isNumber(cfg.zoomlevel)) zoomlevel = cfg.zoomlevel;
 
@@ -150,7 +146,7 @@ Celestial.display = function(config) {
     //Milky way outline
     d3.json(path + "mw.json", function(error, json) {
       if (error) { 
-        window.alert("Your Browser doesn't support local file loading or the file doesn't exist. See readme.md");
+        window.alert("Data file could not be loaded or doesn't exist. See readme.md");
         return console.warn(error);  
       }
 
@@ -231,6 +227,18 @@ Celestial.display = function(config) {
          .data(st.features)
          .enter().append("path")
          .attr("class", "star");
+      redraw();
+    });
+
+    d3.json(path + "starnames.json", function(error, json) {
+      if (error) return console.warn(error);
+
+      Object.assign(starnames, json);
+
+      /*container.selectAll(".starnames")
+         .data(st.features)
+         .enter().append("path")
+         .attr("class", "starname");*/
     });
 
     //Deep space objects
@@ -243,6 +251,7 @@ Celestial.display = function(config) {
          .data(ds.features)
          .enter().append("path")
          .attr("class", "dso" );
+      redraw();
     });
 
     //Planets, Sun & Moon
@@ -535,13 +544,13 @@ Celestial.display = function(config) {
           context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
           context.closePath();
           context.fill();
-          if (cfg.stars.names && d.properties.mag <= cfg.stars.namelimit*adapt) {
-            setTextStyle(cfg.stars.namestyle);
-            context.fillText(starName(d), pt[0]+r, pt[1]);      
+          if (cfg.stars.designation && d.properties.mag <= cfg.stars.designationLimit*adapt) {
+            setTextStyle(cfg.stars.designationStyle);
+            context.fillText(starDesignation(d.id), pt[0]+r, pt[1]);      
           }
-          if (cfg.stars.proper && d.properties.mag <= cfg.stars.propernamelimit*adapt) {
-            setTextStyle(cfg.stars.propernamestyle);
-            context.fillText(starProperName(d), pt[0]-r, pt[1]);      
+          if (cfg.stars.propername && d.properties.mag <= cfg.stars.propernameLimit*adapt) {
+            setTextStyle(cfg.stars.propernameStyle);
+            context.fillText(starPropername(d.id), pt[0]-r, pt[1]);      
           }
         }
       });
@@ -771,17 +780,15 @@ Celestial.display = function(config) {
     return prop.name;
   }
   
-  /*Star designation, if desig = false, no long desigs  */
-  function starName(d) {
-    var name = d.properties.desig;
-    if (!cfg.stars.desig) return name.replace(/^(HD|HIP|V\d{3}).+/, ""); 
-    return name; 
+  /*Star designation  */
+  function starDesignation(id) {
+    if (!has(starnames, id)) return "";
+    return starnames[id][cfg.stars.designationType]; 
   }
 
-  function starProperName(d) {
-    var name = d.properties.name;
-    
-    return name; 
+  function starPropername(id) {
+    if (!has(starnames, id)) return "";
+    return starnames[id][cfg.stars.propernameType]; 
   }
   
   function starSize(d) {
@@ -1442,13 +1449,15 @@ var settings = {
     limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use fill-style
     style: { fill: "#ffffff", opacity: 1 }, // Default style for stars
-    names: true,   // Show star names (Bayer, Flamsteed, Variable star, Gliese, whichever applies first)
-    proper: false, // Show proper name (if present)
-    desig: false,  // Show all names, including Draper and Hipparcos
-    namestyle: { fill: "#ddddbb", font: "11px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
-    namelimit: 2.5,  // Show only names for stars brighter than namelimit
-    propernamestyle: { fill: "#ddddbb", font: "13px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
-    propernamelimit: 1.5,  // Show proper names for stars brighter than propernamelimit
+    designation: true, // Show star names (Bayer, Flamsteed, Variable star, Gliese or designation, 
+                       // i.e. whichever of the previous applies first); may vary with culture setting
+    designationType: "desig",  // Which kind of name is displayed as designation (fieldname in starnames.json)
+    designationStyle: { fill: "#ddddbb", font: "11px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
+    designationLimit: 2.5,  // Show only names for stars brighter than nameLimit
+    propername: false,   // Show proper name (if present)
+    propernameType: "name", // Field in starnames.json that contains proper name; may vary with culture setting
+    propernameStyle: { fill: "#ddddbb", font: "13px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
+    propernameLimit: 1.5,  // Show proper names for stars brighter than propernameLimit
     size: 7,       // Scale size (radius) of star circle in pixels
     exponent: -0.28, // Scale exponent for star size, larger = more linear
     data: "stars.6.json" // Data source for stellar data
@@ -1576,8 +1585,31 @@ var settings = {
     }
     Object.assign(globalConfig, res);
     return res;
+  },
+  applyDefaults: function(cfg) {
+    var res = {};
+    Object.assign(res, globalConfig);
+    // Nothing works without these
+    res.stars.size = res.stars.size || 7;  
+    res.stars.exponent = res.stars.exponent || -0.28;
+    res.center = res.center || [0,0];
+    // If no recognized language/culture settings, assume defaults
+    if (!res.lang || res.lang.search(/^de|es$/) === -1) res.lang = "name";
+    if (!res.culture || res.culture.search(/^cn$/) === -1) res.culture = "iau";
+    // Adapt legacy name parameters
+    if (has(cfg, "stars")) {
+      // names -> designation
+      if (has(cfg.stars, "names")) res.stars.designation = cfg.stars.names;
+      if (has(cfg.stars, "namelimit")) res.stars.designationLimit = cfg.stars.namelimit;
+      if (has(cfg.stars, "namestyle")) Object.assign(res.stars.designationStyle, cfg.stars.namestyle);    
+      // proper -> propername
+      if (has(cfg.stars, "proper")) res.stars.propername = cfg.stars.proper;
+      if (has(cfg.stars, "propernamelimit")) res.stars.propernameLimit = cfg.stars.propernamelimit;
+      if (has(cfg.stars, "propernamestyle")) Object.assign(res.stars.propernameStyle, cfg.stars.propernamestyle);
+    }
+    Object.assign(globalConfig, res);
+    return res; 
   }
-  
 };
 
 Celestial.settings = function () { return settings; };
@@ -1670,7 +1702,30 @@ var projections = {
 
 Celestial.projections = function () { return projections; };
 
-
+var formats = {
+  "starnames": {
+    // "name":"","bayer":"","flam":"","var":"","gl":"","hd":"HD224801","c":"And","desig":"CG"
+    "iau": {
+      "designation": {
+        "desig": "Designation",     
+        "bayer": "Bayer",
+        "flam": "Flamsteed",
+        "var": "Variable",
+        "gl": "Gliese",
+        "hd": "Draper"},
+      "propername": {
+        "name": "Proper name"}
+    },
+    "cn": {
+      "propername": {
+        "name": "Proper name",
+        "en": "English",
+        "pinyin": "Pinyin"},
+      "designation": { 
+        "desig": "IAU Designation"}
+    }
+  }
+};
 var Canvas = {}; 
 
 Canvas.symbol = function () {
@@ -2123,21 +2178,45 @@ function form(cfg) {
 
   col.append("br");
   
-  col.append("label").attr("for", "stars-names").html("Show designations");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-names").property("checked", config.stars.names).on("change", apply);
-
-  col.append("label").attr("for", "stars-namelimit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "stars-namelimit").attr("title", "Star designaton display limit (magnitude)").attr("value", config.stars.namelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
+  var names = formats.starnames[config.culture];
   
-  col.append("label").attr("for", "stars-desig").attr("title", "include HD/HIP designations").html("all");
+  for (var fld in names) {
+    if (!has(names, fld)) continue;
+    var keys = Object.keys(names[fld]);
+    if (keys.length > 1) {
+      //Select List
+      col.append("label").attr("for", "stars-" + fld).html("Show");
+      
+      selected = 0;
+      col.append("label").attr("title", "Type of star name").attr("for", "stars-" + fld + "Type").html(" ");
+      sel = col.append("select").attr("id", "stars-" + fld + "Type").on("change", apply);
+      list = keys.map(function (key, i) {
+        if (key === config.stars[fld + "Type"]) selected = i;    
+        return {o:key, n:names[fld][key]}; 
+      });
+      sel.selectAll("option").data(list).enter().append('option')
+         .attr("value", function (d) { return d.o; })
+         .text(function (d) { return d.n; });
+      sel.property("selectedIndex", selected);
+
+      col.append("input").attr("type", "checkbox").attr("id", "stars-" + fld).property("checked", config.stars[fld]).on("change", apply);
+    } else if (keys.length === 1) {
+      //Simple field
+    col.append("label").attr("for", "stars-" + fld).html(" " + names[fld][keys[0]]);
+      col.append("input").attr("type", "checkbox").attr("id", "stars-" + fld).property("checked", config.stars[fld]).on("change", apply);      
+    }    
+    col.append("label").attr("for", "stars-" + fld + "Limit").html("down to mag");
+    col.append("input").attr("type", "number").attr("id", "stars-" + fld + "Limit").attr("title", "Star name display limit (magnitude)").attr("value", config.stars[fld + "Limit"]).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
+  
+  }
+
+/*  col.append("label").attr("for", "stars-desig").attr("title", "include HD/HIP designations").html("all");
   col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", config.stars.desig).on("change", apply);
-
-  col.append("label").attr("for", "stars-proper").html("proper names");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-proper").property("checked", config.stars.proper).on("change", apply);
+*/
   
-  col.append("label").attr("for", "stars-propernamelimit").html("down to mag");
+/*  col.append("label").attr("for", "stars-propernamelimit").html("down to mag");
   col.append("input").attr("type", "number").attr("id", "stars-propernamelimit").attr("title", "Star name display limit (magnitude)").attr("value", config.stars.propernamelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
-
+*/
   col.append("br");
 
   col.append("label").attr("for", "stars-size").html("Stellar disk size: base");
@@ -2336,6 +2415,7 @@ function form(cfg) {
       case "text": if (src.id.search(/fill$/) === -1) return;
                    if (testColor(src) === false) return; 
                    value = src.value; break;
+      case "select-one": value = src.value; break;
     }
     if (value === null) return;
     set(src.id, value);
@@ -2360,9 +2440,9 @@ function form(cfg) {
 
 // Dependend fields relations
 var depends = {
-  "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-names", "stars-size", "stars-exponent"],
-  "stars-names": ["stars-proper", "stars-desig", "stars-namelimit"],
-  "stars-proper": ["stars-propernamelimit"],
+  "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-designation", "stars-propername", "stars-size", "stars-exponent"],
+  "stars-designation": ["stars-designationLimit", "stars-designationType"],
+  "stars-propername": ["stars-propernameLimit", "stars-propernameType"],
   "dsos-show": ["dsos-limit", "dsos-colors", "dsos-style-fill", "dsos-names", "dsos-size", "dsos-exponent"],
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
    "mw-show": ["mw-style-opacity", "mw-style-fill"],
@@ -2378,13 +2458,13 @@ function enable(source) {
       off = !$(fld).checked;
       for (var i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
       /* falls through */
-    case "stars-names": 
-      off = !$("stars-names").checked || !$("stars-show").checked;      
-      for (i=0; i< depends["stars-names"].length; i++) { fldEnable(depends["stars-names"][i], off); }
+    case "stars-designation": 
+      off = !$("stars-designation").checked || !$("stars-show").checked;
+      for (i=0; i< depends["stars-designation"].length; i++) { fldEnable(depends["stars-designation"][i], off); }
       /* falls through */
-    case "stars-proper": 
-      off = !$("stars-names").checked || !$("stars-show").checked || !$("stars-proper").checked;
-      for (i=0; i< depends["stars-proper"].length; i++) { fldEnable(depends["stars-proper"][i], off); }
+    case "stars-propername": 
+      off = !$("stars-propername").checked || !$("stars-show").checked;
+      for (i=0; i< depends["stars-propername"].length; i++) { fldEnable(depends["stars-propername"][i], off); }
       break;
     case "dsos-show": 
       off = !$(fld).checked;
@@ -2408,6 +2488,7 @@ function enable(source) {
 // Enable/disable field d to status off
 function fldEnable(d, off) {
   var node = $(d);
+  if (!node) return;
   node.disabled = off;
   node.previousSibling.style.color = off ? "#999" : "#000";  
 }
