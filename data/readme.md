@@ -59,6 +59,7 @@ For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...1
 `dsos.6.json`, `dsos.14.json`: the number indicates limit magnitude  
 `dsos.bright.json`: handselected  
 `lf.json`: Local group  
+`messier.json` Messier objects
 
 ```js
 {
