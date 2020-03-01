@@ -4,7 +4,7 @@ For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...1
 
 ## Stars
 
-`stars.6.json`, `stars.8.json`: the number indicates limit magnitude  
+`stars.6.json`, `stars.8.json`, `stars.14.json`: the number indicates limit magnitude  
 
 ```js
 {
@@ -24,6 +24,8 @@ For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...1
 }
 ```
 
+## Starnames
+
 `starnames.json`: Magnitude independent, all stars with a name/designation other than HIP/HD  
 
 ```js
@@ -35,7 +37,20 @@ For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...1
    "var": "",       // Variable star  
    "gliese": "",    // Gliese  
    "hd": ""         // Henry Draper  
-  }, "id": { }  
+  }, "id": {...}  
+}
+```
+  
+##Traditional Chinese star names  
+
+`starnames.cn.json`:  
+```js
+{"id": {         // Hipparcos number  
+   "name": "",      // Chinese name  
+   "desig": "",     // IAU designation  
+   "en": "",     // English translation  
+   "pinyin": ""      // Pinyin transcription  
+  }, "id": {...}  
 }
 ```
 
@@ -85,9 +100,12 @@ _str_: Tidal streams \[Mag|Sgr|CMa|FLS\] (Magellanic Stream, Sagittarius Stream,
     "id": "",           // 3-letter designator
     "properties": {
       "name": "",       // full name
-      "genitive": "",   // for naming stars, not yet used
+      "es": "",         // spanish name
+      "de": "",         // german name
       "desig": "",      // 3-letter designator again
-      "display": []     // [ra,dec,scale], for single constellation display (tbi)
+      "gen": "",        // genitive for naming stars, not yet used
+      "rank": "",       // 1-3 for differential name display by size/brightness
+      "display": []     // [ra,dec,scale], for single constellation display 
     },
     "geometry": {  
       "type": "Point",
@@ -99,7 +117,7 @@ _str_: Tidal streams \[Mag|Sgr|CMa|FLS\] (Magellanic Stream, Sagittarius Stream,
 
 ## Constellation lines
 
-`constellations.lines.json`
+`constellations.lines.json`, `constellations.lines.cn.json`
 
 ```js
 {
@@ -117,7 +135,7 @@ _str_: Tidal streams \[Mag|Sgr|CMa|FLS\] (Magellanic Stream, Sagittarius Stream,
 
 ## Constellation boundaries
 
-`constellations.bounds.json`
+`constellations.bounds.json`, `constellations.bounds.cn.json`
 
 ```js
 {
@@ -129,6 +147,32 @@ _str_: Tidal streams \[Mag|Sgr|CMa|FLS\] (Magellanic Stream, Sagittarius Stream,
       "type": "Polygon",
       "coordinates": [[[lon, lat],[lon, lat],..]]
     },
+  }, { } ]
+}
+```
+
+##Traditional Chinese constellations
+
+`constellations.cn.json`  
+
+```js
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "id": "",           // numerical id
+    "properties": {
+      "name": "",       // chinese name
+      "en": "",         // english translation
+      "pinyin": "",     // pinyin transcription
+      "desig": "",      // also chinese name, for compatibility
+      "rank": "",       // so far only 1; differential name display by size/brightness
+      "display": []     // [ra,dec,scale], for single constellation display 
+    },
+    "geometry": {  
+      "type": "Point",
+      "coordinates": [lon, lat]  // Position of const. name
+    }      
   }, { } ]
 }
 ```
@@ -211,3 +255,4 @@ All element values in degrees, except a (AU|km) and e (dimensionless)
     "ep":"2000-01-01" epoch, default date
   }]}
 ```
+
