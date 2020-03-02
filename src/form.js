@@ -282,12 +282,21 @@ function form(cfg) {
   }
   
   function showConstellation() {
-    var id = this.value, anims = [];
+    var id = this.value;
+    if (!id) return;
+    showCon(id);
+  }
+
+  function showCon(id) {
+    var anims = [];
     if (id === "") { 
       Celestial.constellation = null;
       Celestial.redraw();
       return;
     }
+    id = id.toLowerCase();
+    if (!has(Celestial.constellations, id)) return;
+    
     var con = Celestial.constellations[id];
     config.center = con.center;
     setCenter(config.center, config.transform);
@@ -342,6 +351,8 @@ function form(cfg) {
       default: return;
     }   
   }
+  
+  Celestial.showConstellation = showCon;
 }
 
 // Dependend fields relations
@@ -541,3 +552,4 @@ function setVisibility(cfg, which) {
    }
   
 }
+

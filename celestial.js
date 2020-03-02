@@ -1,7 +1,7 @@
 // Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.0',
+  version: '0.7.1',
   container: null,
   data: []
 };
@@ -1274,7 +1274,7 @@ function getConstellationList(d, trans) {
       f = d.features;
       
   for (var i=0; i<f.length; i++) {
-    res[f[i].id] = {
+    res[f[i].id.toLowerCase()] = {
       name: f[i].properties.name,
       center: f[i].properties.display.slice(0,2),
       scale: f[i].properties.display[2]
@@ -2376,12 +2376,21 @@ function form(cfg) {
   }
   
   function showConstellation() {
-    var id = this.value, anims = [];
+    var id = this.value;
+    if (!id) return;
+    showCon(id);
+  }
+
+  function showCon(id) {
+    var anims = [];
     if (id === "") { 
       Celestial.constellation = null;
       Celestial.redraw();
       return;
     }
+    id = id.toLowerCase();
+    if (!has(Celestial.constellations, id)) return;
+    
     var con = Celestial.constellations[id];
     config.center = con.center;
     setCenter(config.center, config.transform);
@@ -2436,6 +2445,8 @@ function form(cfg) {
       default: return;
     }   
   }
+  
+  Celestial.showConstellation = showCon;
 }
 
 // Dependend fields relations
@@ -2635,6 +2646,8 @@ function setVisibility(cfg, which) {
    }
   
 }
+
+
 
 function geo(cfg) {
   var frm = d3.select("#celestial-form form").insert("div", "div#general").attr("id", "loc"),
