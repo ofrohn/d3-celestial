@@ -1,6 +1,6 @@
 /* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
 var Celestial = {
-  version: '0.6.23',
+  version: '0.6.24',
   container: null,
   data: []
 };
@@ -94,7 +94,6 @@ Celestial.display = function(config) {
     canvas.attr("style", "cursor: default!important");
   }
 
-  container.append("path").datum(graticule.outline).attr("class", "outline"); 
   setClip(proj.clip);
 
   d3.select(window).on('resize', resize);
@@ -124,6 +123,8 @@ Celestial.display = function(config) {
 
 
   function load() {
+    //Background
+    container.append("path").datum(graticule.outline).attr("class", "outline"); 
     //Celestial planes
     for (var key in cfg.lines) {
       if (!has(cfg.lines, key)) continue;

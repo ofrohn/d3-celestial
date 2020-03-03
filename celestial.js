@@ -1,7 +1,7 @@
 // Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.23',
+  version: '0.6.24',
   container: null,
   data: []
 };
@@ -95,7 +95,6 @@ Celestial.display = function(config) {
     canvas.attr("style", "cursor: default!important");
   }
 
-  container.append("path").datum(graticule.outline).attr("class", "outline"); 
   setClip(proj.clip);
 
   d3.select(window).on('resize', resize);
@@ -125,6 +124,8 @@ Celestial.display = function(config) {
 
 
   function load() {
+    //Background
+    container.append("path").datum(graticule.outline).attr("class", "outline"); 
     //Celestial planes
     for (var key in cfg.lines) {
       if (!has(cfg.lines, key)) continue;
