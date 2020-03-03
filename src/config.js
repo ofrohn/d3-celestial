@@ -34,13 +34,15 @@ var settings = {
     limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use fill-style
     style: { fill: "#ffffff", opacity: 1 }, // Default style for stars
-    names: true,   // Show star names (Bayer, Flamsteed, Variable star, Gliese, whichever applies first)
-    proper: false, // Show proper name (if present)
-    desig: false,  // Show all names, including Draper and Hipparcos
-    namestyle: { fill: "#ddddbb", font: "11px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
-    namelimit: 2.5,  // Show only names for stars brighter than namelimit
-    propernamestyle: { fill: "#ddddbb", font: "13px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
-    propernamelimit: 1.5,  // Show proper names for stars brighter than propernamelimit
+    designation: true, // Show star names (Bayer, Flamsteed, Variable star, Gliese or designation, 
+                       // i.e. whichever of the previous applies first); may vary with culture setting
+    designationType: "desig",  // Which kind of name is displayed as designation (fieldname in starnames.json)
+    designationStyle: { fill: "#ddddbb", font: "11px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
+    designationLimit: 2.5,  // Show only names for stars brighter than nameLimit
+    propername: false,   // Show proper name (if present)
+    propernameType: "name", // Field in starnames.json that contains proper name; may vary with culture setting
+    propernameStyle: { fill: "#ddddbb", font: "13px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
+    propernameLimit: 1.5,  // Show proper names for stars brighter than propernameLimit
     size: 7,       // Scale size (radius) of star circle in pixels
     exponent: -0.28, // Scale exponent for star size, larger = more linear
     data: "stars.6.json" // Data source for stellar data
@@ -168,8 +170,31 @@ var settings = {
     }
     Object.assign(globalConfig, res);
     return res;
+  },
+  applyDefaults: function(cfg) {
+    var res = {};
+    Object.assign(res, globalConfig);
+    // Nothing works without these
+    res.stars.size = res.stars.size || 7;  
+    res.stars.exponent = res.stars.exponent || -0.28;
+    res.center = res.center || [0,0];
+    // If no recognized language/culture settings, assume defaults
+    if (!res.lang || res.lang.search(/^de|es$/) === -1) res.lang = "name";
+    if (!res.culture || res.culture.search(/^cn$/) === -1) res.culture = "iau";
+    // Adapt legacy name parameters
+    if (has(cfg, "stars")) {
+      // names -> designation
+      if (has(cfg.stars, "names")) res.stars.designation = cfg.stars.names;
+      if (has(cfg.stars, "namelimit")) res.stars.designationLimit = cfg.stars.namelimit;
+      if (has(cfg.stars, "namestyle")) Object.assign(res.stars.designationStyle, cfg.stars.namestyle);    
+      // proper -> propername
+      if (has(cfg.stars, "proper")) res.stars.propername = cfg.stars.proper;
+      if (has(cfg.stars, "propernamelimit")) res.stars.propernameLimit = cfg.stars.propernamelimit;
+      if (has(cfg.stars, "propernamestyle")) Object.assign(res.stars.propernameStyle, cfg.stars.propernamestyle);
+    }
+    Object.assign(globalConfig, res);
+    return res; 
   }
-  
 };
 
 Celestial.settings = function () { return settings; };
@@ -262,3 +287,27 @@ var projections = {
 
 Celestial.projections = function () { return projections; };
 
+var formats = {
+  "starnames": {
+    // "name":"","bayer":"","flam":"","var":"","gl":"","hd":"HD224801","c":"And","desig":"CG"
+    "iau": {
+      "designation": {
+        "desig": "Designation",     
+        "bayer": "Bayer",
+        "flam": "Flamsteed",
+        "var": "Variable",
+        "gl": "Gliese",
+        "hd": "Draper"},
+      "propername": {
+        "name": "Proper name"}
+    },
+    "cn": {
+      "propername": {
+        "name": "Proper name",
+        "en": "English",
+        "pinyin": "Pinyin"},
+      "designation": { 
+        "desig": "IAU Designation"}
+    }
+  }
+};

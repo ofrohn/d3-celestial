@@ -1,0 +1,99 @@
+/* Copyright 2015-16 Olaf Frohn https://github.com/ofrohn, see LICENSE */
+
+#celestial-map { width: 100%; height: auto; margin: 0; padding: 0; display: inline-block; position: relative; }
+#celestial-map canvas { display: inline-block; position:absolute; z-index:0; cursor:hand; cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; }
+#celestial-map canvas:active { cursor:move; cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing; }
+#d3-celestial-footer { text-align:center; color:#666; font:10pt/1 'Arial Unicode MS', Arial, Helvetica, sans-serif; }
+#d3-celestial-footer a { text-decoration:none; color:#99f; }
+
+/* Form */
+#celestial-form { font:12pt/1 'Arial Unicode MS', Arial, Helvetica, sans-serif;  display: inline-block; position: relative; }
+#error { position:absolute; min-width:100px; height:auto; padding: 2px 4px; color:#f00; background:#fff; border:2px solid #f00; border-radius:3px; font-weight:normal; display:block; top:-9999px; left:-9999px; opacity:0; transition:opacity 1s linear; }
+#celestial-form .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; clear:both; }
+/* What parts to show */
+#celestial-form #general,
+#celestial-form #location,
+#celestial-form #stars,
+#celestial-form #dsos,
+#celestial-form #constellations,
+#celestial-form #lines,
+#celestial-form #other { display: block }
+
+#celestial-form input { vertical-align: 0px; }
+#celestial-form input[type='number'] { width:48px; height:18px; text-align:right; padding:0; }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { height: auto; }
+#celestial-form #centerx, #celestial-form #centery, #celestial-form #centerz,
+#celestial-form #lat, #celestial-form #lon { width:64px; margin-top:4px; }
+#celestial-form input[type='text'] { width:194px; height:18px; text-align:left; padding-left:2px; }
+#celestial-form input[type='checkbox'] { vertical-align: -2px; }
+#celestial-form input[type='color'] { width:48px; vertical-align: -3px; height:22px;  background:#fff; }
+#celestial-form #datepick { position:relative; display:inline-block; _vertical-align:-8px; top:7px; left:-31px; width:28px; height:24px; border:0px none; border-left:1px solid #ccc; background-color: #f7f7f7; background-image: url('images/dtpick.png'); background-position: -45px 1px; cursor:default; }
+#celestial-form #datepick.active { background-position: -69px 1px; }
+#celestial-form #datetime { cursor:default; } 
+#celestial-form input#now { position:relative; left:-24px; }
+#celestial-form #constellation { } 
+#celestial-form #constellation option { color:#000; } 
+#celestial-form #constellation option[value=''] { color:#ccc; } 
+
+#celestial-form input[type='button'] { width:64px; padding-bottom:1px; margin-top:4px; float:right; background: #f7f7f7; }
+#celestial-form input#fullwidth { width:108px; }
+#celestial-form input#width { margin-left:2px; }
+#celestial-form input#now, 
+#celestial-form input#here  { width:48px; margin-left:2px; float:none; }
+#celestial-form input[type='button']:hover,
+#celestial-form #datepick:hover { background-color:#eee; }
+
+#celestial-form input[type='text']:disabled, 
+#celestial-form input[type='number']:disabled, 
+#celestial-form input[type='color']:disabled { border: 1px solid #ccc; background:#eee }
+
+#celestial-form input[type='text'], 
+#celestial-form input[type='number'], 
+#celestial-form input[type='color'], 
+#celestial-form select, 
+#celestial-form input#now, 
+#celestial-form input#here, 
+#celestial-form input#show, 
+#celestial-form input#fullwidth { border: 1px solid #000; border-radius:3px; height:24px; }
+
+#celestial-form label { margin:0 4px 0 8px; }
+#celestial-form label.header { font-weight:bold; }
+#celestial-form input + span { margin:0 4px 0 2px; }
+#celestial-form label:first-child, 
+#celestial-form br + label { margin-left:0; }
+
+/* Zoom controls */
+#celestial-zoomin, 
+#celestial-zoomout { width:32px; height:32px; left:8px; top:12px; background: rgba(255,255,255,0.5); border:1px solid #000; border-radius:3px; position:absolute; font: normal bold 24px/1 Consolas, Courier, 'Courier New', monospace; cursor:pointer; }
+#celestial-zoomout { top: 48px; }
+#celestial-zoomin:hover, 
+#celestial-zoomout:hover { background: rgba(255,255,255,0.7); }
+#celestial-zoomin:disabled, 
+#celestial-zoomout:disabled { background: rgba(255,255,255,0.0); border:1px solid rgba(153,153,153,0.7); color:rgba(153,153,153,0.7); cursor:default; }
+
+#celestial-date { position:absolute; top:-9999px; width:193px; text-align:center; border:1px solid #000; background:#fff; opacity:0; transition:.6s ease-in opacity; font: 13px/1 sans-serif; }
+#celestial-date input, #celestial-date select { font:inherit; }
+#celestial-date #yr, #celestial-date #mon { margin: 2px 3px; vertical-align:middle; }
+#celestial-date #left, #celestial-date #right { display:inline-block; width:12px; height:24px; margin:0; vertical-align:-8px; cursor:pointer;  background-image: url('images/dtpick.png'); }
+#celestial-form #day-left, #celestial-form #day-right { display:inline-block; float:none; width:12px; height:24px; margin:0; padding:0; vertical-align:middle; cursor:pointer; border: 0 none; background-color:transparent; background-image: url('images/dtpick.png'); }
+#celestial-form #day-right { position:relative; left:-30px; }
+#celestial-date #left, #celestial-form #day-left { background-position: -8px 0px; }
+#celestial-date #right, #celestial-form #day-right { background-position: -30px 0px; }
+#celestial-date #hr, #celestial-date #min, #celestial-date #sec { margin: 0 0 2px 0; width:34px; }
+#celestial-date #hr { border-right: 0px none; border-radius: 3px 0 0 3px;  }
+#celestial-date #min { border-right: 0px none; border-left: 0px none;  border-radius: 0; }
+#celestial-date #sec { border-left: 0px none;  border-radius: 0 3px 3px 0; }
+#celestial-date #tz { margin: 0 0 2px 4px; }
+#celestial-date #cal { display:inline-block; width:182px; margin:0 4px;  }
+#celestial-date .date { display:inline-block; width:19px; height:14px; border:1px solid #fff; color:#000; font-weight: bold; text-align:right; vertical-align:middle; padding:2px 4px 2px 0; cursor:pointer; }
+#celestial-date .grey { color:#ccc; }
+#celestial-date .weekday { color:#666; font-sixe:11px; background:#eee; border:1px solid #eee; }
+#celestial-date .weekend { color:#f00; }
+#celestial-date .selected { border:1px solid #000; border-radius:3px; }
+#celestial-date .today { background:#ff0; }
+
+
+@media print {
+  #celestial-zoomin, #celestial-zoomout, #celestial-form { display: none; }
+}
