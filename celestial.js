@@ -1,7 +1,7 @@
 // Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.6.24',
+  version: '0.6.25',
   container: null,
   data: []
 };
@@ -95,7 +95,6 @@ Celestial.display = function(config) {
     canvas.attr("style", "cursor: default!important");
   }
 
-  setClip(proj.clip);
 
   d3.select(window).on('resize', resize);
 
@@ -105,9 +104,7 @@ Celestial.display = function(config) {
   }
   
   circle = d3.geo.circle().angle([90]);  
-  container.append("path").datum(circle).attr("class", "horizon");
   daylight = d3.geo.circle().angle([179.9]);
-  container.append("path").datum(daylight).attr("class", "daylight");
 
   form(cfg);
   if ($("error") === null) d3.select("body").append("div").attr("id", "error");
@@ -125,7 +122,10 @@ Celestial.display = function(config) {
 
   function load() {
     //Background
+    setClip(proj.clip);
     container.append("path").datum(graticule.outline).attr("class", "outline"); 
+    container.append("path").datum(circle).attr("class", "horizon");
+    container.append("path").datum(daylight).attr("class", "daylight");
     //Celestial planes
     for (var key in cfg.lines) {
       if (!has(cfg.lines, key)) continue;
@@ -232,6 +232,7 @@ Celestial.display = function(config) {
          .data(st.features)
          .enter().append("path")
          .attr("class", "star");
+      redraw();
     });
 
     //Deep space objects
@@ -244,6 +245,7 @@ Celestial.display = function(config) {
          .data(ds.features)
          .enter().append("path")
          .attr("class", "dso" );
+      redraw();
     });
 
     //Planets, Sun & Moon
@@ -645,11 +647,7 @@ Celestial.display = function(config) {
     if (stroke === true) 
       context.stroke(); 
     else {
-      //container.selectAll(".outline").remove();
-      //container.append("path").datum(d3.geo.circle().angle([179.9])).attr("class", "outline");
-      //setClip(false);
       context.fill();
-      //setClip(prj.clip);    
     }
     prjMap.rotate(rot);
   }
@@ -890,8 +888,9 @@ Celestial.display = function(config) {
     if (trans === "equatorial") graticule.minorStep([15,10]);
     else  graticule.minorStep([10,10]);
     container.selectAll("*").remove(); 
-    setClip();
+    /*setClip();
     container.append("path").datum(circle).attr("class", "horizon");
+    container.append("path").datum(daylight).attr("class", "daylight");*/
     load(); 
   }; 
   this.apply = function(config) { apply(config); }; 
