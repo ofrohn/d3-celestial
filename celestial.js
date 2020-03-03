@@ -2389,7 +2389,7 @@ function form(cfg) {
       return;
     }
     id = id.toLowerCase();
-    if (!has(Celestial.constellations, id)) return;
+    if (!isObject(Celestial.constellations) || !has(Celestial.constellations, id)) return;
     
     var con = Celestial.constellations[id];
     config.center = con.center;

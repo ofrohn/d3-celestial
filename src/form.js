@@ -1,4 +1,4 @@
-/* global Celestial, settings, formats, $, px, has, isNumber, findPos */
+/* global Celestial, settings, formats, $, px, has, isNumber, isObject, findPos */
 
 //display settings form in div with id "celestial-form"
 function form(cfg) {
@@ -295,7 +295,7 @@ function form(cfg) {
       return;
     }
     id = id.toLowerCase();
-    if (!has(Celestial.constellations, id)) return;
+    if (!isObject(Celestial.constellations) || !has(Celestial.constellations, id)) return;
     
     var con = Celestial.constellations[id];
     config.center = con.center;
