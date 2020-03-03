@@ -60,7 +60,7 @@ Celestial.display = function(config) {
       path = path.replace(/([^\/]$)/, "$1\/");
   
       
-  if (parentElement != "body") $(cfg.container).style.height = px(height);
+  if (parentElement !== "body") $(cfg.container).style.height = px(height);
   
   prjMap = Celestial.projection(cfg.projection).rotate(rotation).translate([width/2, height/2]).scale(scale * zoomlevel);
     
@@ -90,7 +90,7 @@ Celestial.display = function(config) {
     canvas.attr("style", "cursor: default!important");
   }
 
-  container.append("path").datum(graticule.outline).attr("class", "outline"); 
+  //container.append("path").datum(graticule.outline).attr("class", "outline"); 
   setClip(proj.clip);
 
   d3.select(window).on('resize', resize);
@@ -120,6 +120,8 @@ Celestial.display = function(config) {
 
 
   function load() {
+    //Background
+    container.append("path").datum(graticule.outline).attr("class", "outline"); 
     //Celestial planes
     for (var key in cfg.lines) {
       if (!has(cfg.lines, key)) continue;
