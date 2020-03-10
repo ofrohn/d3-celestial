@@ -94,7 +94,7 @@ function form(cfg) {
       col.append("label").attr("for", "stars-" + fld).html("Show");
       
       selected = 0;
-      col.append("label").attr("title", "Type of star name").attr("for", "stars-" + fld + "Type").html(" ");
+      col.append("label").attr("title", "Type of star name").attr("for", "stars-" + fld + "Type").html("");
       sel = col.append("select").attr("id", "stars-" + fld + "Type").on("change", apply);
       list = keys.map(function (key, i) {
         if (key === config.stars[fld + "Type"]) selected = i;    
@@ -116,13 +116,6 @@ function form(cfg) {
   
   }
 
-/*  col.append("label").attr("for", "stars-desig").attr("title", "include HD/HIP designations").html("all");
-  col.append("input").attr("type", "checkbox").attr("id", "stars-desig").property("checked", config.stars.desig).on("change", apply);
-*/
-  
-/*  col.append("label").attr("for", "stars-propernamelimit").html("down to mag");
-  col.append("input").attr("type", "number").attr("id", "stars-propernamelimit").attr("title", "Star name display limit (magnitude)").attr("value", config.stars.propernamelimit).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
-*/
   col.append("br");
 
   col.append("label").attr("for", "stars-size").html("Stellar disk size: base");
@@ -175,25 +168,56 @@ function form(cfg) {
   col.append("label").attr("class", "header").html("Constellations");
   //col.append("input").attr("type", "checkbox").attr("id", "constellations-show").property("checked", config.constellations.show).on("change", apply);
   
+  
+  names = formats.constellations[config.culture];
+  
+  for (fld in names) {
+    if (!has(names, fld)) continue;
+    var nameKeys = Object.keys(names[fld]);
+    if (nameKeys.length > 1) {
+      //Select List
+      col.append("label").attr("for", "constellations-" + fld).html("Show");
+      
+      selected = 0;
+      col.append("label").attr("title", "Language of constellation names").attr("for", "constellations-" + fld + "Type").html("");
+      sel = col.append("select").attr("id", "constellations-" + fld + "Type").on("change", apply);
+      list = nameKeys.map(function (key, i) {
+        if (key === config.constellations[fld + "Type"]) selected = i;    
+        return {o:key, n:names[fld][key]}; 
+      });
+      sel.selectAll("option").data(list).enter().append('option')
+         .attr("value", function (d) { return d.o; })
+         .text(function (d) { return d.n; });
+      sel.property("selectedIndex", selected);
+
+      col.append("input").attr("type", "checkbox").attr("id", "constellations-" + fld).property("checked", config.constellations[fld]).on("change", apply);
+    } else if (nameKeys.length === 1) {
+      //Simple field
+    col.append("label").attr("for", "constellations-" + fld).html(" " + names[fld][nameKeys[0]]);
+      col.append("input").attr("type", "checkbox").attr("id", "constellations-" + fld).property("checked", config.constellations[fld]).on("change", apply);      
+    }      
+  }
+
+  /*
   col.append("label").attr("for", "constellations-names").html("Show names");
   col.append("input").attr("type", "checkbox").attr("id", "constellations-names").property("checked", config.constellations.names).on("change", apply);
   
   col.append("label").attr("for", "constellations-desig").html("abbreviated");
   col.append("input").attr("type", "checkbox").attr("id", "constellations-desig").property("checked", config.constellations.desig).on("change", apply);
-  
+  */
   col.append("label").attr("for", "constellations-lines").html("with lines");
   col.append("input").attr("type", "checkbox").attr("id", "constellations-lines").property("checked", config.constellations.lines).on("change", apply);
   
   col.append("label").attr("for", "constellations-bounds").html("with boundaries");
   col.append("input").attr("type", "checkbox").attr("id", "constellations-bounds").property("checked", config.constellations.bounds).on("change", apply);
 
-  enable($("constellations-names"));
+  enable($("constellations-name"));
 
   // graticules & planes 
   col = frm.append("div").attr("class", "col").attr("id", "lines");
   col.append("label").attr("class", "header").html("Lines");
   
-  col.append("label").attr("title", "Laitudet/longitude grid lines").attr("for", "lines-graticule").html("Graticule");
+  col.append("label").attr("title", "Latitude/longitude grid lines").attr("for", "lines-graticule").html("Graticule");
   col.append("input").attr("type", "checkbox").attr("id", "lines-graticule-show").property("checked", config.lines.graticule.show).on("change", apply);
   
   col.append("label").attr("for", "lines-equatorial").html("Equator");
@@ -363,7 +387,7 @@ var depends = {
   "dsos-show": ["dsos-limit", "dsos-colors", "dsos-style-fill", "dsos-names", "dsos-size", "dsos-exponent"],
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
    "mw-show": ["mw-style-opacity", "mw-style-fill"],
-  "constellations-names": ["constellations-desig"]
+  "constellations-name": ["constellations-nameType"]
 };
 
 // De/activate fields depending on selection of dependencies
@@ -391,7 +415,7 @@ function enable(source) {
       off = !$("dsos-names").checked || !$("dsos-show").checked;      
       for (i=0; i< depends["dsos-names"].length; i++) { fldEnable(depends["dsos-names"][i], off); }
       break;
-    case "constellations-show": 
+    case "constellations-name": 
       off = !$(fld).checked;
       for (i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
       break;

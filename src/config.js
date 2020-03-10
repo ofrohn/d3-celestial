@@ -81,16 +81,16 @@ var settings = {
   },
   constellations: {
     show: true,    // Show constellations 
-    names: true,   // Show constellation names 
-    desig: true,   // Show short constellation names (3 letter designations)
-    namestyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8, 
+    name: true,   // Show constellation names 
+    nameType: "desig",   // What kind of name to show (default 3 letter designations)
+    nameStyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8, 
 		             font: ["14px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // Different fonts for brighter &
-								        "12px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // sdarker constellations
+								        "12px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // darker constellations
 												"11px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"]},
     lines: true,   // Show constellation lines 
-    linestyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
+    lineStyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries 
-    boundstyle: { stroke: "#ccff00", width: 1, opacity: 0.8, dash: [2, 4] }
+    boundStyle: { stroke: "#ccff00", width: 1, opacity: 0.8, dash: [2, 4] }
   },
   mw: {
     show: true,    // Show Milky Way as filled polygons 
@@ -178,8 +178,12 @@ var settings = {
     res.stars.size = res.stars.size || 7;  
     res.stars.exponent = res.stars.exponent || -0.28;
     res.center = res.center || [0,0];
+    res.datapath = res.datapath || "";
+    res.datapath = res.datapath.replace(/([^\/]$)/, "$1\/");
+    
     // If no recognized language/culture settings, assume defaults
     if (!res.lang || res.lang.search(/^de|es$/) === -1) res.lang = "name";
+    //Set all poss. names to cfg.lang if not english
     if (!res.culture || res.culture.search(/^cn$/) === -1) res.culture = "iau";
     // Adapt legacy name parameters
     if (has(cfg, "stars")) {
@@ -192,6 +196,15 @@ var settings = {
       if (has(cfg.stars, "propernamelimit")) res.stars.propernameLimit = cfg.stars.propernamelimit;
       if (has(cfg.stars, "propernamestyle")) Object.assign(res.stars.propernameStyle, cfg.stars.propernamestyle);
     }
+    if (has(cfg, "constellations")) {
+      // names, desig -> name, nameType
+      if (has(cfg.constellations, "names")) res.constellations.nameType = "name";
+      if (has(cfg.constellations, "desig")) res.constellations.nameType = "desig";
+      if (has(cfg.constellations, "namestyle")) Object.assign(res.constellations.nameStyle, cfg.constellations.namestyle);
+      if (has(cfg.constellations, "linestyle")) Object.assign(res.constellations.lineStyle, cfg.constellations.linestyle);
+      if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
+    }
+    if (!res.constellations.nameType || res.constellations.nameType === "") res.constellations.nameType = "desig";
     Object.assign(globalConfig, res);
     return res; 
   }
@@ -309,5 +322,37 @@ var formats = {
       "designation": { 
         "desig": "IAU Designation"}
     }
+  },
+  "constellations": {
+    "iau": {
+      "name": {
+        "desig": "Designation",
+        "iau": "Latin",
+        "en": "English",
+        "es": "Spanish",
+        "de": "German",
+        "cn": "Chinese",
+        "ar": "Arabic", 
+        "cz": "Czech", 
+        "ir": "Persian", 
+        "ee": "Estonian", 
+        "fi": "Finnish", 
+        "fr": "French", 
+        "gr": "Greek", 
+        "it": "Italian", 
+        "jp": "Japanese", 
+        "kr": "Korean", 
+        "in": "Marathi", 
+        "ru": "Russian", 
+        "tr": "Turkish", 
+        "il": "Hebrew"
+      }
+    },
+    "cn": {
+      "name": {
+        "name": "Proper name",
+        "en": "English",
+        "pinyin": "Pinyin"}
+    }             
   }
 };

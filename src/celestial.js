@@ -1,6 +1,6 @@
-/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle */
+/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.1',
+  version: '0.7.2',
   container: null,
   data: []
 };
@@ -30,7 +30,7 @@ Celestial.display = function(config) {
 
   var parent = $(cfg.container);
   if (parent) { 
-    parentElement = "#"+cfg.container;
+    parentElement = "#" + cfg.container;
     var st = window.getComputedStyle(parent, null);
     if (!parseInt(st.width) && !cfg.width) parent.style.width = px(parent.parentNode.clientWidth); 
   } else { 
@@ -56,8 +56,7 @@ Celestial.display = function(config) {
       dsoexp = cfg.dsos.exponent || starexp, //Object size base & exponent
       adapt = 1,
       rotation = getAngles(cfg.center),
-      path = cfg.datapath || "";
-      path = path.replace(/([^\/]$)/, "$1\/");
+      path = cfg.datapath;
   
       
   if (parentElement !== "body") $(cfg.container).style.height = px(height);
@@ -68,7 +67,9 @@ Celestial.display = function(config) {
   // Set initial zoom level
   scale *= zoomlevel;
 
-  var canvas = d3.select(parentElement).selectAll("canvas");
+  var canvas = d3.select(parentElement).selectAll("canvas"),
+      culture = (cfg.culture !== "" && cfg.culture !== "iau") ? cfg.culture : "";
+  
   if (canvas[0].length === 0) canvas = d3.select(parentElement).append("canvas");
   //canvas.attr("width", width).attr("height", height);
   canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height", height * pixelRatio);
@@ -117,6 +118,9 @@ Celestial.display = function(config) {
 
 
   function load() {
+    var extConstellations = (has(formats.constellations, culture)) ? "." + culture : "",
+        extStars = (has(formats.starnames, culture)) ? "." + culture : "";
+
     //Background
     setClip(proj.clip);
     container.append("path").datum(graticule.outline).attr("class", "outline"); 
@@ -165,7 +169,8 @@ Celestial.display = function(config) {
     }); 
 
     //Constellation names or designation
-    d3.json(path + "constellations.json", function(error, json) {
+    var filename = "constellations" + extConstellations + ".json";
+    d3.json(path + filename, function(error, json) {
       if (error) return console.warn(error);
       
       var con = getData(json, trans);
@@ -195,7 +200,8 @@ Celestial.display = function(config) {
     });
 
     //Constellation boundaries
-    d3.json(path + "constellations.bounds.json", function(error, json) {
+    filename = "constellations.bounds" + extConstellations + ".json";
+    d3.json(path + filename, function(error, json) {
       if (error) return console.warn(error);
 
       var conb = getData(json, trans);
@@ -207,7 +213,8 @@ Celestial.display = function(config) {
     });
 
     //Constellation lines
-    d3.json(path + "constellations.lines.json", function(error, json) {
+    filename = "constellations.lines" + extConstellations + ".json";
+    d3.json(path + filename, function(error, json) {
       if (error) return console.warn(error);
 
       var conl = getData(json, trans);
@@ -232,7 +239,8 @@ Celestial.display = function(config) {
 
     });
 
-    d3.json(path + "starnames.json", function(error, json) {
+    filename = "starnames" + extConstellations + ".json";
+    d3.json(path + filename, function(error, json) {
       if (error) return console.warn(error);
 
       Object.assign(starnames, json);
@@ -502,7 +510,7 @@ Celestial.display = function(config) {
     if (cfg.constellations.show) {     
       if (cfg.constellations.bounds) { 
         container.selectAll(".boundaryline").each(function(d) { 
-          setStyle(cfg.constellations.boundstyle); 
+          setStyle(cfg.constellations.boundStyle); 
           if (Celestial.constellation && Celestial.constellation === d.id) {
             context.lineWidth *= 1.5;
             context.setLineDash([]);
@@ -513,11 +521,11 @@ Celestial.display = function(config) {
         drawOutline(true);
       }
 
-      if (cfg.constellations.names) { 
-        setTextStyle(cfg.constellations.namestyle);
+      if (cfg.constellations.name) { 
+        setTextStyle(cfg.constellations.nameStyle);
         container.selectAll(".constname").each( function(d) { 
           if (clip(d.geometry.coordinates)) {
-            setConstStyle(d.properties.rank, cfg.constellations.namestyle.font);
+            setConstStyle(d.properties.rank, cfg.constellations.nameStyle.font);
             var pt = prjMap(d.geometry.coordinates);
             context.fillText(constName(d), pt[0], pt[1]); 
           }
@@ -526,7 +534,7 @@ Celestial.display = function(config) {
 
       if (cfg.constellations.lines) { 
         container.selectAll(".constline").each(function(d) { 
-          setStyle(cfg.constellations.linestyle); 
+          setStyle(cfg.constellations.lineStyle); 
           map(d); 
           context.stroke(); 
         });
@@ -803,7 +811,7 @@ Celestial.display = function(config) {
   }
   
   function constName(d) { 
-    return cfg.constellations.desig ? d.properties.desig : d.properties[cfg.lang]; 
+    return d.properties[cfg.constellations.nameType]; 
   }
 
   function gridOrientation(pos, orient) {
