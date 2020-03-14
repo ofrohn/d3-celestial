@@ -302,7 +302,7 @@ Celestial.projections = function () { return projections; };
 
 var formats = {
   "starnames": {
-    // "name":"","bayer":"","flam":"","var":"","gl":"","hd":"HD224801","c":"And","desig":"CG"
+    // "name":"","bayer":"","flam":"","var":"","gl":"","hd":"","c":"","desig":""
     "iau": {
       "designation": {
         "desig": "Designation",     
@@ -310,7 +310,8 @@ var formats = {
         "flam": "Flamsteed",
         "var": "Variable",
         "gl": "Gliese",
-        "hd": "Draper"},
+        "hd": "Draper",
+        "hip": "Hipparcos"},
       "propername": {
         "name": "Proper name"}
     },

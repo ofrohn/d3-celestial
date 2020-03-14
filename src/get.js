@@ -52,14 +52,12 @@ function getPlanet(id, dt) {
   return res;
 }
 
-function getConstellationList(d, trans) {
+function getConstellationList(d) {
   var res = {},
-      leo = euler[trans],
       f = d.features;
       
   for (var i=0; i<f.length; i++) {
-    res[f[i].id.toLowerCase()] = {
-      name: f[i].properties.name,
+    res[f[i].id] = {
       center: f[i].properties.display.slice(0,2),
       scale: f[i].properties.display[2]
     };

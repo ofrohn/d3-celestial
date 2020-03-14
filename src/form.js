@@ -1,4 +1,4 @@
-/* global Celestial, settings, formats, $, px, has, isNumber, isObject, findPos */
+/* global Celestial, settings, globalConfig, formats, $, px, has, isNumber, isObject, findPos, transformDeg, euler */
 
 //display settings form in div with id "celestial-form"
 function form(cfg) {
@@ -64,7 +64,7 @@ function form(cfg) {
 
   col.append("label").attr("title", "Center and zoom in on this constellation").attr("for", "constellation").html("Show");
   col.append("select").attr("id", "constellation").on("change", showConstellation);
-
+  
   setCenter(config.center, config.transform);
 
   // Stars 
@@ -109,7 +109,7 @@ function form(cfg) {
     } else if (keys.length === 1) {
       //Simple field
     col.append("label").attr("for", "stars-" + fld).html(" " + names[fld][keys[0]]);
-      col.append("input").attr("type", "checkbox").attr("id", "stars-" + fld).property("checked", config.stars[fld]).on("change", apply);      
+      col.append("input").attr("type", "checkbox").attr("id", "stars-" + fld).property("checked", config.stars[fld]).on("change", apply);
     }    
     col.append("label").attr("for", "stars-" + fld + "Limit").html("down to mag");
     col.append("input").attr("type", "number").attr("id", "stars-" + fld + "Limit").attr("title", "Star name display limit (magnitude)").attr("value", config.stars[fld + "Limit"]).attr("max", "6").attr("min", "-1").attr("step", "0.1").on("change", apply);
@@ -304,7 +304,7 @@ function form(cfg) {
     
     return cx.value !== "" && cy.value !== "";
   }
-  
+    
   function showConstellation() {
     var id = this.value;
     if (!id) return;
@@ -318,11 +318,13 @@ function form(cfg) {
       Celestial.redraw();
       return;
     }
-    id = id.toLowerCase();
+    //id = id.toLowerCase();
     if (!isObject(Celestial.constellations) || !has(Celestial.constellations, id)) return;
     
     var con = Celestial.constellations[id];
-    config.center = con.center;
+    //transform according to settings
+    var center = transformDeg(con.center, euler[config.transform]);
+    config.center = center;
     setCenter(config.center, config.transform);
     //config.lines.graticule.lat.pos = [Round(con.center[0])];
     //config.lines.graticule.lon.pos = [Round(con.center[1])];
@@ -332,9 +334,9 @@ function form(cfg) {
     var z = Celestial.zoomBy();
     if (z !== 1) anims.push({param:"zoom", value:1/z, duration:0});
     //rotate
-    anims.push({param:"center", value:con.center, duration:0});
+    anims.push({param:"center", value:center, duration:0});
     //and zoom in
-    var sc = con.scale > 10 ? 10 : con.scale;
+    var sc = 1 + (360/con.scale); // > 10 ? 10 : con.scale;
     anims.push({param:"zoom", value:sc, duration:0});
     Celestial.constellation = id;
     Celestial.animate(anims, false);    
@@ -361,6 +363,8 @@ function form(cfg) {
     if (src.id === "dsos-style-fill") {
       set("dsos-style-stroke", value);
       set("dsos-namestyle-fill", value);
+    } else if (src.id === "constellations-nameType") {
+      listConstellations();
     }
     getCenter();
     Celestial.apply(config);
@@ -382,7 +386,7 @@ function form(cfg) {
 // Dependend fields relations
 var depends = {
   "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-designation", "stars-propername", "stars-size", "stars-exponent"],
-  "stars-designation": ["stars-designationLimit", "stars-designationType"],
+  "stars-designation": ["stars-designationType", "stars-designationLimit"],
   "stars-propername": ["stars-propernameLimit", "stars-propernameType"],
   "dsos-show": ["dsos-limit", "dsos-colors", "dsos-style-fill", "dsos-names", "dsos-size", "dsos-exponent"],
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
@@ -431,7 +435,10 @@ function fldEnable(d, off) {
   var node = $(d);
   if (!node) return;
   node.disabled = off;
+  node.style.color = off ? "#999" : "#000";  
   node.previousSibling.style.color = off ? "#999" : "#000";  
+  //if (node.previousSibling.previousSibling && node.previousSibling.previousSibling.tagName === "LABEL")
+  //  node.previousSibling.previousSibling.style.color = off ? "#999" : "#000";  
 }
 
 // Error notification
@@ -574,6 +581,29 @@ function setVisibility(cfg, which) {
      vis = cfg.formFields[fld] === false ? "none" : "block";
      d3.select("#" + fld).style( {"display": vis} );     
    }
-  
 }
+
+function listConstellations() {
+  var sel = d3.select("#constellation"),
+      list = [], selected = 0, id, name, config = globalConfig;
+    
+  Celestial.container.selectAll(".constname").each( function(d, i) { 
+    id = d.properties.desig;
+    if (id === config.constellation) selected = i;
+    name = d.properties[config.constellations.nameType];
+    if (name !== id) name += " (" + id + ")";
+    list.push({o:id, n:name});
+  });
+  list = [{o:"", n:"(Select constellation)"}].concat(list);
+  
+  sel.selectAll('option').remove();
+  sel.selectAll('option').data(list).enter().append('option')
+     .attr("value", function (d) { return d.o; })
+     .text(function (d) { return d.n; });
+  sel.property("selectedIndex", selected);
+  //$("constellation").firstChild.disabled = true;
+
+  //Celestial.constellations = list;
+}
+
 

@@ -1,4 +1,4 @@
-/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle, formats */
+/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
   version: '0.7.2',
   container: null,
@@ -174,29 +174,12 @@ Celestial.display = function(config) {
       if (error) return console.warn(error);
       
       var con = getData(json, trans);
-      
       container.selectAll(".constnames")
          .data(con.features)
          .enter().append("text")
          .attr("class", "constname");
-
-      var l = getConstellationList(json, trans);
-      if ($("constellation")) {
-        var sel = d3.select("#constellation"),
-            selected = 0,
-            list = Object.keys(l).map( function (key, i) { 
-              if (key === config.constellation) selected = i;
-              return {o:key, n:l[key].name};
-            });
-        list = [{o:"", n:"(Select constellation)"}].concat(list);
-        
-        sel.selectAll('option').data(list).enter().append('option')
-           .attr("value", function (d) { return d.o; })
-           .text(function (d) { return d.n; });
-        sel.property("selectedIndex", selected);
-        //$("constellation").firstChild.disabled = true;
-      }
-      Celestial.constellations = l;
+         
+      Celestial.constellations = getConstellationList(con);
     });
 
     //Constellation boundaries
@@ -223,6 +206,8 @@ Celestial.display = function(config) {
          .data(conl.features)
          .enter().append("path")
          .attr("class", "constline");
+
+      listConstellations();
     });
     
     //Stars
@@ -239,7 +224,7 @@ Celestial.display = function(config) {
 
     });
 
-    filename = "starnames" + extConstellations + ".json";
+    filename = "starnames" + extStars + ".json";
     d3.json(path + filename, function(error, json) {
       if (error) return console.warn(error);
 
