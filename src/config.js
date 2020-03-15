@@ -197,9 +197,10 @@ var settings = {
       if (has(cfg.stars, "propernamestyle")) Object.assign(res.stars.propernameStyle, cfg.stars.propernamestyle);
     }
     if (has(cfg, "constellations")) {
-      // names, desig -> name, nameType
-      if (has(cfg.constellations, "names")) res.constellations.nameType = "name";
-      if (has(cfg.constellations, "desig")) res.constellations.nameType = "desig";
+      // names, desig -> nameType
+      if (has(cfg.constellations, "names") && cfg.constellations.names === true) res.constellations.nameType = "iau";
+      if (has(cfg.constellations, "desig") && cfg.constellations.desig === true) res.constellations.nameType = "desig";
+      if (res.constellations.nameType === "latin") res.constellations.nameType = "iau";
       if (has(cfg.constellations, "namestyle")) Object.assign(res.constellations.nameStyle, cfg.constellations.namestyle);
       if (has(cfg.constellations, "linestyle")) Object.assign(res.constellations.lineStyle, cfg.constellations.linestyle);
       if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
@@ -330,23 +331,23 @@ var formats = {
         "desig": "Designation",
         "iau": "Latin",
         "en": "English",
-        "es": "Spanish",
-        "de": "German",
-        "cn": "Chinese",
         "ar": "Arabic", 
+        "cn": "Chinese",
         "cz": "Czech", 
-        "ir": "Persian", 
         "ee": "Estonian", 
         "fi": "Finnish", 
         "fr": "French", 
+        "de": "German",
         "gr": "Greek", 
+        "il": "Hebrew",
         "it": "Italian", 
         "jp": "Japanese", 
         "kr": "Korean", 
         "in": "Marathi", 
+        "ir": "Persian", 
         "ru": "Russian", 
+        "es": "Spanish",
         "tr": "Turkish", 
-        "il": "Hebrew"
       }
     },
     "cn": {

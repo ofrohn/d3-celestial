@@ -1,7 +1,7 @@
 // Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.2',
+  version: '0.7.3',
   container: null,
   data: []
 };
@@ -1603,9 +1603,10 @@ var settings = {
       if (has(cfg.stars, "propernamestyle")) Object.assign(res.stars.propernameStyle, cfg.stars.propernamestyle);
     }
     if (has(cfg, "constellations")) {
-      // names, desig -> name, nameType
-      if (has(cfg.constellations, "names")) res.constellations.nameType = "name";
-      if (has(cfg.constellations, "desig")) res.constellations.nameType = "desig";
+      // names, desig -> nameType
+      if (has(cfg.constellations, "names") && cfg.constellations.names === true) res.constellations.nameType = "iau";
+      if (has(cfg.constellations, "desig") && cfg.constellations.desig === true) res.constellations.nameType = "desig";
+      if (res.constellations.nameType === "latin") res.constellations.nameType = "iau";
       if (has(cfg.constellations, "namestyle")) Object.assign(res.constellations.nameStyle, cfg.constellations.namestyle);
       if (has(cfg.constellations, "linestyle")) Object.assign(res.constellations.lineStyle, cfg.constellations.linestyle);
       if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
@@ -1736,23 +1737,23 @@ var formats = {
         "desig": "Designation",
         "iau": "Latin",
         "en": "English",
-        "es": "Spanish",
-        "de": "German",
-        "cn": "Chinese",
         "ar": "Arabic", 
+        "cn": "Chinese",
         "cz": "Czech", 
-        "ir": "Persian", 
         "ee": "Estonian", 
         "fi": "Finnish", 
         "fr": "French", 
+        "de": "German",
         "gr": "Greek", 
+        "il": "Hebrew",
         "it": "Italian", 
         "jp": "Japanese", 
         "kr": "Korean", 
         "in": "Marathi", 
+        "ir": "Persian", 
         "ru": "Russian", 
+        "es": "Spanish",
         "tr": "Turkish", 
-        "il": "Hebrew"
       }
     },
     "cn": {
@@ -2443,10 +2444,13 @@ function form(cfg) {
   }
 
   function showCon(id) {
-    var anims = [];
-    if (id === "") { 
+    var z, anims = [];
+    if (id === "---") { 
       Celestial.constellation = null;
-      Celestial.redraw();
+      z = Celestial.zoomBy();
+      if (z !== 1) anims.push({param:"zoom", value:1/z, duration:0});
+      Celestial.animate(anims, false);    
+      //Celestial.redraw();
       return;
     }
     //id = id.toLowerCase();
@@ -2462,7 +2466,7 @@ function form(cfg) {
     //Celestial.apply(config);
 
     //if zoomed, zoom out
-    var z = Celestial.zoomBy();
+    z = Celestial.zoomBy();
     if (z !== 1) anims.push({param:"zoom", value:1/z, duration:0});
     //rotate
     anims.push({param:"center", value:center, duration:0});
@@ -2725,7 +2729,7 @@ function listConstellations() {
     if (name !== id) name += " (" + id + ")";
     list.push({o:id, n:name});
   });
-  list = [{o:"", n:"(Select constellation)"}].concat(list);
+  list = [{o:"---", n:"(Select constellation)"}].concat(list);
   
   sel.selectAll('option').remove();
   sel.selectAll('option').data(list).enter().append('option')

@@ -312,10 +312,13 @@ function form(cfg) {
   }
 
   function showCon(id) {
-    var anims = [];
-    if (id === "") { 
+    var z, anims = [];
+    if (id === "---") { 
       Celestial.constellation = null;
-      Celestial.redraw();
+      z = Celestial.zoomBy();
+      if (z !== 1) anims.push({param:"zoom", value:1/z, duration:0});
+      Celestial.animate(anims, false);    
+      //Celestial.redraw();
       return;
     }
     //id = id.toLowerCase();
@@ -331,7 +334,7 @@ function form(cfg) {
     //Celestial.apply(config);
 
     //if zoomed, zoom out
-    var z = Celestial.zoomBy();
+    z = Celestial.zoomBy();
     if (z !== 1) anims.push({param:"zoom", value:1/z, duration:0});
     //rotate
     anims.push({param:"center", value:center, duration:0});
@@ -594,7 +597,7 @@ function listConstellations() {
     if (name !== id) name += " (" + id + ")";
     list.push({o:id, n:name});
   });
-  list = [{o:"", n:"(Select constellation)"}].concat(list);
+  list = [{o:"---", n:"(Select constellation)"}].concat(list);
   
   sel.selectAll('option').remove();
   sel.selectAll('option').data(list).enter().append('option')
