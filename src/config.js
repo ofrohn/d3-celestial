@@ -198,6 +198,7 @@ var settings = {
     }
     if (has(cfg, "constellations")) {
       // names, desig -> nameType
+      if (has(cfg.constellations, "show") && cfg.constellations.show === true) res.constellations.name = true;
       if (has(cfg.constellations, "names") && cfg.constellations.names === true) res.constellations.nameType = "iau";
       if (has(cfg.constellations, "desig") && cfg.constellations.desig === true) res.constellations.nameType = "desig";
       if (res.constellations.nameType === "latin") res.constellations.nameType = "iau";

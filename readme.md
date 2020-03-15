@@ -163,17 +163,16 @@ var config = {
     }
   },
   constellations: {
-    show: true,    // Show constellations 
-    names: true,   // Show constellation names 
-    desig: true,   // Show short constellation names (3 letter designations)
-    namestyle: { fill:"#cccc99", align: "center", baseline: "middle", 
+    name: true,      // Show constellation names 
+    nameType: "iau", // Type of name Latin (iau, default), 3 letter designation (desig) or other language (see list)
+    nameStyle: { fill:"#cccc99", align: "center", baseline: "middle", 
                  font: ["14px Helvetica, Arial, sans-serif",  // Style for constellations
                         "12px Helvetica, Arial, sans-serif",  // Different fonts for diff.
                         "11px Helvetica, Arial, sans-serif"]},// ranked constellations
     lines: true,   // Show constellation lines, style below
-    linestyle: { stroke: "#cccccc", width: 1, opacity: 0.6 }, 
+    lineStyle: { stroke: "#cccccc", width: 1, opacity: 0.6 }, 
     bounds: false, // Show constellation boundaries, style below
-    boundstyle: { stroke: "#cccc00", width: 0.5, opacity: 0.8, dash: [2, 4] }
+    boundStyle: { stroke: "#cccc00", width: 0.5, opacity: 0.8, dash: [2, 4] }
   },  
   mw: {
     show: true,     // Show Milky Way as filled multi-polygon outlines 
@@ -213,6 +212,9 @@ Celestial.display(config);
 ```
 
 __Supported projections:__ Airy, Aitoff, Armadillo, August, Azimuthal Equal Area, Azimuthal Equidistant, Baker, Berghaus, Boggs, Bonne, Bromley, Cassini, Collignon, Craig, Craster, Cylindrical Equal Area, Cylindrical Stereographic, Eckert 1, Eckert 2, Eckert 3, Eckert 4, Eckert 5, Eckert 6, Eisenlohr, Equirectangular, Fahey, Foucaut, Ginzburg 4, Ginzburg 5, Ginzburg 6, Ginzburg 8, Ginzburg 9, Hammer, Hatano, HEALPix, Hill, Homolosine, Kavrayskiy 7, Lagrange, l'Arrivee, Laskowski, Loximuthal, Mercator, Miller, Mollweide, Flat Polar Parabolic, Flat Polar Quartic, Flat Polar Sinusoidal, Natural Earth, Nell Hammer, Orthographic, Patterson, Polyconic, Rectangular Polyconic, Robinson, Sinusoidal, Stereographic, Times, 2 Point Equidistant, van der Grinten, van der Grinten 2, van der Grinten 3, van der Grinten 4, Wagner 4, Wagner 6, Wagner 7, Wiechel and Winkel Tripel. Most of these need the extension [d3.geo.projections](https://github.com/d3/d3-geo-projection/)  
+
+__Supported languages for constellation name display:__  (desig) 3-Letter-Designation, (iau) Latin, (en) English, (ar) Arabic,  (cn) Chinese, (cz) Czech, (ee) Estonian, (fi) Finnish, (fr) French, (de) German, (gr) Greek, (il) Hebrew, (it) Italian, (jp) Japanese, (kr) Korean, (in) Marathi, (ir) Persian, (ru) Russian, (es) Spanish, (tr) Turkish  
+
 
 __Style settings__   
 `fill`: fill color [(css color value)](https://developer.mozilla.org/en-US/docs/Web/CSS/color)  
