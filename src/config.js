@@ -82,7 +82,8 @@ var settings = {
   constellations: {
     show: true,    // Show constellations 
     name: true,   // Show constellation names 
-    nameType: "desig",   // What kind of name to show (default 3 letter designations)
+    nameType: "desig",   // What kind of name to show (default 3 letter designations) all options: name, desig, 
+                         // lat, en, ar, cn, cz, ee, fi, fr, de, gr, il, it, jp, kr, in, ir, ru, es, tr 
     nameStyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8, 
 		             font: ["14px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // Different fonts for brighter &
 								        "12px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // darker constellations
@@ -199,9 +200,10 @@ var settings = {
     if (has(cfg, "constellations")) {
       // names, desig -> nameType
       if (has(cfg.constellations, "show") && cfg.constellations.show === true) res.constellations.name = true;
-      if (has(cfg.constellations, "names") && cfg.constellations.names === true) res.constellations.nameType = "iau";
+      if (has(cfg.constellations, "names") && cfg.constellations.names === true) res.constellations.nameType = "name";
       if (has(cfg.constellations, "desig") && cfg.constellations.desig === true) res.constellations.nameType = "desig";
-      if (res.constellations.nameType === "latin") res.constellations.nameType = "iau";
+      if (res.constellations.nameType === "latin") res.constellations.nameType = "lat";
+      if (res.constellations.nameType === "iau") res.constellations.nameType = "name";
       if (has(cfg.constellations, "namestyle")) Object.assign(res.constellations.nameStyle, cfg.constellations.namestyle);
       if (has(cfg.constellations, "linestyle")) Object.assign(res.constellations.lineStyle, cfg.constellations.linestyle);
       if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
@@ -330,11 +332,11 @@ var formats = {
     "iau": {
       "name": {
         "desig": "Designation",
-        "iau": "Latin",
-        "en": "English",
+        "name": "IAU Name",
         "ar": "Arabic", 
         "cn": "Chinese",
         "cz": "Czech", 
+        "en": "English",
         "ee": "Estonian", 
         "fi": "Finnish", 
         "fr": "French", 
@@ -344,6 +346,7 @@ var formats = {
         "it": "Italian", 
         "jp": "Japanese", 
         "kr": "Korean", 
+        "lat": "Latin",
         "in": "Marathi", 
         "ir": "Persian", 
         "ru": "Russian", 

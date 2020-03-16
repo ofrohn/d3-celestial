@@ -36,7 +36,8 @@ For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...1
    "flam": "",      // Flamsteed  
    "var": "",       // Variable star  
    "gliese": "",    // Gliese  
-   "hd": ""         // Henry Draper  
+   "hd": "",        // Henry Draper
+   "hip": ""        // Hipparcos number again   
   }, "id": {...}  
 }
 ```
@@ -100,12 +101,12 @@ _str_: Tidal streams \[Mag|Sgr|CMa|FLS\] (Magellanic Stream, Sagittarius Stream,
     "type": "Feature",
     "id": "",           // 3-letter designator
     "properties": {
-      "name": "",       // full name
-      "es": "",         // spanish name
-      "de": "",         // german name
+      "name": "",       // full IAU name
       "desig": "",      // 3-letter designator again
       "gen": "",        // genitive for naming stars, not yet used
       "rank": "",       // 1-3 for differential name display by size/brightness
+      "en": "",         // english name
+      ...               // and names in 18 further languages (see list in main readme)
       "display": []     // [ra,dec,scale], for single constellation display 
     },
     "geometry": {  
