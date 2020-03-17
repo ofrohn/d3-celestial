@@ -313,7 +313,7 @@ function form(cfg) {
 
   function showCon(id) {
     var z, anims = [],
-    config = globalConfig;
+        config = globalConfig;
     if (id === "---") { 
       Celestial.constellation = null;
       z = Celestial.zoomBy();
@@ -343,7 +343,7 @@ function form(cfg) {
     var sc = 1 + (360/con.scale); // > 10 ? 10 : con.scale;
     anims.push({param:"zoom", value:sc, duration:0});
     Celestial.constellation = id;
-    Object.assign(globalConfig, config);   
+    //Object.assign(globalConfig, config);   
     Celestial.animate(anims, false);    
   }
   
@@ -599,6 +599,10 @@ function listConstellations() {
     if (name !== id) name += " (" + id + ")";
     list.push({o:id, n:name});
   });
+  if (list.length < 1 || sel.length < 1) {
+    setTimeout(listConstellations, 1000);
+    return;
+  }
   list = [{o:"---", n:"(Select constellation)"}].concat(list);
   
   sel.selectAll('option').remove();
