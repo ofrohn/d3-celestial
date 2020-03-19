@@ -166,7 +166,8 @@ Celestial.display = function(config) {
          .data(mw_back.features)
          .enter().append("path")
          .attr("class", "mwbg");
-    }); 
+      redraw();
+  }); 
 
     //Constellation names or designation
     var filename = "constellations" + extConstellations + ".json";
@@ -180,6 +181,7 @@ Celestial.display = function(config) {
          .attr("class", "constname");
          
       Celestial.constellations = getConstellationList(con);
+      redraw();
     });
 
     //Constellation boundaries
@@ -193,6 +195,7 @@ Celestial.display = function(config) {
          .data(conb.features)
          .enter().append("path")
          .attr("class", "boundaryline");
+      redraw();
     });
 
     //Constellation lines
@@ -208,7 +211,8 @@ Celestial.display = function(config) {
          .attr("class", "constline");
 
       listConstellations();
-    });
+      redraw();
+  });
     
     //Stars
     d3.json(path + cfg.stars.data, function(error, json) {
@@ -234,6 +238,7 @@ Celestial.display = function(config) {
          .data(st.features)
          .enter().append("path")
          .attr("class", "starname");*/
+      redraw();
     });
 
     //Deep space objects
