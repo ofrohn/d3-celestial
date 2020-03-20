@@ -1,7 +1,7 @@
 // Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.3',
+  version: '0.7.5',
   container: null,
   data: []
 };
@@ -513,10 +513,10 @@ Celestial.display = function(config) {
       }
 
       if (cfg.constellations.name) { 
-        setTextStyle(cfg.constellations.nameStyle);
+        //setTextStyle(cfg.constellations.nameStyle);
         container.selectAll(".constname").each( function(d) { 
           if (clip(d.geometry.coordinates)) {
-            setConstStyle(d.properties.rank, cfg.constellations.nameStyle.font);
+            setStyleA(d.properties.rank, cfg.constellations.nameStyle);
             var pt = prjMap(d.geometry.coordinates);
             context.fillText(constName(d), pt[0], pt[1]); 
           }
@@ -525,7 +525,7 @@ Celestial.display = function(config) {
 
       if (cfg.constellations.lines) { 
         container.selectAll(".constline").each(function(d) { 
-          setStyle(cfg.constellations.lineStyle); 
+          setStyleA(d.properties.rank, cfg.constellations.lineStyle); 
           map(d); 
           context.stroke(); 
         });
@@ -683,11 +683,16 @@ Celestial.display = function(config) {
     context.font = s.font;
   }
 
-  function setConstStyle(rank, font) {
-    if (!isArray(font)) context.font = font;
-    else if (font.length === 1) context.font = font[0];
-    else if (rank > font.length) context.font = font[font.length-1];
-    else context.font = font[rank-1];
+  function setStyleA(rank, s) {
+    rank = rank || 1;
+    context.fillStyle = isArray(s.fill) ? s.fill[rank-1] : null;
+    context.strokeStyle = isArray(s.stroke) ? s.stroke[rank-1] : null;
+    context.lineWidth = isArray(s.width) ? s.width[rank-1] : null;
+    context.globalAlpha = isArray(s.opacity) ? s.opacity[rank-1] : 1;  
+    context.font = isArray(s.font) ? s.font[rank-1] : null;
+    context.textAlign = s.align || "left";
+    context.textBaseline = s.baseline || "bottom";
+    context.beginPath();
   }
 
   function setSkyStyle(dist, pt) {
@@ -880,7 +885,11 @@ Celestial.display = function(config) {
   };
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;
-  this.setConstStyle = setConstStyle;
+  this.setStyleA = setStyleA;
+  this.setConstStyle = function(rank, font) { 
+    var f = arrayfy(font);
+    context.font = f[rank];    
+  };
   this.dsoSymbol = dsoSymbol;
   this.redraw = redraw; 
   this.resize = function(config) { 
@@ -1620,10 +1629,26 @@ var settings = {
       if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
     }
     if (!res.constellations.nameType || res.constellations.nameType === "") res.constellations.nameType = "desig";
+
+    res.constellations.nameStyle.font = arrayfy(res.constellations.nameStyle.font);
+    res.constellations.nameStyle.opacity = arrayfy(res.constellations.nameStyle.opacity);
+    res.constellations.nameStyle.fill = arrayfy(res.constellations.nameStyle.fill);
+    res.constellations.lineStyle.width = arrayfy(res.constellations.lineStyle.width);
+    res.constellations.lineStyle.opacity = arrayfy(res.constellations.lineStyle.opacity);
+    res.constellations.lineStyle.stroke = arrayfy(res.constellations.lineStyle.stroke);
+
     Object.assign(globalConfig, res);
     return res; 
   }
 };
+
+function arrayfy(o) {
+  var res;
+  if (!isArray(o)) return [o, o, o];  //It saves some work later, OK?
+  if (o.length === 1) return [o[0], o[0], o[0]];
+  if (o.length === 2) return [o[0], o[1], o[1]];
+  if (o.length >= 3) return o;
+}
 
 Celestial.settings = function () { return settings; };
 
@@ -2038,7 +2063,7 @@ function pad(n) { return n < 10 ? '0' + n : n; }
 function has(o, key) { return o !== null && hasOwnProperty.call(o, key); }
 function when(o, key, val) { return o !== null && hasOwnProperty.call(o, key) ? o[key] : val; }
 function isNumber(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
-function isArray(o) { return Object.prototype.toString.call(o) === "[object Array]"; }
+function isArray(o) { return o !== null && Object.prototype.toString.call(o) === "[object Array]"; }
 function isObject(o) { var type = typeof o;  return type === 'function' || type === 'object' && !!o; }
 function isFunction(o) { return typeof o == 'function' || false; }
 function isValidDate(d) { return d instanceof Date && !isNaN(d); }
@@ -2733,8 +2758,8 @@ function listConstellations() {
   var sel = d3.select("#constellation"),
       list = [], selected = 0, id, name, config = globalConfig;
     
-  Celestial.container.selectAll(".constname").each( function(d, i) { 
-    id = d.properties.desig;
+  Celestial.container.selectAll(".constname").each( function(d, i) {
+    id = d.id;
     if (id === config.constellation) selected = i;
     name = d.properties[config.constellations.nameType];
     if (name !== id) name += " (" + id + ")";

@@ -592,8 +592,8 @@ function listConstellations() {
   var sel = d3.select("#constellation"),
       list = [], selected = 0, id, name, config = globalConfig;
     
-  Celestial.container.selectAll(".constname").each( function(d, i) { 
-    id = d.properties.desig;
+  Celestial.container.selectAll(".constname").each( function(d, i) {
+    id = d.id;
     if (id === config.constellation) selected = i;
     name = d.properties[config.constellations.nameType];
     if (name !== id) name += " (" + id + ")";

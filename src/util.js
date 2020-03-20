@@ -9,7 +9,7 @@ function pad(n) { return n < 10 ? '0' + n : n; }
 function has(o, key) { return o !== null && hasOwnProperty.call(o, key); }
 function when(o, key, val) { return o !== null && hasOwnProperty.call(o, key) ? o[key] : val; }
 function isNumber(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
-function isArray(o) { return Object.prototype.toString.call(o) === "[object Array]"; }
+function isArray(o) { return o !== null && Object.prototype.toString.call(o) === "[object Array]"; }
 function isObject(o) { var type = typeof o;  return type === 'function' || type === 'object' && !!o; }
 function isFunction(o) { return typeof o == 'function' || false; }
 function isValidDate(d) { return d instanceof Date && !isNaN(d); }

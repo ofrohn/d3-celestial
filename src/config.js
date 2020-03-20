@@ -1,4 +1,4 @@
-/* global d3, Celestial, has */
+/* global d3, Celestial, has, isArray */
 
 // Central configuration object
 var globalConfig = {};
@@ -209,10 +209,26 @@ var settings = {
       if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
     }
     if (!res.constellations.nameType || res.constellations.nameType === "") res.constellations.nameType = "desig";
+
+    res.constellations.nameStyle.font = arrayfy(res.constellations.nameStyle.font);
+    res.constellations.nameStyle.opacity = arrayfy(res.constellations.nameStyle.opacity);
+    res.constellations.nameStyle.fill = arrayfy(res.constellations.nameStyle.fill);
+    res.constellations.lineStyle.width = arrayfy(res.constellations.lineStyle.width);
+    res.constellations.lineStyle.opacity = arrayfy(res.constellations.lineStyle.opacity);
+    res.constellations.lineStyle.stroke = arrayfy(res.constellations.lineStyle.stroke);
+
     Object.assign(globalConfig, res);
     return res; 
   }
 };
+
+function arrayfy(o) {
+  var res;
+  if (!isArray(o)) return [o, o, o];  //It saves some work later, OK?
+  if (o.length === 1) return [o[0], o[0], o[0]];
+  if (o.length === 2) return [o[0], o[1], o[1]];
+  if (o.length >= 3) return o;
+}
 
 Celestial.settings = function () { return settings; };
 

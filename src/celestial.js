@@ -1,6 +1,6 @@
-/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, form, geo, fldEnable, setCenter, interpolateAngle, formats */
+/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.3',
+  version: '0.7.5',
   container: null,
   data: []
 };
@@ -512,10 +512,10 @@ Celestial.display = function(config) {
       }
 
       if (cfg.constellations.name) { 
-        setTextStyle(cfg.constellations.nameStyle);
+        //setTextStyle(cfg.constellations.nameStyle);
         container.selectAll(".constname").each( function(d) { 
           if (clip(d.geometry.coordinates)) {
-            setConstStyle(d.properties.rank, cfg.constellations.nameStyle.font);
+            setStyleA(d.properties.rank, cfg.constellations.nameStyle);
             var pt = prjMap(d.geometry.coordinates);
             context.fillText(constName(d), pt[0], pt[1]); 
           }
@@ -524,7 +524,7 @@ Celestial.display = function(config) {
 
       if (cfg.constellations.lines) { 
         container.selectAll(".constline").each(function(d) { 
-          setStyle(cfg.constellations.lineStyle); 
+          setStyleA(d.properties.rank, cfg.constellations.lineStyle); 
           map(d); 
           context.stroke(); 
         });
@@ -682,11 +682,16 @@ Celestial.display = function(config) {
     context.font = s.font;
   }
 
-  function setConstStyle(rank, font) {
-    if (!isArray(font)) context.font = font;
-    else if (font.length === 1) context.font = font[0];
-    else if (rank > font.length) context.font = font[font.length-1];
-    else context.font = font[rank-1];
+  function setStyleA(rank, s) {
+    rank = rank || 1;
+    context.fillStyle = isArray(s.fill) ? s.fill[rank-1] : null;
+    context.strokeStyle = isArray(s.stroke) ? s.stroke[rank-1] : null;
+    context.lineWidth = isArray(s.width) ? s.width[rank-1] : null;
+    context.globalAlpha = isArray(s.opacity) ? s.opacity[rank-1] : 1;  
+    context.font = isArray(s.font) ? s.font[rank-1] : null;
+    context.textAlign = s.align || "left";
+    context.textBaseline = s.baseline || "bottom";
+    context.beginPath();
   }
 
   function setSkyStyle(dist, pt) {
@@ -879,7 +884,11 @@ Celestial.display = function(config) {
   };
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;
-  this.setConstStyle = setConstStyle;
+  this.setStyleA = setStyleA;
+  this.setConstStyle = function(rank, font) { 
+    var f = arrayfy(font);
+    context.font = f[rank];    
+  };
   this.dsoSymbol = dsoSymbol;
   this.redraw = redraw; 
   this.resize = function(config) { 
