@@ -515,7 +515,7 @@ function setCenter(ctr, trans) {
   var cx = $("centerx"), cy = $("centery"), cz = $("centerz");
   if (!cx || !cy) return;
   
-  if (ctr === null) ctr = [0,0,0]; 
+  if (ctr === null || ctr.length < 1) ctr = [0,0,0]; 
   if (ctr.length <= 2) ctr[2] = 0;
   //config.center = ctr; 
   if (trans !== "equatorial") cx.value = ctr[0].toFixed(1); 

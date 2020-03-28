@@ -1466,6 +1466,7 @@ var settings = {
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
   location: false,    // Display location settings, deprecated, use formFields
+  simple: true,       // Display reduced form options 
   // Set visiblity for each group of fields of the form
   formFields: {"location": true, "general": true, "stars": true, "dsos": true, "constellations": true, "lines": true, "other": true},
   daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
@@ -1574,7 +1575,7 @@ var settings = {
   },
   planets: {  //Show planet locations, if date-time is set
     show: false,
-    which: ["sol", "mer", "ven", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
+    which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
     symbols: {
       "sol": {symbol: "\u2609", letter:"So", fill: "#ffff00"},
       "mer": {symbol: "\u263f", letter:"Me", fill: "#cccccc"},
@@ -2741,7 +2742,7 @@ function setCenter(ctr, trans) {
   var cx = $("centerx"), cy = $("centery"), cz = $("centerz");
   if (!cx || !cy) return;
   
-  if (ctr === null) ctr = [0,0,0]; 
+  if (ctr === null || ctr.length < 1) ctr = [0,0,0]; 
   if (ctr.length <= 2) ctr[2] = 0;
   //config.center = ctr; 
   if (trans !== "equatorial") cx.value = ctr[0].toFixed(1); 

@@ -128,7 +128,7 @@ var settings = {
   },
   planets: {  //Show planet locations, if date-time is set
     show: false,
-    which: ["sol", "mer", "ven", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
+    which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
     symbols: {
       "sol": {symbol: "\u2609", letter:"So", fill: "#ffff00"},
       "mer": {symbol: "\u263f", letter:"Me", fill: "#cccccc"},
