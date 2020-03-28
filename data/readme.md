@@ -58,7 +58,7 @@ For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...1
 ## DSOs
 
 `dsos.6.json`, `dsos.14.json`: the number indicates limit magnitude  
-`dsos.bright.json`: handselected  
+`dsos.bright.json`: hand selected  
 `lf.json`: Local group  
 `messier.json` Messier objects
 
@@ -255,6 +255,9 @@ All element values in degrees, except a (AU|km) and e (dimensionless)
     "W": "dW": or "w": "dw": longitude of periapsis (w*N) or argument of periapsis
     "N": "dn": longitude of the ascending node
     "ep":"2000-01-01" epoch, default date
-  }]}
+  }],
+  "desig": "",        // 3-Letter designation
+  ...                 // Names in 14 different languages
+  }
 ```
 

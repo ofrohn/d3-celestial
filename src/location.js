@@ -1,4 +1,4 @@
-/* global Celestial, settings, horizontal, datetimepicker, config, $, pad, testNumber, isArray, isNumber, isValidDate, fldEnable, Round, has, hasParent */
+/* global Celestial, settings, horizontal, datetimepicker, config, formats, $, pad, testNumber, isArray, isNumber, isValidDate, fldEnable, Round, has, hasParent */
 
 function geo(cfg) {
   var frm = d3.select("#celestial-form form").insert("div", "div#general").attr("id", "loc"),
@@ -54,14 +54,44 @@ function geo(cfg) {
   //Horizon marker
   col.append("br");
   col.append("label").attr("title", "Show horizon marker").attr("for", "horizon-show").html(" Horizon marker");
-  col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", config.horizon.show).on("change", go);    
+  col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", config.horizon.show).on("change", apply);    
   //Daylight
   col.append("label").attr("title", "Show daylight").attr("for", "daylight-show").html("Daylight sky");
-  col.append("input").attr("type", "checkbox").attr("id", "daylight-show").property("checked", config.daylight.show).on("change", go);    
+  col.append("input").attr("type", "checkbox").attr("id", "daylight-show").property("checked", config.daylight.show).on("change", apply);col.append("br");
+    
   //Show planets
   col.append("label").attr("title", "Show solar system objects").attr("for", "planets-show").html(" Planets, Sun & Moon");
-  col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", config.planets.show).on("change", go);    
+  col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", config.planets.show).on("change", apply);    
+  //Planet names
+  var names = formats.planets;
   
+  for (var fld in names) {
+    if (!has(names, fld)) continue;
+    var keys = Object.keys(names[fld]);
+    if (keys.length > 1) {
+      //Select List
+      var txt = (fld === "symbol") ? "as" : "with";
+      col.append("label").attr("for", "planets-" + fld + "Type").html(txt);
+      
+      var selected = 0;
+      col.append("label").attr("title", "Type of planet name").attr("for", "planets-" + fld + "Type").html("");
+      var sel = col.append("select").attr("id", "planets-" + fld + "Type").on("change", apply);
+      var list = keys.map(function (key, i) {
+        if (key === config.planets[fld + "Type"]) selected = i;    
+        return {o:key, n:names[fld][key]}; 
+      });
+      sel.selectAll("option").data(list).enter().append('option')
+         .attr("value", function (d) { return d.o; })
+         .text(function (d) { return d.n; });
+      sel.property("selectedIndex", selected);
+
+      if (fld === "names") {
+        col.append("label").attr("for", "planets-" + fld).html("names");
+        col.append("input").attr("type", "checkbox").attr("id", "planets-" + fld).property("checked", config.planets[fld]).on("change", apply);
+      }
+    } 
+  }    
+
   d3.select(document).on("mousedown", function () { 
     if (!hasParent(d3.event.target, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
   });
@@ -106,21 +136,30 @@ function geo(cfg) {
     return true;
   }
 
+  function apply() {
+    Object.assign(config, settings.set());
+    config.horizon.show = !!$("horizon-show").checked;
+    config.daylight.show = !!$("daylight-show").checked;
+    config.planets.show = !!$("planets-show").checked;    
+    config.planets.names = !!$("planets-names").checked;    
+    config.planets.namesType = $("planets-namesType").value;    
+    config.planets.symbolType = $("planets-symbolType").value;    
+
+    Celestial.apply(config);
+  }
+
   function go() {
     var lon = $("lon").value,
         lat = $("lat").value;
-        //Get current configuration
-        Object.assign(config, settings.set());
+    //Get current configuration
+    Object.assign(config, settings.set());
 
     date = dtFormat.parse($("datetime").value.slice(0,-6));
 
     var tz = date.getTimezoneOffset();
     var dtc = new Date(date.valueOf() + (zone - tz) * 60000);
 
-    config.horizon.show = !!$("horizon-show").checked;
-    config.daylight.show = !!$("daylight-show").checked;
-    config.planets.show = !!$("planets-show").checked;    
-    Celestial.apply(config);
+    //Celestial.apply(config);
 
     if (lon !== "" && lat !== "") {
       geopos = [parseFloat(lat), parseFloat(lon)];

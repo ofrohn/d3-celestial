@@ -20,6 +20,7 @@ Canvas.symbol = function () {
       var s = Math.sqrt(size()), 
           r = s/2;
       ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);
+      ctx.closePath();
       return r;
     },
     "square": function(ctx) {
@@ -110,6 +111,7 @@ Canvas.symbol = function () {
 
       ctx.save();
       ctx.fillStyle = "#557";
+      ctx.beginPath();
       ctx.moveTo(pos[0], pos[1]);
       ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    
       ctx.closePath();

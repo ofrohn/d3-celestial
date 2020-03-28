@@ -580,17 +580,36 @@ Celestial.display = function(config) {
       var dt = Celestial.date(),
           o = Celestial.origin(dt).spherical();
       container.selectAll(".planet").each(function(d) {
-        var id = d.id();
-        var p = d(dt).equatorial(o);
-        if (clip(p.pos)) {
-          var pt = prjMap(p.pos),
+        var id = d.id(), r = 6,
+            p = d(dt).equatorial(o.ephemeris);  //transform
+        if (clip(p.ephemeris.pos)) {
+          var pt = prjMap(p.ephemeris.pos),
               sym = cfg.planets.symbols[id];
-          if (id !== "lun") {
-            setTextStyle(cfg.planets.style);
+          if (cfg.planets.symbolType === "letter") {
+            setTextStyle(cfg.planets.symbolStyle);
             context.fillStyle = sym.fill;
-            context.fillText(sym.symbol, pt[0], pt[1]);
-          } else {
-            Canvas.symbol().type("crescent").size(144).age(p.age).position(pt)(context);
+            context.fillText(sym.letter, pt[0], pt[1]);            
+          } else if (id === "lun") {
+            Canvas.symbol().type("crescent").size(144).age(p.ephemeris.age).position(pt)(context);
+          } else if (cfg.planets.symbolType === "disk") {
+            r = planetSize(p.ephemeris);
+            context.fillStyle = sym.fill;
+            context.beginPath();
+            context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
+            context.closePath();
+            context.fill();
+          } else if (cfg.planets.symbolType === "symbol") {
+            setTextStyle(cfg.planets.symbolStyle);
+            context.fillStyle = sym.fill;
+            context.fillText(sym[cfg.planets.symbolType], pt[0], pt[1]);            
+          }
+          //name
+          if (cfg.planets.names) {
+            var name = p[cfg.planets.namesType];
+            setTextStyle(cfg.planets.nameStyle);
+            //context.direction = "ltr" || "rtl" ar il ir
+            context.fillStyle = sym.fill;
+            context.fillText(name, pt[0] - r, pt[1] + r);                        
           }
         }
       });
@@ -608,15 +627,16 @@ Celestial.display = function(config) {
       var sol = getPlanet("sol");
       if (sol) {
         var up = Celestial.zenith(),
-            dist = d3.geo.distance(up, sol.pos),
-            pt = prjMap(sol.pos);
+            solpos = sol.ephemeris.pos,
+            dist = d3.geo.distance(up, solpos),
+            pt = prjMap(solpos);
 
-        daylight.origin(sol.pos);
+        daylight.origin(solpos);
         setSkyStyle(dist, pt);
         container.selectAll(".daylight").datum(daylight).attr("d", map);
         context.fill();    
         context.fillStyle = "#fff"; 
-        if (clip(sol.pos)) {
+        if (clip(solpos)) {
           context.beginPath();
           context.arc(pt[0], pt[1], 6, 0, 2 * Math.PI);
           context.closePath();
@@ -798,6 +818,7 @@ Celestial.display = function(config) {
     var r = starbase * adapt * Math.exp(starexp * (mag+2));
     return Math.max(r, 0.1);
   }
+
   
   function starColor(d) {
     var bv = d.properties.bv;
@@ -809,6 +830,13 @@ Celestial.display = function(config) {
     return d.properties[cfg.constellations.nameType]; 
   }
 
+ function planetSize(d) {
+    var mag = d.mag;
+    if (mag === null) return 2; 
+    var r = 4 * adapt * Math.exp(-0.05 * (mag+2));
+    return Math.max(r, 2);
+  }
+ 
   function gridOrientation(pos, orient) {
     var o = orient.split(""), h = "center", v = "middle"; 
     for (var i = o.length-1; i >= 0; i--) {

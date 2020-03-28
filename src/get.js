@@ -26,14 +26,13 @@ function getPlanets(d) {
     if (cfg.planets.which.indexOf(key) === -1) continue;
     var dat = Kepler().id(key);
     if (has(d[key], "parent")) dat.parentBody(d[key].parent);
-    dat.elements(d[key].elements[0]);
-  
+    dat.elements(d[key].elements[0]).params(d[key]);
     if (key === "ter") 
       Celestial.origin = dat;
     else res.push(dat);
   }
-  res.push(Kepler().id("sol"));
-  res.push(Kepler().id("lun"));
+  //res.push(Kepler().id("sol"));
+  //res.push(Kepler().id("lun"));
   return res;
 }
 
@@ -46,7 +45,7 @@ function getPlanet(id, dt) {
      
   Celestial.container.selectAll(".planet").each(function(d) {
     if (id === d.id()) {
-      res = d(dt).equatorial(o);
+      res = d(dt).equatorial(o.ephemeris);
     }
   });
   return res;

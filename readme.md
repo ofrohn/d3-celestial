@@ -77,7 +77,7 @@ var config = {
   controls: true,     // Display zoom controls
   lang: "",           // Language for names, so far only for constellations: 
                       // de: german, es: spanish. Default:en or empty string for english
-  culture: "",        // Constellation lines, default "iau"
+  culture: "",        // Source of constellations and star names, default "iau", other: "cn" Traditional Chinese
   container: "map",   // ID of parent element, e.g. div, null = html-body
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
   stars: {
@@ -143,14 +143,12 @@ var config = {
     // List of all objects to show
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep"],
     // Font styles for planetary symbols
-    style: { fill: "#00ccff", font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", 
-             align: "center", baseline: "middle" },
     symbols: {  // Character and color for each symbol in 'which', simple circle \u25cf
       "sol": {symbol: "\u2609", fill: "#ffff00"},
       "mer": {symbol: "\u263f", fill: "#cccccc"},
       "ven": {symbol: "\u2640", fill: "#eeeecc"},
       "ter": {symbol: "\u2295", fill: "#00ffff"},
-      "lun": {symbol: "\u25cf", fill: "#ffffff"}, // overridden by generated cresent
+      "lun": {symbol: "\u25cf", fill: "#ffffff"}, // overridden by generated crecent
       "mar": {symbol: "\u2642", fill: "#ff9999"},
       "cer": {symbol: "\u26b3", fill: "#cccccc"},
       "ves": {symbol: "\u26b6", fill: "#cccccc"},
@@ -160,7 +158,14 @@ var config = {
       "nep": {symbol: "\u2646", fill: "#6666ff"},
       "plu": {symbol: "\u2647", fill: "#aaaaaa"},
       "eri": {symbol: "\u25cf", fill: "#eeeeee"}
-    }
+    },
+    symbolStyle: { fill: "#00ccff", font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", 
+             align: "center", baseline: "middle" },
+    symbolType: "symbol",  // Type of planet symbol: 'symbol' graphic planet sign, 'disk' filled circle scaled by magnitude
+                           // 'letter': 1 or 2 letters S Me V L Ma J S U N     
+    names: false,          // Show name in nameType language next to symbol
+    nameStyle: { fill: "#00ccff", font: "14px 'Lucida Sans Unicode', Consolas, sans-serif", align: "right", baseline: "top" },
+    namesType: "desig"     // Language of planet name, or desig = 3-letter designation
   },
   constellations: {
     name: true,      // Show constellation names 
@@ -677,6 +682,11 @@ __GeoJSON data files__
 * `asterisms.json` Asterism data  \[7\]
 * `mw.json` Milky Way outlines in 5 brightness steps \[5\]
 * `planets.json` Keplerian Elements for Approximate Positions of the Major Planets \[9\]
+__Traditional Chinese Constellations & Stars__ 
+* `constellations.cn.json` Constellation data  \[10\] 
+* `constellations.bounds.cn.json` Constellation boundaries \[10\]
+* `constellations.lines.cn.json` Constellation lines \[10\]
+* `starnames.cn.json` Star names and designations \[10\]
 
 __Sources__
 
@@ -694,7 +704,9 @@ __Sources__
 * \[7\] [Saguaro Astronomy Club Asterisms](http://saguaroastro.org/sac-downloads/) \(scroll down\)  
 * \[8\] [Messier Objects with Data](http://messier.seds.org/data.html), H.Frommert/seds.org  
 * \[9\] [Keplerian Elements for Approximate Positions of the Major Planets](https://ssd.jpl.nasa.gov/?planet_pos)  
-All data converted to GeoJSON at J2000 epoch, positions converted from 0...24h right ascension to -180...180 degrees longitude as per GeoJSON requirements, so 0...12h becomes 0...180 degrees, and 12...24h becomes -180...0 degrees, since 0 has to stay 0.  
+* \[10\] [Stellarium skycultures data for traditional Chinese constellations](https://github.com/Stellarium/stellarium/tree/master/skycultures/chinese)  
+  
+All data converted to GeoJSON at J2000 epoch, positions converted from 0...24h right ascension to -180...180 degrees longitude as per GeoJSON requirements, so 0...12h becomes 0...180 degrees, and 12...24h becomes -180...0 degrees.  
 
 __Other files__
 

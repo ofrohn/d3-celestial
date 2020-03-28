@@ -19,6 +19,7 @@ var settings = {
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
   location: false,    // Display location settings, deprecated, use formFields
+  simple: true,       // Display reduced form options 
   // Set visiblity for each group of fields of the form
   formFields: {"location": true, "general": true, "stars": true, "dsos": true, "constellations": true, "lines": true, "other": true},
   daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
@@ -127,24 +128,28 @@ var settings = {
   },
   planets: {  //Show planet locations, if date-time is set
     show: false,
-    which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep"],
-    style: { fill: "#00ccff", font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", align: "center", baseline: "middle" },
+    which: ["sol", "mer", "ven", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
     symbols: {
-      "sol": {symbol: "\u2609", fill: "#ffff00"},
-      "mer": {symbol: "\u263f", fill: "#cccccc"},
-      "ven": {symbol: "\u2640", fill: "#eeeecc"},
-      "ter": {symbol: "\u2295", fill: "#00ffff"},
-      "lun": {symbol: "\u25cf", fill: "#ffffff"},
-      "mar": {symbol: "\u2642", fill: "#ff9999"},
-      "cer": {symbol: "\u26b3", fill: "#cccccc"},
-      "ves": {symbol: "\u26b6", fill: "#cccccc"},
-      "jup": {symbol: "\u2643", fill: "#ff9966"},
-      "sat": {symbol: "\u2644", fill: "#ffcc66"},
-      "ura": {symbol: "\u2645", fill: "#66ccff"},
-      "nep": {symbol: "\u2646", fill: "#6666ff"},
-      "plu": {symbol: "\u2647", fill: "#aaaaaa"},
-      "eri": {symbol: "\u26aa", fill: "#eeeeee"}
-    }
+      "sol": {symbol: "\u2609", letter:"So", fill: "#ffff00"},
+      "mer": {symbol: "\u263f", letter:"Me", fill: "#cccccc"},
+      "ven": {symbol: "\u2640", letter:"V", fill: "#eeeecc"},
+      "ter": {symbol: "\u2295", letter:"T", fill: "#00ccff"},
+      "lun": {symbol: "\u25cf", letter:"L", fill: "#ffffff"},
+      "mar": {symbol: "\u2642", letter:"Ma", fill: "#ff6600"},
+      "cer": {symbol: "\u26b3", letter:"C", fill: "#cccccc"},
+      "ves": {symbol: "\u26b6", letter:"Ma", fill: "#cccccc"},
+      "jup": {symbol: "\u2643", letter:"J", fill: "#ffaa33"},
+      "sat": {symbol: "\u2644", letter:"Sa", fill: "#ffdd66"},
+      "ura": {symbol: "\u2645", letter:"U", fill: "#66ccff"},
+      "nep": {symbol: "\u2646", letter:"N", fill: "#6666ff"},
+      "plu": {symbol: "\u2647", letter:"P", fill: "#aaaaaa"},
+      "eri": {symbol: "\u26aa", letter:"E", fill: "#eeeeee"}
+    },
+    symbolStyle: { fill: "#00ccff", opacity:1, font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", align: "center", baseline: "middle" },
+    symbolType: "symbol",
+    names: false,
+    nameStyle: { fill: "#00ccff", font: "14px 'Lucida Sans Unicode', Consolas, sans-serif", align: "right", baseline: "top" },
+    namesType: "en"
   },
   set: function(cfg) {  // Override defaults with values of cfg
     var prop, key, config = {}, res = {};
@@ -209,7 +214,12 @@ var settings = {
       if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
     }
     if (!res.constellations.nameType || res.constellations.nameType === "") res.constellations.nameType = "desig";
-
+    if (has(cfg, "planets")) {
+      if (has(cfg.planets, "style")) Object.assign(res.planets.style, cfg.planets.symbolStyle);      
+    }
+    if (!res.planets.symbolType || res.planets.symbolType === "") res.planets.symbolType = "symbol";
+    if (!res.planets.nameType || res.planets.nameType === "") res.planets.nameType = "desig";
+    //Expand all parameters that can be arrays into arrays, no need to test it later
     res.constellations.nameStyle.font = arrayfy(res.constellations.nameStyle.font);
     res.constellations.nameStyle.opacity = arrayfy(res.constellations.nameStyle.opacity);
     res.constellations.nameStyle.fill = arrayfy(res.constellations.nameStyle.fill);
@@ -376,5 +386,26 @@ var formats = {
         "en": "English",
         "pinyin": "Pinyin"}
     }             
+  },
+  "planets": {
+    "symbol": {
+      "symbol": "\u263e Symbol",
+      "letter": "\u216c Letter",
+      "disk": "\u25cf Disk"},
+    "names": {
+      "desig": "Designation",
+      "ar": "Arabic",
+      "cn": "Chinese",
+      "en": "English",
+      "fr": "French",
+      "de": "German",
+      "gr": "Greek",
+      "il": "Hebrew",
+      "in": "Hindi",
+      "it": "Italian",
+      "jp": "Japanese",
+      "lat": "Latin",
+      "ru": "Russian",
+      "es": "Spanish"}
   }
 };

@@ -581,17 +581,36 @@ Celestial.display = function(config) {
       var dt = Celestial.date(),
           o = Celestial.origin(dt).spherical();
       container.selectAll(".planet").each(function(d) {
-        var id = d.id();
-        var p = d(dt).equatorial(o);
-        if (clip(p.pos)) {
-          var pt = prjMap(p.pos),
+        var id = d.id(), r = 6,
+            p = d(dt).equatorial(o.ephemeris);  //transform
+        if (clip(p.ephemeris.pos)) {
+          var pt = prjMap(p.ephemeris.pos),
               sym = cfg.planets.symbols[id];
-          if (id !== "lun") {
-            setTextStyle(cfg.planets.style);
+          if (cfg.planets.symbolType === "letter") {
+            setTextStyle(cfg.planets.symbolStyle);
             context.fillStyle = sym.fill;
-            context.fillText(sym.symbol, pt[0], pt[1]);
-          } else {
-            Canvas.symbol().type("crescent").size(144).age(p.age).position(pt)(context);
+            context.fillText(sym.letter, pt[0], pt[1]);            
+          } else if (id === "lun") {
+            Canvas.symbol().type("crescent").size(144).age(p.ephemeris.age).position(pt)(context);
+          } else if (cfg.planets.symbolType === "disk") {
+            r = planetSize(p.ephemeris);
+            context.fillStyle = sym.fill;
+            context.beginPath();
+            context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
+            context.closePath();
+            context.fill();
+          } else if (cfg.planets.symbolType === "symbol") {
+            setTextStyle(cfg.planets.symbolStyle);
+            context.fillStyle = sym.fill;
+            context.fillText(sym[cfg.planets.symbolType], pt[0], pt[1]);            
+          }
+          //name
+          if (cfg.planets.names) {
+            var name = p[cfg.planets.namesType];
+            setTextStyle(cfg.planets.nameStyle);
+            //context.direction = "ltr" || "rtl" ar il ir
+            context.fillStyle = sym.fill;
+            context.fillText(name, pt[0] - r, pt[1] + r);                        
           }
         }
       });
@@ -609,15 +628,16 @@ Celestial.display = function(config) {
       var sol = getPlanet("sol");
       if (sol) {
         var up = Celestial.zenith(),
-            dist = d3.geo.distance(up, sol.pos),
-            pt = prjMap(sol.pos);
+            solpos = sol.ephemeris.pos,
+            dist = d3.geo.distance(up, solpos),
+            pt = prjMap(solpos);
 
-        daylight.origin(sol.pos);
+        daylight.origin(solpos);
         setSkyStyle(dist, pt);
         container.selectAll(".daylight").datum(daylight).attr("d", map);
         context.fill();    
         context.fillStyle = "#fff"; 
-        if (clip(sol.pos)) {
+        if (clip(solpos)) {
           context.beginPath();
           context.arc(pt[0], pt[1], 6, 0, 2 * Math.PI);
           context.closePath();
@@ -799,6 +819,7 @@ Celestial.display = function(config) {
     var r = starbase * adapt * Math.exp(starexp * (mag+2));
     return Math.max(r, 0.1);
   }
+
   
   function starColor(d) {
     var bv = d.properties.bv;
@@ -810,6 +831,13 @@ Celestial.display = function(config) {
     return d.properties[cfg.constellations.nameType]; 
   }
 
+ function planetSize(d) {
+    var mag = d.mag;
+    if (mag === null) return 2; 
+    var r = 4 * adapt * Math.exp(-0.05 * (mag+2));
+    return Math.max(r, 2);
+  }
+ 
   function gridOrientation(pos, orient) {
     var o = orient.split(""), h = "center", v = "middle"; 
     for (var i = o.length-1; i >= 0; i--) {
@@ -1249,14 +1277,13 @@ function getPlanets(d) {
     if (cfg.planets.which.indexOf(key) === -1) continue;
     var dat = Kepler().id(key);
     if (has(d[key], "parent")) dat.parentBody(d[key].parent);
-    dat.elements(d[key].elements[0]);
-  
+    dat.elements(d[key].elements[0]).params(d[key]);
     if (key === "ter") 
       Celestial.origin = dat;
     else res.push(dat);
   }
-  res.push(Kepler().id("sol"));
-  res.push(Kepler().id("lun"));
+  //res.push(Kepler().id("sol"));
+  //res.push(Kepler().id("lun"));
   return res;
 }
 
@@ -1269,7 +1296,7 @@ function getPlanet(id, dt) {
      
   Celestial.container.selectAll(".planet").each(function(d) {
     if (id === d.id()) {
-      res = d(dt).equatorial(o);
+      res = d(dt).equatorial(o.ephemeris);
     }
   });
   return res;
@@ -1547,24 +1574,28 @@ var settings = {
   },
   planets: {  //Show planet locations, if date-time is set
     show: false,
-    which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep"],
-    style: { fill: "#00ccff", font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", align: "center", baseline: "middle" },
+    which: ["sol", "mer", "ven", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
     symbols: {
-      "sol": {symbol: "\u2609", fill: "#ffff00"},
-      "mer": {symbol: "\u263f", fill: "#cccccc"},
-      "ven": {symbol: "\u2640", fill: "#eeeecc"},
-      "ter": {symbol: "\u2295", fill: "#00ffff"},
-      "lun": {symbol: "\u25cf", fill: "#ffffff"},
-      "mar": {symbol: "\u2642", fill: "#ff9999"},
-      "cer": {symbol: "\u26b3", fill: "#cccccc"},
-      "ves": {symbol: "\u26b6", fill: "#cccccc"},
-      "jup": {symbol: "\u2643", fill: "#ff9966"},
-      "sat": {symbol: "\u2644", fill: "#ffcc66"},
-      "ura": {symbol: "\u2645", fill: "#66ccff"},
-      "nep": {symbol: "\u2646", fill: "#6666ff"},
-      "plu": {symbol: "\u2647", fill: "#aaaaaa"},
-      "eri": {symbol: "\u26aa", fill: "#eeeeee"}
-    }
+      "sol": {symbol: "\u2609", letter:"So", fill: "#ffff00"},
+      "mer": {symbol: "\u263f", letter:"Me", fill: "#cccccc"},
+      "ven": {symbol: "\u2640", letter:"V", fill: "#eeeecc"},
+      "ter": {symbol: "\u2295", letter:"T", fill: "#00ccff"},
+      "lun": {symbol: "\u25cf", letter:"L", fill: "#ffffff"},
+      "mar": {symbol: "\u2642", letter:"Ma", fill: "#ff6600"},
+      "cer": {symbol: "\u26b3", letter:"C", fill: "#cccccc"},
+      "ves": {symbol: "\u26b6", letter:"Ma", fill: "#cccccc"},
+      "jup": {symbol: "\u2643", letter:"J", fill: "#ffaa33"},
+      "sat": {symbol: "\u2644", letter:"Sa", fill: "#ffdd66"},
+      "ura": {symbol: "\u2645", letter:"U", fill: "#66ccff"},
+      "nep": {symbol: "\u2646", letter:"N", fill: "#6666ff"},
+      "plu": {symbol: "\u2647", letter:"P", fill: "#aaaaaa"},
+      "eri": {symbol: "\u26aa", letter:"E", fill: "#eeeeee"}
+    },
+    symbolStyle: { fill: "#00ccff", opacity:1, font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", align: "center", baseline: "middle" },
+    symbolType: "symbol",
+    names: false,
+    nameStyle: { fill: "#00ccff", font: "14px 'Lucida Sans Unicode', Consolas, sans-serif", align: "right", baseline: "top" },
+    namesType: "en"
   },
   set: function(cfg) {  // Override defaults with values of cfg
     var prop, key, config = {}, res = {};
@@ -1629,7 +1660,12 @@ var settings = {
       if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
     }
     if (!res.constellations.nameType || res.constellations.nameType === "") res.constellations.nameType = "desig";
-
+    if (has(cfg, "planets")) {
+      if (has(cfg.planets, "style")) Object.assign(res.planets.style, cfg.planets.symbolStyle);      
+    }
+    if (!res.planets.symbolType || res.planets.symbolType === "") res.planets.symbolType = "symbol";
+    if (!res.planets.nameType || res.planets.nameType === "") res.planets.nameType = "desig";
+    //Expand all parameters that can be arrays into arrays, no need to test it later
     res.constellations.nameStyle.font = arrayfy(res.constellations.nameStyle.font);
     res.constellations.nameStyle.opacity = arrayfy(res.constellations.nameStyle.opacity);
     res.constellations.nameStyle.fill = arrayfy(res.constellations.nameStyle.fill);
@@ -1796,8 +1832,30 @@ var formats = {
         "en": "English",
         "pinyin": "Pinyin"}
     }             
+  },
+  "planets": {
+    "symbol": {
+      "symbol": "\u263e Symbol",
+      "letter": "\u216c Letter",
+      "disk": "\u25cf Disk"},
+    "names": {
+      "desig": "Designation",
+      "ar": "Arabic",
+      "cn": "Chinese",
+      "en": "English",
+      "fr": "French",
+      "de": "German",
+      "gr": "Greek",
+      "il": "Hebrew",
+      "in": "Hindi",
+      "it": "Italian",
+      "jp": "Japanese",
+      "lat": "Latin",
+      "ru": "Russian",
+      "es": "Spanish"}
   }
 };
+
 var Canvas = {}; 
 
 Canvas.symbol = function () {
@@ -1819,6 +1877,7 @@ Canvas.symbol = function () {
       var s = Math.sqrt(size()), 
           r = s/2;
       ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);
+      ctx.closePath();
       return r;
     },
     "square": function(ctx) {
@@ -1909,6 +1968,7 @@ Canvas.symbol = function () {
 
       ctx.save();
       ctx.fillStyle = "#557";
+      ctx.beginPath();
       ctx.moveTo(pos[0], pos[1]);
       ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    
       ctx.closePath();
@@ -2838,14 +2898,44 @@ function geo(cfg) {
   //Horizon marker
   col.append("br");
   col.append("label").attr("title", "Show horizon marker").attr("for", "horizon-show").html(" Horizon marker");
-  col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", config.horizon.show).on("change", go);    
+  col.append("input").attr("type", "checkbox").attr("id", "horizon-show").property("checked", config.horizon.show).on("change", apply);    
   //Daylight
   col.append("label").attr("title", "Show daylight").attr("for", "daylight-show").html("Daylight sky");
-  col.append("input").attr("type", "checkbox").attr("id", "daylight-show").property("checked", config.daylight.show).on("change", go);    
+  col.append("input").attr("type", "checkbox").attr("id", "daylight-show").property("checked", config.daylight.show).on("change", apply);col.append("br");
+    
   //Show planets
   col.append("label").attr("title", "Show solar system objects").attr("for", "planets-show").html(" Planets, Sun & Moon");
-  col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", config.planets.show).on("change", go);    
+  col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", config.planets.show).on("change", apply);    
+  //Planet names
+  var names = formats.planets;
   
+  for (var fld in names) {
+    if (!has(names, fld)) continue;
+    var keys = Object.keys(names[fld]);
+    if (keys.length > 1) {
+      //Select List
+      var txt = (fld === "symbol") ? "as" : "with";
+      col.append("label").attr("for", "planets-" + fld + "Type").html(txt);
+      
+      var selected = 0;
+      col.append("label").attr("title", "Type of planet name").attr("for", "planets-" + fld + "Type").html("");
+      var sel = col.append("select").attr("id", "planets-" + fld + "Type").on("change", apply);
+      var list = keys.map(function (key, i) {
+        if (key === config.planets[fld + "Type"]) selected = i;    
+        return {o:key, n:names[fld][key]}; 
+      });
+      sel.selectAll("option").data(list).enter().append('option')
+         .attr("value", function (d) { return d.o; })
+         .text(function (d) { return d.n; });
+      sel.property("selectedIndex", selected);
+
+      if (fld === "names") {
+        col.append("label").attr("for", "planets-" + fld).html("names");
+        col.append("input").attr("type", "checkbox").attr("id", "planets-" + fld).property("checked", config.planets[fld]).on("change", apply);
+      }
+    } 
+  }    
+
   d3.select(document).on("mousedown", function () { 
     if (!hasParent(d3.event.target, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
   });
@@ -2890,21 +2980,30 @@ function geo(cfg) {
     return true;
   }
 
+  function apply() {
+    Object.assign(config, settings.set());
+    config.horizon.show = !!$("horizon-show").checked;
+    config.daylight.show = !!$("daylight-show").checked;
+    config.planets.show = !!$("planets-show").checked;    
+    config.planets.names = !!$("planets-names").checked;    
+    config.planets.namesType = $("planets-namesType").value;    
+    config.planets.symbolType = $("planets-symbolType").value;    
+
+    Celestial.apply(config);
+  }
+
   function go() {
     var lon = $("lon").value,
         lat = $("lat").value;
-        //Get current configuration
-        Object.assign(config, settings.set());
+    //Get current configuration
+    Object.assign(config, settings.set());
 
     date = dtFormat.parse($("datetime").value.slice(0,-6));
 
     var tz = date.getTimezoneOffset();
     var dtc = new Date(date.valueOf() + (zone - tz) * 60000);
 
-    config.horizon.show = !!$("horizon-show").checked;
-    config.daylight.show = !!$("daylight-show").checked;
-    config.planets.show = !!$("planets-show").checked;    
-    Celestial.apply(config);
+    //Celestial.apply(config);
 
     if (lon !== "" && lat !== "") {
       geopos = [parseFloat(lat), parseFloat(lon)];
@@ -3042,9 +3141,10 @@ var Kepler = function () {
   function kepler(date) {
     dates(date);
     if (id === "sol") {
-      dat.x = 0;
-      dat.y = 0;
-      dat.z = 0;
+      dat.ephemeris.x = 0;
+      dat.ephemeris.y = 0;
+      dat.ephemeris.z = 0;
+      dat.ephemeris.mag = -6;
       return kepler;
     }
     coordinates();
@@ -3052,39 +3152,38 @@ var Kepler = function () {
   }
 
   var dates = function(date) {
-    var dt;
-    dat = [];
+    var dt, de = dat.ephemeris = {};
     if (date) {
       if (date instanceof Date) { dt = new Date(date.valueOf()); }
       else { dt = dateParse(date); }
     }
     if (!dt) { dt = new Date(); }
-    dat.jd = JD(dt);
+    de.jd = JD(dt);
       
     dt = dateParse(elem.ep);
     if (!dt) dt = dateParse("2000-01-01");
-    dat.jd0 = JD(dt);
-    dat.d = dat.jd - dat.jd0;
-    dat.cy = dat.d / 36525;
+    de.jd0 = JD(dt);
+    de.d = de.jd - de.jd0;
+    de.cy = de.d / 36525;
   };
 
   var coordinates = function() {
-    var key;
+    var key, de = dat.ephemeris;
     if (id === "lun") {
-      dat = moon_elements(dat);
-      if (!dat) return;
+      de = moon_elements(de);
+      if (!de) return;
     } else {
       for (var i=0; i<kelements.length; i++) {
         key = kelements[i];
         if (!has(elem, key)) continue; 
         if (has(elem, "d"+key)) {
-          dat[key] = elem[key] + elem["d"+key] * dat.cy;
+          de[key] = elem[key] + elem["d"+key] * de.cy;
         } else if (has(elem, key)) {
-          dat[key] = elem[key];
+          de[key] = elem[key];
         }
       }
-      if (has(dat, "M") && !has(dat, "dM") && has(dat, "n")) {
-        dat.M += (dat.n * dat.d);
+      if (has(de, "M") && !has(de, "dM") && has(de, "n")) {
+        de.M += (de.n * de.d);
       }
     }
     derive();
@@ -3114,7 +3213,7 @@ var Kepler = function () {
   kepler.elements = function(_) {
     var key;
     
-    if (!arguments.length) return elem;
+    if (!arguments.length || arguments[0] === undefined) return kepler;
     
     for (var i=0; i<kelements.length; i++) {
       key = kelements[i];
@@ -3133,6 +3232,17 @@ var Kepler = function () {
     }
     return kepler;
   };
+
+  kepler.params = function(_) {
+    if (!arguments.length) return kepler; 
+    for (var par in _) {
+      if (!has(_, par)) continue;
+      if (_[par] === "elements") continue;
+      dat[par] = _[par];
+    }
+    return kepler;
+  };
+  
 
   kepler.parentBody = function(_) {
     if (!arguments.length) return parentBody; 
@@ -3176,8 +3286,9 @@ var Kepler = function () {
   }
 
   function anomaly() {
-    var curr, err, trial, tmod,
-        e = dat.e, M = dat.M,
+    var de = dat.ephemeris,
+        curr, err, trial, tmod,
+        e = de.e, M = de.M,
         thresh = 1e-8,
         offset = 0.0, 
         delta_curr = 1.9, 
@@ -3253,100 +3364,116 @@ var Kepler = function () {
   }
 
   function trueAnomaly() {
-    var x, y, r0, g, t;
+    var x, y, r0, g, t, de = dat.ephemeris;
 
-    if (dat.e === 1.0) {   /* parabolic */
-      t = dat.jd0 - dat.T;
-      g = dat.w0 * t * 0.5;
+    if (de.e === 1.0) {   /* parabolic */
+      t = de.jd0 - de.T;
+      g = de.w0 * t * 0.5;
 
       y = Math.pow(g + Math.sqrt(g * g + 1.0), 1/3);
-      dat.v = 2.0 * Math.atan(y - 1.0 / y);
+      de.v = 2.0 * Math.atan(y - 1.0 / y);
     } else {          /* got the mean anomaly;  compute eccentric,  then true */
-      dat.E = anomaly();
-      if (dat.e > 1.0) {    /* hyperbolic case */
-        x = (dat.e - Trig.cosh(dat.E));
-        y = Trig.sinh(dat.E);
+      de.E = anomaly();
+      if (de.e > 1.0) {    /* hyperbolic case */
+        x = (de.e - Trig.cosh(de.E));
+        y = Trig.sinh(de.E);
       } else {          /* elliptical case */
-        x = (Math.cos(dat.E) - dat.e);
-        y =  Math.sin(dat.E);
+        x = (Math.cos(de.E) - de.e);
+        y =  Math.sin(de.E);
       }
-      y *= Math.sqrt(Math.abs(1.0 - dat.e * dat.e));
-      dat.v = Math.atan2(y, x);
+      y *= Math.sqrt(Math.abs(1.0 - de.e * de.e));
+      de.v = Math.atan2(y, x);
     }
 
-    r0 = dat.q * (1.0 + dat.e);
-    dat.r = r0 / (1.0 + dat.e * Math.cos(dat.v));
+    r0 = de.q * (1.0 + de.e);
+    de.r = r0 / (1.0 + de.e * Math.cos(de.v));
   }
 
   function derive() {
-    if (!dat.hasOwnProperty("w")) {
-      dat.w = dat.W - dat.N;
+    var de = dat.ephemeris;
+    if (!de.hasOwnProperty("w")) {
+      de.w = de.W - de.N;
     }
-    if (!dat.hasOwnProperty("M")) {
-      dat.M = dat.L - dat.W;
+    if (!de.hasOwnProperty("M")) {
+      de.M = de.L - de.W;
     }
-    if (dat.e < 1.0) { dat.M = Trig.normalize0(dat.M); }
-    //dat.P = Math.pow(Math.abs(dat.a), 1.5);
-    dat.P = τ * Math.sqrt(Math.pow(dat.a, 3) / gm) / 365.25;
-    dat.T = dat.jd0 - (dat.M / halfπ) / dat.P;
+    if (de.e < 1.0) { de.M = Trig.normalize0(de.M); }
+    //de.P = Math.pow(Math.abs(de.a), 1.5);
+    de.P = τ * Math.sqrt(Math.pow(de.a, 3) / gm) / 365.25;
+    de.T = de.jd0 - (de.M / halfπ) / de.P;
 
-    if (dat.e !== 1.0) {   /* for non-parabolic orbits: */
-     dat.q = dat.a * (1.0 - dat.e);
-     dat.t0 = dat.a * Math.sqrt(Math.abs(dat.a) / gm);
+    if (de.e !== 1.0) {   /* for non-parabolic orbits: */
+     de.q = de.a * (1.0 - de.e);
+     de.t0 = de.a * Math.sqrt(Math.abs(de.a) / gm);
     } else {
-     dat.w0 = (3.0 / Math.sqrt(2)) / (dat.q * Math.sqrt(dat.q / gm));
-     dat.a = 0.0;
-     dat.t0 = 0.0;
+     de.w0 = (3.0 / Math.sqrt(2)) / (de.q * Math.sqrt(de.q / gm));
+     de.a = 0.0;
+     de.t0 = 0.0;
     }
-    dat.am = Math.sqrt(gm * dat.q * (1.0 + dat.e));
+    de.am = Math.sqrt(gm * de.q * (1.0 + de.e));
   }
 
   function transpose() {
-    if (!dat.ref || dat.ref === "ecl") {
-      dat.tx = dat.x;
-      dat.ty = dat.y;
-      dat.tz = dat.z;
+    var de = dat.ephemeris;
+    if (!de.ref || de.ref === "ecl") {
+      de.tx = de.x;
+      de.ty = de.y;
+      de.tz = de.z;
       return;
     }
-    var a0 = dat.lecl,// - Math.PI/2,
-        a1 = Math.PI/2 - dat.becl,
+    var a0 = de.lecl,// - Math.PI/2,
+        a1 = Math.PI/2 - de.becl,
         angles = [0, a1, -a0];
-    transform(dat, angles);
-    var tp =  Trig.cartesian([dat.tl, dat.tb, dat.r]);
-    dat.tx = tp.x;
-    dat.ty = tp.y;
-    dat.tz = tp.z;
+    transform(de, angles);
+    var tp =  Trig.cartesian([de.tl, de.tb, de.r]);
+    de.tx = tp.x;
+    de.ty = tp.y;
+    de.tz = tp.z;
   }
 
   function equatorial(pos) {
-    ε = (23.439292 - 0.0130042 * dat.cy - 1.667e-7 * dat.cy * dat.cy + 5.028e-7 * dat.cy * dat.cy * dat.cy) * deg2rad;
+    var de = dat.ephemeris;
+    ε = (23.439292 - 0.0130042 * de.cy - 1.667e-7 * de.cy * de.cy + 5.028e-7 * de.cy * de.cy * de.cy) * deg2rad;
     sinε = Math.sin(ε);
     cosε = Math.cos(ε);
     var o = (id === "lun") ? {x:0, y:0, z:0} : {x:pos.x, y:pos.y, z:pos.z};
-    dat.xeq = dat.x - o.x;
-    dat.yeq = (dat.y - o.y) * cosε - (dat.z - o.z) * sinε;
-    dat.zeq = (dat.y - o.y) * sinε + (dat.z - o.z) * cosε;
+    de.xeq = de.x - o.x;
+    de.yeq = (de.y - o.y) * cosε - (de.z - o.z) * sinε;
+    de.zeq = (de.y - o.y) * sinε + (de.z - o.z) * cosε;
 
-    dat.ra = Trig.normalize(Math.atan2(dat.yeq, dat.xeq));
-    dat.dec = Math.atan2(dat.zeq, Math.sqrt(dat.xeq*dat.xeq + dat.yeq*dat.yeq));
-    if (id === "lun") dat = moon_corr(dat, pos);
-    dat.pos = [dat.ra / deg2rad, dat.dec / deg2rad];
-    dat.rt = Math.sqrt(dat.xeq*dat.xeq + dat.yeq*dat.yeq + dat.zeq*dat.zeq);
+    de.ra = Trig.normalize(Math.atan2(de.yeq, de.xeq));
+    de.dec = Math.atan2(de.zeq, Math.sqrt(de.xeq*de.xeq + de.yeq*de.yeq));
+    if (id === "lun") de = moon_corr(de, pos);
+    de.pos = [de.ra / deg2rad, de.dec / deg2rad];
+    de.rt = Math.sqrt(de.xeq*de.xeq + de.yeq*de.yeq + de.zeq*de.zeq);
+    if (id !== "sol") de.mag = magnitude();
+  }
+
+  function magnitude() {
+    var de = dat.ephemeris,
+        rs = de.r, rt = de.rt,
+        a = Math.acos((rs*rs + rt*rt - 1) / (2 * rs * rt)),
+        q = 0.666 *((1-a/Math.PI) * Math.cos(a) + 1 / Math.PI * Math.sin(a)),
+        m = dat.H + 5 * Math.log(rs*rt) * Math.LOG10E - 2.5 * Math.log(q) * Math.LOG10E;
+        
+    return m;
   }
 
   function cartesian() {
-    var u = dat.v + dat.w;
-    dat.x = dat.r * (Math.cos(dat.N) * Math.cos(u) - Math.sin(dat.N) * Math.sin(u) * Math.cos(dat.i));
-    dat.y = dat.r * (Math.sin(dat.N) * Math.cos(u) + Math.cos(dat.N) * Math.sin(u) * Math.cos(dat.i));
-    dat.z = dat.r * (Math.sin(u) * Math.sin(dat.i));
+    var de = dat.ephemeris,
+        u = de.v + de.w;
+    de.x = de.r * (Math.cos(de.N) * Math.cos(u) - Math.sin(de.N) * Math.sin(u) * Math.cos(de.i));
+    de.y = de.r * (Math.sin(de.N) * Math.cos(u) + Math.cos(de.N) * Math.sin(u) * Math.cos(de.i));
+    de.z = de.r * (Math.sin(u) * Math.sin(de.i));
     return dat;
   }
 
   function spherical() {
-    var lon = Math.atan2(dat.y, dat.x),
-        lat = Math.atan2(dat.z, Math.sqrt(dat.x*dat.x + dat.y*dat.y));
-    dat.l = Trig.normalize(lon);
-    dat.b = lat;
+    var de = dat.ephemeris,
+        lon = Math.atan2(de.y, de.x),
+        lat = Math.atan2(de.z, Math.sqrt(de.x*de.x + de.y*de.y));
+    de.l = Trig.normalize(lon);
+    de.b = lat;
     return dat; 
   }
 
@@ -3376,7 +3503,7 @@ var Kepler = function () {
 
   function mst(lon) {
     var l = lon || 0;  // lon=0 -> gmst
-    return (18.697374558 + 24.06570982441908 * dat.d) * 15 + l;
+    return (18.697374558 + 24.06570982441908 * dat.ephemeris.d) * 15 + l;
   }
   
     

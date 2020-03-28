@@ -59,9 +59,10 @@ var Kepler = function () {
   function kepler(date) {
     dates(date);
     if (id === "sol") {
-      dat.x = 0;
-      dat.y = 0;
-      dat.z = 0;
+      dat.ephemeris.x = 0;
+      dat.ephemeris.y = 0;
+      dat.ephemeris.z = 0;
+      dat.ephemeris.mag = -6;
       return kepler;
     }
     coordinates();
@@ -69,39 +70,38 @@ var Kepler = function () {
   }
 
   var dates = function(date) {
-    var dt;
-    dat = [];
+    var dt, de = dat.ephemeris = {};
     if (date) {
       if (date instanceof Date) { dt = new Date(date.valueOf()); }
       else { dt = dateParse(date); }
     }
     if (!dt) { dt = new Date(); }
-    dat.jd = JD(dt);
+    de.jd = JD(dt);
       
     dt = dateParse(elem.ep);
     if (!dt) dt = dateParse("2000-01-01");
-    dat.jd0 = JD(dt);
-    dat.d = dat.jd - dat.jd0;
-    dat.cy = dat.d / 36525;
+    de.jd0 = JD(dt);
+    de.d = de.jd - de.jd0;
+    de.cy = de.d / 36525;
   };
 
   var coordinates = function() {
-    var key;
+    var key, de = dat.ephemeris;
     if (id === "lun") {
-      dat = moon_elements(dat);
-      if (!dat) return;
+      de = moon_elements(de);
+      if (!de) return;
     } else {
       for (var i=0; i<kelements.length; i++) {
         key = kelements[i];
         if (!has(elem, key)) continue; 
         if (has(elem, "d"+key)) {
-          dat[key] = elem[key] + elem["d"+key] * dat.cy;
+          de[key] = elem[key] + elem["d"+key] * de.cy;
         } else if (has(elem, key)) {
-          dat[key] = elem[key];
+          de[key] = elem[key];
         }
       }
-      if (has(dat, "M") && !has(dat, "dM") && has(dat, "n")) {
-        dat.M += (dat.n * dat.d);
+      if (has(de, "M") && !has(de, "dM") && has(de, "n")) {
+        de.M += (de.n * de.d);
       }
     }
     derive();
@@ -131,7 +131,7 @@ var Kepler = function () {
   kepler.elements = function(_) {
     var key;
     
-    if (!arguments.length) return elem;
+    if (!arguments.length || arguments[0] === undefined) return kepler;
     
     for (var i=0; i<kelements.length; i++) {
       key = kelements[i];
@@ -150,6 +150,17 @@ var Kepler = function () {
     }
     return kepler;
   };
+
+  kepler.params = function(_) {
+    if (!arguments.length) return kepler; 
+    for (var par in _) {
+      if (!has(_, par)) continue;
+      if (_[par] === "elements") continue;
+      dat[par] = _[par];
+    }
+    return kepler;
+  };
+  
 
   kepler.parentBody = function(_) {
     if (!arguments.length) return parentBody; 
@@ -193,8 +204,9 @@ var Kepler = function () {
   }
 
   function anomaly() {
-    var curr, err, trial, tmod,
-        e = dat.e, M = dat.M,
+    var de = dat.ephemeris,
+        curr, err, trial, tmod,
+        e = de.e, M = de.M,
         thresh = 1e-8,
         offset = 0.0, 
         delta_curr = 1.9, 
@@ -270,100 +282,116 @@ var Kepler = function () {
   }
 
   function trueAnomaly() {
-    var x, y, r0, g, t;
+    var x, y, r0, g, t, de = dat.ephemeris;
 
-    if (dat.e === 1.0) {   /* parabolic */
-      t = dat.jd0 - dat.T;
-      g = dat.w0 * t * 0.5;
+    if (de.e === 1.0) {   /* parabolic */
+      t = de.jd0 - de.T;
+      g = de.w0 * t * 0.5;
 
       y = Math.pow(g + Math.sqrt(g * g + 1.0), 1/3);
-      dat.v = 2.0 * Math.atan(y - 1.0 / y);
+      de.v = 2.0 * Math.atan(y - 1.0 / y);
     } else {          /* got the mean anomaly;  compute eccentric,  then true */
-      dat.E = anomaly();
-      if (dat.e > 1.0) {    /* hyperbolic case */
-        x = (dat.e - Trig.cosh(dat.E));
-        y = Trig.sinh(dat.E);
+      de.E = anomaly();
+      if (de.e > 1.0) {    /* hyperbolic case */
+        x = (de.e - Trig.cosh(de.E));
+        y = Trig.sinh(de.E);
       } else {          /* elliptical case */
-        x = (Math.cos(dat.E) - dat.e);
-        y =  Math.sin(dat.E);
+        x = (Math.cos(de.E) - de.e);
+        y =  Math.sin(de.E);
       }
-      y *= Math.sqrt(Math.abs(1.0 - dat.e * dat.e));
-      dat.v = Math.atan2(y, x);
+      y *= Math.sqrt(Math.abs(1.0 - de.e * de.e));
+      de.v = Math.atan2(y, x);
     }
 
-    r0 = dat.q * (1.0 + dat.e);
-    dat.r = r0 / (1.0 + dat.e * Math.cos(dat.v));
+    r0 = de.q * (1.0 + de.e);
+    de.r = r0 / (1.0 + de.e * Math.cos(de.v));
   }
 
   function derive() {
-    if (!dat.hasOwnProperty("w")) {
-      dat.w = dat.W - dat.N;
+    var de = dat.ephemeris;
+    if (!de.hasOwnProperty("w")) {
+      de.w = de.W - de.N;
     }
-    if (!dat.hasOwnProperty("M")) {
-      dat.M = dat.L - dat.W;
+    if (!de.hasOwnProperty("M")) {
+      de.M = de.L - de.W;
     }
-    if (dat.e < 1.0) { dat.M = Trig.normalize0(dat.M); }
-    //dat.P = Math.pow(Math.abs(dat.a), 1.5);
-    dat.P = τ * Math.sqrt(Math.pow(dat.a, 3) / gm) / 365.25;
-    dat.T = dat.jd0 - (dat.M / halfπ) / dat.P;
+    if (de.e < 1.0) { de.M = Trig.normalize0(de.M); }
+    //de.P = Math.pow(Math.abs(de.a), 1.5);
+    de.P = τ * Math.sqrt(Math.pow(de.a, 3) / gm) / 365.25;
+    de.T = de.jd0 - (de.M / halfπ) / de.P;
 
-    if (dat.e !== 1.0) {   /* for non-parabolic orbits: */
-     dat.q = dat.a * (1.0 - dat.e);
-     dat.t0 = dat.a * Math.sqrt(Math.abs(dat.a) / gm);
+    if (de.e !== 1.0) {   /* for non-parabolic orbits: */
+     de.q = de.a * (1.0 - de.e);
+     de.t0 = de.a * Math.sqrt(Math.abs(de.a) / gm);
     } else {
-     dat.w0 = (3.0 / Math.sqrt(2)) / (dat.q * Math.sqrt(dat.q / gm));
-     dat.a = 0.0;
-     dat.t0 = 0.0;
+     de.w0 = (3.0 / Math.sqrt(2)) / (de.q * Math.sqrt(de.q / gm));
+     de.a = 0.0;
+     de.t0 = 0.0;
     }
-    dat.am = Math.sqrt(gm * dat.q * (1.0 + dat.e));
+    de.am = Math.sqrt(gm * de.q * (1.0 + de.e));
   }
 
   function transpose() {
-    if (!dat.ref || dat.ref === "ecl") {
-      dat.tx = dat.x;
-      dat.ty = dat.y;
-      dat.tz = dat.z;
+    var de = dat.ephemeris;
+    if (!de.ref || de.ref === "ecl") {
+      de.tx = de.x;
+      de.ty = de.y;
+      de.tz = de.z;
       return;
     }
-    var a0 = dat.lecl,// - Math.PI/2,
-        a1 = Math.PI/2 - dat.becl,
+    var a0 = de.lecl,// - Math.PI/2,
+        a1 = Math.PI/2 - de.becl,
         angles = [0, a1, -a0];
-    transform(dat, angles);
-    var tp =  Trig.cartesian([dat.tl, dat.tb, dat.r]);
-    dat.tx = tp.x;
-    dat.ty = tp.y;
-    dat.tz = tp.z;
+    transform(de, angles);
+    var tp =  Trig.cartesian([de.tl, de.tb, de.r]);
+    de.tx = tp.x;
+    de.ty = tp.y;
+    de.tz = tp.z;
   }
 
   function equatorial(pos) {
-    ε = (23.439292 - 0.0130042 * dat.cy - 1.667e-7 * dat.cy * dat.cy + 5.028e-7 * dat.cy * dat.cy * dat.cy) * deg2rad;
+    var de = dat.ephemeris;
+    ε = (23.439292 - 0.0130042 * de.cy - 1.667e-7 * de.cy * de.cy + 5.028e-7 * de.cy * de.cy * de.cy) * deg2rad;
     sinε = Math.sin(ε);
     cosε = Math.cos(ε);
     var o = (id === "lun") ? {x:0, y:0, z:0} : {x:pos.x, y:pos.y, z:pos.z};
-    dat.xeq = dat.x - o.x;
-    dat.yeq = (dat.y - o.y) * cosε - (dat.z - o.z) * sinε;
-    dat.zeq = (dat.y - o.y) * sinε + (dat.z - o.z) * cosε;
+    de.xeq = de.x - o.x;
+    de.yeq = (de.y - o.y) * cosε - (de.z - o.z) * sinε;
+    de.zeq = (de.y - o.y) * sinε + (de.z - o.z) * cosε;
 
-    dat.ra = Trig.normalize(Math.atan2(dat.yeq, dat.xeq));
-    dat.dec = Math.atan2(dat.zeq, Math.sqrt(dat.xeq*dat.xeq + dat.yeq*dat.yeq));
-    if (id === "lun") dat = moon_corr(dat, pos);
-    dat.pos = [dat.ra / deg2rad, dat.dec / deg2rad];
-    dat.rt = Math.sqrt(dat.xeq*dat.xeq + dat.yeq*dat.yeq + dat.zeq*dat.zeq);
+    de.ra = Trig.normalize(Math.atan2(de.yeq, de.xeq));
+    de.dec = Math.atan2(de.zeq, Math.sqrt(de.xeq*de.xeq + de.yeq*de.yeq));
+    if (id === "lun") de = moon_corr(de, pos);
+    de.pos = [de.ra / deg2rad, de.dec / deg2rad];
+    de.rt = Math.sqrt(de.xeq*de.xeq + de.yeq*de.yeq + de.zeq*de.zeq);
+    if (id !== "sol") de.mag = magnitude();
+  }
+
+  function magnitude() {
+    var de = dat.ephemeris,
+        rs = de.r, rt = de.rt,
+        a = Math.acos((rs*rs + rt*rt - 1) / (2 * rs * rt)),
+        q = 0.666 *((1-a/Math.PI) * Math.cos(a) + 1 / Math.PI * Math.sin(a)),
+        m = dat.H + 5 * Math.log(rs*rt) * Math.LOG10E - 2.5 * Math.log(q) * Math.LOG10E;
+        
+    return m;
   }
 
   function cartesian() {
-    var u = dat.v + dat.w;
-    dat.x = dat.r * (Math.cos(dat.N) * Math.cos(u) - Math.sin(dat.N) * Math.sin(u) * Math.cos(dat.i));
-    dat.y = dat.r * (Math.sin(dat.N) * Math.cos(u) + Math.cos(dat.N) * Math.sin(u) * Math.cos(dat.i));
-    dat.z = dat.r * (Math.sin(u) * Math.sin(dat.i));
+    var de = dat.ephemeris,
+        u = de.v + de.w;
+    de.x = de.r * (Math.cos(de.N) * Math.cos(u) - Math.sin(de.N) * Math.sin(u) * Math.cos(de.i));
+    de.y = de.r * (Math.sin(de.N) * Math.cos(u) + Math.cos(de.N) * Math.sin(u) * Math.cos(de.i));
+    de.z = de.r * (Math.sin(u) * Math.sin(de.i));
     return dat;
   }
 
   function spherical() {
-    var lon = Math.atan2(dat.y, dat.x),
-        lat = Math.atan2(dat.z, Math.sqrt(dat.x*dat.x + dat.y*dat.y));
-    dat.l = Trig.normalize(lon);
-    dat.b = lat;
+    var de = dat.ephemeris,
+        lon = Math.atan2(de.y, de.x),
+        lat = Math.atan2(de.z, Math.sqrt(de.x*de.x + de.y*de.y));
+    de.l = Trig.normalize(lon);
+    de.b = lat;
     return dat; 
   }
 
@@ -393,7 +421,7 @@ var Kepler = function () {
 
   function mst(lon) {
     var l = lon || 0;  // lon=0 -> gmst
-    return (18.697374558 + 24.06570982441908 * dat.d) * 15 + l;
+    return (18.697374558 + 24.06570982441908 * dat.ephemeris.d) * 15 + l;
   }
   
     
