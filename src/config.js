@@ -123,14 +123,14 @@ var settings = {
     fill: "#000000", // Area below horizon
     opacity: 0.5
   },  
-  daylight: {  //Show approximate stae of sky at selected time
+  daylight: {  //Show approximate state of sky at selected time
     show: false
   },
   planets: {  //Show planet locations, if date-time is set
     show: false,
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
     symbols: {
-      "sol": {symbol: "\u2609", letter:"So", fill: "#ffff00"},
+      "sol": {symbol: "\u2609", letter:"Su", fill: "#ffff00"},
       "mer": {symbol: "\u263f", letter:"Me", fill: "#cccccc"},
       "ven": {symbol: "\u2640", letter:"V", fill: "#eeeecc"},
       "ter": {symbol: "\u2295", letter:"T", fill: "#00ccff"},
@@ -183,7 +183,7 @@ var settings = {
     // Nothing works without these
     res.stars.size = res.stars.size || 7;  
     res.stars.exponent = res.stars.exponent || -0.28;
-    res.center = res.center || [0,0];
+    if (!res.center || res.center.length <= 0) res.center = [0,0,0];
     res.datapath = res.datapath || "";
     res.datapath = res.datapath.replace(/([^\/]$)/, "$1\/");
     
@@ -388,24 +388,38 @@ var formats = {
     }             
   },
   "planets": {
-    "symbol": {
-      "symbol": "\u263e Symbol",
-      "letter": "\u216c Letter",
-      "disk": "\u25cf Disk"},
-    "names": {
-      "desig": "Designation",
-      "ar": "Arabic",
-      "cn": "Chinese",
-      "en": "English",
-      "fr": "French",
-      "de": "German",
-      "gr": "Greek",
-      "il": "Hebrew",
-      "in": "Hindi",
-      "it": "Italian",
-      "jp": "Japanese",
-      "lat": "Latin",
-      "ru": "Russian",
-      "es": "Spanish"}
+    "iau": {
+      "symbol": {
+        "symbol": "\u263e Symbol",
+        "letter": "\u216c Letter",
+        "disk": "\u25cf Disk"},
+      "names": {
+        "desig": "Designation",
+        "ar": "Arabic",
+        "cn": "Chinese",
+        "en": "English",
+        "fr": "French",
+        "de": "German",
+        "gr": "Greek",
+        "il": "Hebrew",
+        "in": "Hindi",
+        "it": "Italian",
+        "jp": "Japanese",
+        "lat": "Latin",
+        "ru": "Russian",
+        "es": "Spanish"}
+    },
+    "cn": {
+      "symbol": {
+        "symbol": "\u263e Symbol",
+        "letter": "\u216c Letter",
+        "disk": "\u25cf Disk"},
+      "names": {
+        "desig": "Designation",
+        "name": "Chinese",
+        "pinyin": "Pinyin",
+        "en": "English"
+      }
+    }
   }
 };

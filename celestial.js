@@ -871,7 +871,7 @@ Celestial.display = function(config) {
   }
   
   function getAngles(coords) {
-    if (coords === null) return [0,0,0];
+    if (coords === null || coords.length <= 0) return [0,0,0];
     var rot = eulerAngles.equatorial; 
     if (!coords[2]) coords[2] = 0;
     return [rot[0] - coords[0], rot[1] - coords[1], rot[2] + coords[2]];
@@ -1630,7 +1630,7 @@ var settings = {
     // Nothing works without these
     res.stars.size = res.stars.size || 7;  
     res.stars.exponent = res.stars.exponent || -0.28;
-    res.center = res.center || [0,0];
+    if (!res.center || res.center.length <= 0) res.center = [0,0,0];
     res.datapath = res.datapath || "";
     res.datapath = res.datapath.replace(/([^\/]$)/, "$1\/");
     
