@@ -45,7 +45,7 @@ function getPlanet(id, dt) {
      
   Celestial.container.selectAll(".planet").each(function(d) {
     if (id === d.id()) {
-      res = d(dt).equatorial(o.ephemeris);
+      res = d(dt).equatorial(o);
     }
   });
   return res;

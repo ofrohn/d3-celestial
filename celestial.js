@@ -582,7 +582,7 @@ Celestial.display = function(config) {
           o = Celestial.origin(dt).spherical();
       container.selectAll(".planet").each(function(d) {
         var id = d.id(), r = 6,
-            p = d(dt).equatorial(o.ephemeris);  //transform
+            p = d(dt).equatorial(o);  //transform
         if (clip(p.ephemeris.pos)) {
           var pt = prjMap(p.ephemeris.pos),
               sym = cfg.planets.symbols[id];
@@ -1296,7 +1296,7 @@ function getPlanet(id, dt) {
      
   Celestial.container.selectAll(".planet").each(function(d) {
     if (id === d.id()) {
-      res = d(dt).equatorial(o.ephemeris);
+      res = d(dt).equatorial(o);
     }
   });
   return res;
@@ -1570,14 +1570,14 @@ var settings = {
     fill: "#000000", // Area below horizon
     opacity: 0.5
   },  
-  daylight: {  //Show approximate stae of sky at selected time
+  daylight: {  //Show approximate state of sky at selected time
     show: false
   },
   planets: {  //Show planet locations, if date-time is set
     show: false,
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
     symbols: {
-      "sol": {symbol: "\u2609", letter:"So", fill: "#ffff00"},
+      "sol": {symbol: "\u2609", letter:"Su", fill: "#ffff00"},
       "mer": {symbol: "\u263f", letter:"Me", fill: "#cccccc"},
       "ven": {symbol: "\u2640", letter:"V", fill: "#eeeecc"},
       "ter": {symbol: "\u2295", letter:"T", fill: "#00ccff"},
@@ -1835,25 +1835,39 @@ var formats = {
     }             
   },
   "planets": {
-    "symbol": {
-      "symbol": "\u263e Symbol",
-      "letter": "\u216c Letter",
-      "disk": "\u25cf Disk"},
-    "names": {
-      "desig": "Designation",
-      "ar": "Arabic",
-      "cn": "Chinese",
-      "en": "English",
-      "fr": "French",
-      "de": "German",
-      "gr": "Greek",
-      "il": "Hebrew",
-      "in": "Hindi",
-      "it": "Italian",
-      "jp": "Japanese",
-      "lat": "Latin",
-      "ru": "Russian",
-      "es": "Spanish"}
+    "iau": {
+      "symbol": {
+        "symbol": "\u263e Symbol",
+        "letter": "\u216c Letter",
+        "disk": "\u25cf Disk"},
+      "names": {
+        "desig": "Designation",
+        "ar": "Arabic",
+        "cn": "Chinese",
+        "en": "English",
+        "fr": "French",
+        "de": "German",
+        "gr": "Greek",
+        "il": "Hebrew",
+        "in": "Hindi",
+        "it": "Italian",
+        "jp": "Japanese",
+        "lat": "Latin",
+        "ru": "Russian",
+        "es": "Spanish"}
+    },
+    "cn": {
+      "symbol": {
+        "symbol": "\u263e Symbol",
+        "letter": "\u216c Letter",
+        "disk": "\u25cf Disk"},
+      "names": {
+        "desig": "Designation",
+        "name": "Chinese",
+        "pinyin": "Pinyin",
+        "en": "English"
+      }
+    }
   }
 };
 
@@ -2908,7 +2922,7 @@ function geo(cfg) {
   col.append("label").attr("title", "Show solar system objects").attr("for", "planets-show").html(" Planets, Sun & Moon");
   col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", config.planets.show).on("change", apply);    
   //Planet names
-  var names = formats.planets;
+  var names = formats.planets[config.culture];
   
   for (var fld in names) {
     if (!has(names, fld)) continue;
@@ -3433,18 +3447,18 @@ var Kepler = function () {
   }
 
   function equatorial(pos) {
-    var de = dat.ephemeris;
+    var de = dat.ephemeris, pe = pos.ephemeris;
     ε = (23.439292 - 0.0130042 * de.cy - 1.667e-7 * de.cy * de.cy + 5.028e-7 * de.cy * de.cy * de.cy) * deg2rad;
     sinε = Math.sin(ε);
     cosε = Math.cos(ε);
-    var o = (id === "lun") ? {x:0, y:0, z:0} : {x:pos.x, y:pos.y, z:pos.z};
+    var o = (id === "lun") ? {x:0, y:0, z:0} : {x:pe.x, y:pe.y, z:pe.z};
     de.xeq = de.x - o.x;
     de.yeq = (de.y - o.y) * cosε - (de.z - o.z) * sinε;
     de.zeq = (de.y - o.y) * sinε + (de.z - o.z) * cosε;
 
     de.ra = Trig.normalize(Math.atan2(de.yeq, de.xeq));
     de.dec = Math.atan2(de.zeq, Math.sqrt(de.xeq*de.xeq + de.yeq*de.yeq));
-    if (id === "lun") de = moon_corr(de, pos);
+    if (id === "lun") de = moon_corr(de, pe);
     de.pos = [de.ra / deg2rad, de.dec / deg2rad];
     de.rt = Math.sqrt(de.xeq*de.xeq + de.yeq*de.yeq + de.zeq*de.zeq);
     if (id !== "sol") de.mag = magnitude();
@@ -3455,7 +3469,7 @@ var Kepler = function () {
         rs = de.r, rt = de.rt,
         a = Math.acos((rs*rs + rt*rt - 1) / (2 * rs * rt)),
         q = 0.666 *((1-a/Math.PI) * Math.cos(a) + 1 / Math.PI * Math.sin(a)),
-        m = dat.H + 5 * Math.log(rs*rt) * Math.LOG10E - 2.5 * Math.log(q) * Math.LOG10E;
+        m = dat.H * 1 + 5 * Math.log(rs*rt) * Math.LOG10E - 2.5 * Math.log(q) * Math.LOG10E;
         
     return m;
   }

@@ -581,7 +581,7 @@ Celestial.display = function(config) {
           o = Celestial.origin(dt).spherical();
       container.selectAll(".planet").each(function(d) {
         var id = d.id(), r = 6,
-            p = d(dt).equatorial(o.ephemeris);  //transform
+            p = d(dt).equatorial(o);  //transform
         if (clip(p.ephemeris.pos)) {
           var pt = prjMap(p.ephemeris.pos),
               sym = cfg.planets.symbols[id];

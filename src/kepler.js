@@ -350,18 +350,18 @@ var Kepler = function () {
   }
 
   function equatorial(pos) {
-    var de = dat.ephemeris;
+    var de = dat.ephemeris, pe = pos.ephemeris;
     ε = (23.439292 - 0.0130042 * de.cy - 1.667e-7 * de.cy * de.cy + 5.028e-7 * de.cy * de.cy * de.cy) * deg2rad;
     sinε = Math.sin(ε);
     cosε = Math.cos(ε);
-    var o = (id === "lun") ? {x:0, y:0, z:0} : {x:pos.x, y:pos.y, z:pos.z};
+    var o = (id === "lun") ? {x:0, y:0, z:0} : {x:pe.x, y:pe.y, z:pe.z};
     de.xeq = de.x - o.x;
     de.yeq = (de.y - o.y) * cosε - (de.z - o.z) * sinε;
     de.zeq = (de.y - o.y) * sinε + (de.z - o.z) * cosε;
 
     de.ra = Trig.normalize(Math.atan2(de.yeq, de.xeq));
     de.dec = Math.atan2(de.zeq, Math.sqrt(de.xeq*de.xeq + de.yeq*de.yeq));
-    if (id === "lun") de = moon_corr(de, pos);
+    if (id === "lun") de = moon_corr(de, pe);
     de.pos = [de.ra / deg2rad, de.dec / deg2rad];
     de.rt = Math.sqrt(de.xeq*de.xeq + de.yeq*de.yeq + de.zeq*de.zeq);
     if (id !== "sol") de.mag = magnitude();
@@ -372,7 +372,7 @@ var Kepler = function () {
         rs = de.r, rt = de.rt,
         a = Math.acos((rs*rs + rt*rt - 1) / (2 * rs * rt)),
         q = 0.666 *((1-a/Math.PI) * Math.cos(a) + 1 / Math.PI * Math.sin(a)),
-        m = dat.H + 5 * Math.log(rs*rt) * Math.LOG10E - 2.5 * Math.log(q) * Math.LOG10E;
+        m = dat.H * 1 + 5 * Math.log(rs*rt) * Math.LOG10E - 2.5 * Math.log(q) * Math.LOG10E;
         
     return m;
   }
@@ -393,6 +393,10 @@ var Kepler = function () {
     de.l = Trig.normalize(lon);
     de.b = lat;
     return dat; 
+  }
+
+  function transform(angles) {
+    
   }
 
   function polar2cart(pos) {
