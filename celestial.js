@@ -1,4 +1,4 @@
-// Copyright 2015-2019 Olaf Frohn https://github.com/ofrohn, see LICENSE
+// Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
   version: '0.7.5',
@@ -3490,6 +3490,10 @@ var Kepler = function () {
     de.l = Trig.normalize(lon);
     de.b = lat;
     return dat; 
+  }
+
+  function transform(angles) {
+    
   }
 
   function polar2cart(pos) {
