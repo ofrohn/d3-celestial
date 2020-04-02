@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.5',
+  version: '0.7.6',
   container: null,
   data: []
 };
@@ -2637,7 +2637,9 @@ var depends = {
   "dsos-show": ["dsos-limit", "dsos-colors", "dsos-style-fill", "dsos-names", "dsos-size", "dsos-exponent"],
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
    "mw-show": ["mw-style-opacity", "mw-style-fill"],
-  "constellations-name": ["constellations-nameType"]
+  "constellations-name": ["constellations-nameType"],
+  "planets-show": ["planets-symbolType", "planets-names"],
+  "planets-names": ["planets-namesType"]
 };
 
 // De/activate fields depending on selection of dependencies
@@ -2665,10 +2667,15 @@ function enable(source) {
       off = !$("dsos-names").checked || !$("dsos-show").checked;      
       for (i=0; i< depends["dsos-names"].length; i++) { fldEnable(depends["dsos-names"][i], off); }
       break;
-    case "constellations-name": 
+    case "planets-show": 
       off = !$(fld).checked;
       for (i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
+      /* falls through */
+    case "planets-names": 
+      off = !$("planets-names").checked || !$("planets-show").checked;      
+      for (i=0; i< depends["planets-names"].length; i++) { fldEnable(depends["planets-names"][i], off); }
       break;
+    case "constellations-name": 
     case "mw-show": 
       off = !$(fld).checked;
       for (i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
@@ -2950,6 +2957,9 @@ function geo(cfg) {
       }
     } 
   }    
+ 
+  enable($("planets-show"));
+  
 
   d3.select(document).on("mousedown", function () { 
     if (!hasParent(d3.event.target, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
@@ -3003,6 +3013,7 @@ function geo(cfg) {
     config.planets.names = !!$("planets-names").checked;    
     config.planets.namesType = $("planets-namesType").value;    
     config.planets.symbolType = $("planets-symbolType").value;    
+    enable($("planets-show"));
 
     Celestial.apply(config);
   }

@@ -1,4 +1,4 @@
-/* global Celestial, settings, horizontal, datetimepicker, config, formats, $, pad, testNumber, isArray, isNumber, isValidDate, fldEnable, Round, has, hasParent */
+/* global Celestial, settings, horizontal, datetimepicker, config, formats, $, pad, testNumber, isArray, isNumber, isValidDate, enable, Round, has, hasParent */
 
 function geo(cfg) {
   var frm = d3.select("#celestial-form form").insert("div", "div#general").attr("id", "loc"),
@@ -91,6 +91,9 @@ function geo(cfg) {
       }
     } 
   }    
+ 
+  enable($("planets-show"));
+  
 
   d3.select(document).on("mousedown", function () { 
     if (!hasParent(d3.event.target, "celestial-date") && dtpick.isVisible()) dtpick.hide(); 
@@ -144,6 +147,7 @@ function geo(cfg) {
     config.planets.names = !!$("planets-names").checked;    
     config.planets.namesType = $("planets-namesType").value;    
     config.planets.symbolType = $("planets-symbolType").value;    
+    enable($("planets-show"));
 
     Celestial.apply(config);
   }
