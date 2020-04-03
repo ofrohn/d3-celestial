@@ -169,8 +169,8 @@ var config = {
                            // or desig = 3-letter designation
   },
   constellations: {
-    name: true,      // Show constellation names 
-    nameType: "iau", // Type of name Latin (iau, default), 3 letter designation (desig) or other language (see list)
+    names: true,      // Show constellation names 
+    namesType: "iau", // Type of name Latin (iau, default), 3 letter designation (desig) or other language (see list)
     nameStyle: { fill:"#cccc99", align: "center", baseline: "middle", 
                  font: ["14px Helvetica, Arial, sans-serif",  // Style for constellations
                         "12px Helvetica, Arial, sans-serif",  // Different fonts for diff.
