@@ -82,8 +82,8 @@ var settings = {
   },
   constellations: {
     show: true,    // Show constellations 
-    name: true,   // Show constellation names 
-    nameType: "desig",   // What kind of name to show (default 3 letter designations) all options: name, desig, 
+    names: true,   // Show constellation names 
+    namesType: "desig",   // What kind of name to show (default 3 letter designations) all options: name, desig, 
                          // lat, en, ar, cn, cz, ee, fi, fr, de, gr, il, it, jp, kr, in, ir, ru, es, tr 
     nameStyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8, 
 		             font: ["14px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // Different fonts for brighter &
@@ -128,7 +128,9 @@ var settings = {
   },
   planets: {  //Show planet locations, if date-time is set
     show: false,
+    // 3-letter designations of all solar system objects that should be displayed
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
+    // Symbols as unicode codepoints, letter abbreviations and colors to be displayed
     symbols: {
       "sol": {symbol: "\u2609", letter:"Su", fill: "#ffff00"},
       "mer": {symbol: "\u263f", letter:"Me", fill: "#cccccc"},
@@ -145,11 +147,13 @@ var settings = {
       "plu": {symbol: "\u2647", letter:"P", fill: "#aaaaaa"},
       "eri": {symbol: "\u26aa", letter:"E", fill: "#eeeeee"}
     },
+    // Style options for planetary symbols
     symbolStyle: { fill: "#00ccff", opacity:1, font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", align: "center", baseline: "middle" },
-    symbolType: "symbol",
-    names: false,
+    symbolType: "symbol",  // Type of planetary symbol to be displayed: 'symbol', 'letter' or 'disk'
+    names: false,  // Show name next to symbol
+    // Style options for planetary names
     nameStyle: { fill: "#00ccff", font: "14px 'Lucida Sans Unicode', Consolas, sans-serif", align: "right", baseline: "top" },
-    namesType: "en"
+    namesType: "en"  // Language in which the name is displayed, options desig, ar, cn, en, fr, de, gr, il, in, it, jp, lat, ru, es
   },
   set: function(cfg) {  // Override defaults with values of cfg
     var prop, key, config = {}, res = {};
@@ -203,22 +207,22 @@ var settings = {
       if (has(cfg.stars, "propernamestyle")) Object.assign(res.stars.propernameStyle, cfg.stars.propernamestyle);
     }
     if (has(cfg, "constellations")) {
-      // names, desig -> nameType
-      if (has(cfg.constellations, "show") && cfg.constellations.show === true) res.constellations.name = true;
-      if (has(cfg.constellations, "names") && cfg.constellations.names === true) res.constellations.nameType = "name";
-      if (has(cfg.constellations, "desig") && cfg.constellations.desig === true) res.constellations.nameType = "desig";
-      if (res.constellations.nameType === "latin") res.constellations.nameType = "lat";
-      if (res.constellations.nameType === "iau") res.constellations.nameType = "name";
+      // names, desig -> namesType
+      if (has(cfg.constellations, "show") && cfg.constellations.show === true) res.constellations.names = true;
+      if (has(cfg.constellations, "names") && cfg.constellations.names === true) res.constellations.namesType = "name";
+      if (has(cfg.constellations, "desig") && cfg.constellations.desig === true) res.constellations.namesType = "desig";
+      if (res.constellations.namesType === "latin") res.constellations.namesType = "lat";
+      if (res.constellations.namesType === "iau") res.constellations.namesType = "name";
       if (has(cfg.constellations, "namestyle")) Object.assign(res.constellations.nameStyle, cfg.constellations.namestyle);
       if (has(cfg.constellations, "linestyle")) Object.assign(res.constellations.lineStyle, cfg.constellations.linestyle);
       if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
     }
-    if (!res.constellations.nameType || res.constellations.nameType === "") res.constellations.nameType = "desig";
+    if (!res.constellations.namesType || res.constellations.namesType === "") res.constellations.namesType = "desig";
     if (has(cfg, "planets")) {
       if (has(cfg.planets, "style")) Object.assign(res.planets.style, cfg.planets.symbolStyle);      
     }
     if (!res.planets.symbolType || res.planets.symbolType === "") res.planets.symbolType = "symbol";
-    if (!res.planets.nameType || res.planets.nameType === "") res.planets.nameType = "desig";
+    if (!res.planets.namesType || res.planets.namesType === "") res.planets.namesType = "desig";
     //Expand all parameters that can be arrays into arrays, no need to test it later
     res.constellations.nameStyle.font = arrayfy(res.constellations.nameStyle.font);
     res.constellations.nameStyle.opacity = arrayfy(res.constellations.nameStyle.opacity);
@@ -356,7 +360,7 @@ var formats = {
   },
   "constellations": {
     "iau": {
-      "name": {
+      "names": {
         "desig": "Designation",
         "name": "IAU Name",
         "ar": "Arabic", 
@@ -381,7 +385,7 @@ var formats = {
       }
     },
     "cn": {
-      "name": {
+      "names": {
         "name": "Proper name",
         "en": "English",
         "pinyin": "Pinyin"}
@@ -422,4 +426,9 @@ var formats = {
       }
     }
   }
+};
+
+var formats_all = {
+  "iau": Object.keys(formats.constellations.iau.names).concat(Object.keys(formats.constellations.iau.names)).filter( function(value, index, self) { return self.indexOf(value) === index; } ),
+  "cn":  Object.keys(formats.constellations.cn.names).concat(Object.keys(formats.constellations.cn.names)).filter( function(value, index, self) { return self.indexOf(value) === index; } )
 };

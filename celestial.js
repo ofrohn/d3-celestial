@@ -512,7 +512,7 @@ Celestial.display = function(config) {
         drawOutline(true);
       }
 
-      if (cfg.constellations.name) { 
+      if (cfg.constellations.names) { 
         //setTextStyle(cfg.constellations.nameStyle);
         container.selectAll(".constname").each( function(d) { 
           if (clip(d.geometry.coordinates)) {
@@ -828,7 +828,7 @@ Celestial.display = function(config) {
   }
   
   function constName(d) { 
-    return d.properties[cfg.constellations.nameType]; 
+    return d.properties[cfg.constellations.namesType]; 
   }
 
  function planetSize(d) {
@@ -1529,8 +1529,8 @@ var settings = {
   },
   constellations: {
     show: true,    // Show constellations 
-    name: true,   // Show constellation names 
-    nameType: "desig",   // What kind of name to show (default 3 letter designations) all options: name, desig, 
+    names: true,   // Show constellation names 
+    namesType: "desig",   // What kind of name to show (default 3 letter designations) all options: name, desig, 
                          // lat, en, ar, cn, cz, ee, fi, fr, de, gr, il, it, jp, kr, in, ir, ru, es, tr 
     nameStyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8, 
 		             font: ["14px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // Different fonts for brighter &
@@ -1575,7 +1575,9 @@ var settings = {
   },
   planets: {  //Show planet locations, if date-time is set
     show: false,
+    // 3-letter designations of all solar system objects that should be displayed
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
+    // Symbols as unicode codepoints, letter abbreviations and colors to be displayed
     symbols: {
       "sol": {symbol: "\u2609", letter:"Su", fill: "#ffff00"},
       "mer": {symbol: "\u263f", letter:"Me", fill: "#cccccc"},
@@ -1592,11 +1594,13 @@ var settings = {
       "plu": {symbol: "\u2647", letter:"P", fill: "#aaaaaa"},
       "eri": {symbol: "\u26aa", letter:"E", fill: "#eeeeee"}
     },
+    // Style options for planetary symbols
     symbolStyle: { fill: "#00ccff", opacity:1, font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", align: "center", baseline: "middle" },
-    symbolType: "symbol",
-    names: false,
+    symbolType: "symbol",  // Type of planetary symbol to be displayed: 'symbol', 'letter' or 'disk'
+    names: false,  // Show name next to symbol
+    // Style options for planetary names
     nameStyle: { fill: "#00ccff", font: "14px 'Lucida Sans Unicode', Consolas, sans-serif", align: "right", baseline: "top" },
-    namesType: "en"
+    namesType: "en"  // Language in which the name is displayed, options desig, ar, cn, en, fr, de, gr, il, in, it, jp, lat, ru, es
   },
   set: function(cfg) {  // Override defaults with values of cfg
     var prop, key, config = {}, res = {};
@@ -1650,22 +1654,22 @@ var settings = {
       if (has(cfg.stars, "propernamestyle")) Object.assign(res.stars.propernameStyle, cfg.stars.propernamestyle);
     }
     if (has(cfg, "constellations")) {
-      // names, desig -> nameType
-      if (has(cfg.constellations, "show") && cfg.constellations.show === true) res.constellations.name = true;
-      if (has(cfg.constellations, "names") && cfg.constellations.names === true) res.constellations.nameType = "name";
-      if (has(cfg.constellations, "desig") && cfg.constellations.desig === true) res.constellations.nameType = "desig";
-      if (res.constellations.nameType === "latin") res.constellations.nameType = "lat";
-      if (res.constellations.nameType === "iau") res.constellations.nameType = "name";
+      // names, desig -> namesType
+      if (has(cfg.constellations, "show") && cfg.constellations.show === true) res.constellations.names = true;
+      if (has(cfg.constellations, "names") && cfg.constellations.names === true) res.constellations.namesType = "name";
+      if (has(cfg.constellations, "desig") && cfg.constellations.desig === true) res.constellations.namesType = "desig";
+      if (res.constellations.namesType === "latin") res.constellations.namesType = "lat";
+      if (res.constellations.namesType === "iau") res.constellations.namesType = "name";
       if (has(cfg.constellations, "namestyle")) Object.assign(res.constellations.nameStyle, cfg.constellations.namestyle);
       if (has(cfg.constellations, "linestyle")) Object.assign(res.constellations.lineStyle, cfg.constellations.linestyle);
       if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
     }
-    if (!res.constellations.nameType || res.constellations.nameType === "") res.constellations.nameType = "desig";
+    if (!res.constellations.namesType || res.constellations.namesType === "") res.constellations.namesType = "desig";
     if (has(cfg, "planets")) {
       if (has(cfg.planets, "style")) Object.assign(res.planets.style, cfg.planets.symbolStyle);      
     }
     if (!res.planets.symbolType || res.planets.symbolType === "") res.planets.symbolType = "symbol";
-    if (!res.planets.nameType || res.planets.nameType === "") res.planets.nameType = "desig";
+    if (!res.planets.namesType || res.planets.namesType === "") res.planets.namesType = "desig";
     //Expand all parameters that can be arrays into arrays, no need to test it later
     res.constellations.nameStyle.font = arrayfy(res.constellations.nameStyle.font);
     res.constellations.nameStyle.opacity = arrayfy(res.constellations.nameStyle.opacity);
@@ -1803,7 +1807,7 @@ var formats = {
   },
   "constellations": {
     "iau": {
-      "name": {
+      "names": {
         "desig": "Designation",
         "name": "IAU Name",
         "ar": "Arabic", 
@@ -1828,7 +1832,7 @@ var formats = {
       }
     },
     "cn": {
-      "name": {
+      "names": {
         "name": "Proper name",
         "en": "English",
         "pinyin": "Pinyin"}
@@ -1871,6 +1875,10 @@ var formats = {
   }
 };
 
+var formats_all = {
+  "iau": Object.keys(formats.constellations.iau.names).concat(Object.keys(formats.constellations.iau.names)).filter( function(value, index, self) { return self.indexOf(value) === index; } ),
+  "cn":  Object.keys(formats.constellations.cn.names).concat(Object.keys(formats.constellations.cn.names)).filter( function(value, index, self) { return self.indexOf(value) === index; } )
+};
 var Canvas = {}; 
 
 Canvas.symbol = function () {
@@ -2452,7 +2460,7 @@ function form(cfg) {
   col.append("label").attr("for", "constellations-bounds").html("with boundaries");
   col.append("input").attr("type", "checkbox").attr("id", "constellations-bounds").property("checked", config.constellations.bounds).on("change", apply);
 
-  enable($("constellations-name"));
+  enable($("constellations-names"));
 
   // graticules & planes 
   col = frm.append("div").attr("class", "col").attr("id", "lines");
@@ -2609,7 +2617,7 @@ function form(cfg) {
     if (src.id === "dsos-style-fill") {
       set("dsos-style-stroke", value);
       set("dsos-namestyle-fill", value);
-    } else if (src.id === "constellations-nameType") {
+    } else if (src.id === "constellations-namesType") {
       listConstellations();
     }
     getCenter();
@@ -2629,6 +2637,9 @@ function form(cfg) {
   Celestial.showConstellation = showCon;
 }
 
+// Options only visible in advanced mode
+var advanced = ["stars-designationType", "stars-propernameType", "stars-size", "stars-exponent", "stars-size", "stars-exponent", "constellations-namesType", "planets-namesType", "planets-symbolType"];
+
 // Dependend fields relations
 var depends = {
   "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-designation", "stars-propername", "stars-size", "stars-exponent"],
@@ -2637,7 +2648,7 @@ var depends = {
   "dsos-show": ["dsos-limit", "dsos-colors", "dsos-style-fill", "dsos-names", "dsos-size", "dsos-exponent"],
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
    "mw-show": ["mw-style-opacity", "mw-style-fill"],
-  "constellations-name": ["constellations-nameType"],
+  "constellations-names": ["constellations-namesType"],
   "planets-show": ["planets-symbolType", "planets-names"],
   "planets-names": ["planets-namesType"]
 };
@@ -2675,7 +2686,7 @@ function enable(source) {
       off = !$("planets-names").checked || !$("planets-show").checked;      
       for (i=0; i< depends["planets-names"].length; i++) { fldEnable(depends["planets-names"][i], off); }
       break;
-    case "constellations-name": 
+    case "constellations-names": 
     case "mw-show": 
       off = !$(fld).checked;
       for (i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
@@ -2843,7 +2854,7 @@ function listConstellations() {
   Celestial.container.selectAll(".constname").each( function(d, i) {
     id = d.id;
     if (id === config.constellation) selected = i;
-    name = d.properties[config.constellations.nameType];
+    name = d.properties[config.constellations.namesType];
     if (name !== id) name += " (" + id + ")";
     list.push({o:id, n:name});
   });

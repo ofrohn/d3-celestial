@@ -211,7 +211,7 @@ function form(cfg) {
   col.append("label").attr("for", "constellations-bounds").html("with boundaries");
   col.append("input").attr("type", "checkbox").attr("id", "constellations-bounds").property("checked", config.constellations.bounds).on("change", apply);
 
-  enable($("constellations-name"));
+  enable($("constellations-names"));
 
   // graticules & planes 
   col = frm.append("div").attr("class", "col").attr("id", "lines");
@@ -368,7 +368,7 @@ function form(cfg) {
     if (src.id === "dsos-style-fill") {
       set("dsos-style-stroke", value);
       set("dsos-namestyle-fill", value);
-    } else if (src.id === "constellations-nameType") {
+    } else if (src.id === "constellations-namesType") {
       listConstellations();
     }
     getCenter();
@@ -388,6 +388,9 @@ function form(cfg) {
   Celestial.showConstellation = showCon;
 }
 
+// Options only visible in advanced mode
+var advanced = ["stars-designationType", "stars-propernameType", "stars-size", "stars-exponent", "stars-size", "stars-exponent", "constellations-namesType", "planets-namesType", "planets-symbolType"];
+
 // Dependend fields relations
 var depends = {
   "stars-show": ["stars-limit", "stars-colors", "stars-style-fill", "stars-designation", "stars-propername", "stars-size", "stars-exponent"],
@@ -396,7 +399,7 @@ var depends = {
   "dsos-show": ["dsos-limit", "dsos-colors", "dsos-style-fill", "dsos-names", "dsos-size", "dsos-exponent"],
   "dsos-names": ["dsos-desig", "dsos-namelimit"],
    "mw-show": ["mw-style-opacity", "mw-style-fill"],
-  "constellations-name": ["constellations-nameType"],
+  "constellations-names": ["constellations-namesType"],
   "planets-show": ["planets-symbolType", "planets-names"],
   "planets-names": ["planets-namesType"]
 };
@@ -434,7 +437,7 @@ function enable(source) {
       off = !$("planets-names").checked || !$("planets-show").checked;      
       for (i=0; i< depends["planets-names"].length; i++) { fldEnable(depends["planets-names"][i], off); }
       break;
-    case "constellations-name": 
+    case "constellations-names": 
     case "mw-show": 
       off = !$(fld).checked;
       for (i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
@@ -602,7 +605,7 @@ function listConstellations() {
   Celestial.container.selectAll(".constname").each( function(d, i) {
     id = d.id;
     if (id === config.constellation) selected = i;
-    name = d.properties[config.constellations.nameType];
+    name = d.properties[config.constellations.namesType];
     if (name !== id) name += " (" + id + ")";
     list.push({o:id, n:name});
   });

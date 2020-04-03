@@ -511,7 +511,7 @@ Celestial.display = function(config) {
         drawOutline(true);
       }
 
-      if (cfg.constellations.name) { 
+      if (cfg.constellations.names) { 
         //setTextStyle(cfg.constellations.nameStyle);
         container.selectAll(".constname").each( function(d) { 
           if (clip(d.geometry.coordinates)) {
@@ -827,7 +827,7 @@ Celestial.display = function(config) {
   }
   
   function constName(d) { 
-    return d.properties[cfg.constellations.nameType]; 
+    return d.properties[cfg.constellations.namesType]; 
   }
 
  function planetSize(d) {

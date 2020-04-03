@@ -144,20 +144,20 @@ var config = {
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep"],
     // Font styles for planetary symbols
     symbols: {  // Character and color for each symbol in 'which', simple circle \u25cf
-      "sol": {symbol: "\u2609", fill: "#ffff00"},
-      "mer": {symbol: "\u263f", fill: "#cccccc"},
-      "ven": {symbol: "\u2640", fill: "#eeeecc"},
-      "ter": {symbol: "\u2295", fill: "#00ffff"},
-      "lun": {symbol: "\u25cf", fill: "#ffffff"}, // overridden by generated crecent
-      "mar": {symbol: "\u2642", fill: "#ff9999"},
-      "cer": {symbol: "\u26b3", fill: "#cccccc"},
-      "ves": {symbol: "\u26b6", fill: "#cccccc"},
-      "jup": {symbol: "\u2643", fill: "#ff9966"},
-      "sat": {symbol: "\u2644", fill: "#ffcc66"},
-      "ura": {symbol: "\u2645", fill: "#66ccff"},
-      "nep": {symbol: "\u2646", fill: "#6666ff"},
-      "plu": {symbol: "\u2647", fill: "#aaaaaa"},
-      "eri": {symbol: "\u25cf", fill: "#eeeeee"}
+      "sol": {symbol: "\u2609", letter:"Su", fill: "#ffff00"},
+      "mer": {symbol: "\u263f", letter:"Me", fill: "#cccccc"},
+      "ven": {symbol: "\u2640", letter:"V", fill: "#eeeecc"},
+      "ter": {symbol: "\u2295", letter:"T", fill: "#00ccff"},
+      "lun": {symbol: "\u25cf", letter:"L", fill: "#ffffff"}, // overridden by generated crecent, except letter
+      "mar": {symbol: "\u2642", letter:"Ma", fill: "#ff6600"},
+      "cer": {symbol: "\u26b3", letter:"C", fill: "#cccccc"},
+      "ves": {symbol: "\u26b6", letter:"Ma", fill: "#cccccc"},
+      "jup": {symbol: "\u2643", letter:"J", fill: "#ffaa33"},
+      "sat": {symbol: "\u2644", letter:"Sa", fill: "#ffdd66"},
+      "ura": {symbol: "\u2645", letter:"U", fill: "#66ccff"},
+      "nep": {symbol: "\u2646", letter:"N", fill: "#6666ff"},
+      "plu": {symbol: "\u2647", letter:"P", fill: "#aaaaaa"},
+      "eri": {symbol: "\u26aa", letter:"E", fill: "#eeeeee"}
     },
     symbolStyle: { fill: "#00ccff", font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", 
              align: "center", baseline: "middle" },
@@ -165,7 +165,8 @@ var config = {
                            // 'letter': 1 or 2 letters S Me V L Ma J S U N     
     names: false,          // Show name in nameType language next to symbol
     nameStyle: { fill: "#00ccff", font: "14px 'Lucida Sans Unicode', Consolas, sans-serif", align: "right", baseline: "top" },
-    namesType: "desig"     // Language of planet name, or desig = 3-letter designation
+    namesType: "desig"     // Language of planet name (see list below, ot all languages are available for planets, 
+                           // or desig = 3-letter designation
   },
   constellations: {
     name: true,      // Show constellation names 
@@ -218,7 +219,7 @@ Celestial.display(config);
 
 __Supported projections:__ Airy, Aitoff, Armadillo, August, Azimuthal Equal Area, Azimuthal Equidistant, Baker, Berghaus, Boggs, Bonne, Bromley, Cassini, Collignon, Craig, Craster, Cylindrical Equal Area, Cylindrical Stereographic, Eckert 1, Eckert 2, Eckert 3, Eckert 4, Eckert 5, Eckert 6, Eisenlohr, Equirectangular, Fahey, Foucaut, Ginzburg 4, Ginzburg 5, Ginzburg 6, Ginzburg 8, Ginzburg 9, Hammer, Hatano, HEALPix, Hill, Homolosine, Kavrayskiy 7, Lagrange, l'Arrivee, Laskowski, Loximuthal, Mercator, Miller, Mollweide, Flat Polar Parabolic, Flat Polar Quartic, Flat Polar Sinusoidal, Natural Earth, Nell Hammer, Orthographic, Patterson, Polyconic, Rectangular Polyconic, Robinson, Sinusoidal, Stereographic, Times, 2 Point Equidistant, van der Grinten, van der Grinten 2, van der Grinten 3, van der Grinten 4, Wagner 4, Wagner 6, Wagner 7, Wiechel and Winkel Tripel. Most of these need the extension [d3.geo.projections](https://github.com/d3/d3-geo-projection/)  
 
-__Supported languages for constellation name display:__  (name) Official IAU name, (desig) 3-Letter-Designation, (lat) Latin, (en) English, (ar) Arabic,  (cn) Chinese, (cz) Czech, (ee) Estonian, (fi) Finnish, (fr) French, (de) German, (gr) Greek, (il) Hebrew, (it) Italian, (jp) Japanese, (kr) Korean, (in) Marathi, (ir) Persian, (ru) Russian, (es) Spanish, (tr) Turkish  
+__Supported languages for constellation name or planet name display:__  (name) Official IAU name, (desig) 3-Letter-Designation, (lat) Latin, (en) English, (ar) Arabic,  (cn) Chinese, (cz) Czech, (ee) Estonian, (fi) Finnish, (fr) French, (de) German, (gr) Greek, (il) Hebrew, (it) Italian, (jp) Japanese, (kr) Korean, (in) Marathi, (ir) Persian, (ru) Russian, (es) Spanish, (tr) Turkish  
 
 
 __Style settings__   
