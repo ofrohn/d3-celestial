@@ -1,13 +1,13 @@
 /* global Celestial, settings, horizontal, datetimepicker, config, formats, $, pad, testNumber, isArray, isNumber, isValidDate, enable, Round, has, hasParent */
 
 function geo(cfg) {
-  var frm = d3.select("#celestial-form form").insert("div", "div#general").attr("id", "loc"),
-      dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
+  var dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zenith = [0,0],
       geopos = [0,0], 
       date = new Date(),
       zone = date.getTimezoneOffset(),
-      config = settings.set(cfg);
+      config = settings.set(cfg),
+      frm = d3.select("#celestial-form form").insert("div", "div#general").attr("id", "loc");
 
   var dtpick = new datetimepicker(config, function(date, tz) { 
     $("datetime").value = dateFormat(date, tz); 
@@ -74,7 +74,7 @@ function geo(cfg) {
       col.append("label").attr("for", "planets-" + fld + "Type").html(txt);
       
       var selected = 0;
-      col.append("label").attr("title", "Type of planet name").attr("for", "planets-" + fld + "Type").html("");
+      col.append("label").attr("title", "Type of planet name").attr("for", "planets-" + fld + "Type").attr("class", "advanced").html("");
       var sel = col.append("select").attr("id", "planets-" + fld + "Type").on("change", apply);
       var list = keys.map(function (key, i) {
         if (key === config.planets[fld + "Type"]) selected = i;    
@@ -86,6 +86,7 @@ function geo(cfg) {
       sel.property("selectedIndex", selected);
 
       if (fld === "names") {
+        sel.attr("class", "advanced");
         col.append("label").attr("for", "planets-" + fld).html("names");
         col.append("input").attr("type", "checkbox").attr("id", "planets-" + fld).property("checked", config.planets[fld]).on("change", apply);
       }
@@ -179,6 +180,8 @@ function geo(cfg) {
     
   };
 
+  Celestial.dateFormat = dateFormat;
+  
   Celestial.date = function (dt, tz) { 
     if (!dt) return date;  
     zone = tz || zone;
@@ -220,6 +223,7 @@ function geo(cfg) {
       $("lon").value = geopos[1];
       valid = true;
     }
+    //Celestial.updateForm();
     if (valid === true) go();
     else return {"date": date, "location": geopos};
   };  

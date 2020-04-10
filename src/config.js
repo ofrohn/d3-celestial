@@ -19,7 +19,7 @@ var settings = {
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
   location: false,    // Display location settings, deprecated, use formFields
-  simple: true,       // Display reduced form options 
+  advanced: true,       // Display reduced form options 
   // Set visiblity for each group of fields of the form
   formFields: {"location": true, "general": true, "stars": true, "dsos": true, "constellations": true, "lines": true, "other": true},
   daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
@@ -55,8 +55,9 @@ var settings = {
     style: { fill: "#cccccc", stroke: "#cccccc", width: 2, opacity: 1 }, // Default style for dsos
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
-    namestyle: { fill: "#cccccc", font: "11px 'Lucida Sans Unicode', Helvetica, Arial, serif", align: "left", baseline: "top" },
-    namelimit: 4,  // Show only names for DSOs brighter than namelimit
+    namesType: "name",  // "name" or "desig"
+    nameStyle: { fill: "#cccccc", font: "11px 'Lucida Sans Unicode', Helvetica, Arial, serif", align: "left", baseline: "top" },
+    nameLimit: 4,  // Show only names for DSOs brighter than nameLimit
     size: null,    // Optional seperate scale size for DSOs, null = stars.size
     exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear
     data: "dsos.bright.json",  // Data source for DSOs
@@ -101,9 +102,9 @@ var settings = {
   lines: {
     graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,      // Show graticule lines 
 			// grid values: "outline", "center", or [lat,...] specific position
-      lon: {pos: [""], fill: "#eee", font: "10px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"}, 
+      lon: {pos: [], fill: "#eee", font: "10px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"}, 
 			// grid values: "outline", "center", or [lon,...] specific position
-		  lat: {pos: [""], fill: "#eee", font: "10px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"}},
+		  lat: {pos: [], fill: "#eee", font: "10px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"}},
     equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },    // Show equatorial plane 
     ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane 
     galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 
@@ -206,6 +207,14 @@ var settings = {
       if (has(cfg.stars, "propernamelimit")) res.stars.propernameLimit = cfg.stars.propernamelimit;
       if (has(cfg.stars, "propernamestyle")) Object.assign(res.stars.propernameStyle, cfg.stars.propernamestyle);
     }
+    if (has(cfg, "dsos")) {
+      // names, desig -> namesType
+      if (has(cfg.dsos, "names") && cfg.dsos.names === true) res.dsos.namesType = "name";
+      if (has(cfg.dsos, "desig") && cfg.dsos.desig === true) res.dsos.namesType = "desig";
+      if (has(cfg.dsos, "namelimit")) res.dsos.nameLimit = cfg.dsos.namelimit;
+      if (has(cfg.dsos, "namestyle")) Object.assign(res.dsos.nameStyle, cfg.dsos.namestyle);    
+    }
+    if (!res.dsos.namesType || res.dsos.namesType === "") res.dsos.namesType = "desig";
     if (has(cfg, "constellations")) {
       // names, desig -> namesType
       if (has(cfg.constellations, "show") && cfg.constellations.show === true) res.constellations.names = true;
@@ -422,8 +431,21 @@ var formats = {
         "desig": "Designation",
         "name": "Chinese",
         "pinyin": "Pinyin",
-        "en": "English"
-      }
+        "en": "English"}
+    }
+  },
+  "dsos": {
+    "iau": {
+      "names": {
+        "desig": "Designation",
+        "name": "Name"}
+    },
+    "cn": {
+      "names": {
+        "desig": "Designation",
+        "name": "Chinese",
+        "pinyin": "Pinyin",
+        "en": "English"}      
     }
   }
 };

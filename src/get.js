@@ -109,7 +109,7 @@ function getGridValues(type, loc) {
       case "outline": 
         if (type === "lon") { 
           lines = lines.concat(getLine(type, cfg.center[1]-89.99, "S"));
-          lines = lines.concat(getLine(type, cfg.center[1]+89.99), "N");
+          lines = lines.concat(getLine(type, cfg.center[1]+89.99, "N"));
         } else {
 					// TODO: hemi
           lines = lines.concat(getLine(type, cfg.center[0]-179.99, "E"));

@@ -1,6 +1,6 @@
 /* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.6',
+  version: '0.7.7',
   container: null,
   data: []
 };
@@ -567,8 +567,8 @@ Celestial.display = function(config) {
           if (has(cfg.dsos.symbols[type], "stroke")) context.stroke();
           else context.fill();
           
-          if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.namelimit)) {
-            setTextStyle(cfg.dsos.namestyle);
+          if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.nameLimit)) {
+            setTextStyle(cfg.dsos.nameStyle);
             if (cfg.dsos.colors === true) context.fillStyle = cfg.dsos.symbols[type].fill;
             context.fillText(dsoName(d), pt[0]+r, pt[1]-r);      
           }         
@@ -576,14 +576,15 @@ Celestial.display = function(config) {
       });
     }
 
-    if ((cfg.location || cfg.formFields.location) && cfg.transform === "equatorial" && cfg.planets.show && Celestial.origin) { 
+    if ((cfg.location || cfg.formFields.location) && cfg.planets.show && Celestial.origin) { 
       var dt = Celestial.date(),
           o = Celestial.origin(dt).spherical();
       container.selectAll(".planet").each(function(d) {
         var id = d.id(), r = 6,
-            p = d(dt).equatorial(o);  //transform
-        if (clip(p.ephemeris.pos)) {
-          var pt = prjMap(p.ephemeris.pos),
+            p = d(dt).equatorial(o),
+            pos = transformDeg(p.ephemeris.pos, euler[cfg.transform]);  //transform; 
+        if (clip(pos)) {
+          var pt = prjMap(pos),
               sym = cfg.planets.symbols[id];
           if (cfg.planets.symbolType === "letter") {
             setTextStyle(cfg.planets.symbolStyle);
@@ -620,8 +621,6 @@ Celestial.display = function(config) {
         d.redraw();
       });
     }
-    
-//    drawOutline(true);
     
     if ((cfg.location || cfg.formFields.location) && cfg.daylight.show && proj.clip) {
       var sol = getPlanet("sol");
@@ -660,6 +659,9 @@ Celestial.display = function(config) {
     if (hasCallback) { 
       Celestial.runCallback();
     }
+    
+    //Celestial.updateForm();
+
   }
     
 
@@ -795,10 +797,7 @@ Celestial.display = function(config) {
  
 
   function dsoName(d) {
-    var prop = d.properties;
-    if (prop.name === "") return; 
-    if (cfg.dsos.desig && prop.desig) return prop.desig; 
-    return prop.name;
+    return d.properties[cfg.dsos.namesType]; 
   }
   
   /*Star designation  */
