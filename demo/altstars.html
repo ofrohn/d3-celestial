@@ -63,6 +63,8 @@ Celestial.add({
 
         // draw on canvas
         // Set object color
+        var colorindex= Celestial.starColor(d); 
+        starColor.range([colorindex, colorindex, 'black']);
         Celestial.context.fillStyle = starColor(d.properties.mag);
         // Start the drawing path
         Celestial.context.beginPath();

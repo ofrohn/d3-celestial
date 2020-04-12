@@ -943,6 +943,7 @@ Celestial.display = function(config) {
     if (has(cfg.dsos.symbols, type)) return cfg.dsos.symbols[type].fill;
     return "#000";
   };
+  this.starColor = starColor;
   this.animate = function(anims, dorepeat) { 
     if (!anims) return; 
     animations = anims; 
