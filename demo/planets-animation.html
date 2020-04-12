@@ -5,23 +5,32 @@
   <title>D3-Celestial Starmap</title>
   <script type="text/javascript" src="../lib/d3.min.js"></script>
   <script type="text/javascript" src="../lib/d3.geo.projection.min.js"></script>
-  <script type="text/javascript" src="../celestial.min.js"></script>
+  <script type="text/javascript" src="../celestial.js"></script>
   <link rel="stylesheet" href="../celestial.css">
+<style type="text/css">
+  .btnPlanet { display: inline-block; font: bold 14pt Consolas; margin: 0 6px; padding: 2px 6px; border: 2px solid #000; border-radius: 3px; background: rgba(204, 204, 255, 0.6) }
+</style>
 </head>
 <body>
+<div id="follow"></div>
   <div style="overflow:hidden;"><div id="celestial-map"></div></div>
   <div id="celestial-form"></div>
 
   <script type="text/javascript">
 
 var cfg = Celestial.settings().set({
+      geopos: [0,0],
       location: true,
-      projection: "equirectangular",
+      form: true,
+      formFields: {"location": true, "general": false, "stars": false, "dsos": false, "constellations": false, "lines": false, "other": true},
+      advanced: false,
+      //follow: "center",
+      projection: "orthographic",
       datapath: "https://ofrohn.github.io/data/",
-      planets: {show: true},
-      stars: {names: false, limit: 4.6},
-      dsos: {show: false},
-      constellations: {names: false}
+      planets: { show: true },
+      stars: { names: false, limit: 4.6 },
+      dsos: { show: false },
+      constellations: { names: false }
     }),
     reqID,
     reqAnimFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame  ||
@@ -33,11 +42,28 @@ var cfg = Celestial.settings().set({
     dt = new Date();
 
 Celestial.display(cfg);
+/*
+var planets = {"sol": "Sun", "mer": "Mercury", "ven": "Venus", "lun": "Moon", "mar": "Mars", "jup": "Jupiter", 
+               "sat": "Saturn", "ura": "Uranus", "nep": "Neptune", "cer": "Ceres", "plu": "Pluto"}
+    follow = "",
+    div = d3.select("#follow");
+for (key in planets) {
+  div.append("div").attr("id", key).attr("class", "btnPlanet").html(planets[key]).on("click", function() {
+    follow = this.id;
+    cncAnimFrame(reqID);
+    p = Celestial.getPlanet(follow, dt);
+
+    Celestial.rotate({center: p.ephemeris.pos});
+  })
+}
+*/
 
 function animate() {
-  reqID = reqAnimFrame(animate);
   dt.setDate(dt.getDate()+1);
   Celestial.date(dt);
+  reqID = reqAnimFrame(animate);
+  
+  if (follow === "") return;
 }
 
 d3.select('#celestial-map').on('mousedown', function() { cncAnimFrame(reqID) } )
@@ -48,7 +74,7 @@ reqID = reqAnimFrame(animate);
   </script>
 
   <footer id="d3-celestial-footer">
-    <p><a href="https://github.com/ofrohn/d3-celestial"><b>D3-Celestial</b></a> released under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a>. Copyright 2015-19 <a href="http://armchairastronautics.blogspot.com/" rel="author">Olaf Frohn</a>.</p>
+    <p><a href="https://github.com/ofrohn/d3-celestial"><b>D3-Celestial</b></a> released under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a>. Copyright 2015-20 <a href="http://armchairastronautics.blogspot.com/" rel="author">Olaf Frohn</a>.</p>
   </footer>
 </body>
 </html>

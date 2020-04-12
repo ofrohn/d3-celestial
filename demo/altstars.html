@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>D3-Celestial Alternative Stars</title>
+  <script type="text/javascript" src="../lib/d3.min.js"></script>
+  <script type="text/javascript" src="../lib/d3.geo.projection.min.js"></script>
+  <script type="text/javascript" src="../celestial.min.js"></script>
+  <link rel="stylesheet" href="../celestial.css">
+</head>
+<body>
+  <div style="overflow:hidden;margin:0 auto;"><div id="celestial-map"></div></div>
+  <div id="celestial-form"></div>
+
+  <script type="text/javascript">
+
+// Some prettifying styles
+var config = {
+  projection: "orthographic",
+  background: { fill: "#000000", stroke: "#000000", opacity: 1, width: 4 },
+  datapath: "https://ofrohn.github.io/data/",
+  stars: { show: false },
+  dsos: { show: false },
+  mw: { style: { fill: "#ffffff", opacity: "0.05" } },
+  constellations: { show: false }
+};
+
+// Asterisms canvas style properties for lines and text
+var maxMagnitude = 6,
+    radius = 2,
+    starColor = d3.scale.linear()
+     .domain([-1.5, 0, maxMagnitude+1])
+     .range(['white', 'white', 'black']);  
+
+
+Celestial.add({
+  type:"json",
+  file:"https://ofrohn.github.io/data/stars." + maxMagnitude + ".json",
+
+  callback: function(error, json) {
+
+    if (error) return console.warn(error);
+    // Load the geoJSON file and transform to correct coordinate system, if necessary
+    var stars = Celestial.getData(json, config.transform);
+
+    // Add to celestiasl objects container in d3
+    Celestial.container.selectAll(".astars")
+       .data(stars.features)
+       .enter().append("path")
+       .attr("class", "astar");    
+    // Trigger redraw to display changes
+    Celestial.redraw();
+  },
+
+  redraw: function() {
+    Celestial.context.globalAlpha = 1;
+    // Select the added objects by class name as given previously
+    Celestial.container.selectAll(".astar").each(function(d) {
+      // If point is visible (this doesn't work automatically for points)
+      if (Celestial.clip(d.geometry.coordinates)) {
+        // get point coordinates
+        var pt = Celestial.mapProjection(d.geometry.coordinates);
+
+        // draw on canvas
+        // Set object color
+        Celestial.context.fillStyle = starColor(d.properties.mag);
+        // Start the drawing path
+        Celestial.context.beginPath();
+        // Thats a circle in html5 canvas
+        Celestial.context.arc(pt[0], pt[1], radius, 0, 2 * Math.PI);
+        // Finish the drawing path
+        Celestial.context.closePath();
+        // Fill the object path with the prevoiusly set fill color
+        Celestial.context.fill();
+
+      }
+    });
+  }
+});
+
+// Simple point distance function
+function distance(p1, p2) {
+  var d1 = p2[0] - p1[0],
+      d2 = p2[1] - p1[1];
+  return Math.sqrt(d1 * d1 + d2 * d2);
+}
+
+Celestial.display(config);
+
+  </script>
+
+  <footer id="d3-celestial-footer">
+    <p><a href="https://github.com/ofrohn/d3-celestial"><b>D3-Celestial</b></a> released under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a>. Copyright 2015-19 <a href="http://armchairastronautics.blogspot.com/" rel="author">Olaf Frohn</a>.</p>
+  </footer>
+</body>
+</html>
