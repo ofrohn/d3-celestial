@@ -13,7 +13,7 @@ __Demos__:
 [Setting time/location](https://ofrohn.github.io/celestial-demo/location.html) and see the current sky  
 [Animated planets](https://ofrohn.github.io/celestial-demo/planets-animation.html) moving about the ecliptic  
 [Starry sky](https://ofrohn.github.io/celestial-demo/sky.html) just the stars  
-[Alternative Stars](https://ofrohn.github.io/celestial-demo/altstras.html) different way to display stars  
+[Alternative Stars](https://ofrohn.github.io/celestial-demo/altstars.html) different way to display stars  
 [Summer triangle](https://ofrohn.github.io/celestial-demo/triangle.html) adding data  
 [Supernova remnants](https://ofrohn.github.io/celestial-demo/snr.html) adding point data  
 [Traditional Chinese constellation](https://ofrohn.github.io/celestial-demo/triangle.html) a different culture altogether    
