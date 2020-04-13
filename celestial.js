@@ -2721,12 +2721,7 @@ function form(cfg) {
     
   }
   
-  
-  function showAdvanced(showit) {
-    var vis = showit ? "inline-block" : "none";
-    d3.selectAll(".advanced").style("display", vis);
-  }
-  
+    
   function update() {
     // Update all form fields
     d3.selectAll("#celestial-form input, #celestial-form select").each( function(d, i) {
@@ -2960,6 +2955,12 @@ function setLimits() {
 
   return res;
 }
+
+function showAdvanced(showit) {
+  var vis = showit ? "inline-block" : "none";
+  d3.selectAll(".advanced").style("display", vis);
+}
+
 
 function setVisibility(cfg, which) {
    var vis, fld;
