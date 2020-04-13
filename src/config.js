@@ -128,7 +128,7 @@ var settings = {
     show: false
   },
   planets: {  //Show planet locations, if date-time is set
-    show: false,
+    show: false, 
     // 3-letter designations of all solar system objects that should be displayed
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
     // Symbols as unicode codepoints, letter abbreviations and colors to be displayed

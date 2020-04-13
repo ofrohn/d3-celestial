@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.7',
+  version: '0.7.8',
   container: null,
   data: []
 };
@@ -1575,7 +1575,7 @@ var settings = {
     show: false
   },
   planets: {  //Show planet locations, if date-time is set
-    show: false,
+    show: false, 
     // 3-letter designations of all solar system objects that should be displayed
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
     // Symbols as unicode codepoints, letter abbreviations and colors to be displayed
@@ -3114,6 +3114,7 @@ function geo(cfg) {
   }    
  
   enable($("planets-show"));
+  showAdvanced(config.advanced);
   
 
   d3.select(document).on("mousedown", function () { 

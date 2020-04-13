@@ -1,4 +1,4 @@
-/* global Celestial, settings, horizontal, datetimepicker, config, formats, $, pad, testNumber, isArray, isNumber, isValidDate, enable, Round, has, hasParent */
+/* global Celestial, settings, horizontal, datetimepicker, config, formats, $, pad, testNumber, isArray, isNumber, isValidDate, showAdvanced, enable, Round, has, hasParent */
 
 function geo(cfg) {
   var dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
@@ -94,6 +94,7 @@ function geo(cfg) {
   }    
  
   enable($("planets-show"));
+  showAdvanced(config.advanced);
   
 
   d3.select(document).on("mousedown", function () { 
