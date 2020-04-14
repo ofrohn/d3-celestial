@@ -30,7 +30,7 @@ var config = {
   constellations: { show: false }
 };
 
-var planets = {sol: "#ff0", lun:"#fff", mer:"#929292", ven:"#f5f5f0", mar:"#efd1af", jup:"#e6e1df", sat:"#eddebc"};
+var planets = {sol: "#ff0", lun:"#fff", mer:"#e2e2e2", ven:"#f5f5f0", mar:"#efd1af", jup:"#e6e1df", sat:"#eddebc"};
 
 // Asterisms canvas style properties for lines and text
 var limitMagnitude = 6,
@@ -38,7 +38,8 @@ var limitMagnitude = 6,
     grayscale = false,
     starColor = d3.scale.linear()
      .domain([-1.5, 0, limitMagnitude+1])
-     .range(['white', 'white', 'black']);  
+     .range(['white', 'white', 'black']),
+     dt = new Date();  
 
 
 Celestial.add({
@@ -63,7 +64,8 @@ Celestial.add({
   redraw: function() {
     Celestial.context.globalAlpha = 1;
     // Default color for grayscale
-    var indexColor = "#fff";
+    var indexColor = "#fff", 
+        planet;
     
     // Select the added objects by class name as given previously
     Celestial.container.selectAll(".astar").each(function(d) {
@@ -90,10 +92,29 @@ Celestial.add({
 
       }
       
-      for (var key in planets) {
-        planet = Celestial.getPlanet(key, dt);
-      }
     });
+    if (!Celestial.origin) return;
+    var o = Celestial.origin(dt).spherical();
+    for (var key in planets) {
+      var planet = Celestial.getPlanet(key, dt);
+      if (!Celestial.clip(planet.ephemeris.pos)) continue;
+      var pt = Celestial.mapProjection(planet.ephemeris.pos);
+      if (key === "lun") {
+        Celestial.symbol().type("crescent").size(110).age(planet.ephemeris.age).position(pt)(Celestial.context);
+      } else {
+        if (key === "sol") radius = 2;
+        else radius = 1.2 - (planet.ephemeris.mag + 5) / 10;
+        Celestial.context.fillStyle = (grayscale === false) ? planets[key] : "#eee";
+        // Start the drawing path
+        Celestial.context.beginPath();
+        // draw circle on canvas
+        Celestial.context.arc(pt[0], pt[1], radius*2, 0, 2 * Math.PI);
+        // Finish the drawing path
+        Celestial.context.closePath();
+        // Fill the object path with the prevoiusly set fill color
+        Celestial.context.fill();
+      }
+    }
   }
 });
 
@@ -104,11 +125,11 @@ d3.select("#btnColor").on("click", function(d) {
 });
 
 Celestial.display(config);
-
+Celestial.date(dt);
   </script>
 
   <footer id="d3-celestial-footer">
-    <p><a href="https://github.com/ofrohn/d3-celestial"><b>D3-Celestial</b></a> released under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a>. Copyright 2015-19 <a href="http://armchairastronautics.blogspot.com/" rel="author">Olaf Frohn</a>.</p>
+    <p><a href="https://github.com/ofrohn/d3-celestial"><b>D3-Celestial</b></a> released under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a>. Copyright 2015-20 <a href="http://armchairastronautics.blogspot.com/" rel="author">Olaf Frohn</a>.</p>
   </footer>
 </body>
 </html>

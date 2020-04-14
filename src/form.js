@@ -229,10 +229,10 @@ function form(cfg) {
   col.append("label").attr("for", "constellations-desig").html("abbreviated");
   col.append("input").attr("type", "checkbox").attr("id", "constellations-desig").property("checked", config.constellations.desig).on("change", apply);
   */
-  col.append("label").attr("for", "constellations-lines").html("with lines");
+  col.append("label").attr("for", "constellations-lines").html(" lines");
   col.append("input").attr("type", "checkbox").attr("id", "constellations-lines").property("checked", config.constellations.lines).on("change", apply);
   
-  col.append("label").attr("for", "constellations-bounds").html("with boundaries");
+  col.append("label").attr("for", "constellations-bounds").html(" boundaries");
   col.append("input").attr("type", "checkbox").attr("id", "constellations-bounds").property("checked", config.constellations.bounds).on("change", apply);
 
   enable($("constellations-names"));

@@ -496,41 +496,37 @@ Celestial.display = function(config) {
       });
     }
     
-    drawOutline(true);
+    if (cfg.constellations.bounds) { 
+      container.selectAll(".boundaryline").each(function(d) { 
+        setStyle(cfg.constellations.boundStyle); 
+        if (Celestial.constellation && Celestial.constellation === d.id) {
+          context.lineWidth *= 1.5;
+          context.setLineDash([]);
+        }
+        map(d); 
+        context.stroke(); 
+      });
+    }
 
-    if (cfg.constellations.show) {     
-      if (cfg.constellations.bounds) { 
-        container.selectAll(".boundaryline").each(function(d) { 
-          setStyle(cfg.constellations.boundStyle); 
-          if (Celestial.constellation && Celestial.constellation === d.id) {
-            context.lineWidth *= 1.5;
-            context.setLineDash([]);
-          }
-          map(d); 
-          context.stroke(); 
-        });
-        drawOutline(true);
-      }
+    if (cfg.constellations.lines) { 
+      container.selectAll(".constline").each(function(d) { 
+        setStyleA(d.properties.rank, cfg.constellations.lineStyle); 
+        map(d); 
+        context.stroke(); 
+      });
+    }
+    
+    drawOutline(true);    
 
-      if (cfg.constellations.names) { 
-        //setTextStyle(cfg.constellations.nameStyle);
-        container.selectAll(".constname").each( function(d) { 
-          if (clip(d.geometry.coordinates)) {
-            setStyleA(d.properties.rank, cfg.constellations.nameStyle);
-            var pt = prjMap(d.geometry.coordinates);
-            context.fillText(constName(d), pt[0], pt[1]); 
-          }
-        });
-      }
-
-      if (cfg.constellations.lines) { 
-        container.selectAll(".constline").each(function(d) { 
-          setStyleA(d.properties.rank, cfg.constellations.lineStyle); 
-          map(d); 
-          context.stroke(); 
-        });
-      }
-      
+    if (cfg.constellations.names) { 
+      //setTextStyle(cfg.constellations.nameStyle);
+      container.selectAll(".constname").each( function(d) { 
+        if (clip(d.geometry.coordinates)) {
+          setStyleA(d.properties.rank, cfg.constellations.nameStyle);
+          var pt = prjMap(d.geometry.coordinates);
+          context.fillText(constName(d), pt[0], pt[1]); 
+        }
+      });
     }
       
 
@@ -917,6 +913,7 @@ Celestial.display = function(config) {
     var f = arrayfy(font);
     context.font = f[rank];    
   };
+  this.symbol = Canvas.symbol;
   this.dsoSymbol = dsoSymbol;
   this.redraw = redraw; 
   this.resize = function(config) { 

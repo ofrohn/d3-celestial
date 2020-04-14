@@ -94,16 +94,19 @@ var config = {
     show: true,    // Show constellations
     names: true,   // Show constellation names
     desig: true,   // Show short constellation names (3 letter designations)
-    namestyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8,
-                 font: ["bold 14px Helvetica, Arial, sans-serif",  // Different fonts for brighter &
-                        "bold 12px Helvetica, Arial, sans-serif",  // sdarker constellations
-                        "bold 11px Helvetica, Arial, sans-serif"]},
+    nameStyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8,
+                 font: ["bold 18px Helvetica, Arial, sans-serif",  // Different fonts for brighter &
+                        "bold 16px Helvetica, Arial, sans-serif",  // sdarker constellations
+                        "bold 15px Helvetica, Arial, sans-serif"]},
     lines: true,   // Show constellation lines
     linestyle: { stroke: "#cccccc", width: 1, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries
-    boundstyle: { stroke: "#cccc00", width: 0.5, opacity: 0.8, dash: [2, 4] }
+    boundstyle: { stroke: "#cccc00",  width: 0.5, opacity: 0.8, dash: [2, 4] }
   },
-  planets: { show: true, names: true },
+  planets: { show: true, 
+             names: true, 
+             nameStyle: { fill: "#00ccff", font: "16px 'Lucida Sans Unicode', Consolas, sans-serif", align: "right", baseline: "top" },
+             namesType: "desig" },
   mw: {
     show: true,    // Show Milky Way as filled polygons
     style: { fill: "#ffffff", opacity: "0.15" }
