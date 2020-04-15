@@ -1536,9 +1536,9 @@ var settings = {
 								        "12px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // darker constellations
 												"11px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"]},
     lines: true,   // Show constellation lines 
-    lineStyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6, dash: [] },
+    lineStyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries 
-    boundStyle: { stroke: "#ccff00", width: 1, opacity: 0.8, dash: [2, 4] }
+    boundStyle: { stroke: "#ccff00", width: 1, opacity: 0.8, dash: [2, 6] }
   },
   mw: {
     show: true,    // Show Milky Way as filled polygons 
