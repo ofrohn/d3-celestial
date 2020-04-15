@@ -505,6 +505,7 @@ Celestial.display = function(config) {
         map(d); 
         context.stroke(); 
       });
+      context.setLineDash([]);
     }
 
     if (cfg.constellations.lines) { 

@@ -91,7 +91,7 @@ var settings = {
 								        "12px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // darker constellations
 												"11px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"]},
     lines: true,   // Show constellation lines 
-    lineStyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
+    lineStyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6, dash: [] },
     bounds: false,  // Show constellation boundaries 
     boundStyle: { stroke: "#ccff00", width: 1, opacity: 0.8, dash: [2, 4] }
   },
