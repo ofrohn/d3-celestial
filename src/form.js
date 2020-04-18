@@ -443,7 +443,7 @@ function form(cfg) {
       else config[keys[i]].namesType = "name";
     }
     if (has(formats.starnames[config.culture].propername, lang)) config.stars.propernameType = lang;
-    else config.stars.propernameType = "name";
+    else config.stars.propernameType = "desig";
     //update cont. list
     update();
     listConstellations();
@@ -500,6 +500,9 @@ function form(cfg) {
     
   Celestial.updateForm  = update;
   Celestial.showConstellation = showCon;
+  Celestial.setLanguage = function(lang) {
+    if (formats_all[config.culture].indexOf(lang) !== -1) setLanguage(lang);    
+  };
 }
 
 // Options only visible in advanced mode

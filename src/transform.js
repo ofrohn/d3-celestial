@@ -1,4 +1,4 @@
-/* global Celestial, poles */
+/* global Celestial, poles, eulerAngles */
 var τ = Math.PI*2,
     halfπ = Math.PI/2,
     deg2rad = Math.PI/180;
@@ -54,6 +54,14 @@ function transform(c, euler) {
   }
   
   return [ψ, θ];
+}
+
+  
+function getAngles(coords) {
+  if (coords === null || coords.length <= 0) return [0,0,0];
+  var rot = eulerAngles.equatorial; 
+  if (!coords[2]) coords[2] = 0;
+  return [rot[0] - coords[0], rot[1] - coords[1], rot[2] + coords[2]];
 }
 
 

@@ -193,7 +193,7 @@ var settings = {
     res.datapath = res.datapath.replace(/([^\/]$)/, "$1\/");
     
     // If no recognized language/culture settings, assume defaults
-    if (!res.lang || res.lang.search(/^de|es$/) === -1) res.lang = "name";
+    //if (!res.lang || res.lang.search(/^de|es$/) === -1) res.lang = "name";
     //Set all poss. names to cfg.lang if not english
     if (!res.culture || res.culture.search(/^cn$/) === -1) res.culture = "iau";
     // Adapt legacy name parameters
@@ -418,7 +418,9 @@ var formats = {
         "in": "Hindi",
         "it": "Italian",
         "jp": "Japanese",
+        "kr": "Korean", 
         "lat": "Latin",
+        "ir": "Persian", 
         "ru": "Russian",
         "es": "Spanish"}
     },

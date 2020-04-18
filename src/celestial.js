@@ -1,6 +1,6 @@
-/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
+/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.8',
+  version: '0.7.9',
   container: null,
   data: []
 };
@@ -24,7 +24,7 @@ Celestial.display = function(config) {
       repeat = false;
   
   //Mash config with default settings
-  cfg = settings.set(config).applyDefaults(config); 
+  cfg = settings.set(config).applyDefaults(config);
   if (isNumber(cfg.zoomextend)) zoomextent = cfg.zoomextend;
   if (isNumber(cfg.zoomlevel)) zoomlevel = cfg.zoomlevel;
 
@@ -104,6 +104,7 @@ Celestial.display = function(config) {
   daylight = d3.geo.circle().angle([179.9]);
 
   form(cfg);
+  
   if ($("error") === null) d3.select("body").append("div").attr("id", "error");
 
   if ($("loc") === null) geo(cfg);
@@ -167,7 +168,7 @@ Celestial.display = function(config) {
          .enter().append("path")
          .attr("class", "mwbg");
       redraw();
-  }); 
+    }); 
 
     //Constellation names or designation
     var filename = "constellations" + extConstellations + ".json";
@@ -212,7 +213,7 @@ Celestial.display = function(config) {
 
       listConstellations();
       redraw();
-  });
+    });
     
     //Stars
     d3.json(path + cfg.stars.data, function(error, json) {
@@ -272,6 +273,8 @@ Celestial.display = function(config) {
         else setTimeout(d.callback, 0);
       }, this);
     }
+  
+    if (cfg.lang && cfg.lang != "") Celestial.setLanguage(cfg.lang);
     redraw();
   }
   
@@ -864,14 +867,7 @@ Celestial.display = function(config) {
     if (!has(res, "ratio")) res.ratio = 2;  // Default w/h ratio 2:1    
     return res;
   }
-  
-  function getAngles(coords) {
-    if (coords === null || coords.length <= 0) return [0,0,0];
-    var rot = eulerAngles.equatorial; 
-    if (!coords[2]) coords[2] = 0;
-    return [rot[0] - coords[0], rot[1] - coords[1], rot[2] + coords[2]];
-  }
-  
+ 
   
   function animate() {
     if (!animations || animations.length < 1) return;
@@ -904,7 +900,7 @@ Celestial.display = function(config) {
   this.mapProjection = prjMap;
   this.context = context;
   this.metrics = function() {
-    return {"width": width, "height": height, "margin": margin};
+    return {"width": width, "height": height, "margin": margin, "scale": scale};
   };
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;

@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.8',
+  version: '0.7.9',
   container: null,
   data: []
 };
@@ -25,7 +25,7 @@ Celestial.display = function(config) {
       repeat = false;
   
   //Mash config with default settings
-  cfg = settings.set(config).applyDefaults(config); 
+  cfg = settings.set(config).applyDefaults(config);
   if (isNumber(cfg.zoomextend)) zoomextent = cfg.zoomextend;
   if (isNumber(cfg.zoomlevel)) zoomlevel = cfg.zoomlevel;
 
@@ -105,6 +105,7 @@ Celestial.display = function(config) {
   daylight = d3.geo.circle().angle([179.9]);
 
   form(cfg);
+  
   if ($("error") === null) d3.select("body").append("div").attr("id", "error");
 
   if ($("loc") === null) geo(cfg);
@@ -168,7 +169,7 @@ Celestial.display = function(config) {
          .enter().append("path")
          .attr("class", "mwbg");
       redraw();
-  }); 
+    }); 
 
     //Constellation names or designation
     var filename = "constellations" + extConstellations + ".json";
@@ -213,7 +214,7 @@ Celestial.display = function(config) {
 
       listConstellations();
       redraw();
-  });
+    });
     
     //Stars
     d3.json(path + cfg.stars.data, function(error, json) {
@@ -273,6 +274,8 @@ Celestial.display = function(config) {
         else setTimeout(d.callback, 0);
       }, this);
     }
+  
+    if (cfg.lang && cfg.lang != "") Celestial.setLanguage(cfg.lang);
     redraw();
   }
   
@@ -865,14 +868,7 @@ Celestial.display = function(config) {
     if (!has(res, "ratio")) res.ratio = 2;  // Default w/h ratio 2:1    
     return res;
   }
-  
-  function getAngles(coords) {
-    if (coords === null || coords.length <= 0) return [0,0,0];
-    var rot = eulerAngles.equatorial; 
-    if (!coords[2]) coords[2] = 0;
-    return [rot[0] - coords[0], rot[1] - coords[1], rot[2] + coords[2]];
-  }
-  
+ 
   
   function animate() {
     if (!animations || animations.length < 1) return;
@@ -905,7 +901,7 @@ Celestial.display = function(config) {
   this.mapProjection = prjMap;
   this.context = context;
   this.metrics = function() {
-    return {"width": width, "height": height, "margin": margin};
+    return {"width": width, "height": height, "margin": margin, "scale": scale};
   };
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;
@@ -1108,6 +1104,14 @@ function transform(c, euler) {
   }
   
   return [ψ, θ];
+}
+
+  
+function getAngles(coords) {
+  if (coords === null || coords.length <= 0) return [0,0,0];
+  var rot = eulerAngles.equatorial; 
+  if (!coords[2]) coords[2] = 0;
+  return [rot[0] - coords[0], rot[1] - coords[1], rot[2] + coords[2]];
 }
 
 
@@ -1638,7 +1642,7 @@ var settings = {
     res.datapath = res.datapath.replace(/([^\/]$)/, "$1\/");
     
     // If no recognized language/culture settings, assume defaults
-    if (!res.lang || res.lang.search(/^de|es$/) === -1) res.lang = "name";
+    //if (!res.lang || res.lang.search(/^de|es$/) === -1) res.lang = "name";
     //Set all poss. names to cfg.lang if not english
     if (!res.culture || res.culture.search(/^cn$/) === -1) res.culture = "iau";
     // Adapt legacy name parameters
@@ -1863,7 +1867,9 @@ var formats = {
         "in": "Hindi",
         "it": "Italian",
         "jp": "Japanese",
+        "kr": "Korean", 
         "lat": "Latin",
+        "ir": "Persian", 
         "ru": "Russian",
         "es": "Spanish"}
     },
@@ -2712,7 +2718,7 @@ function form(cfg) {
       else config[keys[i]].namesType = "name";
     }
     if (has(formats.starnames[config.culture].propername, lang)) config.stars.propernameType = lang;
-    else config.stars.propernameType = "name";
+    else config.stars.propernameType = "desig";
     //update cont. list
     update();
     listConstellations();
@@ -2769,6 +2775,9 @@ function form(cfg) {
     
   Celestial.updateForm  = update;
   Celestial.showConstellation = showCon;
+  Celestial.setLanguage = function(lang) {
+    if (formats_all[config.culture].indexOf(lang) !== -1) setLanguage(lang);    
+  };
 }
 
 // Options only visible in advanced mode
