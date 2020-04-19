@@ -73,12 +73,12 @@ var config = {
                "constellations": true,  
                "lines": true,  
                "other": true},
-                      // Needs a div with id="celestial-form"
+  advanced: true,     // Display fewer form fields if false 
   daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
                       // [yr, n<100]: [yr-n, yr+n]; [yr0, yr1]  
   controls: true,     // Display zoom controls
-  lang: "",           // Language for names, so far only for constellations: 
-                      // de: german, es: spanish. Default:en or empty string for english
+  lang: "",           // Global language override for names, any name setting that has the chosen language available
+                      // Default: desig or empty string for designations, other languages as used anywhere else
   culture: "",        // Source of constellations and star names, default "iau", other: "cn" Traditional Chinese
   container: "map",   // ID of parent element, e.g. div, null = html-body
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'

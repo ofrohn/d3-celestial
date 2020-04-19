@@ -19,14 +19,14 @@ var settings = {
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
   location: false,    // Display location settings, deprecated, use formFields
-  advanced: true,       // Display reduced form options 
+  advanced: true,     // Display fewer form fields if false
   // Set visiblity for each group of fields of the form
   formFields: {"location": true, "general": true, "stars": true, "dsos": true, "constellations": true, "lines": true, "other": true},
   daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
                       // [yr, n<100]: [yr-n, yr+n]; [yr0, yr1]
   controls: true,     // Display zoom controls
-  lang: "",           // Language for names, so far only for constellations: de: german, es: spanish
-                      // Default:en or empty string for english
+  lang: "",           // Global language override for names, any name setting that has the chosen language available
+                      // Default: desig or empty string for designations, other languages as used anywhere else
   culture: "",        // Constellation lines, default "iau"
   container: "celestial-map",   // ID of parent element, e.g. div
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'

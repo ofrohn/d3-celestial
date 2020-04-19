@@ -447,7 +447,7 @@ function form(cfg) {
     //update cont. list
     update();
     listConstellations();
-    
+    return config;
   }
   
     
@@ -501,12 +501,12 @@ function form(cfg) {
   Celestial.updateForm  = update;
   Celestial.showConstellation = showCon;
   Celestial.setLanguage = function(lang) {
-    if (formats_all[config.culture].indexOf(lang) !== -1) setLanguage(lang);    
+    var cfg = settings.set();
+    if (formats_all[config.culture].indexOf(lang) !== -1) cfg = setLanguage(lang);
+    return cfg;    
   };
 }
 
-// Options only visible in advanced mode
-//var advanced = ["stars-designationType", "stars-propernameType", "stars-size", "stars-exponent", "stars-size", "stars-exponent", //"constellations-namesType", "planets-namesType", "planets-symbolType"];
 
 // Dependend fields relations
 var depends = {
@@ -688,6 +688,8 @@ function setLimits() {
   return res;
 }
 
+// Options only visible in advanced mode
+//"stars-designationType", "stars-propernameType", "stars-size", "stars-exponent", "stars-size", "stars-exponent", //"constellations-namesType", "planets-namesType", "planets-symbolType"
 function showAdvanced(showit) {
   var vis = showit ? "inline-block" : "none";
   d3.selectAll(".advanced").style("display", vis);

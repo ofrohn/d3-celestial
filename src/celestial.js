@@ -274,8 +274,8 @@ Celestial.display = function(config) {
       }, this);
     }
   
-    if (cfg.lang && cfg.lang != "") Celestial.setLanguage(cfg.lang);
-    redraw();
+    if (cfg.lang && cfg.lang != "") apply(Celestial.setLanguage(cfg.lang));
+    //redraw();
   }
   
   // Zoom by factor; >1 larger <1 smaller 

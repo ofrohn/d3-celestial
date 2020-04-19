@@ -275,8 +275,8 @@ Celestial.display = function(config) {
       }, this);
     }
   
-    if (cfg.lang && cfg.lang != "") Celestial.setLanguage(cfg.lang);
-    redraw();
+    if (cfg.lang && cfg.lang != "") apply(Celestial.setLanguage(cfg.lang));
+    //redraw();
   }
   
   // Zoom by factor; >1 larger <1 smaller 
@@ -1468,14 +1468,14 @@ var settings = {
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
   location: false,    // Display location settings, deprecated, use formFields
-  advanced: true,       // Display reduced form options 
+  advanced: true,     // Display fewer form fields if false
   // Set visiblity for each group of fields of the form
   formFields: {"location": true, "general": true, "stars": true, "dsos": true, "constellations": true, "lines": true, "other": true},
   daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
                       // [yr, n<100]: [yr-n, yr+n]; [yr0, yr1]
   controls: true,     // Display zoom controls
-  lang: "",           // Language for names, so far only for constellations: de: german, es: spanish
-                      // Default:en or empty string for english
+  lang: "",           // Global language override for names, any name setting that has the chosen language available
+                      // Default: desig or empty string for designations, other languages as used anywhere else
   culture: "",        // Constellation lines, default "iau"
   container: "celestial-map",   // ID of parent element, e.g. div
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
@@ -2722,7 +2722,7 @@ function form(cfg) {
     //update cont. list
     update();
     listConstellations();
-    
+    return config;
   }
   
     
@@ -2776,12 +2776,12 @@ function form(cfg) {
   Celestial.updateForm  = update;
   Celestial.showConstellation = showCon;
   Celestial.setLanguage = function(lang) {
-    if (formats_all[config.culture].indexOf(lang) !== -1) setLanguage(lang);    
+    var cfg = settings.set();
+    if (formats_all[config.culture].indexOf(lang) !== -1) cfg = setLanguage(lang);
+    return cfg;    
   };
 }
 
-// Options only visible in advanced mode
-//var advanced = ["stars-designationType", "stars-propernameType", "stars-size", "stars-exponent", "stars-size", "stars-exponent", //"constellations-namesType", "planets-namesType", "planets-symbolType"];
 
 // Dependend fields relations
 var depends = {
@@ -2963,6 +2963,8 @@ function setLimits() {
   return res;
 }
 
+// Options only visible in advanced mode
+//"stars-designationType", "stars-propernameType", "stars-size", "stars-exponent", "stars-size", "stars-exponent", //"constellations-namesType", "planets-namesType", "planets-symbolType"
 function showAdvanced(showit) {
   var vis = showit ? "inline-block" : "none";
   d3.selectAll(".advanced").style("display", vis);
