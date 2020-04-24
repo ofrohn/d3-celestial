@@ -1,4 +1,4 @@
-/* global Celestial, settings, globalConfig, formats, formats_all, $, px, has, isNumber, isObject, isArray, findPos, transformDeg, euler */
+/* global Celestial, settings, globalConfig, formats, formats_all, $, px, has, isNumber, isObject, isArray, findPos, transformDeg, euler, saveSVG */
 
 //display settings form in div with id "celestial-form"
 function form(cfg) {
@@ -296,6 +296,21 @@ function form(cfg) {
      .text(function (d) { return d.n; });
   sel.property("selectedIndex", selected);
    
+  col = frm.append("div").attr("class", "col").attr("id", "download");
+  col.append("label").attr("class", "header").html("Download");
+
+  col.append("a").attr("href", "#").attr("id", "download-png").html("PNG Image").on("click", function() {
+    this.setAttribute('download', 'd3-celestial.png');
+    var canvas = document.querySelector("#" + config.container + ' canvas');
+    // To get a download instead of image display, according to stack overflow 
+    this.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+  });
+
+  col.append("a").attr("href", "#").attr("id", "download-svg").html("SVG File").on("click", function() {
+    this.setAttribute('download', 'd3-celestial.svg');
+    this.href = saveSVG(config);
+  });
+
   setLimits();
   setUnit(config.transform);
   setVisibility(cfg);

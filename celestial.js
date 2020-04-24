@@ -266,6 +266,7 @@ Celestial.display = function(config) {
          .data(pl)
          .enter().append("path")
          .attr("class", "planet");
+      redraw();
     });
 
     if (Celestial.data.length > 0) { 
@@ -1468,9 +1469,9 @@ var settings = {
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
   form: false,        // Display settings form
   location: false,    // Display location settings, deprecated, use formFields
-  advanced: true,     // Display fewer form fields if false
   // Set visiblity for each group of fields of the form
-  formFields: {"location": true, "general": true, "stars": true, "dsos": true, "constellations": true, "lines": true, "other": true},
+  formFields: {"location": true, "general": true, "stars": true, "dsos": true, "constellations": true, "lines": true, "other": true, download: false},
+  advanced: true,     // Display fewer form fields if false
   daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
                       // [yr, n<100]: [yr-n, yr+n]; [yr0, yr1]
   controls: true,     // Display zoom controls
@@ -2571,6 +2572,21 @@ function form(cfg) {
      .text(function (d) { return d.n; });
   sel.property("selectedIndex", selected);
    
+  col = frm.append("div").attr("class", "col").attr("id", "download");
+  col.append("label").attr("class", "header").html("Download");
+
+  col.append("a").attr("href", "#").attr("id", "download-png").html("PNG Image").on("click", function() {
+    this.setAttribute('download', 'd3-celestial.png');
+    var canvas = document.querySelector("#" + config.container + ' canvas');
+    // To get a download instead of image display, according to stack overflow 
+    this.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+  });
+
+  col.append("a").attr("href", "#").attr("id", "download-svg").html("SVG File").on("click", function() {
+    this.setAttribute('download', 'd3-celestial.svg');
+    this.href = saveSVG(config);
+  });
+
   setLimits();
   setUnit(config.transform);
   setVisibility(cfg);

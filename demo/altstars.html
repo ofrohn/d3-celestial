@@ -8,7 +8,7 @@
   <script type="text/javascript" src="../celestial.min.js"></script>
   <link rel="stylesheet" href="../celestial.css">
   <style type="text/css">
-  .btn { display: inline-block; font: bold 14pt "Lucida Console", Consolas, monospace; margin: 0 6px; padding: 2px 6px; border: 2px solid #000; border-radius: 3px; background: rgba(204, 204, 255, 0.6) }
+  .btn { display: inline-block; font: bold 14pt "Lucida Console", Consolas, monospace; margin: 0 6px; padding: 2px 6px; border: 2px solid #000; border-radius: 3px; background: rgba(204, 204, 255, 0.6); cursor: pointer }
 </style>
 
 </head>
@@ -27,14 +27,19 @@ var config = {
   stars: { show: false },
   dsos: { show: false },
   mw: { style: { fill: "#ffffff", opacity: "0.05" } },
-  constellations: { show: false }
+  constellations: { names: false, lines: false },
+  lines: { 
+    graticule: { show: true, stroke:"#9999cc", width: 1.0, opacity:.3 },
+    equatorial: { show: true, stroke:"#aaaaaa", width: 1.5, opacity:.4 },  
+    ecliptic: { show: true, stroke:"#66cc66", width: 1.5, opacity:.4 }  
+  }
 };
 
 var planets = {sol: "#ff0", lun:"#fff", mer:"#e2e2e2", ven:"#f5f5f0", mar:"#efd1af", jup:"#e6e1df", sat:"#eddebc"};
 
 // Asterisms canvas style properties for lines and text
 var limitMagnitude = 6,
-    radius = 1,
+    radius = 1.2,
     grayscale = false,
     starColor = d3.scale.linear()
      .domain([-1.5, 0, limitMagnitude+1])
@@ -131,5 +136,6 @@ Celestial.date(dt);
   <footer id="d3-celestial-footer">
     <p><a href="https://github.com/ofrohn/d3-celestial"><b>D3-Celestial</b></a> released under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD license</a>. Copyright 2015-20 <a href="http://armchairastronautics.blogspot.com/" rel="author">Olaf Frohn</a>.</p>
   </footer>
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create', 'UA-105720254-1', 'auto');ga('send', 'pageview');</script>
 </body>
 </html>

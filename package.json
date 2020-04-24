@@ -10,10 +10,10 @@
     "d3": "^3.5.17"
   },
   "devDependencies": {
-    "jsdom": "^15.2.1",
-    "jshint": "^2.11.0-rc1",
-    "shelljs": "^0.8.3",
-    "uglify-js": "^2.8.29"
+    "jsdom": "^16.2.2",
+    "jshint": "^2.11.0",
+    "shelljs": "*",
+    "uglify-js": "^3.9.1"
   },
   "scripts": {
     "build": "node make.js",
