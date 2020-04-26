@@ -220,7 +220,7 @@ var settings = {
       if (has(cfg.constellations, "show") && cfg.constellations.show === true) res.constellations.names = true;
       //if (has(cfg.constellations, "names") && cfg.constellations.names === true) res.constellations.namesType = "name";
       if (has(cfg.constellations, "desig") && cfg.constellations.desig === true) res.constellations.namesType = "desig";
-      if (res.constellations.namesType === "latin") res.constellations.namesType = "lat";
+      if (res.constellations.namesType === "latin") res.constellations.namesType = "la";
       if (res.constellations.namesType === "iau") res.constellations.namesType = "name";
       if (has(cfg.constellations, "namestyle")) Object.assign(res.constellations.nameStyle, cfg.constellations.namestyle);
       if (has(cfg.constellations, "linestyle")) Object.assign(res.constellations.lineStyle, cfg.constellations.linestyle);
@@ -373,25 +373,24 @@ var formats = {
         "desig": "Designation",
         "name": "IAU Name",
         "ar": "Arabic", 
-        "cn": "Chinese",
+        "zh": "Chinese",
         "cz": "Czech", 
         "en": "English",
         "ee": "Estonian", 
         "fi": "Finnish", 
         "fr": "French", 
         "de": "German",
-        "gr": "Greek", 
-        "il": "Hebrew",
+        "el": "Greek", 
+        "he": "Hebrew",
+        "hi": "Hindi", 
         "it": "Italian", 
-        "jp": "Japanese", 
-        "kr": "Korean", 
-        "lat": "Latin",
-        "in": "Marathi", 
-        "ir": "Persian", 
+        "ja": "Japanese", 
+        "ko": "Korean", 
+        "la": "Latin",
+        "fa": "Persian", 
         "ru": "Russian", 
         "es": "Spanish",
-        "tr": "Turkish", 
-      }
+        "tr": "Turkish"}
     },
     "cn": {
       "names": {
@@ -409,18 +408,18 @@ var formats = {
       "names": {
         "desig": "Designation",
         "ar": "Arabic",
-        "cn": "Chinese",
+        "zh": "Chinese",
         "en": "English",
         "fr": "French",
         "de": "German",
-        "gr": "Greek",
-        "il": "Hebrew",
-        "in": "Hindi",
+        "el": "Greek",
+        "he": "Hebrew",
+        "hi": "Hindi",
         "it": "Italian",
-        "jp": "Japanese",
-        "kr": "Korean", 
-        "lat": "Latin",
-        "ir": "Persian", 
+        "ja": "Japanese",
+        "ko": "Korean", 
+        "la": "Latin",
+        "fa": "Persian", 
         "ru": "Russian",
         "es": "Spanish"}
     },

@@ -23,6 +23,7 @@ var shell = require('shelljs/make'),
     './src/location.js',
     './src/kepler.js',
     './src/moon.js',
+    './src/svg.js',
     './src/datetimepicker.js',
     './lib/d3.geo.zoom.js'
     ],
@@ -79,6 +80,8 @@ target.build = function() {
   echo('Minifying');
 
   var out = ug.minify(filename + '.js');
+  echo(out.error);
+  
   fs.writeFileSync(filename + '.min.js', copy + out.code);
   /*var read = ug.parse(fs.readFileSync(filename + '.js', "utf8"));
   read.figure_out_scope();

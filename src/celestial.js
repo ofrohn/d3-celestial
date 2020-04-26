@@ -914,7 +914,9 @@ Celestial.display = function(config) {
   this.dsoSymbol = dsoSymbol;
   this.redraw = redraw; 
   this.resize = function(config) { 
-    if (config && has(config, "width")) cfg.width = config.width; 
+    if (config === undefined) return cfg.width;
+    else if (has(config, "width")) cfg.width = config.width; 
+    else if (isNumber(config)) cfg.width = config;
     resize(true); 
   }; 
   this.reload = function(config) { 

@@ -1,5 +1,4 @@
-/* global d3, Celestial, projections, poles, getData, getAngles, getWidth, has, halfπ, symbols, starnames, bvcolor
-*/
+/* global d3, Celestial, projections, poles, getData, getAngles, getWidth, has, halfπ, symbols, starnames, bvcolor */
 function saveSVG(cfg) {
   var doc = document.createDocumentFragment(),
       svg = d3.select(doc).append("svg"),
