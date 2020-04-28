@@ -80,7 +80,7 @@ target.build = function() {
   echo('Minifying');
 
   var out = ug.minify(filename + '.js');
-  echo(out.error);
+  echo(out.error || "OK");
   
   fs.writeFileSync(filename + '.min.js', copy + out.code);
   /*var read = ug.parse(fs.readFileSync(filename + '.js', "utf8"));

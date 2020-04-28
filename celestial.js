@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.9',
+  version: '0.7.10',
   container: null,
   data: []
 };
@@ -809,8 +809,9 @@ Celestial.display = function(config) {
   }
 
   function starPropername(id) {
+    var lang = cfg.stars.propernameType;
     if (!has(starnames, id)) return "";
-    return starnames[id][cfg.stars.propernameType]; 
+    return has(starnames[id], lang) ? starnames[id][lang] : starnames[name]; 
   }
   
   function starSize(d) {
@@ -915,10 +916,12 @@ Celestial.display = function(config) {
   this.dsoSymbol = dsoSymbol;
   this.redraw = redraw; 
   this.resize = function(config) { 
-    if (config === undefined) return cfg.width;
-    else if (has(config, "width")) cfg.width = config.width; 
-    else if (isNumber(config)) cfg.width = config;
+    if (config !== undefined) {  
+      if (has(config, "width")) cfg.width = config.width; 
+      else if (isNumber(config)) cfg.width = config;
+    }
     resize(true); 
+    return cfg.width;
   }; 
   this.reload = function(config) { 
     if (!config || !has(config, "transform")) return;
@@ -1808,7 +1811,24 @@ var formats = {
         "hd": "Draper",
         "hip": "Hipparcos"},
       "propername": {
-        "name": "Proper name"}
+        "name": "IAU Name",
+        "ar": "Arabic", 
+        "zh": "Chinese",
+        "en": "English",
+        "fi": "Finnish", 
+        "fr": "French", 
+        "de": "German",
+        "el": "Greek", 
+        "he": "Hebrew",
+        "hi": "Hindi", 
+        "it": "Italian", 
+        "ja": "Japanese", 
+        "ko": "Korean", 
+        "la": "Latin",
+        "fa": "Persian", 
+        "ru": "Russian", 
+        "es": "Spanish",
+        "tr": "Turkish"}
     },
     "cn": {
       "propername": {

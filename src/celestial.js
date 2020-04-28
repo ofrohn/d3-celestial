@@ -1,6 +1,6 @@
 /* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.9',
+  version: '0.7.10',
   container: null,
   data: []
 };
@@ -808,8 +808,9 @@ Celestial.display = function(config) {
   }
 
   function starPropername(id) {
+    var lang = cfg.stars.propernameType;
     if (!has(starnames, id)) return "";
-    return starnames[id][cfg.stars.propernameType]; 
+    return has(starnames[id], lang) ? starnames[id][lang] : starnames[name]; 
   }
   
   function starSize(d) {
@@ -914,10 +915,12 @@ Celestial.display = function(config) {
   this.dsoSymbol = dsoSymbol;
   this.redraw = redraw; 
   this.resize = function(config) { 
-    if (config === undefined) return cfg.width;
-    else if (has(config, "width")) cfg.width = config.width; 
-    else if (isNumber(config)) cfg.width = config;
+    if (config !== undefined) {  
+      if (has(config, "width")) cfg.width = config.width; 
+      else if (isNumber(config)) cfg.width = config;
+    }
     resize(true); 
+    return cfg.width;
   }; 
   this.reload = function(config) { 
     if (!config || !has(config, "transform")) return;

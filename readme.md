@@ -93,7 +93,8 @@ var config = {
     designationStyle: { fill: "#ddddbb", font: "11px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
     designationLimit: 2.5,  // Show only names for stars brighter than nameLimit
     propername: false,   // Show proper name (if present)
-    propernameType: "name", // Field in starnames.json that contains proper name; may vary with culture setting
+    propernameType: "name", // Languge for proper name, default IAU name; may vary with culture setting 
+                            // (see list below of languages codes available for stars)
     propernameStyle: { fill: "#ddddbb", font: "13px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "right", baseline: "bottom" },
     propernameLimit: 1.5,  // Show proper names for stars brighter than propernameLimit
     size: 7,       // Maximum size (radius) of star circle in pixels
@@ -167,12 +168,12 @@ var config = {
                            // 'letter': 1 or 2 letters S Me V L Ma J S U N     
     names: false,          // Show name in nameType language next to symbol
     nameStyle: { fill: "#00ccff", font: "14px 'Lucida Sans Unicode', Consolas, sans-serif", align: "right", baseline: "top" },
-    namesType: "desig"     // Language of planet name (see list below, ot all languages are available for planets, 
+    namesType: "desig"     // Language of planet name (see list below of language codes available for planets), 
                            // or desig = 3-letter designation
   },
   constellations: {
     names: true,      // Show constellation names 
-    namesType: "iau", // Type of name Latin (iau, default), 3 letter designation (desig) or other language (see list)
+    namesType: "iau", // Type of name Latin (iau, default), 3 letter designation (desig) or other language (see list below)
     nameStyle: { fill:"#cccc99", align: "center", baseline: "middle", 
                  font: ["14px Helvetica, Arial, sans-serif",  // Style for constellations
                         "12px Helvetica, Arial, sans-serif",  // Different fonts for diff.
@@ -221,7 +222,7 @@ Celestial.display(config);
 
 __Supported projections:__ Airy, Aitoff, Armadillo, August, Azimuthal Equal Area, Azimuthal Equidistant, Baker, Berghaus, Boggs, Bonne, Bromley, Cassini, Collignon, Craig, Craster, Cylindrical Equal Area, Cylindrical Stereographic, Eckert 1, Eckert 2, Eckert 3, Eckert 4, Eckert 5, Eckert 6, Eisenlohr, Equirectangular, Fahey, Foucaut, Ginzburg 4, Ginzburg 5, Ginzburg 6, Ginzburg 8, Ginzburg 9, Hammer, Hatano, HEALPix, Hill, Homolosine, Kavrayskiy 7, Lagrange, l'Arrivee, Laskowski, Loximuthal, Mercator, Miller, Mollweide, Flat Polar Parabolic, Flat Polar Quartic, Flat Polar Sinusoidal, Natural Earth, Nell Hammer, Orthographic, Patterson, Polyconic, Rectangular Polyconic, Robinson, Sinusoidal, Stereographic, Times, 2 Point Equidistant, van der Grinten, van der Grinten 2, van der Grinten 3, van der Grinten 4, Wagner 4, Wagner 6, Wagner 7, Wiechel and Winkel Tripel. Most of these need the extension [d3.geo.projections](https://github.com/d3/d3-geo-projection/)  
 
-__Supported languages for constellation name or planet name display:__  (name) Official IAU name, (desig) 3-Letter-Designation, (lat) Latin, (en) English, (ar) Arabic,  (cn) Chinese, (cz) Czech, (ee) Estonian, (fi) Finnish, (fr) French, (de) German, (gr) Greek, (il) Hebrew, (it) Italian, (jp) Japanese, (kr) Korean, (in) Marathi, (ir) Persian, (ru) Russian, (es) Spanish, (tr) Turkish  
+__Supported languages for constellation, star and planet name display:__  (name) Official IAU name, (desig) 3-Letter-Designation, (la) Latin, (en) English, (ar) Arabic,  (cn) Chinese, (cz) Czech, (ee) Estonian, (fi) Finnish, (fr) French, (de) German, (el) Greek, (he) Hebrew, (it) Italian, (ja) Japanese, (ko) Korean, (hi) Hindi, (fa) Persian, (ru) Russian, (es) Spanish, (tr) Turkish  
 
 
 __Style settings__   
@@ -320,9 +321,9 @@ __Exposed functions__
    and interactive, form, controls, container, which control page structure & behaviour and should
    only be set on the initial load.
    
-* `Celestial.resize({width:px|0|null})`  
+* `Celestial.resize({width:px|0|null}|number)`  
    Change the overall size of the map, canvas object needs a complete reload
-   Optional _width_: new size in pixels, null or 0 = full parent width
+   Optional {_width_: number} or _number_: new size in pixels, or 0 = full parent width
 
 * `Celestial.redraw({transform:equatorial|ecliptic|galactic|supergalactic})`  
   Load all the data and redraw the whole map. 
@@ -672,7 +673,7 @@ __GeoJSON data files__
 * `stars.6.json` Stars down to 6th magnitude \[1\]
 * `stars.8.json` Stars down to 8.5th magnitude \[1\]
 * `stars.14.json` Stars down to 14th magnitude (large) \[1\]
-* `starnames.json` Star names and designations \[1b\]
+* `starnames.json` Star names and designations \[1b\]\[1c\]
 * `dsos.6.json` Deep space objects down to 6th magnitude \[2\]
 * `dsos.14.json` Deep space objects down to 14th magnitude \[2\]
 * `dsos.20.json` Deep space objects down to 20th magnitude \[2\]
@@ -684,7 +685,7 @@ __GeoJSON data files__
 * `constellations.lines.json` Constellation lines \[3\]
 * `asterisms.json` Asterism data  \[7\]
 * `mw.json` Milky Way outlines in 5 brightness steps \[5\]
-* `planets.json` Keplerian Elements for Approximate Positions of the Major Planets \[9\]
+* `planets.json` Keplerian Elements for Approximate Positions of the Major Planets \[9\]  
 __Traditional Chinese Constellations & Stars__ 
 * `constellations.cn.json` Constellation data  \[10\] 
 * `constellations.bounds.cn.json` Constellation boundaries \[10\]
@@ -699,6 +700,7 @@ __Sources__
  FK5-SAO-HD-Common Name Cross Index (Smith 1996) [VizieR IV/22](http://cdsarc.u-strasbg.fr/viz-bin/Cat?IV/22)  
  General Catalogue of Variable Stars (Samus et.al. 2007-2013) [VizieR B/gcvs](http://cdsarc.u-strasbg.fr/viz-bin/Cat?B/gcvs)  
  Preliminary Version of the Third Catalogue of Nearby Stars (Gliese+ 1991) [VizieR V/70A](http://cdsarc.u-strasbg.fr/viz-bin/Cat?V/70A)  
+* \[1c\] [Stellarium skycultures data](https://github.com/Stellarium/stellarium/tree/master/po/stellarium-skycultures)  for star name translations  
 * \[2\] [Saguaro Astronomy Club Database version 8.1](http://www.saguaroastro.org/sac-downloads/)  
 * \[3\] [IAU Constellation page](http://www.iau.org/public/themes/constellations/), name positions and some line modifications by me, names in other languages from [Wikipedia](https://wiki2.org/en/88_modern_constellations_in_different_languages)  
 * \[4\] Catalogue of Constellation Boundary Data; Davenhall A.C., Leggett S.K. (1989) [VizieR VI/49](http://vizier.cfa.harvard.edu/viz-bin/Cat?VI/49)  
@@ -707,7 +709,7 @@ __Sources__
 * \[7\] [Saguaro Astronomy Club Asterisms](http://saguaroastro.org/sac-downloads/) \(scroll down\)  
 * \[8\] [Messier Objects with Data](http://messier.seds.org/data.html), H.Frommert/seds.org  
 * \[9\] [Keplerian Elements for Approximate Positions of the Major Planets](https://ssd.jpl.nasa.gov/?planet_pos)  
-* \[10\] [Stellarium skycultures data for traditional Chinese constellations](https://github.com/Stellarium/stellarium/tree/master/skycultures/chinese)  
+* \[10\] [Stellarium skycultures data](https://github.com/Stellarium/stellarium/tree/master/skycultures/chinese) for traditional Chinese constellations  
   
 All data converted to GeoJSON at J2000 epoch, positions converted from 0...24h right ascension to -180...180 degrees longitude as per GeoJSON requirements, so 0...12h becomes 0...180 degrees, and 12...24h becomes -180...0 degrees.  
 

@@ -356,7 +356,24 @@ var formats = {
         "hd": "Draper",
         "hip": "Hipparcos"},
       "propername": {
-        "name": "Proper name"}
+        "name": "IAU Name",
+        "ar": "Arabic", 
+        "zh": "Chinese",
+        "en": "English",
+        "fi": "Finnish", 
+        "fr": "French", 
+        "de": "German",
+        "el": "Greek", 
+        "he": "Hebrew",
+        "hi": "Hindi", 
+        "it": "Italian", 
+        "ja": "Japanese", 
+        "ko": "Korean", 
+        "la": "Latin",
+        "fa": "Persian", 
+        "ru": "Russian", 
+        "es": "Spanish",
+        "tr": "Turkish"}
     },
     "cn": {
       "propername": {

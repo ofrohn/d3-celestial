@@ -31,6 +31,7 @@ For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...1
 ```js
 {"id": {         // Hipparcos number  
    "name": "",      // Proper name  
+    ...             // and names in 17 further languages (see list in main readme)
    "desig": "",     // Standard designation, first from list below  
    "bayer": "",     // Bayer  
    "flam": "",      // Flamsteed  
@@ -49,8 +50,8 @@ For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...1
 {"id": {         // Hipparcos number  
    "name": "",      // Chinese name  
    "desig": "",     // IAU designation  
-   "en": "",     // English translation  
-   "pinyin": ""      // Pinyin transcription  
+   "en": "",        // English translation  
+   "pinyin": ""     // Pinyin transcription  
   }, "id": {...}  
 }
 ```
@@ -257,7 +258,7 @@ All element values in degrees, except a (AU|km) and e (dimensionless)
     "ep":"2000-01-01" epoch, default date
   }],
   "desig": "",        // 3-Letter designation
-  ...                 // Names in 14 different languages
+  ...                 // Names in 14 different languages, see list in main readme
   }
 ```
 
