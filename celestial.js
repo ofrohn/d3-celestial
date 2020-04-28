@@ -811,7 +811,7 @@ Celestial.display = function(config) {
   function starPropername(id) {
     var lang = cfg.stars.propernameType;
     if (!has(starnames, id)) return "";
-    return has(starnames[id], lang) ? starnames[id][lang] : starnames[name]; 
+    return has(starnames[id], lang) ? starnames[id][lang] : starnames[id].name; 
   }
   
   function starSize(d) {
