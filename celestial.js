@@ -802,7 +802,7 @@ Celestial.display = function(config) {
     return d.properties[cfg.dsos.namesType]; 
   }
   
-  /*Star designation  */
+  /* Star designation  */
   function starDesignation(id) {
     if (!has(starnames, id)) return "";
     return starnames[id][cfg.stars.designationType]; 
@@ -1819,7 +1819,7 @@ var formats = {
         "fr": "French", 
         "de": "German",
         "el": "Greek", 
-        "he": "Hebrew",
+        //"he": "Hebrew",
         "hi": "Hindi", 
         "it": "Italian", 
         "ja": "Japanese", 
@@ -2596,16 +2596,19 @@ function form(cfg) {
   col = frm.append("div").attr("class", "col").attr("id", "download");
   col.append("label").attr("class", "header").html("Download");
 
-  col.append("a").attr("href", "#").attr("id", "download-png").html("PNG Image").on("click", function() {
-    this.setAttribute('download', 'd3-celestial.png');
+  col.append("input").attr("type", "button").attr("id", "download-png").attr("value", "PNG Image").on("click", function() {
+    var a = d3.select("body").append("a").node(); 
     var canvas = document.querySelector("#" + config.container + ' canvas');
-    // To get a download instead of image display, according to stack overflow 
-    this.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+    a.download = "d3-celestial.png";
+    a.rel = "noopener";
+    a.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+    a.click();
+    d3.select(a).remove();
   });
 
-  col.append("a").attr("href", "#").attr("id", "download-svg").html("SVG File").on("click", function() {
-    this.setAttribute('download', 'd3-celestial.svg');
-    this.href = saveSVG(config);
+  col.append("input").attr("type", "button").attr("id", "download-svg").attr("value", "SVG File").on("click", function() {
+    saveSVG(); 
+    return false;
   });
 
   setLimits();
@@ -4325,124 +4328,210 @@ var Moon = {
   }
 
 };
-function saveSVG(cfg) {
-  var doc = document.createDocumentFragment(),
-      svg = d3.select(doc).append("svg"),
+function saveSVG() {
+  var doc = d3.select("body").append("div").attr("style", "display: none"),
+      svg = d3.select("body").append("svg"), //.attr("style", "display: none"),
       m = Celestial.metrics(),
+      cfg = settings.set(),
       path = cfg.datapath,
       proj = projections[cfg.projection],
       rotation = getAngles(cfg.center),
       center = [-rotation[0], -rotation[1]],
       adapt = 1,
-      projection = Celestial.projection(cfg.projection).rotate(rotation).translate([m.width/2, m.height/2]).scale([m.scale]);
+      projection = Celestial.projection(cfg.projection).rotate(rotation).translate([m.width/2, m.height/2]).scale([m.scale]),
+      circle;
+
+  svg.selectAll("*").remove();
 
   if (proj.clip) {
     projection.clipAngle(90);
-    var circle = d3.geo.circle().angle([90]);
+    circle = d3.geo.circle().angle([179.9]);
   }
-  
+
+  svg.attr("width", m.width).attr("height", m.height);
+
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
   var map = d3.geo.path().projection(projection);
+
+  var q = d3.queue(2);
   
-  if (cfg.lines.graticule) {
+  if (circle) {
+    svg.append("path").datum(circle).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
+  } else {
+    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
+  }
+  
+  if (cfg.lines.graticule.show) {
     if (cfg.transform === "equatorial") {
-      svg.append("path").datum(graticule).attr("class", "gridline").attr("d", map);
+      svg.append("path").datum(graticule)
+       .attr("class", "gridline")
+       .style( svgStyle(cfg.lines.graticule) )
+       .attr("d", map);
     } else {
       Celestial.graticule(svg, map, cfg.transform);
     }
   }
 
-  svg.attr("width", m.width).attr("height", m.height);
-  
-  svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", map).style("fill", cfg.background);
-
   //Celestial planes
   for (var key in cfg.lines) {
-    if (has(cfg.lines, key) && key != "graticule" && cfg.lines[key] !== false) { 
+    if (has(cfg.lines, key) && key != "graticule" && cfg.lines[key].show !== false) { 
       svg.append("path")
          .datum(d3.geo.circle().angle([90]).origin(poles[key]) )
          .attr("class", key)
-         .style({"fill-opacity": cfg.mw.style.opacity, "fill": cfg.mw.style.fill})
+         .style( svgStyle(cfg.lines[key]) )
          .attr("d", map);
     }
   }
 
-  
   //Milky way outline
   if (cfg.mw.show) {
-    d3.json(path + "mw.json", function(error, json) {
-      var mw = getData(json, cfg.transform);
-      //var mw_back = getMwbackground(mw);
-      
-      svg.selectAll(".mway")
-       .data(mw.features)
-       .enter().append("path")
-       .attr("class", "mw")
-       .attr("d", map);
+    q.defer(function(callback) { 
+      d3.json(path + "mw.json", function(error, json) {
+        if (error) callback(error);
+        var mw = getData(json, cfg.transform);
+        //var mw_back = getMwbackground(mw);
+        
+        svg.selectAll(".mway")
+         .data(mw.features)
+         .enter().append("path")
+         .attr("class", "mw")
+         .style( svgStyle(cfg.mw.style) )
+         .attr("d", map);
+        callback(null);
+      });
     });
   }
-/*
-  //Constellation nemes or designation
-  if (cfg.constellations.names) { 
-    c.selectAll(".constname").each(function(d) { 
-      svg.selectAll(".constnames")
-        .data(d)
-        .enter().append("text")
-        .attr("class", "constname")
-        .attr("transform", function(d, i) {  
-          return point(d.geometry.coordinates); })
-        .text( function(d) { if (cfg.constellations.names) { return cfg.constellations.desig?d.properties.desig:d.properties.name; }})
-        .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); }); 
-    })
-  }
+
 
   //Constellation boundaries
   if (cfg.constellations.bounds) { 
-    svg.selectAll(".bounds")
-      .data(c.selectAll("boundaryline").data())
-      .enter().append("path")
-      .attr("class", "boundaryline")
-      .attr("d", map);
+    q.defer(function(callback) { 
+      d3.json(path + "constellations.bounds.json", function(error, json) {
+        if (error) callback(error);
+
+        var conb = getData(json, cfg.transform);
+   
+        svg.selectAll(".bounds")
+         .data(conb.features)
+         .enter().append("path")
+         .attr("class", "boundaryline")
+         .style( svgStyle(cfg.constellations.boundStyle) )
+         .attr("d", map);
+        callback(null);
+      });
+    });
   }
 
   //Constellation lines
   if (cfg.constellations.lines) { 
-    svg.selectAll(".lines")
-      .data(c.selectAll("constline").data())
-      .enter().append("path")
-      .attr("class", "constline")
-      .attr("d", map);
+    q.defer(function(callback) { 
+      d3.json(path + "constellations.lines.json", function(error, json) {
+        if (error) callback(error);
+
+        var conl = getData(json, cfg.transform);
+        svg.selectAll(".lines")
+         .data(conl.features)
+         .enter().append("path")
+         .attr("class", "constline")
+         .style({
+            "fill": "none",
+            "stroke": function(d) { return isArray(cfg.constellations.lineStyle.stroke) ? cfg.constellations.lineStyle.stroke[d.properties.rank-1] : null; },
+            "stroke-width": function(d) { return isArray(cfg.constellations.lineStyle.width) ? cfg.constellations.lineStyle.width[d.properties.rank-1] : 0; },
+            "stroke-opacity": function(d) { return isArray(cfg.constellations.lineStyle.opacity) ? cfg.constellations.lineStyle.opacity[d.properties.rank-1] : 0; }
+          })
+         .attr("d", map);
+        callback(null);
+      });
+    });
   }
+
+  // Map border
+  q.defer(function(callback) {
+    svg.append("path")
+     .datum(graticule.outline)
+     .attr("class", "outline")
+     .style({"fill": "none", "stroke": cfg.background.stroke, "stroke-width": cfg.background.width, "stroke-opacity": 1, "stroke-dasharray": "none" })
+     .attr("d", map);
+    callback(null);
+  });  
+  
+  //Constellation nemes or designation
+  if (cfg.constellations.names) { 
+    q.defer(function(callback) { 
+      d3.json(path + "constellations.json", function(error, json) {
+        if (error) callback(error);
+
+        var conn = getData(json, cfg.transform);
+        svg.selectAll(".constnames")
+         .data(conn.features.filter( function(d) {
+            return clip(d.geometry.coordinates) === 1; 
+          }))
+         .enter().append("text")
+         .attr("class", "constname")
+         // vertical-align  dy=-0.4em if middle, -1em top
+         .style({
+            "fill": function(d) { return isArray(cfg.constellations.nameStyle.fill) ? cfg.constellations.nameStyle.fill[d.properties.rank-1] : "#ffffff"; },
+            "fill-opacity": function(d) { return isArray(cfg.constellations.nameStyle.opacity) ? cfg.constellations.nameStyle.opacity[d.properties.rank-1] : 1; },
+            "font": function(d) { return isArray(cfg.constellations.nameStyle.font) ? cfg.constellations.nameStyle.font[d.properties.rank-1] : "14px sans-serif"; },
+            "text-anchor": svgAlign(cfg.constellations.nameStyle.align)
+          })
+         .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
+         .text( function(d) { return constName(d); } ); 
+        callback(null);
+      });
+    });
+  }
+
   
   //Stars
   if (cfg.stars.show) { 
-    svg.selectAll(".stars")
-      .data(c.selectAll("star").data().filter( function(d) {
-        return d.properties.mag <= cfg.stars.limit; 
-      }))
-      .enter().append("path")
-      .attr("class", "star")
-      .attr("d", map.pointRadius( function(d) {
-        return d.properties ? starSize(d.properties.mag) : 1;
-      }))
-      .style("fill", function(d) {
-        return starColor(d.properties);
+    q.defer(function(callback) { 
+      d3.json(path +  cfg.stars.data, function(error, json) {
+        if (error) callback(error);
+
+        var cons = getData(json, cfg.transform);
+        
+        svg.selectAll(".stars")
+          .data(cons.features.filter( function(d) {
+            return d.properties.mag <= cfg.stars.limit; 
+          }))
+          .enter().append("path")
+          .attr("class", "star")
+          .attr("d", map.pointRadius( function(d) {
+            return d.properties ? starSize(d.properties.mag) : 1;
+          }))
+          .style("fill", function(d) {
+            return starColor(d.properties);
+          });
+        
+        if (cfg.stars.designation) { 
+          svg.selectAll(".stardesigs")
+            .data(cons.features.filter( function(d) {
+              return d.properties.mag <= cfg.stars.designationLimit && clip(d.geometry.coordinates) === 1; 
+            }))
+            .enter().append("text")
+            .attr("transform", function(d) { return point(d.geometry.coordinates); })
+            .text( function(d) { return starDesignation(d.id); })
+            .attr({dy: ".85em", dx: ".35em", class: "stardesig"})
+            .style( svgTextStyle(cfg.stars.designationStyle) );
+        }
+        if (cfg.stars.propername) { 
+          svg.selectAll(".starnames")
+            .data(cons.features.filter( function(d) {
+              return d.properties.mag <= cfg.stars.propernameLimit && clip(d.geometry.coordinates) === 1; 
+            }))
+            .enter().append("text")
+            .attr("transform", function(d) { return point(d.geometry.coordinates); })
+            .text( function(d) { return starPropername(d.id); })
+            .attr({dy: "-.5em", dx: "-.35em", class: "starname"})
+            .style( svgTextStyle(cfg.stars.propernameStyle) );
+        }
+        callback(null);
       });
-
-    if (cfg.stars.names) { 
-      svg.selectAll(".starnames")
-        .data(c.selectAll("starname").data().filter( function(d) {
-          return d.properties.mag <= cfg.stars.designationLimit; 
-        }))
-        .enter().append("text")
-        .attr("transform", function(d) { return point(d.geometry.coordinates); })
-        .text( function(d) { return starDesignation(d.id); })
-        .attr({dy: "-.5em", dx: ".35em", class: "starname"})
-        .style("fill-opacity", function(d) { return clip(d.geometry.coordinates); });
-    }
+    });
   }
-
+/*
   //Deep space objects
   if (cfg.dsos.show) { 
     svg.selectAll(".dsos")
@@ -4486,6 +4575,50 @@ function saveSVG(cfg) {
     return 'stroke-opacity:' + opa + ';fill-opacity:' + opa; 
   }
 
+  function svgStyle(s) {
+    var res = {};
+    res.fill = s.fill || "none";
+    res["fill-opacity"] = s.opacity || 1;  
+    res.stroke = s.stroke || "none";
+    res["stroke-width"] = s.width || null;
+    res["stroke-opacity"] = s.opacity || 1;  
+    if (has(s, "dash")) res["stroke-dasharray"] = s.dash.join(" ");
+    else res["stroke-dasharray"] = "none";
+    res.font = s.font || null;
+    return res;
+  }
+
+  function svgTextStyle(s) {
+    var res = {};
+    res.stroke = "none";
+    res.fill = s.fill || "none";
+    res["fill-opacity"] = s.opacity || 1;  
+    //res.textBaseline = s.baseline || "bottom";
+    res["text-anchor"] = svgAlign(s.align);
+    res.font = s.font || null;
+    return res;
+  }
+
+  function svgStyleA(rank, s) {
+    var res = {};
+    rank = rank || 1;
+    res.fill = isArray(s.fill) ? s.fill[rank-1] : null;
+    res["fill-opacity"] = isArray(s.opacity) ? s.opacity[rank-1] : 1;  
+    res.stroke = isArray(s.stroke) ? s.stroke[rank-1] : null;
+    res["stroke-width"] = isArray(s.width) ? s.width[rank-1] : null;
+    res["stroke-opacity"] = isArray(s.opacity) ? s.opacity[rank-1] : 1;  
+    res["text-anchor"] = svgAlign(s.align);
+    res.font = isArray(s.font) ? s.font[rank-1] : null;
+    //res.textBaseline = s.baseline || "bottom";
+    return res;
+  }
+
+  function svgAlign(s) {
+    if (!s) return "start";
+    if (s === "center") return "middle"; 
+    if (s === "right") return "end";
+    return "start";
+  }
 
   function dsoSymbol(prop) {
     var size = dsoSize(prop.mag, prop.dim) || 9,
@@ -4507,11 +4640,11 @@ function saveSVG(cfg) {
     return Math.pow(2 * cfg.dsos.size * adapt - mag, cfg.dsos.exponent);
   }
  
-
   function dsoName(prop) {
     return prop[cfg.dsos.namesType]; 
   }
-  
+ 
+ 
   function starDesignation(id) {
     if (!has(starnames, id)) return "";
     return starnames[id][cfg.stars.designationType]; 
@@ -4533,6 +4666,10 @@ function saveSVG(cfg) {
     return bvcolor(prop.bv);
   }
   
+  function constName(d) { 
+    return d.properties[cfg.constellations.namesType]; 
+  }
+
   var customSymbolTypes = d3.map({
     'ellipse': function(size) {
       var s = Math.sqrt(size), 
@@ -4592,13 +4729,22 @@ function saveSVG(cfg) {
     return symbol;
   };
 
-  var html = d3.select("svg")
+  q.await(function(error) {
+    if (error) throw error;
+    var svg = d3.select("svg")
       .attr("title", "D3-Celestial")
       .attr("version", 1.1)
-      .attr("xmlns", "http://www.w3.org/2000/svg")
-      .node().parentNode.innerHTML;
-  var blob = new Blob([html], {type:"image/svg+xml;charset=utf-8"});
-  return URL.createObjectURL(blob);
+      .attr("xmlns", "http://www.w3.org/2000/svg");
+
+    var blob = new Blob([svg.node().outerHTML], {type:"image/svg+xml;charset=utf-8"});
+    
+    var a = d3.select("body").append("a").node(); 
+    a.download = "d3-celestial.svg";
+    a.rel = "noopener";
+    a.href = URL.createObjectURL(blob);
+    a.click();
+    d3.select(a).remove();
+  });
 
 }
 var datetimepicker = function(cfg, callback) {
@@ -5076,5 +5222,139 @@ function d3_eventDispatch(target) {
 }
 
 })();
+// https://d3js.org/d3-queue/ Version 3.0.7. Copyright 2017 Mike Bostock.
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
+	(factory((global.d3 = global.d3 || {})));
+}(this, (function (exports) { 'use strict';
+
+var slice = [].slice;
+
+var noabort = {};
+
+function Queue(size) {
+  this._size = size;
+  this._call =
+  this._error = null;
+  this._tasks = [];
+  this._data = [];
+  this._waiting =
+  this._active =
+  this._ended =
+  this._start = 0; // inside a synchronous task callback?
+}
+
+Queue.prototype = queue.prototype = {
+  constructor: Queue,
+  defer: function(callback) {
+    if (typeof callback !== "function") throw new Error("invalid callback");
+    if (this._call) throw new Error("defer after await");
+    if (this._error != null) return this;
+    var t = slice.call(arguments, 1);
+    t.push(callback);
+    ++this._waiting, this._tasks.push(t);
+    poke(this);
+    return this;
+  },
+  abort: function() {
+    if (this._error == null) abort(this, new Error("abort"));
+    return this;
+  },
+  await: function(callback) {
+    if (typeof callback !== "function") throw new Error("invalid callback");
+    if (this._call) throw new Error("multiple await");
+    this._call = function(error, results) { callback.apply(null, [error].concat(results)); };
+    maybeNotify(this);
+    return this;
+  },
+  awaitAll: function(callback) {
+    if (typeof callback !== "function") throw new Error("invalid callback");
+    if (this._call) throw new Error("multiple await");
+    this._call = callback;
+    maybeNotify(this);
+    return this;
+  }
+};
+
+function poke(q) {
+  if (!q._start) {
+    try { start(q); } // let the current task complete
+    catch (e) {
+      if (q._tasks[q._ended + q._active - 1]) abort(q, e); // task errored synchronously
+      else if (!q._data) throw e; // await callback errored synchronously
+    }
+  }
+}
+
+function start(q) {
+  while (q._start = q._waiting && q._active < q._size) {
+    var i = q._ended + q._active,
+        t = q._tasks[i],
+        j = t.length - 1,
+        c = t[j];
+    t[j] = end(q, i);
+    --q._waiting, ++q._active;
+    t = c.apply(null, t);
+    if (!q._tasks[i]) continue; // task finished synchronously
+    q._tasks[i] = t || noabort;
+  }
+}
+
+function end(q, i) {
+  return function(e, r) {
+    if (!q._tasks[i]) return; // ignore multiple callbacks
+    --q._active, ++q._ended;
+    q._tasks[i] = null;
+    if (q._error != null) return; // ignore secondary errors
+    if (e != null) {
+      abort(q, e);
+    } else {
+      q._data[i] = r;
+      if (q._waiting) poke(q);
+      else maybeNotify(q);
+    }
+  };
+}
+
+function abort(q, e) {
+  var i = q._tasks.length, t;
+  q._error = e; // ignore active callbacks
+  q._data = undefined; // allow gc
+  q._waiting = NaN; // prevent starting
+
+  while (--i >= 0) {
+    if (t = q._tasks[i]) {
+      q._tasks[i] = null;
+      if (t.abort) {
+        try { t.abort(); }
+        catch (e) { /* ignore */ }
+      }
+    }
+  }
+
+  q._active = NaN; // allow notification
+  maybeNotify(q);
+}
+
+function maybeNotify(q) {
+  if (!q._active && q._call) {
+    var d = q._data;
+    q._data = undefined; // allow gc
+    q._call(q._error, d);
+  }
+}
+
+function queue(concurrency) {
+  if (concurrency == null) concurrency = Infinity;
+  else if (!((concurrency = +concurrency) >= 1)) throw new Error("invalid concurrency");
+  return new Queue(concurrency);
+}
+
+exports.queue = queue;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
 this.Celestial = Celestial;
 })();

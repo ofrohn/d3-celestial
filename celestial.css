@@ -37,18 +37,16 @@ input[type="number"]::-webkit-outer-spin-button { height: auto; }
 #celestial-form select option { color:#000; } 
 #celestial-form select option[value='---'] { color:#ccc; } 
 
-#celestial-form input[type='button'],
-#celestial-form a#download-png,
-#celestial-form a#download-svg { width:64px; padding-bottom:1px; margin-top:4px; background: #f7f7f7; }
-#celestial-form a#download-png,
-#celestial-form a#download-svg { display: inline-block; text-align: center; margin-left:4px; width:108px; font: inherit; line-height:22px; text-decoration: none; color: #000; }
+#celestial-form input[type='button'] { width:64px; padding-bottom:1px; margin-top:4px; background: #f7f7f7; }
+#celestial-form input#download-png,
+#celestial-form input#download-svg { display: inline-block; text-align: center; margin-left:4px; width:108px; height:24px; font: inherit; line-height:20px; text-decoration: none; color: #000; background: #f7f7f7;  }
 #celestial-form input#width { margin-left:2px; }
 #celestial-form input#now, 
 #celestial-form input#here  { width:48px; margin-left:2px; float:none; }
 #celestial-form input[type='button']:hover,
 #celestial-form #datepick:hover,
-#celestial-form a#download-png:hover,
-#celestial-form a#download-svg:hover { background-color:#eee; }
+#celestial-form input#download-png:hover,
+#celestial-form input#download-svg:hover { background-color:#eee; cursor:pointer; }
 
 #celestial-form input[type='text']:disabled, 
 #celestial-form input[type='number']:disabled, 
@@ -61,8 +59,8 @@ input[type="number"]::-webkit-outer-spin-button { height: auto; }
 #celestial-form input#now, 
 #celestial-form input#here, 
 #celestial-form input#show, 
-#celestial-form a#download-png,
-#celestial-form a#download-svg  { border: 1px solid #000; border-radius:3px; height:24px; }
+#celestial-form input#download-png,
+#celestial-form input#download-svg  { border: 1px solid #000; border-radius:3px; height:24px; }
 
 #celestial-form label { margin:0 2px 0 8px; }
 #celestial-form label.header { font-weight:bold; }
@@ -104,3 +102,10 @@ input[type="number"]::-webkit-outer-spin-button { height: auto; }
 @media print {
   #celestial-zoomin, #celestial-zoomout, #celestial-form { display: none; }
 }
+
+/* SVG styles
+
+svg .constname {
+  fill: "#ffff99";  fill-opacity:0.7; font: bold 14px 'Lucida Sans Unicode', Trebuchet, Helvetica, Arial, sans-serif; text-anchor: middle
+}
+ */

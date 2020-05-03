@@ -25,7 +25,8 @@ var shell = require('shelljs/make'),
     './src/moon.js',
     './src/svg.js',
     './src/datetimepicker.js',
-    './lib/d3.geo.zoom.js'
+    './lib/d3.geo.zoom.js',
+    './lib/d3-queue.js'
     ],
     FINAL = true;
 

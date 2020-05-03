@@ -299,16 +299,19 @@ function form(cfg) {
   col = frm.append("div").attr("class", "col").attr("id", "download");
   col.append("label").attr("class", "header").html("Download");
 
-  col.append("a").attr("href", "#").attr("id", "download-png").html("PNG Image").on("click", function() {
-    this.setAttribute('download', 'd3-celestial.png');
+  col.append("input").attr("type", "button").attr("id", "download-png").attr("value", "PNG Image").on("click", function() {
+    var a = d3.select("body").append("a").node(); 
     var canvas = document.querySelector("#" + config.container + ' canvas');
-    // To get a download instead of image display, according to stack overflow 
-    this.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+    a.download = "d3-celestial.png";
+    a.rel = "noopener";
+    a.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+    a.click();
+    d3.select(a).remove();
   });
 
-  col.append("a").attr("href", "#").attr("id", "download-svg").html("SVG File").on("click", function() {
-    this.setAttribute('download', 'd3-celestial.svg');
-    this.href = saveSVG(config);
+  col.append("input").attr("type", "button").attr("id", "download-svg").attr("value", "SVG File").on("click", function() {
+    saveSVG(); 
+    return false;
   });
 
   setLimits();

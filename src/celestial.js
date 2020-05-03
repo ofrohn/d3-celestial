@@ -801,7 +801,7 @@ Celestial.display = function(config) {
     return d.properties[cfg.dsos.namesType]; 
   }
   
-  /*Star designation  */
+  /* Star designation  */
   function starDesignation(id) {
     if (!has(starnames, id)) return "";
     return starnames[id][cfg.stars.designationType]; 
