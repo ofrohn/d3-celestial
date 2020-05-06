@@ -439,6 +439,7 @@ function form(cfg) {
     }
 
     getCenter();
+    Object.assign(globalConfig, config);
     Celestial.apply(config);
   }
 
@@ -668,6 +669,7 @@ function setCenter(ctr, trans) {
   
   cy.value = ctr[1].toFixed(1);
   cz.value = ctr[2] !== null ? ctr[2].toFixed(1) : 0;
+  settings.set({center: ctr});
 }
 
 // Set max input limits depending on data

@@ -149,11 +149,11 @@ var settings = {
       "eri": {symbol: "\u26aa", letter:"E", fill: "#eeeeee"}
     },
     // Style options for planetary symbols
-    symbolStyle: { fill: "#00ccff", opacity:1, font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", align: "center", baseline: "middle" },
+    symbolStyle: { fill: "#cccccc", opacity:1, font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", align: "center", baseline: "middle" },
     symbolType: "symbol",  // Type of planetary symbol to be displayed: 'symbol', 'letter' or 'disk'
     names: false,  // Show name next to symbol
     // Style options for planetary names
-    nameStyle: { fill: "#00ccff", font: "14px 'Lucida Sans Unicode', Consolas, sans-serif", align: "right", baseline: "top" },
+    nameStyle: { fill: "#cccccc", font: "14px 'Lucida Sans Unicode', Consolas, sans-serif", align: "right", baseline: "top" },
     namesType: "en"  // Language in which the name is displayed, options desig, ar, cn, en, fr, de, gr, il, in, it, jp, lat, ru, es
   },
   set: function(cfg) {  // Override defaults with values of cfg

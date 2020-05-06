@@ -1604,11 +1604,11 @@ var settings = {
       "eri": {symbol: "\u26aa", letter:"E", fill: "#eeeeee"}
     },
     // Style options for planetary symbols
-    symbolStyle: { fill: "#00ccff", opacity:1, font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", align: "center", baseline: "middle" },
+    symbolStyle: { fill: "#cccccc", opacity:1, font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", align: "center", baseline: "middle" },
     symbolType: "symbol",  // Type of planetary symbol to be displayed: 'symbol', 'letter' or 'disk'
     names: false,  // Show name next to symbol
     // Style options for planetary names
-    nameStyle: { fill: "#00ccff", font: "14px 'Lucida Sans Unicode', Consolas, sans-serif", align: "right", baseline: "top" },
+    nameStyle: { fill: "#cccccc", font: "14px 'Lucida Sans Unicode', Consolas, sans-serif", align: "right", baseline: "top" },
     namesType: "en"  // Language in which the name is displayed, options desig, ar, cn, en, fr, de, gr, il, in, it, jp, lat, ru, es
   },
   set: function(cfg) {  // Override defaults with values of cfg
@@ -2736,6 +2736,7 @@ function form(cfg) {
     }
 
     getCenter();
+    Object.assign(globalConfig, config);
     Celestial.apply(config);
   }
 
@@ -2965,6 +2966,7 @@ function setCenter(ctr, trans) {
   
   cy.value = ctr[1].toFixed(1);
   cz.value = ctr[2] !== null ? ctr[2].toFixed(1) : 0;
+  settings.set({center: ctr});
 }
 
 // Set max input limits depending on data
@@ -4329,8 +4331,8 @@ var Moon = {
 
 };
 function saveSVG() {
-  var doc = d3.select("body").append("div").attr("style", "display: none"),
-      svg = d3.select("body").append("svg"), //.attr("style", "display: none"),
+  var doc = d3.select("body").append("div").attr("id", "d3-celestial-svg").attr("style", "display: none"),
+      svg = d3.select("#d3-celestial-svg").append("svg"), //.attr("style", "display: none"),
       m = Celestial.metrics(),
       cfg = settings.set(),
       path = cfg.datapath,
@@ -4348,7 +4350,9 @@ function saveSVG() {
     circle = d3.geo.circle().angle([179.9]);
   }
 
-  svg.attr("width", m.width).attr("height", m.height);
+  svg 
+    //.attr("width", m.width).attr("height", m.height)
+    .attr("viewBox", "0 0 " + m.width + " " + m.height);
 
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
@@ -4370,6 +4374,27 @@ function saveSVG() {
        .attr("d", map);
     } else {
       Celestial.graticule(svg, map, cfg.transform);
+    }
+    if (has(cfg.lines.graticule, "lon") && cfg.lines.graticule.lon.pos.length > 0) {
+      var jlon = {type: "FeatureCollection", features: getGridValues("lon", cfg.lines.graticule.lon.pos)};      
+      svg.selectAll(".gridvalues_lon")
+        .data(jlon.features)
+        .enter().append("text")
+        .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
+        .text( function(d) { return d.properties.value; } )
+        .attr({dy: ".5em", dx: "-.75em", class: "graticule_lon"})
+        .style( svgTextStyle(cfg.lines.graticule.lon) ); 
+    }
+    if (has(cfg.lines.graticule, "lat") && cfg.lines.graticule.lat.pos.length > 0) {
+      var jlat = {type: "FeatureCollection", features: getGridValues("lat", cfg.lines.graticule.lat.pos)};      
+      svg.selectAll(".gridvalues_lat")
+        .data(jlat.features)
+        .enter().append("text")
+        .attr("class", "graticule_lat")
+        .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
+        .text( function(d) { return d.properties.value; } )
+        .attr({dy: "-.5em", dx: "-.75em", class: "graticule_lat"})
+        .style( svgTextStyle(cfg.lines.graticule.lat) ); 
     }
   }
 
@@ -4531,35 +4556,107 @@ function saveSVG() {
       });
     });
   }
-/*
+
   //Deep space objects
   if (cfg.dsos.show) { 
-    svg.selectAll(".dsos")
-      .data(c.selectAll("dso").data().filter( function(d) {
-        return d.properties.mag == 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.limit ||
-               d.properties.mag != 999 && d.properties.mag <= cfg.dsos.limit; 
-      }))
-      .enter().append("path")
-      .attr("class", function(d) { return "dso " + d.properties.type; } )
-      .attr("transform", function(d) { return point(d.geometry.coordinates); })
-      .attr("d", function(d) { return dsoSymbol(d.properties); })
-      .attr("style", function(d) { return opacity(d.geometry.coordinates); });
-  
-    if (cfg.dsos.names) { 
-      svg.selectAll(".dsonames")
-        .data(c.selectAll("dsoname").data().filter( function(d) {
-          return d.properties.mag == 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.namelimit ||
-                 d.properties.mag != 999 && d.properties.mag <= cfg.dsos.namelimit; 
-        }))
-        .enter().append("text")
-        .attr("class", function(d) { return "dsoname " + d.properties.type; } )
-        .attr("transform", function(d) { return point(d.geometry.coordinates); })
-        .text( function(d) { return dsoName(d.properties); } )
-        .attr({dy: "-.5em", dx: ".35em"})
-        .attr("style", function(d) { return opacity(d.geometry.coordinates); });
-    }
+    q.defer(function(callback) { 
+      d3.json(path +  cfg.dsos.data, function(error, json) {
+        if (error) callback(error);
+
+        var cond = getData(json, cfg.transform);
+        
+        svg.selectAll(".dsos")
+          .data(cond.features.filter( function(d) {
+            return clip(d.geometry.coordinates) === 1 && 
+                   (d.properties.mag === 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.limit ||
+                   d.properties.mag !== 999 && d.properties.mag <= cfg.dsos.limit); 
+          }))
+          .enter().append("path")
+          .attr("class", function(d) { return "dso " + d.properties.type; })
+          .style({"fill": function(d) {  if (has(cfg.dsos.symbols[d.properties.type], "stroke")) return "none";
+                    return cfg.dsos.colors ? cfg.dsos.symbols[d.properties.type].fill : cfg.dsos.style.fill; },
+                  "fill-opacity": cfg.dsos.style.opacity,
+                  "stroke": function(d) { if (!has(cfg.dsos.symbols[d.properties.type], "stroke")) return "none";
+                     return cfg.dsos.colors ? cfg.dsos.symbols[d.properties.type].stroke : cfg.dsos.style.stroke; },
+                  "stroke-width": function(d) { if (!has(cfg.dsos.symbols[d.properties.type], "width")) return 1;
+                     return cfg.dsos.colors ? cfg.dsos.symbols[d.properties.type].width : cfg.dsos.style.width; },
+                  "stroke-opacity": cfg.dsos.style.opacity,
+          })
+          .attr("transform", function(d) { return point(d.geometry.coordinates); })
+          .attr("d", function(d) { return dsoSymbol(d.properties); });
+      
+        if (cfg.dsos.names) { 
+          svg.selectAll(".dsonames")
+            .data(cond.features.filter( function(d) {
+              return clip(d.geometry.coordinates) === 1 && 
+                   (d.properties.mag == 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.nameLimit ||
+                     d.properties.mag != 999 && d.properties.mag <= cfg.dsos.nameLimit); 
+            }))
+            .enter().append("text")
+            .attr("class", function(d) { return "dsoname " + d.properties.type; } )
+            .attr("transform", function(d) { return point(d.geometry.coordinates); })
+            .text( function(d) { return dsoName(d.properties); } )
+            .attr({dy: "-.5em", dx: ".35em"})
+            .style({"fill": function(d) { return cfg.dsos.colors ? cfg.dsos.symbols[d.properties.type].fill : cfg.dsos.style.fill; },
+                    "fill-opacity": cfg.dsos.style.opacity,
+                    "font": cfg.dsos.nameStyle.font,
+                    "text-anchor": svgAlign(cfg.dsos.nameStyle.align)
+            });
+        }
+        callback(null);
+      });
+    });
   }
-*/
+
+  if ((cfg.location || cfg.formFields.location) && cfg.planets.show && Celestial.origin) {
+    q.defer(function(callback) {
+      var dt = Celestial.date(),
+          o = Celestial.origin(dt).spherical(),
+          jp = {type: "FeatureCollection", features: []};
+      Celestial.container.selectAll(".planet").each(function(d) {
+        var id = d.id(), r = 6,
+            p = d(dt).equatorial(o);
+            
+        p.ephemeris.pos = transformDeg(p.ephemeris.pos, euler[cfg.transform]);  //transform; 
+        if (clip(p.ephemeris.pos) === 1) {
+          jp.features.push(createEntry(p));
+        }
+      });
+      if (cfg.planets.symbolType === "disk") {
+        svg.selectAll(".planets")
+         .data(jp.features)
+         .enter().append("path")
+         .attr("transform", function(d) { return point(d.geometry.coordinates); })
+         .attr("d", function(d) { return planetSymbol(d.properties); })
+         .style ( svgTextStyle(cfg.planets.symbolStyle) )
+         .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
+      } else {
+        svg.selectAll(".planets")
+         .data(jp.features)
+         .enter().append("text")
+         .attr("transform", function(d) { return point(d.geometry.coordinates); })
+         .text( function(d) { return d.properties.symbol; })
+         .style ( svgTextStyle(cfg.planets.symbolStyle) )
+         .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
+      }
+        
+        // "lun" svgCustomSymbol().type("crescent").size(144).age(p.ephemeris.age);
+
+      //name
+      if (cfg.planets.names) {
+        svg.selectAll(".planetnames")
+         .data(jp.features)
+         .enter().append("text")
+         .attr("transform", function(d) { return point(d.geometry.coordinates); })
+         .text( function(d) { return d.properties.name; })
+         .attr({dy: ".75em", dx: "-.35em"})
+         .style ( svgTextStyle(cfg.planets.nameStyle) )
+         .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
+      }
+      callback(null);
+    });  
+  }
+  
   // Helper functions
   
   function clip(coords) {
@@ -4620,9 +4717,9 @@ function saveSVG() {
     return "start";
   }
 
-  function dsoSymbol(prop) {
-    var size = dsoSize(prop.mag, prop.dim) || 9,
-        type = dsoShape(prop.type);
+  function dsoSymbol(p) {
+    var size = dsoSize(p.mag, p.dim) || 9,
+        type = dsoShape(p.type);
     if (d3.svg.symbolTypes.indexOf(type) !== -1) {
       return d3.svg.symbol().type(type).size(size)();
     } else {
@@ -4632,7 +4729,7 @@ function saveSVG() {
 
   function dsoShape(type) {
     if (!type || !has(cfg.dsos.symbols, type)) return "circle"; 
-    else return cfg.dsos.symbols[type]; 
+    else return cfg.dsos.symbols[type].shape; 
   }
 
   function dsoSize(mag, dim) {
@@ -4640,10 +4737,14 @@ function saveSVG() {
     return Math.pow(2 * cfg.dsos.size * adapt - mag, cfg.dsos.exponent);
   }
  
-  function dsoName(prop) {
-    return prop[cfg.dsos.namesType]; 
+  function dsoName(p) {
+    return p[cfg.dsos.namesType]; 
   }
- 
+
+  function dsoColor(p) {
+    if (cfg.dsos.colors === true) return svgStyle(cfg.dsos.symbols[p.type]);
+    return svgStyle(cfg.dsos.style);
+  }
  
   function starDesignation(id) {
     if (!has(starnames, id)) return "";
@@ -4670,8 +4771,32 @@ function saveSVG() {
     return d.properties[cfg.constellations.namesType]; 
   }
 
-  var customSymbolTypes = d3.map({
-    'ellipse': function(size) {
+  function planetSymbol(p) { 
+    var size = planetSize(p.mag) || 2;
+    return d3.svg.symbol().type("circle").size(size)();
+  }
+
+  function planetSize(m) {
+    var mag = m || 2; 
+    var r = 4 * adapt * Math.exp(-0.05 * (mag+2));
+    return Math.max(r, 2);
+  }
+
+  function createEntry(o) {
+    var res = {type: "Feature", "id":o.desig.toLowerCase(), properties: {}, geometry:{}};
+    res.properties.name = o[cfg.planets.namesType];
+    if (cfg.planets.symbolType === "symbol" || cfg.planets.symbolType === "letter")
+      res.properties.symbol = cfg.planets.symbols[res.id][cfg.planets.symbolType];
+    res.properties.mag = o.ephemeris.mag || 10;
+    if (res.id === "lun")
+      res.properties.age = o.ephemeris.age;
+    res.geometry.type = "MultiLineString";
+    res.geometry.coordinates = o.ephemeris.pos;
+    return res;
+  }
+
+  var customSvgSymbols = d3.map({
+    'ellipse': function(size, ratio) {
       var s = Math.sqrt(size), 
           rx = s*0.666, ry = s/3;
       return 'M' + (-rx) + ',' + (-ry) +
@@ -4679,7 +4804,7 @@ function saveSVG() {
       ' a' + rx + ',' + ry + ' 0 1,0' + (rx * 2) + ',0' +
       ' a' + rx + ',' + ry + ' 0 1,0' + (-(rx * 2)) + ',0';
     },
-    'marker': function(size) {
+    'marker': function(size, ratio) {
       var s =  size > 48 ? size / 4 : 12,
           r = s/2, l = r-3;
       return 'M ' + (-r) + ' 0 h ' + l + 
@@ -4687,7 +4812,7 @@ function saveSVG() {
              ' M ' + r + ' 0 h ' + (-l) +  
              ' M 0 ' + r + ' v ' + (-l);
     },
-    'cross-circle': function(size) {
+    'cross-circle': function(size, ratio) {
       var s = Math.sqrt(size), 
           r = s/2;
       return 'M' + (-r) + ',' + (-r) +
@@ -4698,7 +4823,7 @@ function saveSVG() {
       ' M 0 ' + (-r) + ' v ' + (s);
           
     },
-    'stroke-circle': function(size) {
+    'stroke-circle': function(size, ratio) {
       var s = Math.sqrt(size), 
           r = s/2;
       return 'M' + (-r) + ',' + (-r) +
@@ -4707,14 +4832,28 @@ function saveSVG() {
       ' a' + r + ',' + r + ' 0 1,0' + (-(r * 2)) + ',0' +
       ' M' + (-s-2) + ',' + (-s-2) + ' l' + (s+4) + ',' + (s+4);
 
+    }, 
+    "crescent": function(size, ratio) {
+      var s = Math.sqrt(size), 
+          r = s/2,
+          age = ratio,
+          ph = 0.5 * (1 - Math.cos(age)),
+          e = 1.6 * Math.abs(ph - 0.5) + 0.01,
+          dir = age > Math.PI,
+          termdir = Math.abs(ph) > 0.5 ? dir : !dir; 
+
+      return 'M' + (-r) + ',' + (-r) +
+      ' m 0,' + (-r) + 
+      ' a' + r + ',' + r + ' 0 1,0 0,' + (r * 2) +
+      ' a' + (r*e) + ',' + r + ' 0 1,0 0,' + (-(r * 2)) + 'z';
     } 
   });
 
   d3.svg.customSymbol = function() {
-    var type, size = 64;
+    var type, size = 64, ratio = 1;
     
     function symbol(d,i) {
-      return customSymbolTypes.get(type.call(this,d,i))(size.call(this,d,i));
+      return customSvgSymbols.get(type.call(this,d,i))(size.call(this,d,i), ratio);
     }
     symbol.type = function(_) {
       if (!arguments.length) return type; 
@@ -4724,6 +4863,11 @@ function saveSVG() {
     symbol.size = function(_) {
       if (!arguments.length) return size; 
       size = d3.functor(_);
+      return symbol;
+    };
+    symbol.ratio = function(_) {
+      if (!arguments.length) return ratio; 
+      ratio = d3.functor(_);
       return symbol;
     };
     return symbol;
@@ -4744,6 +4888,7 @@ function saveSVG() {
     a.href = URL.createObjectURL(blob);
     a.click();
     d3.select(a).remove();
+    d3.select("#d3-celestial-svg").remove();
   });
 
 }
