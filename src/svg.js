@@ -1,4 +1,4 @@
-/* global d3, Celestial, projections, poles, getData, getAngles, getWidth, getGridValues, has, isArray, halfπ, symbols, starnames, bvcolor, settings, transformDeg, euler */
+/* global d3, Celestial, projections, poles, getData, getAngles, getWidth, getGridValues, has, isArray, halfπ, symbols, starnames, bvcolor, settings, formats, transformDeg, euler */
 function saveSVG() {
   var doc = d3.select("body").append("div").attr("id", "d3-celestial-svg").attr("style", "display: none"),
       svg = d3.select("#d3-celestial-svg").append("svg"), //.attr("style", "display: none"),
@@ -10,6 +10,9 @@ function saveSVG() {
       center = [-rotation[0], -rotation[1]],
       adapt = 1,
       projection = Celestial.projection(cfg.projection).rotate(rotation).translate([m.width/2, m.height/2]).scale([m.scale]),
+      factor = projection.scale() / m.scale,
+      culture = (cfg.culture !== "" && cfg.culture !== "iau") ? cfg.culture : "",
+      extConstellations = (has(formats.constellations, culture)) ? "." + culture : "",
       circle;
 
   svg.selectAll("*").remove();
@@ -19,9 +22,12 @@ function saveSVG() {
     circle = d3.geo.circle().angle([179.9]);
   }
 
-  svg 
-    //.attr("width", m.width).attr("height", m.height)
-    .attr("viewBox", "0 0 " + m.width + " " + m.height);
+  svg.attr("width", m.width).attr("height", m.height);
+  // .attr("viewBox", " 0 0 " + (m.width) + " " + (m.height));
+
+  var background = svg.append('g'),
+      objects = svg.append('g'),
+      foreground = svg.append('g');
 
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
@@ -30,23 +36,23 @@ function saveSVG() {
   var q = d3.queue(2);
   
   if (circle) {
-    svg.append("path").datum(circle).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
+    background.append("path").datum(circle).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
   } else {
-    svg.append("path").datum(graticule.outline).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
+    background.append("path").datum(graticule.outline).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
   }
   
   if (cfg.lines.graticule.show) {
     if (cfg.transform === "equatorial") {
-      svg.append("path").datum(graticule)
+      background.append("path").datum(graticule)
        .attr("class", "gridline")
        .style( svgStyle(cfg.lines.graticule) )
        .attr("d", map);
     } else {
-      Celestial.graticule(svg, map, cfg.transform);
+      Celestial.graticule(background, map, cfg.transform);
     }
     if (has(cfg.lines.graticule, "lon") && cfg.lines.graticule.lon.pos.length > 0) {
       var jlon = {type: "FeatureCollection", features: getGridValues("lon", cfg.lines.graticule.lon.pos)};      
-      svg.selectAll(".gridvalues_lon")
+      background.selectAll(".gridvalues_lon")
         .data(jlon.features)
         .enter().append("text")
         .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
@@ -56,10 +62,9 @@ function saveSVG() {
     }
     if (has(cfg.lines.graticule, "lat") && cfg.lines.graticule.lat.pos.length > 0) {
       var jlat = {type: "FeatureCollection", features: getGridValues("lat", cfg.lines.graticule.lat.pos)};      
-      svg.selectAll(".gridvalues_lat")
+      background.selectAll(".gridvalues_lat")
         .data(jlat.features)
         .enter().append("text")
-        .attr("class", "graticule_lat")
         .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
         .text( function(d) { return d.properties.value; } )
         .attr({dy: "-.5em", dx: "-.75em", class: "graticule_lat"})
@@ -70,7 +75,7 @@ function saveSVG() {
   //Celestial planes
   for (var key in cfg.lines) {
     if (has(cfg.lines, key) && key != "graticule" && cfg.lines[key].show !== false) { 
-      svg.append("path")
+      background.append("path")
          .datum(d3.geo.circle().angle([90]).origin(poles[key]) )
          .attr("class", key)
          .style( svgStyle(cfg.lines[key]) )
@@ -86,7 +91,7 @@ function saveSVG() {
         var mw = getData(json, cfg.transform);
         //var mw_back = getMwbackground(mw);
         
-        svg.selectAll(".mway")
+        background.selectAll(".mway")
          .data(mw.features)
          .enter().append("path")
          .attr("class", "mw")
@@ -101,12 +106,12 @@ function saveSVG() {
   //Constellation boundaries
   if (cfg.constellations.bounds) { 
     q.defer(function(callback) { 
-      d3.json(path + "constellations.bounds.json", function(error, json) {
+      d3.json(path + "constellations.bounds" + extConstellations + ".json", function(error, json) {
         if (error) callback(error);
 
         var conb = getData(json, cfg.transform);
    
-        svg.selectAll(".bounds")
+        background.selectAll(".bounds")
          .data(conb.features)
          .enter().append("path")
          .attr("class", "boundaryline")
@@ -120,11 +125,11 @@ function saveSVG() {
   //Constellation lines
   if (cfg.constellations.lines) { 
     q.defer(function(callback) { 
-      d3.json(path + "constellations.lines.json", function(error, json) {
+      d3.json(path + "constellations.lines" + extConstellations + ".json", function(error, json) {
         if (error) callback(error);
 
         var conl = getData(json, cfg.transform);
-        svg.selectAll(".lines")
+        background.selectAll(".lines")
          .data(conl.features)
          .enter().append("path")
          .attr("class", "constline")
@@ -142,7 +147,7 @@ function saveSVG() {
 
   // Map border
   q.defer(function(callback) {
-    svg.append("path")
+    background.append("path")
      .datum(graticule.outline)
      .attr("class", "outline")
      .style({"fill": "none", "stroke": cfg.background.stroke, "stroke-width": cfg.background.width, "stroke-opacity": 1, "stroke-dasharray": "none" })
@@ -153,11 +158,11 @@ function saveSVG() {
   //Constellation nemes or designation
   if (cfg.constellations.names) { 
     q.defer(function(callback) { 
-      d3.json(path + "constellations.json", function(error, json) {
+      d3.json(path + "constellations" + extConstellations + ".json", function(error, json) {
         if (error) callback(error);
 
         var conn = getData(json, cfg.transform);
-        svg.selectAll(".constnames")
+        objects.selectAll(".constnames")
          .data(conn.features.filter( function(d) {
             return clip(d.geometry.coordinates) === 1; 
           }))
@@ -186,7 +191,7 @@ function saveSVG() {
 
         var cons = getData(json, cfg.transform);
         
-        svg.selectAll(".stars")
+        objects.selectAll(".stars")
           .data(cons.features.filter( function(d) {
             return d.properties.mag <= cfg.stars.limit; 
           }))
@@ -200,7 +205,7 @@ function saveSVG() {
           });
         
         if (cfg.stars.designation) { 
-          svg.selectAll(".stardesigs")
+          objects.selectAll(".stardesigs")
             .data(cons.features.filter( function(d) {
               return d.properties.mag <= cfg.stars.designationLimit && clip(d.geometry.coordinates) === 1; 
             }))
@@ -211,7 +216,7 @@ function saveSVG() {
             .style( svgTextStyle(cfg.stars.designationStyle) );
         }
         if (cfg.stars.propername) { 
-          svg.selectAll(".starnames")
+          objects.selectAll(".starnames")
             .data(cons.features.filter( function(d) {
               return d.properties.mag <= cfg.stars.propernameLimit && clip(d.geometry.coordinates) === 1; 
             }))
@@ -234,7 +239,7 @@ function saveSVG() {
 
         var cond = getData(json, cfg.transform);
         
-        svg.selectAll(".dsos")
+        objects.selectAll(".dsos")
           .data(cond.features.filter( function(d) {
             return clip(d.geometry.coordinates) === 1 && 
                    (d.properties.mag === 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.limit ||
@@ -255,7 +260,7 @@ function saveSVG() {
           .attr("d", function(d) { return dsoSymbol(d.properties); });
       
         if (cfg.dsos.names) { 
-          svg.selectAll(".dsonames")
+          objects.selectAll(".dsonames")
             .data(cond.features.filter( function(d) {
               return clip(d.geometry.coordinates) === 1 && 
                    (d.properties.mag == 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.nameLimit ||
@@ -292,19 +297,21 @@ function saveSVG() {
         }
       });
       if (cfg.planets.symbolType === "disk") {
-        svg.selectAll(".planets")
+        objects.selectAll(".planets")
          .data(jp.features)
          .enter().append("path")
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .attr("d", function(d) { return planetSymbol(d.properties); })
+         .attr("class", "planet")
          .style ( svgTextStyle(cfg.planets.symbolStyle) )
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
       } else {
-        svg.selectAll(".planets")
+        objects.selectAll(".planets")
          .data(jp.features)
          .enter().append("text")
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .text( function(d) { return d.properties.symbol; })
+         .attr("class", "planet")
          .style ( svgTextStyle(cfg.planets.symbolStyle) )
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
       }
@@ -313,18 +320,31 @@ function saveSVG() {
 
       //name
       if (cfg.planets.names) {
-        svg.selectAll(".planetnames")
+        objects.selectAll(".planetnames")
          .data(jp.features)
          .enter().append("text")
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .text( function(d) { return d.properties.name; })
-         .attr({dy: ".75em", dx: "-.35em"})
+         .attr({dy: ".75em", dx: "-.35em", class: "planetname"})
          .style ( svgTextStyle(cfg.planets.nameStyle) )
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
       }
       callback(null);
     });  
   }
+  
+  if ((cfg.location || cfg.formFields.location) && cfg.horizon.show && !proj.clip) {
+    q.defer(function(callback) {
+      var horizon = d3.geo.circle().angle([90]).origin(Celestial.nadir());
+     
+      foreground.append("path").datum(horizon)
+       .attr("class", "horizon")
+       .attr("d", map)
+       .style( svgStyle(cfg.horizon) );  
+      callback(null);
+    });
+  }
+  
   
   // Helper functions
   

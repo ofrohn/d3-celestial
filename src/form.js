@@ -333,6 +333,7 @@ function form(cfg) {
         cx = setUnit(trans, config.transform); 
     if (cx !== null) config.center[0] = cx; 
     config.transform = trans;
+    settings.set(config);
     Celestial.reload(config);
   }  
   
@@ -340,6 +341,7 @@ function form(cfg) {
     var src = this;
     if (!src) return;
     config.projection = src.value; 
+    settings.set(config);
     Celestial.reproject(config);
   }
   

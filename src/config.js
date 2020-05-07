@@ -122,7 +122,7 @@ var settings = {
     stroke: "#cccccc", // Line
     width: 1.0, 
     fill: "#000000", // Area below horizon
-    opacity: 0.5
+    opacity: 0.4
   },  
   daylight: {  //Show approximate state of sky at selected time
     show: false
