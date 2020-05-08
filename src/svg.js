@@ -1,4 +1,4 @@
-/* global d3, Celestial, projections, poles, getData, getAngles, getWidth, getGridValues, has, isArray, halfπ, symbols, starnames, bvcolor, settings, formats, transformDeg, euler */
+/* global d3, Celestial, projections, poles, getData, getPlanet, getAngles, getWidth, getGridValues, has, isArray, halfπ, symbols, starnames, bvcolor, settings, formats, transformDeg, euler */
 function saveSVG() {
   var doc = d3.select("body").append("div").attr("id", "d3-celestial-svg").attr("style", "display: none"),
       svg = d3.select("#d3-celestial-svg").append("svg"), //.attr("style", "display: none"),
@@ -10,7 +10,7 @@ function saveSVG() {
       center = [-rotation[0], -rotation[1]],
       adapt = 1,
       projection = Celestial.projection(cfg.projection).rotate(rotation).translate([m.width/2, m.height/2]).scale([m.scale]),
-      factor = projection.scale() / m.scale,
+      factor = proj.scale / m.scale,
       culture = (cfg.culture !== "" && cfg.culture !== "iau") ? cfg.culture : "",
       extConstellations = (has(formats.constellations, culture)) ? "." + culture : "",
       circle;
@@ -333,6 +333,31 @@ function saveSVG() {
     });  
   }
   
+  if ((cfg.location || cfg.formFields.location) && cfg.daylight.show && proj.clip) {
+    q.defer(function(callback) {
+      var sol = getPlanet("sol");
+      if (sol) {
+        var up = Celestial.zenith(),
+            solpos = sol.ephemeris.pos,
+            dist = d3.geo.distance(up, solpos),
+            pt = projection(solpos);
+
+/*        daylight.origin(solpos);
+        setSkyStyle(dist, pt);
+        container.selectAll(".daylight").datum(daylight).attr("d", map);
+        context.fill();    
+        context.fillStyle = "#fff"; 
+        if (clip(solpos)) {
+          context.beginPath();
+          context.arc(pt[0], pt[1], 6, 0, 2 * Math.PI);
+          context.closePath();
+          context.fill();
+        }*/
+      }
+      callback(null);
+    });  
+  }
+
   if ((cfg.location || cfg.formFields.location) && cfg.horizon.show && !proj.clip) {
     q.defer(function(callback) {
       var horizon = d3.geo.circle().angle([90]).origin(Celestial.nadir());
@@ -398,6 +423,48 @@ function saveSVG() {
     //res.textBaseline = s.baseline || "bottom";
     return res;
   }
+
+  function svgSkyStyle(dist, pt) {
+    var factor, color1, color2, color3,
+        upper = 1.36, 
+        lower = 1.885;
+    
+    if (dist > lower) return 0;
+    
+    if (dist <= upper) { 
+      color1 = "#daf1fa";
+      color2 = "#93d7f0"; 
+      color3 = "#57c0e8"; 
+      factor = -(upper-dist) / 10; 
+    } else {
+      factor = (dist - upper) / (lower - upper);
+      color1 = d3.interpolateLab("#daf1fa", "#e8c866")(factor);
+      color2 = d3.interpolateLab("#93d7d0", "#ff854a")(factor);
+      color3 = d3.interpolateLab("#57c0c8", "#6caae2")(factor);
+    }
+
+
+    var gradient = foreground.append("radialGradient")
+     .attr("cy", pt[0])
+     .attr("cx", pt[1])
+     .attr("fr", "0")
+     .attr("r", "100%")
+     .attr("id", "skygradient")
+     .attr("gradientUnits", "userSpaceOnUse")
+     .style();
+
+    gradient.append("stop").attr("offset", "0").attr("stop-color", color1);
+    gradient.append("stop").attr("offset", 0.2+0.4*factor).attr("stop-color", color2);
+    gradient.append("stop").attr("offset", "1").attr("stop-color", color3);
+
+    return skyTransparency(factor, 1.5);
+  }
+
+  function skyTransparency(t, a) {
+    return 0.9 * (1 - ((Math.pow(Math.E, t*a) - 1) / (Math.pow(Math.E, a) - 1)));
+  }
+  
+
 
   function svgAlign(s) {
     if (!s) return "start";

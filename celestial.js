@@ -116,13 +116,8 @@ Celestial.display = function(config) {
     fldEnable("horizon-show", proj.clip);
     fldEnable("daylight-show", !proj.clip);
   }
-  
-
 
   function load() {
-    var extConstellations = (has(formats.constellations, culture)) ? "." + culture : "",
-        extStars = (has(formats.starnames, culture)) ? "." + culture : "";
-
     //Background
     setClip(proj.clip);
     container.append("path").datum(graticule.outline).attr("class", "outline"); 
@@ -172,8 +167,7 @@ Celestial.display = function(config) {
     }); 
 
     //Constellation names or designation
-    var filename = "constellations" + extConstellations + ".json";
-    d3.json(path + filename, function(error, json) {
+    d3.json(path + filename("constellations"), function(error, json) {
       if (error) return console.warn(error);
       
       var con = getData(json, trans);
@@ -187,8 +181,7 @@ Celestial.display = function(config) {
     });
 
     //Constellation boundaries
-    filename = "constellations.bounds" + extConstellations + ".json";
-    d3.json(path + filename, function(error, json) {
+    d3.json(path + filename("constellations", "bounds"), function(error, json) {
       if (error) return console.warn(error);
 
       var conb = getData(json, trans);
@@ -201,8 +194,7 @@ Celestial.display = function(config) {
     });
 
     //Constellation lines
-    filename = "constellations.lines" + extConstellations + ".json";
-    d3.json(path + filename, function(error, json) {
+    d3.json(path + filename("constellations", "lines"), function(error, json) {
       if (error) return console.warn(error);
 
       var conl = getData(json, trans);
@@ -230,8 +222,7 @@ Celestial.display = function(config) {
 
     });
 
-    filename = "starnames" + extStars + ".json";
-    d3.json(path + filename, function(error, json) {
+    d3.json(path + filename("starnames"), function(error, json) {
       if (error) return console.warn(error);
 
       Object.assign(starnames, json);
@@ -257,7 +248,7 @@ Celestial.display = function(config) {
     });
 
     //Planets, Sun & Moon
-    d3.json(path + "planets.json", function(error, json) {
+    d3.json(path + filename("planets"), function(error, json) {
       if (error) return console.warn(error);
       
       var pl = getPlanets(json, trans);
@@ -745,10 +736,10 @@ Celestial.display = function(config) {
     grad.addColorStop(0.2+0.4*factor, color2);
     grad.addColorStop(1, color3);
     context.fillStyle = grad;
-    context.globalAlpha = 0.9 * (1 - expF(factor, 1.5));
+    context.globalAlpha = 0.9 * (1 - skyTransparency(factor, 1.5));
   }
   
-  function expF(t, a) {
+  function skyTransparency(t, a) {
     return (Math.pow(Math.E, t*a) - 1) / (Math.pow(Math.E, a) - 1);
   }
   
@@ -772,6 +763,12 @@ Celestial.display = function(config) {
       //container.selectAll(".outline").remove();
       //container.append("path").datum(graticule.outline).attr("class", "outline"); 
     }        
+  }
+  
+  function filename(what, sub) {
+    var ext = (has(formats[what], culture)) ? "." + culture : "";
+    sub = sub ? "." + sub : "";
+    return what + ext + ".json";
   }
   
   function dsoDisplay(prop, limit) {
@@ -1682,6 +1679,8 @@ var settings = {
       if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
     }
     if (!res.constellations.namesType || res.constellations.namesType === "") res.constellations.namesType = "desig";
+    if (!has(formats.constellations[res.culture].names, res.constellations.namesType)) res.constellations.namesType = "name";
+
     if (has(cfg, "planets")) {
       if (has(cfg.planets, "style")) Object.assign(res.planets.style, cfg.planets.symbolStyle);      
     }
@@ -1924,8 +1923,8 @@ var formats = {
 };
 
 var formats_all = {
-  "iau": Object.keys(formats.constellations.iau.names).concat(Object.keys(formats.constellations.iau.names)).filter( function(value, index, self) { return self.indexOf(value) === index; } ),
-  "cn":  Object.keys(formats.constellations.cn.names).concat(Object.keys(formats.constellations.cn.names)).filter( function(value, index, self) { return self.indexOf(value) === index; } )
+  "iau": Object.keys(formats.constellations.iau.names).concat(Object.keys(formats.planets.iau.names)).filter( function(value, index, self) { return self.indexOf(value) === index; } ),
+  "cn":  Object.keys(formats.constellations.cn.names).concat(Object.keys(formats.starnames.cn.propername)).filter( function(value, index, self) { return self.indexOf(value) === index; } )
 };
 var Canvas = {}; 
 
@@ -2381,7 +2380,7 @@ function form(cfg) {
 
   col.append("br");
   
-  var names = formats.starnames[config.culture];
+  var names = formats.starnames[config.culture] || formats.starnames.iau;
   
   for (var fld in names) {
     if (!has(names, fld)) continue;
@@ -2445,7 +2444,7 @@ function form(cfg) {
 //  col.append("label").attr("for", "dsos-names").html("Show names");
 //  col.append("input").attr("type", "checkbox").attr("id", "dsos-names").property("checked", config.dsos.names).on("change", apply);
 
-  names = formats.dsos[config.culture];
+  names = formats.dsos[config.culture] || formats.dsos.iau;
   
   for (fld in names) {
     if (!has(names, fld)) continue;
@@ -2489,7 +2488,7 @@ function form(cfg) {
   //col.append("input").attr("type", "checkbox").attr("id", "constellations-show").property("checked", config.constellations.show).on("change", apply);
   
   
-  names = formats.constellations[config.culture];
+  names = formats.constellations[config.culture] || formats.constellations.iau;
   
   for (fld in names) {
     if (!has(names, fld)) continue;
@@ -3137,7 +3136,7 @@ function geo(cfg) {
   col.append("label").attr("title", "Show solar system objects").attr("for", "planets-show").html(" Planets, Sun & Moon");
   col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", config.planets.show).on("change", apply);    
   //Planet names
-  var names = formats.planets[config.culture];
+  var names = formats.planets[config.culture] || formats.planets.iau;
   
   for (var fld in names) {
     if (!has(names, fld)) continue;
@@ -4343,7 +4342,7 @@ function saveSVG() {
       center = [-rotation[0], -rotation[1]],
       adapt = 1,
       projection = Celestial.projection(cfg.projection).rotate(rotation).translate([m.width/2, m.height/2]).scale([m.scale]),
-      factor = projection.scale() / m.scale,
+      factor = proj.scale / m.scale,
       culture = (cfg.culture !== "" && cfg.culture !== "iau") ? cfg.culture : "",
       extConstellations = (has(formats.constellations, culture)) ? "." + culture : "",
       circle;
@@ -4666,6 +4665,31 @@ function saveSVG() {
     });  
   }
   
+  if ((cfg.location || cfg.formFields.location) && cfg.daylight.show && proj.clip) {
+    q.defer(function(callback) {
+      var sol = getPlanet("sol");
+      if (sol) {
+        var up = Celestial.zenith(),
+            solpos = sol.ephemeris.pos,
+            dist = d3.geo.distance(up, solpos),
+            pt = projection(solpos);
+
+/*        daylight.origin(solpos);
+        setSkyStyle(dist, pt);
+        container.selectAll(".daylight").datum(daylight).attr("d", map);
+        context.fill();    
+        context.fillStyle = "#fff"; 
+        if (clip(solpos)) {
+          context.beginPath();
+          context.arc(pt[0], pt[1], 6, 0, 2 * Math.PI);
+          context.closePath();
+          context.fill();
+        }*/
+      }
+      callback(null);
+    });  
+  }
+
   if ((cfg.location || cfg.formFields.location) && cfg.horizon.show && !proj.clip) {
     q.defer(function(callback) {
       var horizon = d3.geo.circle().angle([90]).origin(Celestial.nadir());
@@ -4731,6 +4755,48 @@ function saveSVG() {
     //res.textBaseline = s.baseline || "bottom";
     return res;
   }
+
+  function svgSkyStyle(dist, pt) {
+    var factor, color1, color2, color3,
+        upper = 1.36, 
+        lower = 1.885;
+    
+    if (dist > lower) return 0;
+    
+    if (dist <= upper) { 
+      color1 = "#daf1fa";
+      color2 = "#93d7f0"; 
+      color3 = "#57c0e8"; 
+      factor = -(upper-dist) / 10; 
+    } else {
+      factor = (dist - upper) / (lower - upper);
+      color1 = d3.interpolateLab("#daf1fa", "#e8c866")(factor);
+      color2 = d3.interpolateLab("#93d7d0", "#ff854a")(factor);
+      color3 = d3.interpolateLab("#57c0c8", "#6caae2")(factor);
+    }
+
+
+    var gradient = foreground.append("radialGradient")
+     .attr("cy", pt[0])
+     .attr("cx", pt[1])
+     .attr("fr", "0")
+     .attr("r", "100%")
+     .attr("id", "skygradient")
+     .attr("gradientUnits", "userSpaceOnUse")
+     .style();
+
+    gradient.append("stop").attr("offset", "0").attr("stop-color", color1);
+    gradient.append("stop").attr("offset", 0.2+0.4*factor).attr("stop-color", color2);
+    gradient.append("stop").attr("offset", "1").attr("stop-color", color3);
+
+    return skyTransparency(factor, 1.5);
+  }
+
+  function skyTransparency(t, a) {
+    return 0.9 * (1 - ((Math.pow(Math.E, t*a) - 1) / (Math.pow(Math.E, a) - 1)));
+  }
+  
+
 
   function svgAlign(s) {
     if (!s) return "start";

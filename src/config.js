@@ -227,6 +227,8 @@ var settings = {
       if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
     }
     if (!res.constellations.namesType || res.constellations.namesType === "") res.constellations.namesType = "desig";
+    if (!has(formats.constellations[res.culture].names, res.constellations.namesType)) res.constellations.namesType = "name";
+
     if (has(cfg, "planets")) {
       if (has(cfg.planets, "style")) Object.assign(res.planets.style, cfg.planets.symbolStyle);      
     }
@@ -469,6 +471,6 @@ var formats = {
 };
 
 var formats_all = {
-  "iau": Object.keys(formats.constellations.iau.names).concat(Object.keys(formats.constellations.iau.names)).filter( function(value, index, self) { return self.indexOf(value) === index; } ),
-  "cn":  Object.keys(formats.constellations.cn.names).concat(Object.keys(formats.constellations.cn.names)).filter( function(value, index, self) { return self.indexOf(value) === index; } )
+  "iau": Object.keys(formats.constellations.iau.names).concat(Object.keys(formats.planets.iau.names)).filter( function(value, index, self) { return self.indexOf(value) === index; } ),
+  "cn":  Object.keys(formats.constellations.cn.names).concat(Object.keys(formats.starnames.cn.propername)).filter( function(value, index, self) { return self.indexOf(value) === index; } )
 };

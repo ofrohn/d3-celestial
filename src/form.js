@@ -84,7 +84,7 @@ function form(cfg) {
 
   col.append("br");
   
-  var names = formats.starnames[config.culture];
+  var names = formats.starnames[config.culture] || formats.starnames.iau;
   
   for (var fld in names) {
     if (!has(names, fld)) continue;
@@ -148,7 +148,7 @@ function form(cfg) {
 //  col.append("label").attr("for", "dsos-names").html("Show names");
 //  col.append("input").attr("type", "checkbox").attr("id", "dsos-names").property("checked", config.dsos.names).on("change", apply);
 
-  names = formats.dsos[config.culture];
+  names = formats.dsos[config.culture] || formats.dsos.iau;
   
   for (fld in names) {
     if (!has(names, fld)) continue;
@@ -192,7 +192,7 @@ function form(cfg) {
   //col.append("input").attr("type", "checkbox").attr("id", "constellations-show").property("checked", config.constellations.show).on("change", apply);
   
   
-  names = formats.constellations[config.culture];
+  names = formats.constellations[config.culture] || formats.constellations.iau;
   
   for (fld in names) {
     if (!has(names, fld)) continue;

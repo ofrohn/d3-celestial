@@ -63,7 +63,7 @@ function geo(cfg) {
   col.append("label").attr("title", "Show solar system objects").attr("for", "planets-show").html(" Planets, Sun & Moon");
   col.append("input").attr("type", "checkbox").attr("id", "planets-show").property("checked", config.planets.show).on("change", apply);    
   //Planet names
-  var names = formats.planets[config.culture];
+  var names = formats.planets[config.culture] || formats.planets.iau;
   
   for (var fld in names) {
     if (!has(names, fld)) continue;

@@ -115,13 +115,8 @@ Celestial.display = function(config) {
     fldEnable("horizon-show", proj.clip);
     fldEnable("daylight-show", !proj.clip);
   }
-  
-
 
   function load() {
-    var extConstellations = (has(formats.constellations, culture)) ? "." + culture : "",
-        extStars = (has(formats.starnames, culture)) ? "." + culture : "";
-
     //Background
     setClip(proj.clip);
     container.append("path").datum(graticule.outline).attr("class", "outline"); 
@@ -171,8 +166,7 @@ Celestial.display = function(config) {
     }); 
 
     //Constellation names or designation
-    var filename = "constellations" + extConstellations + ".json";
-    d3.json(path + filename, function(error, json) {
+    d3.json(path + filename("constellations"), function(error, json) {
       if (error) return console.warn(error);
       
       var con = getData(json, trans);
@@ -186,8 +180,7 @@ Celestial.display = function(config) {
     });
 
     //Constellation boundaries
-    filename = "constellations.bounds" + extConstellations + ".json";
-    d3.json(path + filename, function(error, json) {
+    d3.json(path + filename("constellations", "bounds"), function(error, json) {
       if (error) return console.warn(error);
 
       var conb = getData(json, trans);
@@ -200,8 +193,7 @@ Celestial.display = function(config) {
     });
 
     //Constellation lines
-    filename = "constellations.lines" + extConstellations + ".json";
-    d3.json(path + filename, function(error, json) {
+    d3.json(path + filename("constellations", "lines"), function(error, json) {
       if (error) return console.warn(error);
 
       var conl = getData(json, trans);
@@ -229,8 +221,7 @@ Celestial.display = function(config) {
 
     });
 
-    filename = "starnames" + extStars + ".json";
-    d3.json(path + filename, function(error, json) {
+    d3.json(path + filename("starnames"), function(error, json) {
       if (error) return console.warn(error);
 
       Object.assign(starnames, json);
@@ -256,7 +247,7 @@ Celestial.display = function(config) {
     });
 
     //Planets, Sun & Moon
-    d3.json(path + "planets.json", function(error, json) {
+    d3.json(path + filename("planets"), function(error, json) {
       if (error) return console.warn(error);
       
       var pl = getPlanets(json, trans);
@@ -744,10 +735,10 @@ Celestial.display = function(config) {
     grad.addColorStop(0.2+0.4*factor, color2);
     grad.addColorStop(1, color3);
     context.fillStyle = grad;
-    context.globalAlpha = 0.9 * (1 - expF(factor, 1.5));
+    context.globalAlpha = 0.9 * (1 - skyTransparency(factor, 1.5));
   }
   
-  function expF(t, a) {
+  function skyTransparency(t, a) {
     return (Math.pow(Math.E, t*a) - 1) / (Math.pow(Math.E, a) - 1);
   }
   
@@ -771,6 +762,12 @@ Celestial.display = function(config) {
       //container.selectAll(".outline").remove();
       //container.append("path").datum(graticule.outline).attr("class", "outline"); 
     }        
+  }
+  
+  function filename(what, sub) {
+    var ext = (has(formats[what], culture)) ? "." + culture : "";
+    sub = sub ? "." + sub : "";
+    return what + ext + ".json";
   }
   
   function dsoDisplay(prop, limit) {
