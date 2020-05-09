@@ -753,16 +753,8 @@ Celestial.display = function(config) {
   }
   
   function setClip(setit) {
-    if (setit) {
-      prjMap.clipAngle(90);
-      //container.selectAll(".outline").remove();
-      //container.append("path").datum(graticule.outline).attr("class", "outline"); 
-      //container.append("path").datum(d3.geo.circle().angle([179.9])).attr("class", "outline");
-    } else {
-      prjMap.clipAngle(null);
-      //container.selectAll(".outline").remove();
-      //container.append("path").datum(graticule.outline).attr("class", "outline"); 
-    }        
+    if (setit) { prjMap.clipAngle(90); } 
+    else { prjMap.clipAngle(null); }        
   }
   
   function filename(what, sub) {
@@ -1659,6 +1651,11 @@ var settings = {
       if (has(cfg.stars, "propernamelimit")) res.stars.propernameLimit = cfg.stars.propernamelimit;
       if (has(cfg.stars, "propernamestyle")) Object.assign(res.stars.propernameStyle, cfg.stars.propernamestyle);
     }
+    if (!res.stars.designationType || res.stars.designationType === "") res.stars.designationType = "desig";
+    if (!has(formats.starnames[res.culture].designation, res.stars.designationType)) res.designationType = "desig";
+    if (!res.stars.propernameType || res.stars.propernameType === "") res.stars.propernameType = "name";
+    if (!has(formats.starnames[res.culture].propername, res.stars.propernameType)) res.propernameType = "name";
+
     if (has(cfg, "dsos")) {
       // names, desig -> namesType
       if (has(cfg.dsos, "names") && cfg.dsos.names === true) res.dsos.namesType = "name";
@@ -1686,6 +1683,7 @@ var settings = {
     }
     if (!res.planets.symbolType || res.planets.symbolType === "") res.planets.symbolType = "symbol";
     if (!res.planets.namesType || res.planets.namesType === "") res.planets.namesType = "desig";
+    if (!has(formats.planets[res.culture].names, res.planets.namesType)) res.planets.namesType = "desig";
     //Expand all parameters that can be arrays into arrays, no need to test it later
     res.constellations.nameStyle.font = arrayfy(res.constellations.nameStyle.font);
     res.constellations.nameStyle.opacity = arrayfy(res.constellations.nameStyle.opacity);
@@ -4340,8 +4338,8 @@ function saveSVG() {
       proj = projections[cfg.projection],
       rotation = getAngles(cfg.center),
       center = [-rotation[0], -rotation[1]],
-      adapt = 1,
       projection = Celestial.projection(cfg.projection).rotate(rotation).translate([m.width/2, m.height/2]).scale([m.scale]),
+      adapt = cfg.adaptable ? Math.sqrt(projection.scale()/m.scale) : 1,
       factor = proj.scale / m.scale,
       culture = (cfg.culture !== "" && cfg.culture !== "iau") ? cfg.culture : "",
       extConstellations = (has(formats.constellations, culture)) ? "." + culture : "",

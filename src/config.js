@@ -207,6 +207,11 @@ var settings = {
       if (has(cfg.stars, "propernamelimit")) res.stars.propernameLimit = cfg.stars.propernamelimit;
       if (has(cfg.stars, "propernamestyle")) Object.assign(res.stars.propernameStyle, cfg.stars.propernamestyle);
     }
+    if (!res.stars.designationType || res.stars.designationType === "") res.stars.designationType = "desig";
+    if (!has(formats.starnames[res.culture].designation, res.stars.designationType)) res.designationType = "desig";
+    if (!res.stars.propernameType || res.stars.propernameType === "") res.stars.propernameType = "name";
+    if (!has(formats.starnames[res.culture].propername, res.stars.propernameType)) res.propernameType = "name";
+
     if (has(cfg, "dsos")) {
       // names, desig -> namesType
       if (has(cfg.dsos, "names") && cfg.dsos.names === true) res.dsos.namesType = "name";
@@ -234,6 +239,7 @@ var settings = {
     }
     if (!res.planets.symbolType || res.planets.symbolType === "") res.planets.symbolType = "symbol";
     if (!res.planets.namesType || res.planets.namesType === "") res.planets.namesType = "desig";
+    if (!has(formats.planets[res.culture].names, res.planets.namesType)) res.planets.namesType = "desig";
     //Expand all parameters that can be arrays into arrays, no need to test it later
     res.constellations.nameStyle.font = arrayfy(res.constellations.nameStyle.font);
     res.constellations.nameStyle.opacity = arrayfy(res.constellations.nameStyle.opacity);
