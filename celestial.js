@@ -222,15 +222,10 @@ Celestial.display = function(config) {
 
     });
 
+    //Star names
     d3.json(path + filename("starnames"), function(error, json) {
       if (error) return console.warn(error);
-
       Object.assign(starnames, json);
-
-      /*container.selectAll(".starnames")
-         .data(st.features)
-         .enter().append("path")
-         .attr("class", "starname");*/
       redraw();
     });
 
@@ -728,15 +723,15 @@ Celestial.display = function(config) {
     } else {
       factor = (dist - upper) / (lower - upper);
       color1 = d3.interpolateLab("#daf1fa", "#e8c866")(factor);
-      color2 = d3.interpolateLab("#93d7d0", "#ff854a")(factor);
-      color3 = d3.interpolateLab("#57c0c8", "#6caae2")(factor);
+      color2 = d3.interpolateLab("#93c7d0", "#ff854a")(factor);
+      color3 = d3.interpolateLab("#57b0c8", "#6caae2")(factor);
     }
     var grad = context.createRadialGradient(pt[0],pt[1],0, pt[0],pt[1],300);
     grad.addColorStop(0, color1);
     grad.addColorStop(0.2+0.4*factor, color2);
     grad.addColorStop(1, color3);
     context.fillStyle = grad;
-    context.globalAlpha = 0.9 * (1 - skyTransparency(factor, 1.5));
+    context.globalAlpha = 0.9 * (1 - skyTransparency(factor, 1.4));
   }
   
   function skyTransparency(t, a) {
@@ -4342,7 +4337,6 @@ function saveSVG() {
       adapt = cfg.adaptable ? Math.sqrt(projection.scale()/m.scale) : 1,
       factor = proj.scale / m.scale,
       culture = (cfg.culture !== "" && cfg.culture !== "iau") ? cfg.culture : "",
-      extConstellations = (has(formats.constellations, culture)) ? "." + culture : "",
       circle;
 
   svg.selectAll("*").remove();
@@ -4436,7 +4430,7 @@ function saveSVG() {
   //Constellation boundaries
   if (cfg.constellations.bounds) { 
     q.defer(function(callback) { 
-      d3.json(path + "constellations.bounds" + extConstellations + ".json", function(error, json) {
+      d3.json(path + filename("constellations", "bounds"), function(error, json) {
         if (error) callback(error);
 
         var conb = getData(json, cfg.transform);
@@ -4455,7 +4449,7 @@ function saveSVG() {
   //Constellation lines
   if (cfg.constellations.lines) { 
     q.defer(function(callback) { 
-      d3.json(path + "constellations.lines" + extConstellations + ".json", function(error, json) {
+      d3.json(path + filename("constellations", "lines"), function(error, json) {
         if (error) callback(error);
 
         var conl = getData(json, cfg.transform);
@@ -4488,7 +4482,7 @@ function saveSVG() {
   //Constellation nemes or designation
   if (cfg.constellations.names) { 
     q.defer(function(callback) { 
-      d3.json(path + "constellations" + extConstellations + ".json", function(error, json) {
+      d3.json(path + filename("constellations"), function(error, json) {
         if (error) callback(error);
 
         var conn = getData(json, cfg.transform);
@@ -4642,6 +4636,7 @@ function saveSVG() {
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .text( function(d) { return d.properties.symbol; })
          .attr("class", "planet")
+         .attr({dy: ".35em"})
          .style ( svgTextStyle(cfg.planets.symbolStyle) )
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
       }
@@ -4655,7 +4650,7 @@ function saveSVG() {
          .enter().append("text")
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .text( function(d) { return d.properties.name; })
-         .attr({dy: ".75em", dx: "-.35em", class: "planetname"})
+         .attr({dy: ".85em", dx: "-.35em", class: "planetname"})
          .style ( svgTextStyle(cfg.planets.nameStyle) )
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
       }
@@ -4670,19 +4665,21 @@ function saveSVG() {
         var up = Celestial.zenith(),
             solpos = sol.ephemeris.pos,
             dist = d3.geo.distance(up, solpos),
-            pt = projection(solpos);
+            pt = projection(solpos),
+            daylight = d3.geo.circle().angle([179.9]).origin(solpos);
 
-/*        daylight.origin(solpos);
-        setSkyStyle(dist, pt);
-        container.selectAll(".daylight").datum(daylight).attr("d", map);
-        context.fill();    
-        context.fillStyle = "#fff"; 
-        if (clip(solpos)) {
-          context.beginPath();
-          context.arc(pt[0], pt[1], 6, 0, 2 * Math.PI);
-          context.closePath();
-          context.fill();
-        }*/
+      foreground.append("path").datum(daylight)
+       .attr("class", "daylight")
+       .attr("d", map)
+       .style( svgSkyStyle(dist, pt) );  
+
+        if (clip(solpos) === 1) {
+          foreground.append("circle")
+           .attr("cx", pt[0])
+           .attr("cy", pt[1])
+           .attr("r", 5)
+           .style("fill", "#fff");
+        }
       }
       callback(null);
     });  
@@ -4700,6 +4697,16 @@ function saveSVG() {
     });
   }
   
+  if (Celestial.data.length > 0) { 
+    Celestial.data.forEach( function(d) {
+      if (has(d, "save")) {
+       q.defer(function(callback) { 
+         d.save(); 
+        callback(null);
+       });
+      }
+    });
+  }
   
   // Helper functions
   
@@ -4711,9 +4718,10 @@ function saveSVG() {
     return "translate(" + projection(coords) + ")";
   }
     
-  function opacity(coords) {
-    var opa = clip(coords);
-    return 'stroke-opacity:' + opa + ';fill-opacity:' + opa; 
+  function filename(what, sub) {
+    var ext = (has(formats[what], culture)) ? "." + culture : "";
+    sub = sub ? "." + sub : "";
+    return what + ext + ".json";
   }
 
   function svgStyle(s) {
@@ -4759,7 +4767,7 @@ function saveSVG() {
         upper = 1.36, 
         lower = 1.885;
     
-    if (dist > lower) return 0;
+    if (dist > lower) return {fill: "transparent"};
     
     if (dist <= upper) { 
       color1 = "#daf1fa";
@@ -4769,25 +4777,24 @@ function saveSVG() {
     } else {
       factor = (dist - upper) / (lower - upper);
       color1 = d3.interpolateLab("#daf1fa", "#e8c866")(factor);
-      color2 = d3.interpolateLab("#93d7d0", "#ff854a")(factor);
-      color3 = d3.interpolateLab("#57c0c8", "#6caae2")(factor);
+      color2 = d3.interpolateLab("#93c7d0", "#ff854a")(factor);
+      color3 = d3.interpolateLab("#57b0c8", "#6caae2")(factor);
     }
 
 
     var gradient = foreground.append("radialGradient")
-     .attr("cy", pt[0])
-     .attr("cx", pt[1])
+     .attr("cx", pt[0])
+     .attr("cy", pt[1])
      .attr("fr", "0")
      .attr("r", "100%")
      .attr("id", "skygradient")
-     .attr("gradientUnits", "userSpaceOnUse")
-     .style();
+     .attr("gradientUnits", "userSpaceOnUse");
 
     gradient.append("stop").attr("offset", "0").attr("stop-color", color1);
     gradient.append("stop").attr("offset", 0.2+0.4*factor).attr("stop-color", color2);
     gradient.append("stop").attr("offset", "1").attr("stop-color", color3);
 
-    return skyTransparency(factor, 1.5);
+    return {"fill": "url(#skygradient)", "fill-opacity": skyTransparency(factor, 1.4)};
   }
 
   function skyTransparency(t, a) {
@@ -4869,7 +4876,7 @@ function saveSVG() {
   }
 
   function createEntry(o) {
-    var res = {type: "Feature", "id":o.desig.toLowerCase(), properties: {}, geometry:{}};
+    var res = {type: "Feature", "id":o.id, properties: {}, geometry:{}};
     res.properties.name = o[cfg.planets.namesType];
     if (cfg.planets.symbolType === "symbol" || cfg.planets.symbolType === "letter")
       res.properties.symbol = cfg.planets.symbols[res.id][cfg.planets.symbolType];

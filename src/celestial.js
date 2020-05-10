@@ -221,15 +221,10 @@ Celestial.display = function(config) {
 
     });
 
+    //Star names
     d3.json(path + filename("starnames"), function(error, json) {
       if (error) return console.warn(error);
-
       Object.assign(starnames, json);
-
-      /*container.selectAll(".starnames")
-         .data(st.features)
-         .enter().append("path")
-         .attr("class", "starname");*/
       redraw();
     });
 
@@ -727,15 +722,15 @@ Celestial.display = function(config) {
     } else {
       factor = (dist - upper) / (lower - upper);
       color1 = d3.interpolateLab("#daf1fa", "#e8c866")(factor);
-      color2 = d3.interpolateLab("#93d7d0", "#ff854a")(factor);
-      color3 = d3.interpolateLab("#57c0c8", "#6caae2")(factor);
+      color2 = d3.interpolateLab("#93c7d0", "#ff854a")(factor);
+      color3 = d3.interpolateLab("#57b0c8", "#6caae2")(factor);
     }
     var grad = context.createRadialGradient(pt[0],pt[1],0, pt[0],pt[1],300);
     grad.addColorStop(0, color1);
     grad.addColorStop(0.2+0.4*factor, color2);
     grad.addColorStop(1, color3);
     context.fillStyle = grad;
-    context.globalAlpha = 0.9 * (1 - skyTransparency(factor, 1.5));
+    context.globalAlpha = 0.9 * (1 - skyTransparency(factor, 1.4));
   }
   
   function skyTransparency(t, a) {
