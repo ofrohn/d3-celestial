@@ -148,7 +148,7 @@ function form(cfg) {
 //  col.append("label").attr("for", "dsos-names").html("Show names");
 //  col.append("input").attr("type", "checkbox").attr("id", "dsos-names").property("checked", config.dsos.names).on("change", apply);
 
-  names = formats.dsos[config.culture] || formats.dsos.iau;
+  names = formats.dsonames[config.culture] || formats.dsonames.iau;
   
   for (fld in names) {
     if (!has(names, fld)) continue;

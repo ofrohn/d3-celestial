@@ -460,18 +460,34 @@ var formats = {
         "en": "English"}
     }
   },
-  "dsos": {
+  "dsonames": {
     "iau": {
       "names": {
         "desig": "Designation",
-        "name": "Name"}
+        "name": "English",
+        "ar": "Arabic", 
+        "zh": "Chinese",
+        "fi": "Finnish", 
+        "fr": "French", 
+        "de": "German",
+        "el": "Greek", 
+        //"he": "Hebrew",
+        "hi": "Hindi", 
+        "it": "Italian", 
+        "ja": "Japanese", 
+        "ko": "Korean", 
+        "la": "Latin",
+        "fa": "Persian", 
+        "ru": "Russian", 
+        "es": "Spanish",
+        "tr": "Turkish"}
     },
     "cn": {
       "names": {
         "desig": "Designation",
         "name": "Chinese",
         "pinyin": "Pinyin",
-        "en": "English"}      
+        "en": "English"}
     }
   }
 };

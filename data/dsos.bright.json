@@ -1,7 +1,7 @@
 {"type": "FeatureCollection",
  "features": [
   {"type": "Feature",
-   "id": "Cr140",
+   "id": "Cr 140",
    "properties": {
      "name": "Collinder 140",
      "desig": "Cr 140",
@@ -14,7 +14,7 @@
      "coordinates": [111.12,-31.85]
   }},
   {"type": "Feature",
-   "id": "Cr399",
+   "id": "Cr 399",
    "properties": {
      "name": "Coathanger",
      "desig": "Cr 399",
@@ -27,7 +27,7 @@
      "coordinates": [-68.445,20.1]
   }},
   {"type": "Feature",
-   "id": "IC2602",
+   "id": "IC 2602",
    "properties": {
      "name": "θ Carinae Cluster",
      "desig": "IC 2602",
@@ -53,7 +53,7 @@
      "coordinates": [80.895,-69.75]
   }},
   {"type": "Feature",
-   "id": "M4",
+   "id": "M 4",
    "properties": {
      "name": "Messier 4",
      "desig": "M4",
@@ -66,7 +66,7 @@
      "coordinates": [83.82,-26.533]
   }},
   {"type": "Feature",
-   "id": "M6",
+   "id": "M 6",
    "properties": {
      "name": "Butterfly Cluster",
      "desig": "M6",
@@ -79,7 +79,7 @@
      "coordinates": [-94.92,-32.25]
   }},
   {"type": "Feature",
-   "id": "M7",
+   "id": "M 7",
    "properties": {
      "name": "Ptolemy's Cluster",
      "desig": "M7",
@@ -92,7 +92,7 @@
      "coordinates": [-91.53,-34.8]
   }},
   {"type": "Feature",
-   "id": "M8",
+   "id": "M 8",
    "properties": {
      "name": "Lagoon Nebula",
      "desig": "M8",
@@ -105,7 +105,7 @@
      "coordinates": [-89.07,-24.383]
   }},
   {"type": "Feature",
-   "id": "M16",
+   "id": "M 16",
    "properties": {
      "name": "Eagle Nebula",
      "desig": "M16",
@@ -118,7 +118,7 @@
      "coordinates": [-85.305,-13.783]
   }},
   {"type": "Feature",
-   "id": "M31",
+   "id": "M 31",
    "properties": {
      "name": "Andromeda Galaxy",
      "desig": "M31",
@@ -131,7 +131,7 @@
      "coordinates": [10.68,41.267]
   }},
   {"type": "Feature",
-   "id": "M33",
+   "id": "M 33",
    "properties": {
      "name": "Triangulum Galaxy",
      "desig": "M33",
@@ -144,7 +144,7 @@
      "coordinates": [23.475,30.65]
   }},
   {"type": "Feature",
-   "id": "M42",
+   "id": "M 42",
    "properties": {
      "name": "Orion Nebula",
      "desig": "M42",
@@ -157,7 +157,7 @@
      "coordinates": [83.82,-5.383]
   }},
   {"type": "Feature",
-   "id": "M44",
+   "id": "M 44",
    "properties": {
      "name": "Praesepe",
      "desig": "M44",
@@ -170,7 +170,7 @@
      "coordinates": [130.005,19.667]
   }},
   {"type": "Feature",
-   "id": "M45",
+   "id": "M 45",
    "properties":{
      "name": "Pleiades",
      "desig": "M45",
@@ -184,7 +184,7 @@
   }},
 
   {"type": "Feature",
-   "id": "Mel20",
+   "id": "Mel 20",
    "properties": {
      "name": "σ Persei Cluster",
      "desig": "Mel 20",
@@ -197,7 +197,7 @@
      "coordinates": [51.075,48.167]
   }},
   {"type": "Feature",
-   "id": "Mel25",
+   "id": "Mel 25",
    "properties": {
      "name": "Hyades",
      "desig": "Hyades",
@@ -210,7 +210,7 @@
      "coordinates": [66.75,16]
   }},
   {"type": "Feature",
-   "id": "Mel111",
+   "id": "Mel 111",
    "properties": {
      "name": "Coma Cluster",
      "desig": "Mel 111",
@@ -223,7 +223,7 @@
      "coordinates": [-173.73,26.117]
   }},
   {"type": "Feature",
-   "id": "NGC104",
+   "id": "NGC 104",
    "properties": {
      "name": "47 Tucanae Cluster",
      "desig": "47 Tuc",
@@ -236,7 +236,7 @@
      "coordinates": [6.03,-72.08]
   }},
   {"type": "Feature",
-   "id": "NGC884",
+   "id": "NGC 884",
    "properties": {
      "name": "h & χ Persei Cluster",
      "desig": "h+χ Per",
@@ -249,7 +249,7 @@
      "coordinates": [35.13,57.130]
   }},
   {"type": "Feature",
-   "id": "NGC2239",
+   "id": "NGC 2239",
    "properties": {
      "name": "Rosette Nebula",
      "desig": "NGC 2239",
@@ -262,7 +262,7 @@
      "coordinates": [97.98,4.95]
   }},
   {"type": "Feature",
-   "id": "NGC2264",
+   "id": "NGC 2264",
    "properties": {
      "name": "Cone Nebula",
      "desig": "NGC 2264",
@@ -275,7 +275,7 @@
      "coordinates": [100.245,9.9]
   }},
   {"type": "Feature",
-   "id": "NGC2362",
+   "id": "NGC 2362",
    "properties": {
      "name": "τ CMa Cluster",
      "desig": "NGC 2362",
@@ -288,7 +288,7 @@
      "coordinates": [109.68,-24.95]
   }},
   {"type": "Feature",
-   "id": "NGC2451",
+   "id": "NGC 2451",
    "properties": {
      "name": "NGC 2451",
      "desig": "NGC 2451",
@@ -301,7 +301,7 @@
      "coordinates": [116.325,-37.967]
   }},
   {"type": "Feature",
-   "id": "NGC2516",
+   "id": "NGC 2516",
    "properties": {
      "name": "NGC 2516",
      "desig": "NGC 2516",
@@ -314,7 +314,7 @@
      "coordinates": [119.52,-60.75]
   }},
   {"type": "Feature",
-   "id": "NGC3372",
+   "id": "NGC 3372",
    "properties": {
      "name": "η Carinae Nebula",
      "desig": "η Car",
@@ -327,7 +327,7 @@
      "coordinates": [161.28,-59.867]
   }},
   {"type": "Feature",
-   "id": "NGC5139",
+   "id": "NGC 5139",
    "properties": {
      "name": "ω Centauri Cluster",
      "desig": "ω Cen",

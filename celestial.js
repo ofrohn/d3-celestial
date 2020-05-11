@@ -14,7 +14,7 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
     zoomextent = 10,       // Default maximum extent of zoom (max/min)
     zoomlevel = 1;      // Default zoom level, 1 = 100%
 
-var cfg, prjMap, zoom, map, circle, daylight, starnames = {};
+var cfg, prjMap, zoom, map, circle, daylight, starnames = {}, dsonames = {};
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
@@ -239,6 +239,13 @@ Celestial.display = function(config) {
          .data(ds.features)
          .enter().append("path")
          .attr("class", "dso" );
+      redraw();
+    });
+
+    //DSO names
+    d3.json(path + filename("dsonames"), function(error, json) {
+      if (error) return console.warn(error);
+      Object.assign(dsonames, json);
       redraw();
     });
 
@@ -783,7 +790,10 @@ Celestial.display = function(config) {
  
 
   function dsoName(d) {
-    return d.properties[cfg.dsos.namesType]; 
+    //return d.properties[cfg.dsos.namesType]; 
+    var lang = cfg.dsos.namesType, id = d.id;
+    if (lang === "desig" || !has(dsonames, id)) return d.properties.desig;
+    return has(dsonames[id], lang) ? dsonames[id][lang] : d.properties.desig; 
   }
   
   /* Star designation  */
@@ -1899,18 +1909,34 @@ var formats = {
         "en": "English"}
     }
   },
-  "dsos": {
+  "dsonames": {
     "iau": {
       "names": {
         "desig": "Designation",
-        "name": "Name"}
+        "name": "English",
+        "ar": "Arabic", 
+        "zh": "Chinese",
+        "fi": "Finnish", 
+        "fr": "French", 
+        "de": "German",
+        "el": "Greek", 
+        //"he": "Hebrew",
+        "hi": "Hindi", 
+        "it": "Italian", 
+        "ja": "Japanese", 
+        "ko": "Korean", 
+        "la": "Latin",
+        "fa": "Persian", 
+        "ru": "Russian", 
+        "es": "Spanish",
+        "tr": "Turkish"}
     },
     "cn": {
       "names": {
         "desig": "Designation",
         "name": "Chinese",
         "pinyin": "Pinyin",
-        "en": "English"}      
+        "en": "English"}
     }
   }
 };
@@ -2437,7 +2463,7 @@ function form(cfg) {
 //  col.append("label").attr("for", "dsos-names").html("Show names");
 //  col.append("input").attr("type", "checkbox").attr("id", "dsos-names").property("checked", config.dsos.names).on("change", apply);
 
-  names = formats.dsos[config.culture] || formats.dsos.iau;
+  names = formats.dsonames[config.culture] || formats.dsonames.iau;
   
   for (fld in names) {
     if (!has(names, fld)) continue;
