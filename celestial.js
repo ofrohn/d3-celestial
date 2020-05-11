@@ -4619,7 +4619,7 @@ function saveSVG() {
             .enter().append("text")
             .attr("class", function(d) { return "dsoname " + d.properties.type; } )
             .attr("transform", function(d) { return point(d.geometry.coordinates); })
-            .text( function(d) { return dsoName(d.properties); } )
+            .text( function(d) { return dsoName(d); } )
             .attr({dy: "-.5em", dx: ".35em"})
             .style({"fill": function(d) { return cfg.dsos.colors ? cfg.dsos.symbols[d.properties.type].fill : cfg.dsos.style.fill; },
                     "fill-opacity": cfg.dsos.style.opacity,
@@ -4856,8 +4856,11 @@ function saveSVG() {
     return Math.pow(2 * cfg.dsos.size * adapt - mag, cfg.dsos.exponent);
   }
  
-  function dsoName(p) {
-    return p[cfg.dsos.namesType]; 
+  function dsoName(d) {
+    //return p[cfg.dsos.namesType]; 
+    var lang = cfg.dsos.namesType, id = d.id;
+    if (lang === "desig" || !has(dsonames, id)) return d.properties.desig;
+    return has(dsonames[id], lang) ? dsonames[id][lang] : d.properties.desig; 
   }
 
   function dsoColor(p) {
@@ -4871,8 +4874,9 @@ function saveSVG() {
   }
 
   function starPropername(id) {
+    var lang = cfg.stars.propernameType;
     if (!has(starnames, id)) return "";
-    return starnames[id][cfg.stars.propernameType]; 
+    return has(starnames[id], lang) ? starnames[id][lang] : starnames[id].name; 
   }
 
   function starSize(mag) {
