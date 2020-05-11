@@ -56,7 +56,7 @@ var settings = {
     names: true,   // Show DSO names
     desig: true,   // Show short DSO names
     namesType: "name",  // "name" or "desig"
-    nameStyle: { fill: "#cccccc", font: "11px 'Lucida Sans Unicode', Helvetica, Arial, serif", align: "left", baseline: "top" },
+    nameStyle: { fill: "#cccccc", font: "11px 'Lucida Sans Unicode', Helvetica, Arial, serif", align: "left", baseline: "bottom" },
     nameLimit: 4,  // Show only names for DSOs brighter than nameLimit
     size: null,    // Optional seperate scale size for DSOs, null = stars.size
     exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear

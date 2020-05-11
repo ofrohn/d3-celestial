@@ -540,11 +540,11 @@ Celestial.display = function(config) {
           context.fill();
           if (cfg.stars.designation && d.properties.mag <= cfg.stars.designationLimit*adapt) {
             setTextStyle(cfg.stars.designationStyle);
-            context.fillText(starDesignation(d.id), pt[0]+r, pt[1]);      
+            context.fillText(starDesignation(d.id), pt[0]+r, pt[1]);
           }
           if (cfg.stars.propername && d.properties.mag <= cfg.stars.propernameLimit*adapt) {
             setTextStyle(cfg.stars.propernameStyle);
-            context.fillText(starPropername(d.id), pt[0]-r, pt[1]);      
+            context.fillText(starPropername(d.id), pt[0]-r, pt[1]);
           }
         }
       });
@@ -761,7 +761,7 @@ Celestial.display = function(config) {
   function filename(what, sub) {
     var ext = (has(formats[what], culture)) ? "." + culture : "";
     sub = sub ? "." + sub : "";
-    return what + ext + ".json";
+    return what + ext + sub + ".json";
   }
   
   function dsoDisplay(prop, limit) {
