@@ -352,7 +352,7 @@
    "geometry": {
      "type":"Point",
      "coordinates": [166.413,-58.753]
-  }}
+  }},
   {"type": "Feature",
    "id": "NGC 5139",
    "properties": {
@@ -385,7 +385,7 @@
    "properties": {
      "desig": "SMC",
      "type": "i",
-     "morph":dIrr"",
+     "morph": "dIrr",
      "mag": 2.3,
      "dim": "319x205",
      "bv":"0.59"},
