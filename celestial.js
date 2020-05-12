@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.10',
+  version: '0.7.11',
   container: null,
   data: []
 };
@@ -2772,12 +2772,14 @@ function form(cfg) {
   
   
   function setLanguage(lang) {
-    var keys = ["dsos", "constellations", "planets"]; 
+    var keys = ["constellations", "planets"]; 
     for (var i=0; i < keys.length; i++) {
       if (has(formats[keys[i]][config.culture].names, lang)) config[keys[i]].namesType = lang;
       else if (has(formats[keys[i]][config.culture].names, "desig")) config[keys[i]].namesType = "desig";
       else config[keys[i]].namesType = "name";
     }
+    if (has(formats.dsonames[config.culture].names, lang)) config.dsos.namesType = lang;
+    else config.dsos.namesType = "desig";
     if (has(formats.starnames[config.culture].propername, lang)) config.stars.propernameType = lang;
     else config.stars.propernameType = "desig";
     //update cont. list
