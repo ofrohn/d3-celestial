@@ -43,9 +43,9 @@ For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...1
 }
 ```
   
-##Traditional Chinese star names  
+##Traditional Chinese star and DSO names  
 
-`starnames.cn.json`:  
+`starnames.cn.json`, `dsonames.cn.json`:  
 ```js
 {"id": {         // Hipparcos number  
    "name": "",      // Chinese name  
@@ -70,11 +70,12 @@ For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...1
     "type": "Feature",
     "id": "",       // Short designator
     "properties": {
-      "name": "",   // Proper name or most commonly used designator
       "desig": "",  // Designator
       "type": "",   // Object type: gg, g, s, s0, sd, i, e, oc, gc, dn, bn, sfr, rn, en, pn, snr
-      "mag": "",    // Apparent magnitude, 999 if n.a.
-      "dim": ""     // Angular dimensions in arcminutes
+      "morph": "",  // Morphology classification depending on type  
+      "mag": "",    // Apparent magnitude, 999 if n.a.  
+      "dim": "",    // Angular dimensions in arcminutes  
+      "bv": ""      // Blue minus visual magnitude color inder (b-v)    
     },
     "geometry": {  
       "type": "Point",
@@ -87,9 +88,21 @@ For GeoJSON, all coordinates need to be given in degrees, longitude as [-180...1
 ___Object type:___ _gg_: galaxy cluster, _g_: galaxy, _s_: spiral galaxy, _s0_: lenticular gal., _sd_: dwarf spheroidal gal., _i_: irregular gal., _e_: elliptical gal., _oc_: open cluster, _gc_: globular cluster, _dn_: dark nebula, _bn_: bright nebula, _sfr_: star forming region, _rn_: reflection nebula, _en_: emission nebula, _pn_: planetary nebula, _snr_: supernova remnant
 
 ___additional lg.json properties:___  
-_sub_: Sub group membership: \[MW|M31|N3109|LG\]  (Milky way, Andromeda, NGC 3109, gen. LG)  
-_pop_: MW popultions \[OH|YH|BD\] (Old halo, young halo, bulge & disk), M31 populations \[M31|GP\]  (gen. M31, great plane)  
+_sub_: Sub group membership: \[MW|M31|N3109|LG\]  (Milky Way, Andromeda, NGC 3109, gen. LG)  
+_pop_: MW populations \[OH|YH|BD\] (Old halo, young halo, bulge & disk), M31 populations \[M31|GP\]  (gen. M31, great plane)  
 _str_: Tidal streams \[Mag|Sgr|CMa|FLS\] (Magellanic Stream, Sagittarius Stream, Canis Major/Monoceros Stream, Fornax-Leo-Sculptor Great Circle)
+  
+
+## DSOnames
+
+`dsonames.json`: Magnitude/dimension independent, all DSOs with a proper name  
+
+```js
+{"id": {      // most common designation (NGC, IC, M, ...)
+  "name":"",  // Proper name (in English)
+    ...       // and names in up to 17 further languages (see list in main readme)
+}
+```
 
 ## Constellations
 

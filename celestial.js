@@ -1503,8 +1503,7 @@ var settings = {
     colors: true,  // Show DSOs in symbol colors if true, use style setting below if false
     style: { fill: "#cccccc", stroke: "#cccccc", width: 2, opacity: 1 }, // Default style for dsos
     names: true,   // Show DSO names
-    desig: true,   // Show short DSO names
-    namesType: "name",  // "name" or "desig"
+    namesType: "desig",  // Type of displayed name: desig, name, or 15 different language codes from dsonames.json
     nameStyle: { fill: "#cccccc", font: "11px 'Lucida Sans Unicode', Helvetica, Arial, serif", align: "left", baseline: "bottom" },
     nameLimit: 4,  // Show only names for DSOs brighter than nameLimit
     size: null,    // Optional seperate scale size for DSOs, null = stars.size
@@ -1669,6 +1668,7 @@ var settings = {
       if (has(cfg.dsos, "namestyle")) Object.assign(res.dsos.nameStyle, cfg.dsos.namestyle);    
     }
     if (!res.dsos.namesType || res.dsos.namesType === "") res.dsos.namesType = "desig";
+    
     if (has(cfg, "constellations")) {
       // names, desig -> namesType
       if (has(cfg.constellations, "show") && cfg.constellations.show === true) res.constellations.names = true;

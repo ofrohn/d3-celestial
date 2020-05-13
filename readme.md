@@ -67,12 +67,13 @@ var config = {
                       // id="celestial-form", created automatically if not present
   location: false,    // Display location settings. Deprecated, use formFields below
   formFields: {"location": true,  // Set visiblity for each group of fields with the respective id
-               "general": true, 
-               "stars": true, 
+               "general": true,  
+               "stars": true,  
                "dsos": true,  
                "constellations": true,  
                "lines": true,  
-               "other": true},
+               "other": true,  
+               "download": false},  
   advanced: true,     // Display fewer form fields if false 
   daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
                       // [yr, n<100]: [yr-n, yr+n]; [yr0, yr1]  
@@ -86,7 +87,7 @@ var config = {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use default color
-    style: { fill: "#ffffff", opacity: 1 }, // Style for stars
+    style: { fill: "#ffffff", opacity: 1 }, // Default style for stars
     designation: true, // Show star names (Bayer, Flamsteed, Variable star, Gliese or designation, 
                        // i.e. whichever of the previous applies first); may vary with culture setting
     designationType: "desig",  // Which kind of name is displayed as designation (fieldname in starnames.json)
@@ -108,10 +109,11 @@ var config = {
     colors: true,  // // Show DSOs in symbol colors if true, use style setting below if false
     style: { fill: "#cccccc", stroke: "#cccccc", width: 2, opacity: 1 }, // Default style for dsos
     names: true,   // Show DSO names
-    desig: true,   // Show short DSO names
-    namestyle: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", 
+    namesType: "name",  // Type of DSO ('desig' or language) name shown
+                        // (see list below for languages codes available for dsos)
+    nameStyle: { fill: "#cccccc", font: "11px Helvetica, Arial, serif", 
                  align: "left", baseline: "top" }, // Style for DSO names
-    namelimit: 6,  // Show only names for DSOs brighter than namelimit
+    nameLimit: 6,  // Show only names for DSOs brighter than namelimit
     size: null,    // Optional seperate scale size for DSOs, null = stars.size
     exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear
     data: 'dsos.bright.json', // Data source for DSOs, 
@@ -222,7 +224,7 @@ Celestial.display(config);
 
 __Supported projections:__ Airy, Aitoff, Armadillo, August, Azimuthal Equal Area, Azimuthal Equidistant, Baker, Berghaus, Boggs, Bonne, Bromley, Cassini, Collignon, Craig, Craster, Cylindrical Equal Area, Cylindrical Stereographic, Eckert 1, Eckert 2, Eckert 3, Eckert 4, Eckert 5, Eckert 6, Eisenlohr, Equirectangular, Fahey, Foucaut, Ginzburg 4, Ginzburg 5, Ginzburg 6, Ginzburg 8, Ginzburg 9, Hammer, Hatano, HEALPix, Hill, Homolosine, Kavrayskiy 7, Lagrange, l'Arrivee, Laskowski, Loximuthal, Mercator, Miller, Mollweide, Flat Polar Parabolic, Flat Polar Quartic, Flat Polar Sinusoidal, Natural Earth, Nell Hammer, Orthographic, Patterson, Polyconic, Rectangular Polyconic, Robinson, Sinusoidal, Stereographic, Times, 2 Point Equidistant, van der Grinten, van der Grinten 2, van der Grinten 3, van der Grinten 4, Wagner 4, Wagner 6, Wagner 7, Wiechel and Winkel Tripel. Most of these need the extension [d3.geo.projections](https://github.com/d3/d3-geo-projection/)  
 
-__Supported languages for constellation, star and planet name display:__  (name) Official IAU name, (desig) 3-Letter-Designation, (la) Latin, (en) English, (ar) Arabic,  (cn) Chinese, (cz) Czech, (ee) Estonian, (fi) Finnish, (fr) French, (de) German, (el) Greek, (he) Hebrew, (it) Italian, (ja) Japanese, (ko) Korean, (hi) Hindi, (fa) Persian, (ru) Russian, (es) Spanish, (tr) Turkish  
+__Supported languages for constellation, star and planet name display:__  (name) Official IAU name, (desig) 3-Letter-Designation, (la) Latin, (en) English, (ar) Arabic,  (zh) Chinese, (cz) Czech, (ee) Estonian, (fi) Finnish, (fr) French, (de) German, (el) Greek, (he) Hebrew, (it) Italian, (ja) Japanese, (ko) Korean, (hi) Hindi, (fa) Persian, (ru) Russian, (es) Spanish, (tr) Turkish  
 
 
 __Style settings__   
@@ -245,12 +247,12 @@ _Symbol style_
 __Exposed functions & objects__ 
 * `Celestial.metrics()`  
    Return object literal with current map dimensions in pixels
-   {width, height}
+   {width, height, margin, scale}
 
 ### Adding Data
 
 __Exposed functions & objects__  
-* `Celestial.add({file:string, type:json|raw, callback:function, redraw:function)`  
+* `Celestial.add({file:string, type:json|raw, callback:function, redraw:function, save: function)`  
    Add data in json-format (json) or directly (raw) to the display  
    The redraw function is added to the internal call stack of the main display routine  
    _file_: complete url/path to json data file (type:json)  
@@ -258,6 +260,7 @@ __Exposed functions & objects__
    _callback_: callback function to call when json is loaded (json)  
                or to directly add elements to the path (raw)  
    _redraw_: for interactive display, callback when view changes (optional)  
+   _save_:   for display svg-style, callback when saving as svg (optional)  
 
 * `Celestial.clear()`  
    Deletes all previously added functions from the display call stack  
@@ -268,9 +271,14 @@ __Exposed functions & objects__
    Returns geojson-object with transformed coordinates  
    
 * `Celestial.getPoint(coordinates, transform)`  
-   Function to convert single coordinate to transformation  
+   Function to convert a single coordinate to transformation  
    (equatorial, ecliptic, galactic, supergalactic)  
    Returns transformed coordinates  
+
+* `Celestial.getPlanet(id, date)`  
+   Function to get solar system object specified with id  
+   (available ids in config.planets.which array)  
+   Returns planet object with coordinates at specified date 
    
 * `Celestial.container`  
    The object to add data to in the callback. See D3.js documentation  
