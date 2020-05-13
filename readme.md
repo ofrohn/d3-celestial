@@ -16,7 +16,7 @@ __Demos__:
 [Alternative Stars](https://ofrohn.github.io/celestial-demo/altstars.html) different way to display stars  
 [Summer triangle](https://ofrohn.github.io/celestial-demo/triangle.html) adding data  
 [Supernova remnants](https://ofrohn.github.io/celestial-demo/snr.html) adding point data  
-[Traditional Chinese constellation](https://ofrohn.github.io/celestial-demo/triangle.html) a different culture altogether    
+[Traditional Chinese constellation](https://ofrohn.github.io/celestial-demo/chinese.html) a different culture altogether    
 \([Source files on github](./demo/)\)  
 
 __Some more examples__:  

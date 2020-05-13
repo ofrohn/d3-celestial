@@ -535,7 +535,7 @@ function saveSVG() {
   }
   
   function starColor(prop) {
-    if (!cfg.stars.colors || isNaN(prop.bv)) {return cfg.stars.color; }
+    if (!cfg.stars.colors || isNaN(prop.bv)) {return cfg.stars.style.fill; }
     return bvcolor(prop.bv);
   }
   
