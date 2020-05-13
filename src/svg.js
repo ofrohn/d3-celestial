@@ -8,9 +8,9 @@ function saveSVG() {
       proj = projections[cfg.projection],
       rotation = getAngles(cfg.center),
       center = [-rotation[0], -rotation[1]],
+      scale0 = proj.scale * m.width/1024,
       projection = Celestial.projection(cfg.projection).rotate(rotation).translate([m.width/2, m.height/2]).scale([m.scale]),
-      adapt = cfg.adaptable ? Math.sqrt(projection.scale()/m.scale) : 1,
-      factor = proj.scale / m.scale,
+      adapt = cfg.adaptable ? Math.sqrt(m.scale/scale0) : 1,
       culture = (cfg.culture !== "" && cfg.culture !== "iau") ? cfg.culture : "",
       circle;
 
@@ -206,7 +206,7 @@ function saveSVG() {
         if (cfg.stars.designation) { 
           objects.selectAll(".stardesigs")
             .data(cons.features.filter( function(d) {
-              return d.properties.mag <= cfg.stars.designationLimit && clip(d.geometry.coordinates) === 1; 
+              return d.properties.mag <= cfg.stars.designationLimit*adapt && clip(d.geometry.coordinates) === 1; 
             }))
             .enter().append("text")
             .attr("transform", function(d) { return point(d.geometry.coordinates); })
@@ -217,7 +217,7 @@ function saveSVG() {
         if (cfg.stars.propername) { 
           objects.selectAll(".starnames")
             .data(cons.features.filter( function(d) {
-              return d.properties.mag <= cfg.stars.propernameLimit && clip(d.geometry.coordinates) === 1; 
+              return d.properties.mag <= cfg.stars.propernameLimit*adapt && clip(d.geometry.coordinates) === 1; 
             }))
             .enter().append("text")
             .attr("transform", function(d) { return point(d.geometry.coordinates); })
@@ -241,7 +241,7 @@ function saveSVG() {
         objects.selectAll(".dsos")
           .data(cond.features.filter( function(d) {
             return clip(d.geometry.coordinates) === 1 && 
-                   (d.properties.mag === 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.limit ||
+                   (d.properties.mag === 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.limit*adapt ||
                    d.properties.mag !== 999 && d.properties.mag <= cfg.dsos.limit); 
           }))
           .enter().append("path")
@@ -396,7 +396,7 @@ function saveSVG() {
   function filename(what, sub) {
     var ext = (has(formats[what], culture)) ? "." + culture : "";
     sub = sub ? "." + sub : "";
-    return what + ext + ".json";
+    return what + ext + sub + ".json";
   }
 
   function svgStyle(s) {
@@ -473,7 +473,7 @@ function saveSVG() {
   }
 
   function skyTransparency(t, a) {
-    return 0.9 * (1 - ((Math.pow(Math.E, t*a) - 1) / (Math.pow(Math.E, a) - 1)));
+    return 0.85 * (1 - ((Math.pow(Math.E, t*a) - 1) / (Math.pow(Math.E, a) - 1)));
   }
   
 

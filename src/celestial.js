@@ -561,7 +561,7 @@ Celestial.display = function(config) {
           if (has(cfg.dsos.symbols[type], "stroke")) context.stroke();
           else context.fill();
           
-          if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.nameLimit)) {
+          if (cfg.dsos.names && dsoDisplay(d.properties, cfg.dsos.nameLimit*adapt)) {
             setTextStyle(cfg.dsos.nameStyle);
             if (cfg.dsos.colors === true) context.fillStyle = cfg.dsos.symbols[type].fill;
             context.fillText(dsoName(d), pt[0]+r, pt[1]-r);      
@@ -896,7 +896,7 @@ Celestial.display = function(config) {
   this.mapProjection = prjMap;
   this.context = context;
   this.metrics = function() {
-    return {"width": width, "height": height, "margin": margin, "scale": scale};
+    return {"width": width, "height": height, "margin": margin, "scale": prjMap.scale()};
   };
   this.setStyle = setStyle;
   this.setTextStyle = setTextStyle;

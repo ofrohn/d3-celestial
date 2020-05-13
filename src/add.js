@@ -16,6 +16,7 @@ Celestial.add = function(dat) {
   res.type = dat.type;
   if (has(dat, "callback")) res.callback = dat.callback;
   if (has(dat, "redraw")) res.redraw = dat.redraw;
+  if (has(dat, "save")) res.save = dat.save;
   Celestial.data.push(res);
 };
 
