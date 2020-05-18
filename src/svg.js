@@ -61,7 +61,7 @@ function saveSVG() {
         .style( svgTextStyle(cfg.lines.graticule.lon) ); 
     }
     if (has(cfg.lines.graticule, "lat") && cfg.lines.graticule.lat.pos.length > 0) {
-      var jlat = {type: "FeatureCollection", features: getGridValues("lat", cfg.lines.graticule.lat.pos)};      
+      var jlat = {type: "FeatureCollection", features: getGridValues("lat", cfg.lines.graticule.lat.pos)};
       grid.selectAll(".gridvalues_lat")
         .data(jlat.features)
         .enter().append("text")
@@ -102,7 +102,8 @@ function saveSVG() {
          .data(mw_back.features)
          .enter().append("path")
          .attr("class", "mwbg")
-         .style( svgStyle(cfg.background) )
+         .style({"fill": cfg.background.fill, 
+                 "fill-opacity": cfg.background.opacity })
          .attr("d", map);
         callback(null);
       });
@@ -154,8 +155,9 @@ function saveSVG() {
 
   // Map border
   q.defer(function(callback) {
+    var oldata = circle ? circle : graticule.outline;
     objects.append("path")
-     .datum(graticule.outline)
+     .datum(oldata)
      .attr("class", "outline")
      .style({"fill": "none", "stroke": cfg.background.stroke, "stroke-width": cfg.background.width, "stroke-opacity": 1, "stroke-dasharray": "none" })
      .attr("d", map);
