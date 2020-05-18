@@ -4372,7 +4372,7 @@ function saveSVG() {
 
   if (proj.clip) {
     projection.clipAngle(90);
-    circle = d3.geo.circle().angle([179.9]);
+    circle = d3.geo.circle().angle([179.95]).origin(center);
   }
 
   svg.attr("width", m.width).attr("height", m.height);
