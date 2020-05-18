@@ -4379,6 +4379,7 @@ function saveSVG() {
   // .attr("viewBox", " 0 0 " + (m.width) + " " + (m.height));
 
   var background = svg.append('g'),
+      grid = svg.append('g'),
       objects = svg.append('g'),
       foreground = svg.append('g');
 
@@ -4396,16 +4397,16 @@ function saveSVG() {
   
   if (cfg.lines.graticule.show) {
     if (cfg.transform === "equatorial") {
-      background.append("path").datum(graticule)
+      grid.append("path").datum(graticule)
        .attr("class", "gridline")
        .style( svgStyle(cfg.lines.graticule) )
        .attr("d", map);
     } else {
-      Celestial.graticule(background, map, cfg.transform);
+      Celestial.graticule(grid, map, cfg.transform);
     }
     if (has(cfg.lines.graticule, "lon") && cfg.lines.graticule.lon.pos.length > 0) {
       var jlon = {type: "FeatureCollection", features: getGridValues("lon", cfg.lines.graticule.lon.pos)};      
-      background.selectAll(".gridvalues_lon")
+      grid.selectAll(".gridvalues_lon")
         .data(jlon.features)
         .enter().append("text")
         .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
@@ -4415,7 +4416,7 @@ function saveSVG() {
     }
     if (has(cfg.lines.graticule, "lat") && cfg.lines.graticule.lat.pos.length > 0) {
       var jlat = {type: "FeatureCollection", features: getGridValues("lat", cfg.lines.graticule.lat.pos)};      
-      background.selectAll(".gridvalues_lat")
+      grid.selectAll(".gridvalues_lat")
         .data(jlat.features)
         .enter().append("text")
         .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
@@ -4428,7 +4429,7 @@ function saveSVG() {
   //Celestial planes
   for (var key in cfg.lines) {
     if (has(cfg.lines, key) && key != "graticule" && cfg.lines[key].show !== false) { 
-      background.append("path")
+      grid.append("path")
          .datum(d3.geo.circle().angle([90]).origin(poles[key]) )
          .attr("class", key)
          .style( svgStyle(cfg.lines[key]) )
@@ -4442,13 +4443,20 @@ function saveSVG() {
       d3.json(path + "mw.json", function(error, json) {
         if (error) callback(error);
         var mw = getData(json, cfg.transform);
-        //var mw_back = getMwbackground(mw);
+        var mw_back = getMwbackground(mw);
         
         background.selectAll(".mway")
          .data(mw.features)
          .enter().append("path")
          .attr("class", "mw")
          .style( svgStyle(cfg.mw.style) )
+         .attr("d", map);
+
+        background.selectAll(".mwaybg")
+         .data(mw_back.features)
+         .enter().append("path")
+         .attr("class", "mwbg")
+         .style( svgStyle(cfg.background) )
          .attr("d", map);
         callback(null);
       });
@@ -4464,7 +4472,7 @@ function saveSVG() {
 
         var conb = getData(json, cfg.transform);
    
-        background.selectAll(".bounds")
+        grid.selectAll(".bounds")
          .data(conb.features)
          .enter().append("path")
          .attr("class", "boundaryline")
@@ -4482,7 +4490,7 @@ function saveSVG() {
         if (error) callback(error);
 
         var conl = getData(json, cfg.transform);
-        background.selectAll(".lines")
+        grid.selectAll(".lines")
          .data(conl.features)
          .enter().append("path")
          .attr("class", "constline")
@@ -4500,7 +4508,7 @@ function saveSVG() {
 
   // Map border
   q.defer(function(callback) {
-    background.append("path")
+    objects.append("path")
      .datum(graticule.outline)
      .attr("class", "outline")
      .style({"fill": "none", "stroke": cfg.background.stroke, "stroke-width": cfg.background.width, "stroke-opacity": 1, "stroke-dasharray": "none" })
