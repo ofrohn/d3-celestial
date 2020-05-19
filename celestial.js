@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.12',
+  version: '0.7.13',
   container: null,
   data: []
 };
@@ -4509,9 +4509,9 @@ function saveSVG() {
 
   // Map border
   q.defer(function(callback) {
-    var oldata = circle ? circle : graticule.outline;
+    var outline = circle ? circle : graticule.outline;
     objects.append("path")
-     .datum(oldata)
+     .datum(outline)
      .attr("class", "outline")
      .style({"fill": "none", "stroke": cfg.background.stroke, "stroke-width": cfg.background.width, "stroke-opacity": 1, "stroke-dasharray": "none" })
      .attr("d", map);
@@ -4649,16 +4649,42 @@ function saveSVG() {
     q.defer(function(callback) {
       var dt = Celestial.date(),
           o = Celestial.origin(dt).spherical(),
-          jp = {type: "FeatureCollection", features: []};
+          jp = {type: "FeatureCollection", features: []},
+          jlun = {type: "FeatureCollection", features: []};
       Celestial.container.selectAll(".planet").each(function(d) {
         var id = d.id(), r = 6,
             p = d(dt).equatorial(o);
             
         p.ephemeris.pos = transformDeg(p.ephemeris.pos, euler[cfg.transform]);  //transform; 
         if (clip(p.ephemeris.pos) === 1) {
-          jp.features.push(createEntry(p));
+          if (id === "lun")
+            jlun.features.push(createEntry(p));
+          else
+            jp.features.push(createEntry(p));
         }
       });
+      // Special case for Moon crescent
+      if (jlun.features.length > 0) {
+        if (cfg.planets.symbolType === "letter") {
+          objects.selectAll(".moon")
+           .data(jlun.features)
+           .enter().append("text")
+           .attr("transform", function(d) { return point(d.geometry.coordinates); })
+           .text( function(d) { return d.properties.symbol; })
+           .attr("class", "luna")
+           .attr({dy: ".35em"})
+           .style ( svgTextStyle(cfg.planets.symbolStyle) )
+           .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
+        } else {
+          objects.selectAll(".moon")
+            .data(jlun.features)
+            .enter().append("path")
+            .attr("class", "luna" )
+            .style ( svgStyle(cfg.planets.symbolStyle) )
+            .attr("transform", function(d) { return point(d.geometry.coordinates); })
+            .attr("d", function(d) { return moonSymbol(d.properties); });        
+        }
+      } 
       if (cfg.planets.symbolType === "disk") {
         objects.selectAll(".planets")
          .data(jp.features)
@@ -4666,7 +4692,7 @@ function saveSVG() {
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .attr("d", function(d) { return planetSymbol(d.properties); })
          .attr("class", "planet")
-         .style ( svgTextStyle(cfg.planets.symbolStyle) )
+         .style ( svgStyle(cfg.planets.symbolStyle) )
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
       } else {
         objects.selectAll(".planets")
@@ -4820,12 +4846,11 @@ function saveSVG() {
       color3 = d3.interpolateLab("#57b0c8", "#6caae2")(factor);
     }
 
-
     var gradient = foreground.append("radialGradient")
      .attr("cx", pt[0])
      .attr("cy", pt[1])
      .attr("fr", "0")
-     .attr("r", "100%")
+     .attr("r", "300")
      .attr("id", "skygradient")
      .attr("gradientUnits", "userSpaceOnUse");
 
@@ -4837,7 +4862,7 @@ function saveSVG() {
   }
 
   function skyTransparency(t, a) {
-    return 0.85 * (1 - ((Math.pow(Math.E, t*a) - 1) / (Math.pow(Math.E, a) - 1)));
+    return 0.9 * (1 - ((Math.pow(Math.E, t*a) - 1) / (Math.pow(Math.E, a) - 1)));
   }
   
 
@@ -4907,6 +4932,11 @@ function saveSVG() {
     return d.properties[cfg.constellations.namesType]; 
   }
 
+  function moonSymbol(p) { 
+    //var size = planetSize(p.mag) || 2;
+    return d3.svg.customSymbol().type("crescent").size(121).ratio(p.age)();
+  }
+
   function planetSymbol(p) { 
     var size = planetSize(p.mag) || 2;
     return d3.svg.symbol().type("circle").size(size)();
@@ -4926,7 +4956,7 @@ function saveSVG() {
     res.properties.mag = o.ephemeris.mag || 10;
     if (res.id === "lun")
       res.properties.age = o.ephemeris.age;
-    res.geometry.type = "MultiLineString";
+    res.geometry.type = "Point";
     res.geometry.coordinates = o.ephemeris.pos;
     return res;
   }
@@ -4972,24 +5002,22 @@ function saveSVG() {
     "crescent": function(size, ratio) {
       var s = Math.sqrt(size), 
           r = s/2,
-          age = ratio,
-          ph = 0.5 * (1 - Math.cos(age)),
+          ph = 0.5 * (1 - Math.cos(ratio)),
           e = 1.6 * Math.abs(ph - 0.5) + 0.01,
-          dir = age > Math.PI,
-          termdir = Math.abs(ph) > 0.5 ? dir : !dir; 
-
-      return 'M' + (-r) + ',' + (-r) +
-      ' m 0,' + (-r) + 
-      ' a' + r + ',' + r + ' 0 1,0 0,' + (r * 2) +
-      ' a' + (r*e) + ',' + r + ' 0 1,0 0,' + (-(r * 2)) + 'z';
+          dir = ratio > Math.PI ? 0 : 1,
+          termdir = Math.abs(ph) > 0.5 ? dir : Math.abs(dir-1); 
+      return 'M ' + (-1) + ',' + (-1) +
+      ' m 1,' + (-r+1) + 
+      ' a' + r + ',' + r + ' 0 1 ' + dir + ' 0,' + (r * 2) +
+      ' a' + (r*e) + ',' + r + ' 0 1 ' + termdir + ' 0,' + (-(r * 2)) + 'z';
     } 
   });
 
   d3.svg.customSymbol = function() {
-    var type, size = 64, ratio = 1;
+    var type, size = 64, ratio = d3.functor(1);
     
     function symbol(d,i) {
-      return customSvgSymbols.get(type.call(this,d,i))(size.call(this,d,i), ratio);
+      return customSvgSymbols.get(type.call(this,d,i))(size.call(this,d,i), ratio.call(this,d,i));
     }
     symbol.type = function(_) {
       if (!arguments.length) return type; 
