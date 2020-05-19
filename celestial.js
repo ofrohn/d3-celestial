@@ -4676,6 +4676,13 @@ function saveSVG() {
            .style ( svgTextStyle(cfg.planets.symbolStyle) )
            .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
         } else {
+          objects.selectAll(".dmoon")
+            .data(jlun.features)
+            .enter().append("path")
+            .attr("class", "darkluna" )
+            .style ( "fill", "#557" )
+            .attr("transform", function(d) { return point(d.geometry.coordinates); })
+            .attr("d", function(d) { return d3.svg.symbol().type("circle").size(121)(); });        
           objects.selectAll(".moon")
             .data(jlun.features)
             .enter().append("path")
@@ -4706,8 +4713,6 @@ function saveSVG() {
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
       }
         
-        // "lun" svgCustomSymbol().type("crescent").size(144).age(p.ephemeris.age);
-
       //name
       if (cfg.planets.names) {
         objects.selectAll(".planetnames")
@@ -4718,6 +4723,16 @@ function saveSVG() {
          .attr({dy: ".85em", dx: "-.35em", class: "planetname"})
          .style ( svgTextStyle(cfg.planets.nameStyle) )
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
+        if (jlun.features.length > 0) {
+          objects.selectAll(".moonname")
+           .data(jlun.features)
+           .enter().append("text")
+           .attr("transform", function(d) { return point(d.geometry.coordinates); })
+           .text( function(d) { return d.properties.name; })
+           .attr({dy: ".85em", dx: "-.35em", class: "planetname"})
+           .style ( svgTextStyle(cfg.planets.nameStyle) )
+           .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
+        }
       }
       callback(null);
     });  
@@ -4731,14 +4746,14 @@ function saveSVG() {
             solpos = sol.ephemeris.pos,
             dist = d3.geo.distance(up, solpos),
             pt = projection(solpos),
-            daylight = d3.geo.circle().angle([179.9]).origin(solpos);
+            daylight = d3.geo.circle().angle([179.95]).origin(solpos);
 
       foreground.append("path").datum(daylight)
        .attr("class", "daylight")
        .attr("d", map)
        .style( svgSkyStyle(dist, pt) );  
 
-        if (clip(solpos) === 1) {
+        if (clip(solpos) === 1 && dist < halfπ) {
           foreground.append("circle")
            .attr("cx", pt[0])
            .attr("cy", pt[1])
