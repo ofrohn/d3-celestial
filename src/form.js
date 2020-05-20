@@ -300,9 +300,9 @@ function form(cfg) {
   col.append("label").attr("class", "header").html("Download");
 
   col.append("input").attr("type", "button").attr("id", "download-png").attr("value", "PNG Image").on("click", function() {
-    var a = d3.select("body").append("a").node(); 
-    var canvas = document.querySelector("#" + config.container + ' canvas');
-    a.download = "d3-celestial.png";
+    var a = d3.select("body").append("a").node(), 
+        canvas = document.querySelector("#" + config.container + ' canvas');
+    a.download = getFilename(".png");
     a.rel = "noopener";
     a.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
     a.click();
@@ -310,7 +310,7 @@ function form(cfg) {
   });
 
   col.append("input").attr("type", "button").attr("id", "download-svg").attr("value", "SVG File").on("click", function() {
-    saveSVG(); 
+    saveSVG(getFilename(".svg")); 
     return false;
   });
 
@@ -368,6 +368,14 @@ function form(cfg) {
     config.center[2] = isNaN(vz) ? 0 : vz;
     
     return cx.value !== "" && cy.value !== "";
+  }
+    
+  function getFilename(ext) {
+    var dateFormat = d3.time.format("%Y%m%dT%H%M%S%Z"),
+        filename = "d3-celestial",
+        dt = Celestial.date();
+    if (dt) filename += dateFormat(dt);
+    return filename + ext;
   }
     
   function showConstellation() {

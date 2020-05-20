@@ -1,5 +1,5 @@
 /* global d3, Celestial, projections, poles, getData, getPlanet, getMwbackground, getAngles, getWidth, getGridValues, has, isArray, halfπ, symbols, starnames, dsonames, bvcolor, settings, formats, transformDeg, euler, halfπ */
-function saveSVG() {
+function saveSVG(fname) {
   var doc = d3.select("body").append("div").attr("id", "d3-celestial-svg").attr("style", "display: none"),
       svg = d3.select("#d3-celestial-svg").append("svg"), //.attr("style", "display: none"),
       m = Celestial.metrics(),
@@ -708,7 +708,7 @@ function saveSVG() {
     var blob = new Blob([svg.node().outerHTML], {type:"image/svg+xml;charset=utf-8"});
     
     var a = d3.select("body").append("a").node(); 
-    a.download = "d3-celestial.svg";
+    a.download = fname || "d3-celestial.svg";
     a.rel = "noopener";
     a.href = URL.createObjectURL(blob);
     a.click();

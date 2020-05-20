@@ -2616,9 +2616,9 @@ function form(cfg) {
   col.append("label").attr("class", "header").html("Download");
 
   col.append("input").attr("type", "button").attr("id", "download-png").attr("value", "PNG Image").on("click", function() {
-    var a = d3.select("body").append("a").node(); 
-    var canvas = document.querySelector("#" + config.container + ' canvas');
-    a.download = "d3-celestial.png";
+    var a = d3.select("body").append("a").node(), 
+        canvas = document.querySelector("#" + config.container + ' canvas');
+    a.download = getFilename(".png");
     a.rel = "noopener";
     a.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
     a.click();
@@ -2626,7 +2626,7 @@ function form(cfg) {
   });
 
   col.append("input").attr("type", "button").attr("id", "download-svg").attr("value", "SVG File").on("click", function() {
-    saveSVG(); 
+    saveSVG(getFilename(".svg")); 
     return false;
   });
 
@@ -2684,6 +2684,14 @@ function form(cfg) {
     config.center[2] = isNaN(vz) ? 0 : vz;
     
     return cx.value !== "" && cy.value !== "";
+  }
+    
+  function getFilename(ext) {
+    var dateFormat = d3.time.format("%Y%m%dT%H%M%S%Z"),
+        filename = "d3-celestial",
+        dt = Celestial.date();
+    if (dt) filename += dateFormat(dt);
+    return filename + ext;
   }
     
   function showConstellation() {
@@ -4353,7 +4361,7 @@ var Moon = {
   }
 
 };
-function saveSVG() {
+function saveSVG(fname) {
   var doc = d3.select("body").append("div").attr("id", "d3-celestial-svg").attr("style", "display: none"),
       svg = d3.select("#d3-celestial-svg").append("svg"), //.attr("style", "display: none"),
       m = Celestial.metrics(),
@@ -5062,7 +5070,7 @@ function saveSVG() {
     var blob = new Blob([svg.node().outerHTML], {type:"image/svg+xml;charset=utf-8"});
     
     var a = d3.select("body").append("a").node(); 
-    a.download = "d3-celestial.svg";
+    a.download = fname || "d3-celestial.svg";
     a.rel = "noopener";
     a.href = URL.createObjectURL(blob);
     a.click();
