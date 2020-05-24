@@ -190,7 +190,7 @@ var settings = {
     if (!res.center || res.center.length <= 0) res.center = [0,0,0];
     res.datapath = res.datapath || "";
     res.datapath = res.datapath.replace(/([^\/]$)/, "$1\/");
-    
+    if (!res.transform || res.transform === "") res.transform = "equatorial";
     // If no recognized language/culture settings, assume defaults
     //if (!res.lang || res.lang.search(/^de|es$/) === -1) res.lang = "name";
     //Set all poss. names to cfg.lang if not english

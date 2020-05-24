@@ -333,34 +333,37 @@ __Exposed functions__
    Change the overall size of the map, canvas object needs a complete reload
    Optional {_width_: number} or _number_: new size in pixels, or 0 = full parent width
 
-* `Celestial.redraw({transform:equatorial|ecliptic|galactic|supergalactic})`  
-  Load all the data and redraw the whole map. 
-  Optional _transform_: change the coordinate space transformation
+* `Celestial.redraw()`  
+   Just redraw the whole map. 
+
+* `Celestial.reload(config)`  
+   Load all the data and redraw the whole map. 
+   Optional _config_: change any configuration parameter before reloading 
 
 * `Celestial.reproject({projection:<see above>})`  
-  Change the map projection. 
-  _projection_: new projection to set
+   Change the map projection. 
+   _projection_: new projection to set
 
 * `Celestial.date(<date object>, timezone)`  
-  Change the set date, return current date w/o parameter.  
-  _date_: javascript date-object  
-  _timezone_: offset from UTC in minutes  
+   Change the set date, return current date w/o parameter.  
+   _date_: javascript date-object  
+   _timezone_: offset from UTC in minutes  
   
 * `Celestial.location([lat, lon])`  
-  Change the set geolocation, return current location w/o parameter.  
-  _location_: [latitude, longitude] array in degrees  
+   Change the set geolocation, return current location w/o parameter.  
+   _location_: [latitude, longitude] array in degrees  
 
 * `Celestial.skyview({date:<date object>, location:[lat, lon], timezone: offset})`  
-  Show the current celestial view for one specific date and/or location, 
-  independent of form fields, both parameters are optional  
-  called w/o parameter returns {date, location} in same format.  
-  _date_: javascript date-object  
-  _location_: [latitude, longitude] array in degrees  
-  _timezone_: offset from UTC in minutes  
+   Show the current celestial view for one specific date and/or location, 
+   independent of form fields, both parameters are optional  
+   called w/o parameter returns {date, location} in same format.  
+   _date_: javascript date-object  
+   _location_: [latitude, longitude] array in degrees  
+   _timezone_: offset from UTC in minutes  
 
 * `Celestial.showConstellation(id)`  
-  Zoom in and focus on the constellaion given by id.  
-  id: string with valid IAU 3-letter constellation identifier, case-insensitive  
+   Zoom in and focus on the constellaion given by id.  
+   id: string with valid IAU 3-letter constellation identifier, case-insensitive  
 
 ### Animations  
 

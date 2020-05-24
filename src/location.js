@@ -1,4 +1,4 @@
-/* global Celestial, settings, horizontal, datetimepicker, config, formats, $, pad, testNumber, isArray, isNumber, isValidDate, showAdvanced, enable, Round, has, hasParent */
+/* global Celestial, settings, horizontal, datetimepicker, timezones, config, formats, $, pad, testNumber, isArray, isNumber, isValidDate, showAdvanced, enable, Round, has, hasParent */
 
 function geo(cfg) {
   var dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
@@ -14,6 +14,8 @@ function geo(cfg) {
     zone = tz;
     go(); 
   });
+  
+  //var tzone = timezones();
   
   if (has(config, "geopos") && config.geopos !== null && config.geopos.length === 2) geopos = config.geopos;
   var col = frm.append("div").attr("class", "col").attr("id", "location").style("display", "none");
@@ -155,20 +157,24 @@ function geo(cfg) {
   }
 
   function go() {
-    var lon = $("lon").value,
-        lat = $("lat").value;
+    var lon = parseFloat($("lon").value),
+        lat = parseFloat($("lat").value),
+        tz;
     //Get current configuration
     Object.assign(config, settings.set());
 
     date = dtFormat.parse($("datetime").value.slice(0,-6));
 
-    var tz = date.getTimezoneOffset();
-    var dtc = new Date(date.valueOf() + (zone - tz) * 60000);
-
     //Celestial.apply(config);
 
-    if (lon !== "" && lat !== "") {
-      geopos = [parseFloat(lat), parseFloat(lon)];
+    if (!isNaN(lon) && !isNaN(lat)) {
+      //if (lat !== geopos[0] || lon !== geopos[1]) tz = Celestial.getTimezone([lat, lon]);
+      if (!tz) tz = date.getTimezoneOffset();
+      else  $("datetime").value = dateFormat(date, tz); 
+
+      var dtc = new Date(date.valueOf() + (zone - tz) * 60000);
+
+      geopos = [lat, lon];
       zenith = Celestial.getPoint(horizontal.inverse(dtc, [90, 0], geopos), config.transform);
       zenith[2] = 0;
       if (config.follow === "zenith") {
