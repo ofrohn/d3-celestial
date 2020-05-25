@@ -15,7 +15,7 @@ function timezones() {
     var tz;
     Celestial.container.selectAll(".tz").each( function(d,i) {
       if (pointInPolygon(pos, d.geometry.coordinates[0])) {
-        tz = getMinutes(d.properties.time_zone);
+        tz = getMinutes(d.properties.zone);
         return false;  
       }
     });
@@ -24,11 +24,11 @@ function timezones() {
 
   function getMinutes(s) {
     if (!s) return;
-    var tza = s.match(/UTC([\+\-])(\d+)\:(\d+)/);
+    /*var tza = s.match(/UTC([\+\-])(\d+)\:(\d+)/);
     if (tza === null) return;
     var tzm = parseInt(tza[2]) * 60 + parseInt(tza[3]);
-    if (tza[1] === "-") tzm *= -1;
-    return tzm;
+    if (tza[1] === "-") tzm *= -1;*/
+    return parseFloat(s) * 60;
   }
 
   function pointInPolygon(p, polygon) {

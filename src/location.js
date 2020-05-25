@@ -192,17 +192,21 @@ function geo(cfg) {
   Celestial.date = function (dt, tz) { 
     if (!dt) return date;  
     zone = tz || zone;
+    Object.assign(config, settings.set());
     if (dtpick.isVisible()) dtpick.hide();
     date.setTime(dt.valueOf());
     $("datetime").value = dateFormat(dt, zone); 
-    Celestial.redraw();
+    if (config.follow === "zenith") go();
+    else Celestial.redraw();
   };
   Celestial.timezone = function (tz) { 
     if (!tz) return zone;  
     zone = tz || zone;
+    Object.assign(config, settings.set());
     if (dtpick.isVisible()) dtpick.hide();
     $("datetime").value = dateFormat(date, zone); 
-    Celestial.redraw();
+    if (config.follow === "zenith") go();
+    else Celestial.redraw();
   };
   Celestial.position = function () { return geopos; };
   Celestial.location = function (loc) {
@@ -216,23 +220,28 @@ function geo(cfg) {
   };
   //{"date":dt, "location":loc, "timezone":tz}
   Celestial.skyview = function (cfg) {
+    if (!cfg) return {"date": date, "location": geopos, "timezone": zone};
     var valid = false;
     if (dtpick.isVisible()) dtpick.hide();
-    if (isValidDate(cfg.date)) {
+    if (has(cfg, "date") && isValidDate(cfg.date)) {
       date.setTime(cfg.date.valueOf());
       $("datetime").value = dateFormat(cfg.date, zone); 
       valid = true;
     }
-    zone = cfg.timezone || zone;
-    if (isValidLocation(cfg.location)) {
+    if (has(cfg, "timezone") && isNumber(cfg.timezone) && Math.abs(cfg.timezone) <= 14) {
+      zone = cfg.timezone;
+      valid = true;
+    }
+    if (has(cfg, "date") && isValidLocation(cfg.location)) {
       geopos = cfg.location.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
       valid = true;
     }
     //Celestial.updateForm();
-    if (valid === true) go();
-    else return {"date": date, "location": geopos};
+    if (valid === false) return {"date": date, "location": geopos, "timezone": zone};
+    if (config.follow === "zenith") go();
+    else Celestial.redraw();
   };  
   Celestial.dtLoc = Celestial.skyview;
   Celestial.zenith = function () { return zenith; };

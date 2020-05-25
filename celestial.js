@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.13',
+  version: '0.7.14',
   container: null,
   data: []
 };
@@ -922,7 +922,7 @@ Celestial.display = function(config) {
   this.reload = function(config) { 
     //if (!config || !has(config, "transform")) return;
     //cfg.transform = config.transform; 
-    if (config) cfg = settings.set(config);
+    if (config) Object.assign(cfg, settings.set(config));
     if (cfg.follow === "center" && has(cfg, "center")) {
       mapProjection.rotate(getAngles(cfg.center));
     }
@@ -2217,7 +2217,7 @@ function isNumber(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
 function isArray(o) { return o !== null && Object.prototype.toString.call(o) === "[object Array]"; }
 function isObject(o) { var type = typeof o;  return type === 'function' || type === 'object' && !!o; }
 function isFunction(o) { return typeof o == 'function' || false; }
-function isValidDate(d) { return d instanceof Date && !isNaN(d); }
+function isValidDate(d) { return d && d instanceof Date && !isNaN(d); }
 function fileExists(url) {
   var http = new XMLHttpRequest();
   http.open('HEAD', url, false);
@@ -2782,6 +2782,7 @@ function form(cfg) {
   
   
   function setLanguage(lang) {
+    Object.assign(config, globalConfig);
     var keys = ["constellations", "planets"]; 
     for (var i=0; i < keys.length; i++) {
       if (has(formats[keys[i]][config.culture].names, lang)) config[keys[i]].namesType = lang;
@@ -2814,7 +2815,7 @@ function form(cfg) {
           switch (id) { 
             case "centerx": this.value = config.center[0]; break;
             case "centery": this.value = config.center[1]; break;
-            case "centerz": this.value = config.center[2]; break;
+            case "centerz": this.value = config.center[2] || 0; break;
           }
         }
       } else if (id === "datetime" || id === "hr" || id === "min" || id === "sec" || id === "tz") {
@@ -3296,17 +3297,21 @@ function geo(cfg) {
   Celestial.date = function (dt, tz) { 
     if (!dt) return date;  
     zone = tz || zone;
+    Object.assign(config, settings.set());
     if (dtpick.isVisible()) dtpick.hide();
     date.setTime(dt.valueOf());
     $("datetime").value = dateFormat(dt, zone); 
-    Celestial.redraw();
+    if (config.follow === "zenith") go();
+    else Celestial.redraw();
   };
   Celestial.timezone = function (tz) { 
     if (!tz) return zone;  
     zone = tz || zone;
+    Object.assign(config, settings.set());
     if (dtpick.isVisible()) dtpick.hide();
     $("datetime").value = dateFormat(date, zone); 
-    Celestial.redraw();
+    if (config.follow === "zenith") go();
+    else Celestial.redraw();
   };
   Celestial.position = function () { return geopos; };
   Celestial.location = function (loc) {
@@ -3320,23 +3325,28 @@ function geo(cfg) {
   };
   //{"date":dt, "location":loc, "timezone":tz}
   Celestial.skyview = function (cfg) {
+    if (!cfg) return {"date": date, "location": geopos, "timezone": zone};
     var valid = false;
     if (dtpick.isVisible()) dtpick.hide();
-    if (isValidDate(cfg.date)) {
+    if (has(cfg, "date") && isValidDate(cfg.date)) {
       date.setTime(cfg.date.valueOf());
       $("datetime").value = dateFormat(cfg.date, zone); 
       valid = true;
     }
-    zone = cfg.timezone || zone;
-    if (isValidLocation(cfg.location)) {
+    if (has(cfg, "timezone") && isNumber(cfg.timezone) && Math.abs(cfg.timezone) <= 14) {
+      zone = cfg.timezone;
+      valid = true;
+    }
+    if (has(cfg, "date") && isValidLocation(cfg.location)) {
       geopos = cfg.location.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
       valid = true;
     }
     //Celestial.updateForm();
-    if (valid === true) go();
-    else return {"date": date, "location": geopos};
+    if (valid === false) return {"date": date, "location": geopos, "timezone": zone};
+    if (config.follow === "zenith") go();
+    else Celestial.redraw();
   };  
   Celestial.dtLoc = Celestial.skyview;
   Celestial.zenith = function () { return zenith; };
@@ -5102,7 +5112,7 @@ function timezones() {
     var tz;
     Celestial.container.selectAll(".tz").each( function(d,i) {
       if (pointInPolygon(pos, d.geometry.coordinates[0])) {
-        tz = getMinutes(d.properties.time_zone);
+        tz = getMinutes(d.properties.zone);
         return false;  
       }
     });
@@ -5111,11 +5121,11 @@ function timezones() {
 
   function getMinutes(s) {
     if (!s) return;
-    var tza = s.match(/UTC([\+\-])(\d+)\:(\d+)/);
+    /*var tza = s.match(/UTC([\+\-])(\d+)\:(\d+)/);
     if (tza === null) return;
     var tzm = parseInt(tza[2]) * 60 + parseInt(tza[3]);
-    if (tza[1] === "-") tzm *= -1;
-    return tzm;
+    if (tza[1] === "-") tzm *= -1;*/
+    return parseFloat(s) * 60;
   }
 
   function pointInPolygon(p, polygon) {

@@ -12,7 +12,7 @@ function isNumber(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
 function isArray(o) { return o !== null && Object.prototype.toString.call(o) === "[object Array]"; }
 function isObject(o) { var type = typeof o;  return type === 'function' || type === 'object' && !!o; }
 function isFunction(o) { return typeof o == 'function' || false; }
-function isValidDate(d) { return d instanceof Date && !isNaN(d); }
+function isValidDate(d) { return d && d instanceof Date && !isNaN(d); }
 function fileExists(url) {
   var http = new XMLHttpRequest();
   http.open('HEAD', url, false);

@@ -1,6 +1,6 @@
 /* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.13',
+  version: '0.7.14',
   container: null,
   data: []
 };
@@ -921,7 +921,7 @@ Celestial.display = function(config) {
   this.reload = function(config) { 
     //if (!config || !has(config, "transform")) return;
     //cfg.transform = config.transform; 
-    if (config) cfg = settings.set(config);
+    if (config) Object.assign(cfg, settings.set(config));
     if (cfg.follow === "center" && has(cfg, "center")) {
       mapProjection.rotate(getAngles(cfg.center));
     }

@@ -465,6 +465,7 @@ function form(cfg) {
   
   
   function setLanguage(lang) {
+    Object.assign(config, globalConfig);
     var keys = ["constellations", "planets"]; 
     for (var i=0; i < keys.length; i++) {
       if (has(formats[keys[i]][config.culture].names, lang)) config[keys[i]].namesType = lang;
@@ -497,7 +498,7 @@ function form(cfg) {
           switch (id) { 
             case "centerx": this.value = config.center[0]; break;
             case "centery": this.value = config.center[1]; break;
-            case "centerz": this.value = config.center[2]; break;
+            case "centerz": this.value = config.center[2] || 0; break;
           }
         }
       } else if (id === "datetime" || id === "hr" || id === "min" || id === "sec" || id === "tz") {
