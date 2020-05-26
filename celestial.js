@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.14',
+  version: '0.7.15',
   container: null,
   data: []
 };
@@ -920,12 +920,16 @@ Celestial.display = function(config) {
     return cfg.width;
   }; 
   this.reload = function(config) { 
+    var ctr;
     //if (!config || !has(config, "transform")) return;
     //cfg.transform = config.transform; 
     if (config) Object.assign(cfg, settings.set(config));
     if (cfg.follow === "center" && has(cfg, "center")) {
-      mapProjection.rotate(getAngles(cfg.center));
-    }
+      ctr = getAngles(cfg.center);
+    } else if (cfg.follow === "zenith") {
+      ctr = getAngles(Celestial.zenith());
+    } 
+    if (ctr) mapProjection.rotate(ctr);
     container.selectAll("*").remove(); 
     load(); 
   }; 
@@ -3284,6 +3288,8 @@ function geo(cfg) {
       zenith[2] = 0;
       if (config.follow === "zenith") {
         Celestial.rotate({center:zenith});
+      } else {
+        Celestial.redraw();
       }
     }
   }
@@ -3301,8 +3307,7 @@ function geo(cfg) {
     if (dtpick.isVisible()) dtpick.hide();
     date.setTime(dt.valueOf());
     $("datetime").value = dateFormat(dt, zone); 
-    if (config.follow === "zenith") go();
-    else Celestial.redraw();
+    go();
   };
   Celestial.timezone = function (tz) { 
     if (!tz) return zone;  
@@ -3310,8 +3315,7 @@ function geo(cfg) {
     Object.assign(config, settings.set());
     if (dtpick.isVisible()) dtpick.hide();
     $("datetime").value = dateFormat(date, zone); 
-    if (config.follow === "zenith") go();
-    else Celestial.redraw();
+    go();
   };
   Celestial.position = function () { return geopos; };
   Celestial.location = function (loc) {

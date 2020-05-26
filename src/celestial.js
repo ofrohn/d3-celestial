@@ -1,6 +1,6 @@
 /* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.14',
+  version: '0.7.15',
   container: null,
   data: []
 };
@@ -919,12 +919,16 @@ Celestial.display = function(config) {
     return cfg.width;
   }; 
   this.reload = function(config) { 
+    var ctr;
     //if (!config || !has(config, "transform")) return;
     //cfg.transform = config.transform; 
     if (config) Object.assign(cfg, settings.set(config));
     if (cfg.follow === "center" && has(cfg, "center")) {
-      mapProjection.rotate(getAngles(cfg.center));
-    }
+      ctr = getAngles(cfg.center);
+    } else if (cfg.follow === "zenith") {
+      ctr = getAngles(Celestial.zenith());
+    } 
+    if (ctr) mapProjection.rotate(ctr);
     container.selectAll("*").remove(); 
     load(); 
   }; 

@@ -179,6 +179,8 @@ function geo(cfg) {
       zenith[2] = 0;
       if (config.follow === "zenith") {
         Celestial.rotate({center:zenith});
+      } else {
+        Celestial.redraw();
       }
     }
   }
@@ -196,8 +198,7 @@ function geo(cfg) {
     if (dtpick.isVisible()) dtpick.hide();
     date.setTime(dt.valueOf());
     $("datetime").value = dateFormat(dt, zone); 
-    if (config.follow === "zenith") go();
-    else Celestial.redraw();
+    go();
   };
   Celestial.timezone = function (tz) { 
     if (!tz) return zone;  
@@ -205,8 +206,7 @@ function geo(cfg) {
     Object.assign(config, settings.set());
     if (dtpick.isVisible()) dtpick.hide();
     $("datetime").value = dateFormat(date, zone); 
-    if (config.follow === "zenith") go();
-    else Celestial.redraw();
+    go();
   };
   Celestial.position = function () { return geopos; };
   Celestial.location = function (loc) {
