@@ -145,9 +145,6 @@ function form(cfg) {
 
   col.append("br");
   
-//  col.append("label").attr("for", "dsos-names").html("Show names");
-//  col.append("input").attr("type", "checkbox").attr("id", "dsos-names").property("checked", config.dsos.names).on("change", apply);
-
   names = formats.dsonames[config.culture] || formats.dsonames.iau;
   
   for (fld in names) {
@@ -170,10 +167,7 @@ function form(cfg) {
     col.append("label").attr("for", "dsos-" + fld).html("names");
     col.append("input").attr("type", "checkbox").attr("id", "dsos-" + fld).property("checked", config.dsos[fld]).on("change", apply);
   }    
-  
-//  col.append("label").attr("for", "dsos-desig").html("or designations");
-//  col.append("input").attr("type", "checkbox").attr("id", "dsos-desig").property("checked", config.dsos.desig).on("change", apply);
-  
+    
   col.append("label").attr("for", "dsos-nameLimit").html("down to mag");
   col.append("input").attr("type", "number").attr("id", "dsos-nameLimit").attr("title", "DSO name display limit (magnitude)").attr("value", config.dsos.nameLimit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
   col.append("br");
@@ -221,14 +215,6 @@ function form(cfg) {
       col.append("input").attr("type", "checkbox").attr("id", "constellations-" + fld).attr("class", "advanced").property("checked", config.constellations[fld]).on("change", apply);      
     }      
   }
-
-  /*
-  col.append("label").attr("for", "constellations-names").html("Show names");
-  col.append("input").attr("type", "checkbox").attr("id", "constellations-names").property("checked", config.constellations.names).on("change", apply);
-  
-  col.append("label").attr("for", "constellations-desig").html("abbreviated");
-  col.append("input").attr("type", "checkbox").attr("id", "constellations-desig").property("checked", config.constellations.desig).on("change", apply);
-  */
   col.append("label").attr("for", "constellations-lines").html(" lines");
   col.append("input").attr("type", "checkbox").attr("id", "constellations-lines").property("checked", config.constellations.lines).on("change", apply);
   
@@ -699,7 +685,7 @@ function setLimits() {
     res.d = parseFloat(t[t.length-1]);
   }
 
-  if (res.d != 6) {
+  if (res.d !== 6) {
     $("dsos-limit").max = res.d;
     $("dsos-nameLimit").max = res.d;
   }

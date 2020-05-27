@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.15',
+  version: '0.7.16',
   container: null,
   data: []
 };
@@ -577,7 +577,7 @@ Celestial.display = function(config) {
       var dt = Celestial.date(),
           o = Celestial.origin(dt).spherical();
       container.selectAll(".planet").each(function(d) {
-        var id = d.id(), r = 6,
+        var id = d.id(), r = 12,
             p = d(dt).equatorial(o),
             pos = transformDeg(p.ephemeris.pos, euler[cfg.transform]);  //transform; 
         if (clip(pos)) {
@@ -586,15 +586,14 @@ Celestial.display = function(config) {
           if (cfg.planets.symbolType === "letter") {
             setTextStyle(cfg.planets.symbolStyle);
             context.fillStyle = sym.fill;
-            context.fillText(sym.letter, pt[0], pt[1]);            
+            context.fillText(sym.letter, pt[0], pt[1]);
           } else if (id === "lun") {
-            Canvas.symbol().type("crescent").size(144).age(p.ephemeris.age).position(pt)(context);
+            if (has(sym, "size") && isNumber(sym.size)) r = sym.size;
+            Canvas.symbol().type("crescent").size(r*r).age(p.ephemeris.age).position(pt)(context);
           } else if (cfg.planets.symbolType === "disk") {
-            r = planetSize(p.ephemeris);
+            r = has(sym, "size") && isNumber(sym.size) ? sym.size : planetSize(p.ephemeris);
             context.fillStyle = sym.fill;
-            context.beginPath();
-            context.arc(pt[0], pt[1], r, 0, 2 * Math.PI);
-            context.closePath();
+            Canvas.symbol().type("circle").size(r*r).position(pt)(context);
             context.fill();
           } else if (cfg.planets.symbolType === "symbol") {
             setTextStyle(cfg.planets.symbolStyle);
@@ -607,7 +606,7 @@ Celestial.display = function(config) {
             setTextStyle(cfg.planets.nameStyle);
             //context.direction = "ltr" || "rtl" ar il ir
             context.fillStyle = sym.fill;
-            context.fillText(name, pt[0] - r, pt[1] + r);                        
+            context.fillText(name, pt[0] - r/2, pt[1] + r/2);                        
           }
         }
       });
@@ -1587,11 +1586,11 @@ var settings = {
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
     // Symbols as unicode codepoints, letter abbreviations and colors to be displayed
     symbols: {
-      "sol": {symbol: "\u2609", letter:"Su", fill: "#ffff00"},
+      "sol": {symbol: "\u2609", letter:"Su", fill: "#ffff00", size: 12},
       "mer": {symbol: "\u263f", letter:"Me", fill: "#cccccc"},
       "ven": {symbol: "\u2640", letter:"V", fill: "#eeeecc"},
       "ter": {symbol: "\u2295", letter:"T", fill: "#00ccff"},
-      "lun": {symbol: "\u25cf", letter:"L", fill: "#ffffff"},
+      "lun": {symbol: "\u25cf", letter:"L", fill: "#ffffff", size: 12},
       "mar": {symbol: "\u2642", letter:"Ma", fill: "#ff6600"},
       "cer": {symbol: "\u26b3", letter:"C", fill: "#cccccc"},
       "ves": {symbol: "\u26b6", letter:"Ma", fill: "#cccccc"},
@@ -2466,9 +2465,6 @@ function form(cfg) {
 
   col.append("br");
   
-//  col.append("label").attr("for", "dsos-names").html("Show names");
-//  col.append("input").attr("type", "checkbox").attr("id", "dsos-names").property("checked", config.dsos.names).on("change", apply);
-
   names = formats.dsonames[config.culture] || formats.dsonames.iau;
   
   for (fld in names) {
@@ -2491,10 +2487,7 @@ function form(cfg) {
     col.append("label").attr("for", "dsos-" + fld).html("names");
     col.append("input").attr("type", "checkbox").attr("id", "dsos-" + fld).property("checked", config.dsos[fld]).on("change", apply);
   }    
-  
-//  col.append("label").attr("for", "dsos-desig").html("or designations");
-//  col.append("input").attr("type", "checkbox").attr("id", "dsos-desig").property("checked", config.dsos.desig).on("change", apply);
-  
+    
   col.append("label").attr("for", "dsos-nameLimit").html("down to mag");
   col.append("input").attr("type", "number").attr("id", "dsos-nameLimit").attr("title", "DSO name display limit (magnitude)").attr("value", config.dsos.nameLimit).attr("max", "6").attr("min", "0").attr("step", "0.1").on("change", apply);
   col.append("br");
@@ -2542,14 +2535,6 @@ function form(cfg) {
       col.append("input").attr("type", "checkbox").attr("id", "constellations-" + fld).attr("class", "advanced").property("checked", config.constellations[fld]).on("change", apply);      
     }      
   }
-
-  /*
-  col.append("label").attr("for", "constellations-names").html("Show names");
-  col.append("input").attr("type", "checkbox").attr("id", "constellations-names").property("checked", config.constellations.names).on("change", apply);
-  
-  col.append("label").attr("for", "constellations-desig").html("abbreviated");
-  col.append("input").attr("type", "checkbox").attr("id", "constellations-desig").property("checked", config.constellations.desig).on("change", apply);
-  */
   col.append("label").attr("for", "constellations-lines").html(" lines");
   col.append("input").attr("type", "checkbox").attr("id", "constellations-lines").property("checked", config.constellations.lines).on("change", apply);
   
@@ -3020,7 +3005,7 @@ function setLimits() {
     res.d = parseFloat(t[t.length-1]);
   }
 
-  if (res.d != 6) {
+  if (res.d !== 6) {
     $("dsos-limit").max = res.d;
     $("dsos-nameLimit").max = res.d;
   }
@@ -3114,17 +3099,16 @@ function geo(cfg) {
       zenith = [0,0],
       geopos = [0,0], 
       date = new Date(),
-      zone = date.getTimezoneOffset(),
+      localZone = date.getTimezoneOffset(),
+      timeZone = localZone,
       config = settings.set(cfg),
       frm = d3.select("#celestial-form form").insert("div", "div#general").attr("id", "loc");
 
   var dtpick = new datetimepicker(config, function(date, tz) { 
     $("datetime").value = dateFormat(date, tz); 
-    zone = tz;
+    timeZone = tz;
     go(); 
   });
-  
-  //var tzone = timezones();
   
   if (has(config, "geopos") && config.geopos !== null && config.geopos.length === 2) geopos = config.geopos;
   var col = frm.append("div").attr("class", "col").attr("id", "location").style("display", "none");
@@ -3146,18 +3130,18 @@ function geo(cfg) {
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Date/time");
   col.append("input").attr("type", "button").attr("id", "day-left").attr("title", "One day back").on("click", function () {
     date.setDate(date.getDate() - 1); 
-    $("datetime").value = dateFormat(date, zone); 
+    $("datetime").value = dateFormat(date, timeZone); 
     go(); 
   });
-  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(date, zone))
+  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(date, timeZone))
   .on("click", showpick, true).on("input", function () { 
-    this.value = dateFormat(date, zone); 
+    this.value = dateFormat(date, timeZone); 
     if (!dtpick.isVisible()) showpick(); 
   });
   col.append("div").attr("id", "datepick").on("click", showpick);
   col.append("input").attr("type", "button").attr("id", "day-right").attr("title", "One day forward").on("click", function () { 
     date.setDate(date.getDate() + 1); 
-    $("datetime").value = dateFormat(date, zone); 
+    $("datetime").value = dateFormat(date, timeZone); 
     go(); 
   });
   //Now -button sets current time & date of device  
@@ -3214,7 +3198,7 @@ function geo(cfg) {
   
   function now() {
     date.setTime(Date.now());
-    $("datetime").value = dateFormat(date, zone);
+    $("datetime").value = dateFormat(date, timeZone);
     go();
   }
 
@@ -3277,13 +3261,16 @@ function geo(cfg) {
     //Celestial.apply(config);
 
     if (!isNaN(lon) && !isNaN(lat)) {
-      //if (lat !== geopos[0] || lon !== geopos[1]) tz = Celestial.getTimezone([lat, lon]);
-      if (!tz) tz = date.getTimezoneOffset();
-      else  $("datetime").value = dateFormat(date, tz); 
+      if (lat !== geopos[0] || lon !== geopos[1]) {
+        geopos = [lat, lon];
+        setPosition([lat, lon]);
+        return;
+      }
+      //if (!tz) tz = date.getTimezoneOffset();
+      $("datetime").value = dateFormat(date, timeZone); 
 
-      var dtc = new Date(date.valueOf() + (zone - tz) * 60000);
+      var dtc = new Date(date.valueOf() + (localZone - timeZone) * 60000);
 
-      geopos = [lat, lon];
       zenith = Celestial.getPoint(horizontal.inverse(dtc, [90, 0], geopos), config.transform);
       zenith[2] = 0;
       if (config.follow === "zenith") {
@@ -3294,61 +3281,72 @@ function geo(cfg) {
     }
   }
 
-  Celestial.getPosition = function (p) {
-    
-  };
+  
+  function setPosition(p) {
+    if (!p) return;
+    var url = "http://api.timezonedb.com/v2.1/get-time-zone?key=AEFXZPQ3FDPF&format=json&by=position";
+    url += "&lat=" + p[0] + "&lng=" + p[1];
+    url += "&time=" + Math.floor(date.getTime() / 1000);
+
+    d3.json(url, function(error, json) { 
+      if (error) return console.warn(error);
+      timeZone = json.gmtOffset / 60;
+      go();
+    }); 
+  }
 
   Celestial.dateFormat = dateFormat;
   
   Celestial.date = function (dt, tz) { 
     if (!dt) return date;  
-    zone = tz || zone;
+    timeZone = tz || timeZone;
     Object.assign(config, settings.set());
     if (dtpick.isVisible()) dtpick.hide();
     date.setTime(dt.valueOf());
-    $("datetime").value = dateFormat(dt, zone); 
+    $("datetime").value = dateFormat(dt, timeZone); 
     go();
   };
   Celestial.timezone = function (tz) { 
-    if (!tz) return zone;  
-    zone = tz || zone;
+    if (!tz) return timeZone;  
+    timeZone = tz || timeZone;
     Object.assign(config, settings.set());
     if (dtpick.isVisible()) dtpick.hide();
-    $("datetime").value = dateFormat(date, zone); 
+    $("datetime").value = dateFormat(date, timeZone); 
     go();
   };
   Celestial.position = function () { return geopos; };
   Celestial.location = function (loc) {
     if (!loc || loc.length < 2) return geopos;
-    if (isValidLocation(config.location)) {
-      geopos = config.location.slice();
+    if (isValidLocation(loc)) {
+      geopos = loc.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
-      go();
+      setPosition(geopos);
     }
   };
   //{"date":dt, "location":loc, "timezone":tz}
   Celestial.skyview = function (cfg) {
-    if (!cfg) return {"date": date, "location": geopos, "timezone": zone};
+    if (!cfg) return {"date": date, "location": geopos, "timezone": timeZone};
     var valid = false;
     if (dtpick.isVisible()) dtpick.hide();
-    if (has(cfg, "date") && isValidDate(cfg.date)) {
-      date.setTime(cfg.date.valueOf());
-      $("datetime").value = dateFormat(cfg.date, zone); 
+    if (has(cfg, "timezone") && isNumber(cfg.timezone) && Math.abs(cfg.timezone) <= 14) {
+      timeZone = cfg.timezone;
       valid = true;
     }
-    if (has(cfg, "timezone") && isNumber(cfg.timezone) && Math.abs(cfg.timezone) <= 14) {
-      zone = cfg.timezone;
+    if (has(cfg, "date") && isValidDate(cfg.date)) {
+      date.setTime(cfg.date.valueOf());
+      $("datetime").value = dateFormat(cfg.date, timeZone); 
       valid = true;
     }
     if (has(cfg, "date") && isValidLocation(cfg.location)) {
       geopos = cfg.location.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
-      valid = true;
+      setPosition(geopos);
+      return;
     }
     //Celestial.updateForm();
-    if (valid === false) return {"date": date, "location": geopos, "timezone": zone};
+    if (valid === false) return {"date": date, "location": geopos, "timezone": timeZone};
     if (config.follow === "zenith") go();
     else Celestial.redraw();
   };  
@@ -5099,66 +5097,6 @@ function saveSVG(fname) {
     d3.select("#d3-celestial-svg").remove();
   });
 
-}
-function timezones() {
-  var cfg = settings.set(),
-       world, timezone;
-  d3.json(cfg.datapath + "timezones.json", function(error, json) {
-    world = topojson.feature(json, json.objects.timezones);
-    
-    Celestial.container.selectAll(".timezones")
-         .data(world.features)
-         .enter().append("path")
-         .attr("class", "tz");
-  });
-
-  function getTimezone(pos) {
-    var tz;
-    Celestial.container.selectAll(".tz").each( function(d,i) {
-      if (pointInPolygon(pos, d.geometry.coordinates[0])) {
-        tz = getMinutes(d.properties.zone);
-        return false;  
-      }
-    });
-    return tz;
-  }
-
-  function getMinutes(s) {
-    if (!s) return;
-    /*var tza = s.match(/UTC([\+\-])(\d+)\:(\d+)/);
-    if (tza === null) return;
-    var tzm = parseInt(tza[2]) * 60 + parseInt(tza[3]);
-    if (tza[1] === "-") tzm *= -1;*/
-    return parseFloat(s) * 60;
-  }
-
-  function pointInPolygon(p, polygon) {
-    var isInside = false;
-    var minX = polygon[0][0], maxX = polygon[0][0];
-    var minY = polygon[0][1], maxY = polygon[0][1];
-    for (var n = 1; n < polygon.length; n++) {
-      var q = polygon[n];
-      minX = Math.min(q[0], minX);
-      maxX = Math.max(q[0], maxX);
-      minY = Math.min(q[1], minY);
-      maxY = Math.max(q[1], maxY);
-    }
-
-    if (p[0] < minX || p[0] > maxX || p[1] < minY || p[1] > maxY) {
-      return false;
-    }
-
-    var i = 0, j = polygon.length - 1;
-    for (i, j; i < polygon.length; j = i++) {
-      if ( (polygon[i][1] > p[1]) != (polygon[j][1] > p[1]) &&
-            p[0] < (polygon[j][0] - polygon[i][0]) * (p[1] - polygon[i][1]) / (polygon[j][1] - polygon[i][1]) + polygon[i][0] ) {
-        isInside = !isInside;
-      }
-    }
-
-    return isInside;
-  }
-  Celestial.getTimezone = getTimezone;
 }
 var datetimepicker = function(cfg, callback) {
   var date = new Date(), 

@@ -1,21 +1,20 @@
-/* global Celestial, settings, horizontal, datetimepicker, timezones, config, formats, $, pad, testNumber, isArray, isNumber, isValidDate, showAdvanced, enable, Round, has, hasParent */
+/* global Celestial, settings, horizontal, datetimepicker, config, formats, $, pad, testNumber, isArray, isNumber, isValidDate, showAdvanced, enable, Round, has, hasParent */
 
 function geo(cfg) {
   var dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zenith = [0,0],
       geopos = [0,0], 
       date = new Date(),
-      zone = date.getTimezoneOffset(),
+      localZone = date.getTimezoneOffset(),
+      timeZone = localZone,
       config = settings.set(cfg),
       frm = d3.select("#celestial-form form").insert("div", "div#general").attr("id", "loc");
 
   var dtpick = new datetimepicker(config, function(date, tz) { 
     $("datetime").value = dateFormat(date, tz); 
-    zone = tz;
+    timeZone = tz;
     go(); 
   });
-  
-  //var tzone = timezones();
   
   if (has(config, "geopos") && config.geopos !== null && config.geopos.length === 2) geopos = config.geopos;
   var col = frm.append("div").attr("class", "col").attr("id", "location").style("display", "none");
@@ -37,18 +36,18 @@ function geo(cfg) {
   col.append("label").attr("title", "Local date/time").attr("for", "datetime").html(" Date/time");
   col.append("input").attr("type", "button").attr("id", "day-left").attr("title", "One day back").on("click", function () {
     date.setDate(date.getDate() - 1); 
-    $("datetime").value = dateFormat(date, zone); 
+    $("datetime").value = dateFormat(date, timeZone); 
     go(); 
   });
-  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(date, zone))
+  col.append("input").attr("type", "text").attr("id", "datetime").attr("title", "Date and time").attr("value", dateFormat(date, timeZone))
   .on("click", showpick, true).on("input", function () { 
-    this.value = dateFormat(date, zone); 
+    this.value = dateFormat(date, timeZone); 
     if (!dtpick.isVisible()) showpick(); 
   });
   col.append("div").attr("id", "datepick").on("click", showpick);
   col.append("input").attr("type", "button").attr("id", "day-right").attr("title", "One day forward").on("click", function () { 
     date.setDate(date.getDate() + 1); 
-    $("datetime").value = dateFormat(date, zone); 
+    $("datetime").value = dateFormat(date, timeZone); 
     go(); 
   });
   //Now -button sets current time & date of device  
@@ -105,7 +104,7 @@ function geo(cfg) {
   
   function now() {
     date.setTime(Date.now());
-    $("datetime").value = dateFormat(date, zone);
+    $("datetime").value = dateFormat(date, timeZone);
     go();
   }
 
@@ -168,13 +167,16 @@ function geo(cfg) {
     //Celestial.apply(config);
 
     if (!isNaN(lon) && !isNaN(lat)) {
-      //if (lat !== geopos[0] || lon !== geopos[1]) tz = Celestial.getTimezone([lat, lon]);
-      if (!tz) tz = date.getTimezoneOffset();
-      else  $("datetime").value = dateFormat(date, tz); 
+      if (lat !== geopos[0] || lon !== geopos[1]) {
+        geopos = [lat, lon];
+        setPosition([lat, lon]);
+        return;
+      }
+      //if (!tz) tz = date.getTimezoneOffset();
+      $("datetime").value = dateFormat(date, timeZone); 
 
-      var dtc = new Date(date.valueOf() + (zone - tz) * 60000);
+      var dtc = new Date(date.valueOf() + (localZone - timeZone) * 60000);
 
-      geopos = [lat, lon];
       zenith = Celestial.getPoint(horizontal.inverse(dtc, [90, 0], geopos), config.transform);
       zenith[2] = 0;
       if (config.follow === "zenith") {
@@ -185,61 +187,72 @@ function geo(cfg) {
     }
   }
 
-  Celestial.getPosition = function (p) {
-    
-  };
+  
+  function setPosition(p) {
+    if (!p) return;
+    var url = "http://api.timezonedb.com/v2.1/get-time-zone?key=AEFXZPQ3FDPF&format=json&by=position";
+    url += "&lat=" + p[0] + "&lng=" + p[1];
+    url += "&time=" + Math.floor(date.getTime() / 1000);
+
+    d3.json(url, function(error, json) { 
+      if (error) return console.warn(error);
+      timeZone = json.gmtOffset / 60;
+      go();
+    }); 
+  }
 
   Celestial.dateFormat = dateFormat;
   
   Celestial.date = function (dt, tz) { 
     if (!dt) return date;  
-    zone = tz || zone;
+    timeZone = tz || timeZone;
     Object.assign(config, settings.set());
     if (dtpick.isVisible()) dtpick.hide();
     date.setTime(dt.valueOf());
-    $("datetime").value = dateFormat(dt, zone); 
+    $("datetime").value = dateFormat(dt, timeZone); 
     go();
   };
   Celestial.timezone = function (tz) { 
-    if (!tz) return zone;  
-    zone = tz || zone;
+    if (!tz) return timeZone;  
+    timeZone = tz || timeZone;
     Object.assign(config, settings.set());
     if (dtpick.isVisible()) dtpick.hide();
-    $("datetime").value = dateFormat(date, zone); 
+    $("datetime").value = dateFormat(date, timeZone); 
     go();
   };
   Celestial.position = function () { return geopos; };
   Celestial.location = function (loc) {
     if (!loc || loc.length < 2) return geopos;
-    if (isValidLocation(config.location)) {
-      geopos = config.location.slice();
+    if (isValidLocation(loc)) {
+      geopos = loc.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
-      go();
+      setPosition(geopos);
     }
   };
   //{"date":dt, "location":loc, "timezone":tz}
   Celestial.skyview = function (cfg) {
-    if (!cfg) return {"date": date, "location": geopos, "timezone": zone};
+    if (!cfg) return {"date": date, "location": geopos, "timezone": timeZone};
     var valid = false;
     if (dtpick.isVisible()) dtpick.hide();
-    if (has(cfg, "date") && isValidDate(cfg.date)) {
-      date.setTime(cfg.date.valueOf());
-      $("datetime").value = dateFormat(cfg.date, zone); 
+    if (has(cfg, "timezone") && isNumber(cfg.timezone) && Math.abs(cfg.timezone) <= 14) {
+      timeZone = cfg.timezone;
       valid = true;
     }
-    if (has(cfg, "timezone") && isNumber(cfg.timezone) && Math.abs(cfg.timezone) <= 14) {
-      zone = cfg.timezone;
+    if (has(cfg, "date") && isValidDate(cfg.date)) {
+      date.setTime(cfg.date.valueOf());
+      $("datetime").value = dateFormat(cfg.date, timeZone); 
       valid = true;
     }
     if (has(cfg, "date") && isValidLocation(cfg.location)) {
       geopos = cfg.location.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
-      valid = true;
+      setPosition(geopos);
+      return;
     }
     //Celestial.updateForm();
-    if (valid === false) return {"date": date, "location": geopos, "timezone": zone};
+    if (valid === false) return {"date": date, "location": geopos, "timezone": timeZone};
     if (config.follow === "zenith") go();
     else Celestial.redraw();
   };  

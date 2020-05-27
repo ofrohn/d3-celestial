@@ -132,11 +132,11 @@ var settings = {
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
     // Symbols as unicode codepoints, letter abbreviations and colors to be displayed
     symbols: {
-      "sol": {symbol: "\u2609", letter:"Su", fill: "#ffff00"},
+      "sol": {symbol: "\u2609", letter:"Su", fill: "#ffff00", size: 12},
       "mer": {symbol: "\u263f", letter:"Me", fill: "#cccccc"},
       "ven": {symbol: "\u2640", letter:"V", fill: "#eeeecc"},
       "ter": {symbol: "\u2295", letter:"T", fill: "#00ccff"},
-      "lun": {symbol: "\u25cf", letter:"L", fill: "#ffffff"},
+      "lun": {symbol: "\u25cf", letter:"L", fill: "#ffffff", size: 12},
       "mar": {symbol: "\u2642", letter:"Ma", fill: "#ff6600"},
       "cer": {symbol: "\u26b3", letter:"C", fill: "#cccccc"},
       "ves": {symbol: "\u26b6", letter:"Ma", fill: "#cccccc"},
