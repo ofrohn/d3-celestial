@@ -3290,7 +3290,10 @@ function geo(cfg) {
 
     d3.json(url, function(error, json) { 
       if (error) return console.warn(error);
-      timeZone = json.gmtOffset / 60;
+      if (json.status === "FAILED") {
+        timeZone = Math.round(p[1]*4);
+      } else
+        timeZone = json.gmtOffset / 60;
       go();
     }); 
   }
