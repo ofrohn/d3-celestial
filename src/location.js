@@ -256,7 +256,7 @@ function geo(cfg) {
       $("datetime").value = dateFormat(cfg.date, timeZone); 
       valid = true;
     }
-    if (has(cfg, "date") && isValidLocation(cfg.location)) {
+    if (has(cfg, "location") && isValidLocation(cfg.location)) {
       geopos = cfg.location.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
