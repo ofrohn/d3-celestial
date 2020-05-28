@@ -3094,6 +3094,8 @@ function listConstellations() {
 
 
 
+var geoInfo = null;
+
 function geo(cfg) {
   var dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zenith = [0,0],
@@ -3284,16 +3286,23 @@ function geo(cfg) {
   
   function setPosition(p) {
     if (!p) return;
-    var url = "http://api.timezonedb.com/v2.1/get-time-zone?key=AEFXZPQ3FDPF&format=json&by=position";
-    url += "&lat=" + p[0] + "&lng=" + p[1];
-    url += "&time=" + Math.floor(date.getTime() / 1000);
+    var timestamp = Math.floor(date.getTime() / 1000),
+        url = "http://api.timezonedb.com/v2.1/get-time-zone?key=AEFXZPQ3FDPF&format=json&by=position" + 
+              "&lat=" + p[0] + "&lng=" + p[1] + "&time=" + timestamp;
 
     d3.json(url, function(error, json) { 
       if (error) return console.warn(error);
       if (json.status === "FAILED") {
-        timeZone = Math.round(p[1]*4);
+        // Location at sea inferred from longitude
+        timeZone = Math.round(p[1] / 15) * 60;
+        geoInfo = {
+          gmtOffset: timeZone * 60,
+          message: "Sea locatation inferred",
+          timestamp: timestamp
+        };
       } else
         timeZone = json.gmtOffset / 60;
+        geoInfo = json;
       go();
     }); 
   }
