@@ -5028,6 +5028,27 @@ function saveSVG(fname) {
     return res;
   }
 
+
+  q.await(function(error) {
+    if (error) throw error;
+    var svg = d3.select("svg")
+      .attr("title", "D3-Celestial")
+      .attr("version", 1.1)
+      .attr("xmlns", "http://www.w3.org/2000/svg");
+
+    var blob = new Blob([svg.node().outerHTML], {type:"image/svg+xml;charset=utf-8"});
+    
+    var a = d3.select("body").append("a").node(); 
+    a.download = fname || "d3-celestial.svg";
+    a.rel = "noopener";
+    a.href = URL.createObjectURL(blob);
+    a.click();
+    d3.select(a).remove();
+    d3.select("#d3-celestial-svg").remove();
+  });
+
+}
+
   var customSvgSymbols = d3.map({
     'ellipse': function(size, ratio) {
       var s = Math.sqrt(size), 
@@ -5104,25 +5125,6 @@ function saveSVG(fname) {
     return symbol;
   };
 
-  q.await(function(error) {
-    if (error) throw error;
-    var svg = d3.select("svg")
-      .attr("title", "D3-Celestial")
-      .attr("version", 1.1)
-      .attr("xmlns", "http://www.w3.org/2000/svg");
-
-    var blob = new Blob([svg.node().outerHTML], {type:"image/svg+xml;charset=utf-8"});
-    
-    var a = d3.select("body").append("a").node(); 
-    a.download = fname || "d3-celestial.svg";
-    a.rel = "noopener";
-    a.href = URL.createObjectURL(blob);
-    a.click();
-    d3.select(a).remove();
-    d3.select("#d3-celestial-svg").remove();
-  });
-
-}
 var datetimepicker = function(cfg, callback) {
   var date = new Date(), 
       tzFormat = d3.time.format("%Z"),
