@@ -3265,7 +3265,7 @@ function geo(cfg) {
     if (!isNaN(lon) && !isNaN(lat)) {
       if (lat !== geopos[0] || lon !== geopos[1]) {
         geopos = [lat, lon];
-        setPosition([lat, lon]);
+        setPosition([lat, lon], true);
         return;
       }
       //if (!tz) tz = date.getTimezoneOffset();
@@ -3284,7 +3284,7 @@ function geo(cfg) {
   }
 
   
-  function setPosition(p) {
+  function setPosition(p, settime) {
     if (!p) return;
     var timestamp = Math.floor(date.getTime() / 1000),
         url = "http://api.timezonedb.com/v2.1/get-time-zone?key=AEFXZPQ3FDPF&format=json&by=position" + 
@@ -3294,15 +3294,20 @@ function geo(cfg) {
       if (error) return console.warn(error);
       if (json.status === "FAILED") {
         // Location at sea inferred from longitude
-        timeZone = Math.round(p[1] / 15) * 60;
+        timeZone = -Math.round(p[1] / 15) * 60;
         geoInfo = {
           gmtOffset: timeZone * 60,
           message: "Sea locatation inferred",
-          timestamp: timestamp
+          timestamp: timestamp + timeZone * 60
         };
-      } else
-        timeZone = json.gmtOffset / 60;
+      } else {
+        timeZone = -json.gmtOffset / 60;
         geoInfo = json;
+      }
+      if (settime) {
+        date.setTime(geoInfo.timestamp * 1000);
+        $("datetime").value = dateFormat(date, timeZone);
+      }
       go();
     }); 
   }
@@ -3333,7 +3338,7 @@ function geo(cfg) {
       geopos = loc.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
-      setPosition(geopos);
+      setPosition(geopos, true);
     }
   };
   //{"date":dt, "location":loc, "timezone":tz}
@@ -3354,8 +3359,10 @@ function geo(cfg) {
       geopos = cfg.location.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
-      setPosition(geopos);
-      return;
+      if (!has(cfg, "timezone")) { 
+        setPosition(geopos, !has(cfg, "date"));
+        return;
+      }
     }
     //Celestial.updateForm();
     if (valid === false) return {"date": date, "location": geopos, "timezone": timeZone};
@@ -4420,6 +4427,7 @@ function saveSVG(fname) {
   var background = svg.append('g'),
       grid = svg.append('g'),
       objects = svg.append('g'),
+      planets = svg.append('g'),
       foreground = svg.append('g');
 
   var graticule = d3.geo.graticule().minorStep([15,10]);
@@ -4691,7 +4699,7 @@ function saveSVG(fname) {
           jp = {type: "FeatureCollection", features: []},
           jlun = {type: "FeatureCollection", features: []};
       Celestial.container.selectAll(".planet").each(function(d) {
-        var id = d.id(), r = 6,
+        var id = d.id(), r = 12,
             p = d(dt).equatorial(o);
             
         p.ephemeris.pos = transformDeg(p.ephemeris.pos, euler[cfg.transform]);  //transform; 
@@ -4705,7 +4713,7 @@ function saveSVG(fname) {
       // Special case for Moon crescent
       if (jlun.features.length > 0) {
         if (cfg.planets.symbolType === "letter") {
-          objects.selectAll(".moon")
+          planets.selectAll(".moon")
            .data(jlun.features)
            .enter().append("text")
            .attr("transform", function(d) { return point(d.geometry.coordinates); })
@@ -4715,33 +4723,37 @@ function saveSVG(fname) {
            .style ( svgTextStyle(cfg.planets.symbolStyle) )
            .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
         } else {
-          objects.selectAll(".dmoon")
+          var rl = has(cfg.planets.symbols.lun, "size") ? cfg.planets.symbols.lun.size - 1 : 11; 
+          planets.selectAll(".dmoon")
             .data(jlun.features)
             .enter().append("path")
             .attr("class", "darkluna" )
             .style ( "fill", "#557" )
             .attr("transform", function(d) { return point(d.geometry.coordinates); })
-            .attr("d", function(d) { return d3.svg.symbol().type("circle").size(121)(); });        
-          objects.selectAll(".moon")
+            .attr("d", function(d) { return d3.svg.symbol().type("circle").size(rl*rl)(); });        
+          planets.selectAll(".moon")
             .data(jlun.features)
             .enter().append("path")
             .attr("class", "luna" )
             .style ( svgStyle(cfg.planets.symbolStyle) )
             .attr("transform", function(d) { return point(d.geometry.coordinates); })
-            .attr("d", function(d) { return moonSymbol(d.properties); });        
+            .attr("d", function(d) { return moonSymbol(d.properties, rl); });        
         }
       } 
       if (cfg.planets.symbolType === "disk") {
-        objects.selectAll(".planets")
+        planets.selectAll(".planets")
          .data(jp.features)
          .enter().append("path")
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
-         .attr("d", function(d) { return planetSymbol(d.properties); })
+         .attr("d", function(d) { 
+           var r = (has(cfg.planets.symbols[d.id], "size")) ? cfg.planets.symbols[d.id].size - 1 : null;
+           return planetSymbol(d.properties, r); 
+         })
          .attr("class", "planet")
          .style ( svgStyle(cfg.planets.symbolStyle) )
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
       } else {
-        objects.selectAll(".planets")
+        planets.selectAll(".planets")
          .data(jp.features)
          .enter().append("text")
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
@@ -4754,7 +4766,7 @@ function saveSVG(fname) {
         
       //name
       if (cfg.planets.names) {
-        objects.selectAll(".planetnames")
+        planets.selectAll(".planetnames")
          .data(jp.features)
          .enter().append("text")
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
@@ -4763,7 +4775,7 @@ function saveSVG(fname) {
          .style ( svgTextStyle(cfg.planets.nameStyle) )
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
         if (jlun.features.length > 0) {
-          objects.selectAll(".moonname")
+          planets.selectAll(".moonname")
            .data(jlun.features)
            .enter().append("text")
            .attr("transform", function(d) { return point(d.geometry.coordinates); })
@@ -4986,13 +4998,13 @@ function saveSVG(fname) {
     return d.properties[cfg.constellations.namesType]; 
   }
 
-  function moonSymbol(p) { 
-    //var size = planetSize(p.mag) || 2;
-    return d3.svg.customSymbol().type("crescent").size(121).ratio(p.age)();
+  function moonSymbol(p, r) { 
+    var size = r ? r*r : 121;
+    return d3.svg.customSymbol().type("crescent").size(size).ratio(p.age)();
   }
 
-  function planetSymbol(p) { 
-    var size = planetSize(p.mag) || 2;
+  function planetSymbol(p, r) { 
+    var size = r ? r*r : planetSize(p.mag);
     return d3.svg.symbol().type("circle").size(size)();
   }
 

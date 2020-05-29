@@ -171,7 +171,7 @@ function geo(cfg) {
     if (!isNaN(lon) && !isNaN(lat)) {
       if (lat !== geopos[0] || lon !== geopos[1]) {
         geopos = [lat, lon];
-        setPosition([lat, lon]);
+        setPosition([lat, lon], true);
         return;
       }
       //if (!tz) tz = date.getTimezoneOffset();
@@ -190,7 +190,7 @@ function geo(cfg) {
   }
 
   
-  function setPosition(p) {
+  function setPosition(p, settime) {
     if (!p) return;
     var timestamp = Math.floor(date.getTime() / 1000),
         url = "http://api.timezonedb.com/v2.1/get-time-zone?key=AEFXZPQ3FDPF&format=json&by=position" + 
@@ -200,15 +200,20 @@ function geo(cfg) {
       if (error) return console.warn(error);
       if (json.status === "FAILED") {
         // Location at sea inferred from longitude
-        timeZone = Math.round(p[1] / 15) * 60;
+        timeZone = -Math.round(p[1] / 15) * 60;
         geoInfo = {
           gmtOffset: timeZone * 60,
           message: "Sea locatation inferred",
-          timestamp: timestamp
+          timestamp: timestamp + timeZone * 60
         };
-      } else
-        timeZone = json.gmtOffset / 60;
+      } else {
+        timeZone = -json.gmtOffset / 60;
         geoInfo = json;
+      }
+      if (settime) {
+        date.setTime(geoInfo.timestamp * 1000);
+        $("datetime").value = dateFormat(date, timeZone);
+      }
       go();
     }); 
   }
@@ -239,7 +244,7 @@ function geo(cfg) {
       geopos = loc.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
-      setPosition(geopos);
+      setPosition(geopos, true);
     }
   };
   //{"date":dt, "location":loc, "timezone":tz}
@@ -260,8 +265,10 @@ function geo(cfg) {
       geopos = cfg.location.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
-      setPosition(geopos);
-      return;
+      if (!has(cfg, "timezone")) { 
+        setPosition(geopos, !has(cfg, "date"));
+        return;
+      }
     }
     //Celestial.updateForm();
     if (valid === false) return {"date": date, "location": geopos, "timezone": timeZone};
