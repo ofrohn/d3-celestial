@@ -310,43 +310,13 @@ function saveSVG(fname) {
             jp.features.push(createEntry(p));
         }
       });
-      // Special case for Moon crescent
-      if (jlun.features.length > 0) {
-        if (cfg.planets.symbolType === "letter") {
-          planets.selectAll(".moon")
-           .data(jlun.features)
-           .enter().append("text")
-           .attr("transform", function(d) { return point(d.geometry.coordinates); })
-           .text( function(d) { return d.properties.symbol; })
-           .attr("class", "luna")
-           .attr({dy: ".35em"})
-           .style ( svgTextStyle(cfg.planets.symbolStyle) )
-           .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
-        } else {
-          var rl = has(cfg.planets.symbols.lun, "size") ? cfg.planets.symbols.lun.size - 1 : 11; 
-          planets.selectAll(".dmoon")
-            .data(jlun.features)
-            .enter().append("path")
-            .attr("class", "darkluna" )
-            .style ( "fill", "#557" )
-            .attr("transform", function(d) { return point(d.geometry.coordinates); })
-            .attr("d", function(d) { return d3.svg.symbol().type("circle").size(rl*rl)(); });        
-          planets.selectAll(".moon")
-            .data(jlun.features)
-            .enter().append("path")
-            .attr("class", "luna" )
-            .style ( svgStyle(cfg.planets.symbolStyle) )
-            .attr("transform", function(d) { return point(d.geometry.coordinates); })
-            .attr("d", function(d) { return moonSymbol(d.properties, rl); });        
-        }
-      } 
       if (cfg.planets.symbolType === "disk") {
         planets.selectAll(".planets")
          .data(jp.features)
          .enter().append("path")
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .attr("d", function(d) { 
-           var r = (has(cfg.planets.symbols[d.id], "size")) ? cfg.planets.symbols[d.id].size - 1 : null;
+           var r = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
            return planetSymbol(d.properties, r); 
          })
          .attr("class", "planet")
@@ -363,6 +333,37 @@ function saveSVG(fname) {
          .style ( svgTextStyle(cfg.planets.symbolStyle) )
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
       }
+      // Special case for Moon crescent
+      if (jlun.features.length > 0) {
+        if (cfg.planets.symbolType === "letter") {
+          planets.selectAll(".moon")
+           .data(jlun.features)
+           .enter().append("text")
+           .attr("transform", function(d) { return point(d.geometry.coordinates); })
+           .text( function(d) { return d.properties.symbol; })
+           .attr("class", "luna")
+           .attr({dy: ".35em"})
+           .style ( svgTextStyle(cfg.planets.symbolStyle) )
+           .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
+        } else {
+          var rl = has(cfg.planets.symbols.lun, "size") ? (cfg.planets.symbols.lun.size - 1) * adapt : 11 * adapt; 
+          planets.selectAll(".dmoon")
+            .data(jlun.features)
+            .enter().append("path")
+            .attr("class", "darkluna" )
+            .style ( "fill", "#557" )
+            .attr("transform", function(d) { return point(d.geometry.coordinates); })
+            .attr("d", function(d) { return d3.svg.symbol().type("circle").size(rl*rl)(); });        
+          planets.selectAll(".moon")
+            .data(jlun.features)
+            .enter().append("path")
+            .attr("class", "luna" )
+            .style ( svgStyle(cfg.planets.symbolStyle) )
+            .attr("transform", function(d) { return point(d.geometry.coordinates); })
+            .attr("d", function(d) { return moonSymbol(d.properties, rl); })
+            .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
+        }
+      } 
         
       //name
       if (cfg.planets.names) {

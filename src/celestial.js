@@ -1,6 +1,6 @@
 /* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.16',
+  version: '0.7.17',
   container: null,
   data: []
 };
@@ -576,7 +576,7 @@ Celestial.display = function(config) {
       var dt = Celestial.date(),
           o = Celestial.origin(dt).spherical();
       container.selectAll(".planet").each(function(d) {
-        var id = d.id(), r = 12,
+        var id = d.id(), r = 12 * adapt,
             p = d(dt).equatorial(o),
             pos = transformDeg(p.ephemeris.pos, euler[cfg.transform]);  //transform; 
         if (clip(pos)) {
@@ -587,10 +587,10 @@ Celestial.display = function(config) {
             context.fillStyle = sym.fill;
             context.fillText(sym.letter, pt[0], pt[1]);
           } else if (id === "lun") {
-            if (has(sym, "size") && isNumber(sym.size)) r = sym.size;
+            if (has(sym, "size") && isNumber(sym.size)) r = sym.size * adapt;
             Canvas.symbol().type("crescent").size(r*r).age(p.ephemeris.age).position(pt)(context);
           } else if (cfg.planets.symbolType === "disk") {
-            r = has(sym, "size") && isNumber(sym.size) ? sym.size : planetSize(p.ephemeris);
+            r = has(sym, "size") && isNumber(sym.size) ? sym.size * adapt : planetSize(p.ephemeris);
             context.fillStyle = sym.fill;
             Canvas.symbol().type("circle").size(r*r).position(pt)(context);
             context.fill();
