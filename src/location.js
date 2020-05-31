@@ -238,13 +238,14 @@ function geo(cfg) {
     go();
   };
   Celestial.position = function () { return geopos; };
-  Celestial.location = function (loc) {
+  Celestial.location = function (loc, tz) {
     if (!loc || loc.length < 2) return geopos;
     if (isValidLocation(loc)) {
       geopos = loc.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
-      setPosition(geopos, true);
+      if (tz && isNumber(tz) && Math.abs(tz) <= 840) timeZone = tz;
+      else setPosition(geopos, true);
     }
   };
   //{"date":dt, "location":loc, "timezone":tz}
@@ -252,7 +253,7 @@ function geo(cfg) {
     if (!cfg) return {"date": date, "location": geopos, "timezone": timeZone};
     var valid = false;
     if (dtpick.isVisible()) dtpick.hide();
-    if (has(cfg, "timezone") && isNumber(cfg.timezone) && Math.abs(cfg.timezone) <= 14) {
+    if (has(cfg, "timezone") && isNumber(cfg.timezone) && Math.abs(cfg.timezone) <= 840) {
       timeZone = cfg.timezone;
       valid = true;
     }

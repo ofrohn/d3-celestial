@@ -337,26 +337,28 @@ __Exposed functions__
    Just redraw the whole map. 
 
 * `Celestial.reload(config)`  
-   Load all the data and redraw the whole map. 
-   Optional _config_: change any configuration parameter before reloading 
+   Load all the data and redraw the whole map.  
+   Optional _config_: change any configuration parameter before reloading  
 
 * `Celestial.reproject({projection:<see above>})`  
-   Change the map projection. 
-   _projection_: new projection to set
+   Change the map projection.  
+   _projection_: new projection to set  
 
 * `Celestial.date(<date object>, timezone)`  
    Change the set date, return current date w/o parameter.  
    _date_: javascript date-object  
-   _timezone_: offset from UTC in minutes  
+   _timezone_: offset from UTC in minutes (optional)  
   
 * `Celestial.location([lat, lon])`  
-   Change the set geolocation, return current location w/o parameter.  
+   Change the current geolocation and set the time zone automatically, 
+   called w/o parameter returns current location  
    _location_: [latitude, longitude] array in degrees  
 
 * `Celestial.skyview({date:<date object>, location:[lat, lon], timezone: offset})`  
-   Show the current celestial view for one specific date and/or location, 
-   independent of form fields, both parameters are optional  
-   called w/o parameter returns {date, location} in same format.  
+   Show the current celestial view for one specific date and/or location,  
+   independent of form fields, all parameters are optional  
+   if location and no time zone is given, sets time zone automatically
+   called w/o parameter returns {date, location, timezone} in same format.  
    _date_: javascript date-object  
    _location_: [latitude, longitude] array in degrees  
    _timezone_: offset from UTC in minutes  
