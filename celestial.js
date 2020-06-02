@@ -1674,7 +1674,7 @@ var settings = {
 
     if (has(cfg, "dsos")) {
       // names, desig -> namesType
-      if (has(cfg.dsos, "names") && cfg.dsos.names === true) res.dsos.namesType = "name";
+      //if (has(cfg.dsos, "names") && cfg.dsos.names === true) res.dsos.namesType = "name";
       if (has(cfg.dsos, "desig") && cfg.dsos.desig === true) res.dsos.namesType = "desig";
       if (has(cfg.dsos, "namelimit")) res.dsos.nameLimit = cfg.dsos.namelimit;
       if (has(cfg.dsos, "namestyle")) Object.assign(res.dsos.nameStyle, cfg.dsos.namestyle);    
