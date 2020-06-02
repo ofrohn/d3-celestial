@@ -107,8 +107,8 @@ Canvas.symbol = function () {
           ph = 0.5 * (1 - Math.cos(ag)),
           e = 1.6 * Math.abs(ph - 0.5) + 0.01,
           dir = ag > Math.PI,
-          termdir = Math.abs(ph) > 0.5 ? dir : !dir; 
-
+          termdir = Math.abs(ph) > 0.5 ? dir : !dir,
+          moonFill = ctx.fillStyle;
       ctx.save();
       ctx.fillStyle = "#557";
       ctx.beginPath();
@@ -116,7 +116,7 @@ Canvas.symbol = function () {
       ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    
       ctx.closePath();
       ctx.fill();
-      ctx.fillStyle = "#eee";
+      ctx.fillStyle = moonFill;
       ctx.beginPath();
       ctx.moveTo(pos[0], pos[1]);
       ctx.arc(pos[0], pos[1], r, -Math.PI/2, Math.PI/2, dir); 

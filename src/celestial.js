@@ -567,7 +567,7 @@ Celestial.display = function(config) {
             setTextStyle(cfg.dsos.nameStyle);
             if (cfg.dsos.colors === true) context.fillStyle = cfg.dsos.symbols[type].fill;
             context.fillText(dsoName(d), pt[0]+r, pt[1]-r);      
-          }         
+          }
         }
       });
     }
@@ -588,6 +588,7 @@ Celestial.display = function(config) {
             context.fillText(sym.letter, pt[0], pt[1]);
           } else if (id === "lun") {
             if (has(sym, "size") && isNumber(sym.size)) r = sym.size * adapt;
+            context.fillStyle = sym.fill;
             Canvas.symbol().type("crescent").size(r*r).age(p.ephemeris.age).position(pt)(context);
           } else if (cfg.planets.symbolType === "disk") {
             r = has(sym, "size") && isNumber(sym.size) ? sym.size * adapt : planetSize(p.ephemeris);
