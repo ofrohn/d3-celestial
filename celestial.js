@@ -3302,8 +3302,8 @@ function geo(cfg) {
     if (!p || !has(config, "settimezone") || config.settimezone === false) return;
     var timestamp = Math.floor(date.getTime() / 1000),
         url = "http://api.timezonedb.com/v2.1/get-time-zone?key=" + config.timezoneid + "&format=json&by=position" + 
-              "&lat=" + p[0] + "&lng=" + p[1] + "&time=" + timestamp,
-        oldZone = timeZone;
+              "&lat=" + p[0] + "&lng=" + p[1] + "&time=" + timestamp;
+       // oldZone = timeZone;
 
     d3.json(url, function(error, json) { 
       if (error) return console.warn(error);
