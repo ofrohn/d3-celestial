@@ -7,7 +7,7 @@ function geo(cfg) {
       zenith = [0,0],
       geopos = [0,0], 
       date = new Date(),
-      localZone = date.getTimezoneOffset(),
+      localZone = -date.getTimezoneOffset(),
       timeZone = localZone,
       config = settings.set(cfg),
       frm = d3.select("#celestial-form form").insert("div", "div#general").attr("id", "loc");
@@ -120,7 +120,7 @@ function geo(cfg) {
   }
   
   function showpick() {
-    dtpick.show(date);
+    dtpick.show(date, timeZone);
   }
   
   function dateFormat(dt, tz) {
@@ -129,7 +129,7 @@ function geo(cfg) {
     else {
       var h = Math.floor(Math.abs(tz) / 60),
           m = Math.abs(tz) - (h * 60),
-          s = tz < 0 ? " +" : " −";
+          s = tz > 0 ? " +" : " −";
       tzs = s + pad(h) + pad(m);
     }
     return dtFormat(dt) + tzs;
@@ -144,6 +144,12 @@ function geo(cfg) {
     return true;
   }
 
+  function isValidTimezone(tz) {
+    if (tz === undefined || tz === null) return false;
+    if (!isNumber(tz) && Math.abs(tz) > 840) return false;
+    return true;    
+  }
+  
   function apply() {
     Object.assign(config, settings.set());
     config.horizon.show = !!$("horizon-show").checked;
@@ -177,7 +183,7 @@ function geo(cfg) {
       //if (!tz) tz = date.getTimezoneOffset();
       $("datetime").value = dateFormat(date, timeZone); 
 
-      var dtc = new Date(date.valueOf() + (localZone - timeZone) * 60000);
+      var dtc = new Date(date.valueOf() - (timeZone - localZone) * 60000);
 
       zenith = Celestial.getPoint(horizontal.inverse(dtc, [90, 0], geopos), config.transform);
       zenith[2] = 0;
@@ -194,26 +200,28 @@ function geo(cfg) {
     if (!p) return;
     var timestamp = Math.floor(date.getTime() / 1000),
         url = "http://api.timezonedb.com/v2.1/get-time-zone?key=AEFXZPQ3FDPF&format=json&by=position" + 
-              "&lat=" + p[0] + "&lng=" + p[1] + "&time=" + timestamp;
+              "&lat=" + p[0] + "&lng=" + p[1] + "&time=" + timestamp,
+        oldZone = timeZone;
 
     d3.json(url, function(error, json) { 
       if (error) return console.warn(error);
       if (json.status === "FAILED") {
         // Location at sea inferred from longitude
-        timeZone = -Math.round(p[1] / 15) * 60;
+        timeZone = Math.round(p[1] / 15) * 60;
         geoInfo = {
           gmtOffset: timeZone * 60,
           message: "Sea locatation inferred",
-          timestamp: timestamp + timeZone * 60
+          timestamp: timestamp
         };
       } else {
-        timeZone = -json.gmtOffset / 60;
+        timeZone = json.gmtOffset / 60;
         geoInfo = json;
       }
-      if (settime) {
-        date.setTime(geoInfo.timestamp * 1000);
-        $("datetime").value = dateFormat(date, timeZone);
-      }
+      //if (settime) {
+        //date.setTime(timestamp * 1000); // - (timeZone - oldZone) * 60000);
+        //console.log(date.toUTCString());
+      //}
+      $("datetime").value = dateFormat(date, timeZone);
       go();
     }); 
   }
@@ -222,7 +230,7 @@ function geo(cfg) {
   
   Celestial.date = function (dt, tz) { 
     if (!dt) return date;  
-    timeZone = tz || timeZone;
+    if (isValidTimezone(tz)) timeZone = tz;
     Object.assign(config, settings.set());
     if (dtpick.isVisible()) dtpick.hide();
     date.setTime(dt.valueOf());
@@ -231,7 +239,7 @@ function geo(cfg) {
   };
   Celestial.timezone = function (tz) { 
     if (!tz) return timeZone;  
-    timeZone = tz || timeZone;
+    if (isValidTimezone(tz)) timeZone = tz;
     Object.assign(config, settings.set());
     if (dtpick.isVisible()) dtpick.hide();
     $("datetime").value = dateFormat(date, timeZone); 
@@ -244,7 +252,7 @@ function geo(cfg) {
       geopos = loc.slice();
       $("lat").value = geopos[0];
       $("lon").value = geopos[1];
-      if (tz && isNumber(tz) && Math.abs(tz) <= 840) timeZone = tz;
+      if (isValidTimezone(tz)) timeZone = tz;
       else setPosition(geopos, true);
     }
   };
@@ -253,7 +261,7 @@ function geo(cfg) {
     if (!cfg) return {"date": date, "location": geopos, "timezone": timeZone};
     var valid = false;
     if (dtpick.isVisible()) dtpick.hide();
-    if (has(cfg, "timezone") && isNumber(cfg.timezone) && Math.abs(cfg.timezone) <= 840) {
+    if (has(cfg, "timezone") && isValidTimezone(cfg.timezone)) {
       timeZone = cfg.timezone;
       valid = true;
     }
