@@ -1484,6 +1484,7 @@ var settings = {
   daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
                       // [yr, n<100]: [yr-n, yr+n]; [yr0, yr1]
   settimezone: true,  // Automatcally set time zone when geolocation changes
+  timezoneid: "AEFXZPQ3FDPF", // Account ID for TimeZoneDB service, please get your own
   controls: true,     // Display zoom controls
   lang: "",           // Global language override for names, any name setting that has the chosen language available
                       // Default: desig or empty string for designations, other languages as used anywhere else
@@ -3297,9 +3298,9 @@ function geo(cfg) {
 
   
   function setPosition(p, settime) {
-    if (!p) return;
+    if (!p || !has(config, "settimezone") || config.settimezone === false) return;
     var timestamp = Math.floor(date.getTime() / 1000),
-        url = "http://api.timezonedb.com/v2.1/get-time-zone?key=AEFXZPQ3FDPF&format=json&by=position" + 
+        url = "http://api.timezonedb.com/v2.1/get-time-zone?key=" + config.timezoneid + "&format=json&by=position" + 
               "&lat=" + p[0] + "&lng=" + p[1] + "&time=" + timestamp,
         oldZone = timeZone;
 
