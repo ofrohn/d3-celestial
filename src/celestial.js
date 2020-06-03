@@ -1,4 +1,4 @@
-/* global module, require, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
+/* global module, require, topojson, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
   version: '0.7.18',
   container: null,
@@ -184,11 +184,12 @@ Celestial.display = function(config) {
     //Constellation boundaries
     d3.json(path + filename("constellations", "bounds"), function(error, json) {
       if (error) return console.warn(error);
-
-      var conb = getData(json, cfg.transform);
+      
+      //var cb = getData(topojson.feature(json, json.objects.constellations_bounds), cfg.transform);
+      var cb = getData(json, cfg.transform);
       
       container.selectAll(".bounds")
-         .data(conb.features)
+         .data(cb.features)
          .enter().append("path")
          .attr("class", "boundaryline");
       redraw();
@@ -498,7 +499,8 @@ Celestial.display = function(config) {
       container.selectAll(".boundaryline").each(function(d) { 
         setStyle(cfg.constellations.boundStyle); 
         if (Celestial.constellation && Celestial.constellation === d.id) {
-          context.lineWidth *= 1.5;
+          context.lineWidth *= 2;
+          context.globalAlpha = 1;
           context.setLineDash([]);
         }
         map(d); 
@@ -760,10 +762,11 @@ Celestial.display = function(config) {
     else { mapProjection.clipAngle(null); }        
   }
   
-  function filename(what, sub) {
-    var ext = (has(formats[what], culture)) ? "." + culture : "";
+  function filename(what, sub, ext) {
+    var cult = (has(formats[what], culture)) ? "." + culture : "";
+    ext = ext ? "." + ext : ".json";
     sub = sub ? "." + sub : "";
-    return what + ext + sub + ".json";
+    return what + cult + sub + ext;
   }
   
   function dsoDisplay(prop, limit) {

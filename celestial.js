@@ -185,11 +185,12 @@ Celestial.display = function(config) {
     //Constellation boundaries
     d3.json(path + filename("constellations", "bounds"), function(error, json) {
       if (error) return console.warn(error);
-
-      var conb = getData(json, cfg.transform);
+      
+      //var cb = getData(topojson.feature(json, json.objects.constellations_bounds), cfg.transform);
+      var cb = getData(json, cfg.transform);
       
       container.selectAll(".bounds")
-         .data(conb.features)
+         .data(cb.features)
          .enter().append("path")
          .attr("class", "boundaryline");
       redraw();
@@ -499,7 +500,8 @@ Celestial.display = function(config) {
       container.selectAll(".boundaryline").each(function(d) { 
         setStyle(cfg.constellations.boundStyle); 
         if (Celestial.constellation && Celestial.constellation === d.id) {
-          context.lineWidth *= 1.5;
+          context.lineWidth *= 2;
+          context.globalAlpha = 1;
           context.setLineDash([]);
         }
         map(d); 
@@ -761,10 +763,11 @@ Celestial.display = function(config) {
     else { mapProjection.clipAngle(null); }        
   }
   
-  function filename(what, sub) {
-    var ext = (has(formats[what], culture)) ? "." + culture : "";
+  function filename(what, sub, ext) {
+    var cult = (has(formats[what], culture)) ? "." + culture : "";
+    ext = ext ? "." + ext : ".json";
     sub = sub ? "." + sub : "";
-    return what + ext + sub + ".json";
+    return what + cult + sub + ext;
   }
   
   function dsoDisplay(prop, limit) {
@@ -1548,13 +1551,13 @@ var settings = {
     namesType: "desig",   // What kind of name to show (default 3 letter designations) all options: name, desig, 
                          // lat, en, ar, cn, cz, ee, fi, fr, de, gr, il, it, jp, kr, in, ir, ru, es, tr 
     nameStyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8, 
-		             font: ["14px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // Different fonts for brighter &
-								        "12px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // darker constellations
-												"11px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"]},
+                 font: ["14px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // Different fonts for brighter &
+                        "12px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // darker constellations
+                        "11px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"]},
     lines: true,   // Show constellation lines 
     lineStyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries 
-    boundStyle: { stroke: "#ccff00", width: 1, opacity: 0.8, dash: [2, 6] }
+    boundStyle: { stroke: "#ccff00", width: 0.5, opacity: 0.8, dash: [] }
   },
   mw: {
     show: true,    // Show Milky Way as filled polygons 
