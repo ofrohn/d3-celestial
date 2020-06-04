@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.18',
+  version: '0.7.19',
   container: null,
   data: []
 };
@@ -4438,8 +4438,9 @@ function saveSVG(fname) {
 
   if (proj.clip) {
     projection.clipAngle(90);
-    circle = d3.geo.circle().angle([179.95]).origin(center);
   }
+    circle = d3.geo.circle().angle([179.95]).origin(center);
+  //}
 
   svg.attr("width", m.width).attr("height", m.height);
   // .attr("viewBox", " 0 0 " + (m.width) + " " + (m.height));
@@ -4456,11 +4457,11 @@ function saveSVG(fname) {
 
   var q = d3.queue(2);
   
-  if (circle) {
+  //if (circle) {
     background.append("path").datum(circle).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
-  } else {
-    background.append("path").datum(graticule.outline).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
-  }
+  //} else {
+  //  background.append("path").datum(graticule.outline).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
+  //}
   
   if (cfg.lines.graticule.show) {
     if (cfg.transform === "equatorial") {
@@ -4507,7 +4508,7 @@ function saveSVG(fname) {
   //Milky way outline
   if (cfg.mw.show) {
     q.defer(function(callback) { 
-      d3.json(path + "mw.json", function(error, json) {
+      d3.json(path + "milkyway.json", function(error, json) {
         if (error) callback(error);
         var mw = getData(json, cfg.transform);
         var mw_back = getMwbackground(mw);
@@ -4519,7 +4520,7 @@ function saveSVG(fname) {
          .style( svgStyle(cfg.mw.style) )
          .attr("d", map);
 
-        background.selectAll(".mwaybg")
+       background.selectAll(".mwaybg")
          .data(mw_back.features)
          .enter().append("path")
          .attr("class", "mwbg")
