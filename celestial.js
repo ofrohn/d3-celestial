@@ -4457,12 +4457,8 @@ function saveSVG(fname) {
 
   var q = d3.queue(2);
   
-  //if (circle) {
-    background.append("path").datum(circle).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
-  //} else {
-  //  background.append("path").datum(graticule.outline).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
-  //}
-  
+  background.append("path").datum(circle).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
+
   if (cfg.lines.graticule.show) {
     if (cfg.transform === "equatorial") {
       grid.append("path").datum(graticule)
@@ -4508,7 +4504,7 @@ function saveSVG(fname) {
   //Milky way outline
   if (cfg.mw.show) {
     q.defer(function(callback) { 
-      d3.json(path + "milkyway.json", function(error, json) {
+      d3.json(path + "mw.json", function(error, json) {
         if (error) callback(error);
         var mw = getData(json, cfg.transform);
         var mw_back = getMwbackground(mw);
@@ -4577,12 +4573,14 @@ function saveSVG(fname) {
 
   // Map border
   q.defer(function(callback) {
-    var outline = circle ? circle : graticule.outline;
+    var rot = projection.rotate();
+    projection.rotate([0,0,0]);
     objects.append("path")
-     .datum(outline)
+     .datum(graticule.outline)
      .attr("class", "outline")
      .style({"fill": "none", "stroke": cfg.background.stroke, "stroke-width": cfg.background.width, "stroke-opacity": 1, "stroke-dasharray": "none" })
      .attr("d", map);
+    projection.rotate(rot);
     callback(null);
   });  
   
