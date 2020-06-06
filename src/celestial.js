@@ -1,6 +1,6 @@
 /* global module, require, topojson, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.19',
+  version: '0.7.20',
   container: null,
   data: []
 };
@@ -182,7 +182,7 @@ Celestial.display = function(config) {
     });
 
     //Constellation boundaries
-    d3.json(path + filename("constellations", "bounds"), function(error, json) {
+    d3.json(path + filename("constellations", "borders"), function(error, json) {
       if (error) return console.warn(error);
       
       //var cb = getData(topojson.feature(json, json.objects.constellations_bounds), cfg.transform);
@@ -498,8 +498,8 @@ Celestial.display = function(config) {
     if (cfg.constellations.bounds) { 
       container.selectAll(".boundaryline").each(function(d) { 
         setStyle(cfg.constellations.boundStyle); 
-        if (Celestial.constellation && Celestial.constellation === d.id) {
-          context.lineWidth *= 2;
+        if (Celestial.constellation && d.ids.search(Celestial.constellation) !== -1) {
+          context.lineWidth *= 1.5;
           context.globalAlpha = 1;
           context.setLineDash([]);
         }

@@ -94,7 +94,7 @@ var settings = {
     lines: true,   // Show constellation lines 
     lineStyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries 
-    boundStyle: { stroke: "#ccff00", width: 0.5, opacity: 0.8, dash: [] }
+    boundStyle: { stroke: "#ccff00", width: 0.5, opacity: 0.8, dash: [4,4] }
   },
   mw: {
     show: true,    // Show Milky Way as filled polygons 

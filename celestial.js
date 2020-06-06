@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.19',
+  version: '0.7.20',
   container: null,
   data: []
 };
@@ -183,7 +183,7 @@ Celestial.display = function(config) {
     });
 
     //Constellation boundaries
-    d3.json(path + filename("constellations", "bounds"), function(error, json) {
+    d3.json(path + filename("constellations", "borders"), function(error, json) {
       if (error) return console.warn(error);
       
       //var cb = getData(topojson.feature(json, json.objects.constellations_bounds), cfg.transform);
@@ -499,8 +499,8 @@ Celestial.display = function(config) {
     if (cfg.constellations.bounds) { 
       container.selectAll(".boundaryline").each(function(d) { 
         setStyle(cfg.constellations.boundStyle); 
-        if (Celestial.constellation && Celestial.constellation === d.id) {
-          context.lineWidth *= 2;
+        if (Celestial.constellation && d.ids.search(Celestial.constellation) !== -1) {
+          context.lineWidth *= 1.5;
           context.globalAlpha = 1;
           context.setLineDash([]);
         }
@@ -1557,7 +1557,7 @@ var settings = {
     lines: true,   // Show constellation lines 
     lineStyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries 
-    boundStyle: { stroke: "#ccff00", width: 0.5, opacity: 0.8, dash: [] }
+    boundStyle: { stroke: "#ccff00", width: 0.5, opacity: 0.8, dash: [4,4] }
   },
   mw: {
     show: true,    // Show Milky Way as filled polygons 
