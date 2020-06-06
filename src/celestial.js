@@ -1,6 +1,6 @@
 /* global module, require, topojson, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.20',
+  version: '0.7.21',
   container: null,
   data: []
 };
@@ -498,10 +498,13 @@ Celestial.display = function(config) {
     if (cfg.constellations.bounds) { 
       container.selectAll(".boundaryline").each(function(d) { 
         setStyle(cfg.constellations.boundStyle); 
-        if (Celestial.constellation && d.ids.search(Celestial.constellation) !== -1) {
-          context.lineWidth *= 1.5;
-          context.globalAlpha = 1;
-          context.setLineDash([]);
+        if (Celestial.constellation) {
+          var re = new RegExp("\\b" + Celestial.constellation + "\\b");
+          if (d.ids.search(re) !== -1) {
+            context.lineWidth *= 1.5;
+            context.globalAlpha = 1;
+            context.setLineDash([]);
+          }
         }
         map(d); 
         context.stroke(); 
@@ -766,7 +769,7 @@ Celestial.display = function(config) {
     var cult = (has(formats[what], culture)) ? "." + culture : "";
     ext = ext ? "." + ext : ".json";
     sub = sub ? "." + sub : "";
-    return what + cult + sub + ext;
+    return what + sub + cult + ext;
   }
   
   function dsoDisplay(prop, limit) {
