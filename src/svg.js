@@ -112,16 +112,25 @@ function saveSVG(fname) {
   //Constellation boundaries
   if (cfg.constellations.bounds) { 
     q.defer(function(callback) { 
-      d3.json(path + filename("constellations", "bounds"), function(error, json) {
+      d3.json(path + filename("constellations", "borders"), function(error, json) {
         if (error) callback(error);
 
         var conb = getData(json, cfg.transform);
-   
+        if (Celestial.constellation) {
+          var re = new RegExp("\\b" + Celestial.constellation + "\\b");
+        }
+
         grid.selectAll(".bounds")
          .data(conb.features)
          .enter().append("path")
          .attr("class", "boundaryline")
-         .style( svgStyle(cfg.constellations.boundStyle) )
+         .style({
+            "fill": "none",
+            "stroke": function(d) { return cfg.constellations.boundStyle.stroke; }, 
+            "stroke-width": function(d) { return (Celestial.constellation && d.ids.search(re) !== -1) ? cfg.constellations.boundStyle.width * 1.5 : cfg.constellations.boundStyle.width; },
+            "stroke-opacity": function(d) { return (Celestial.constellation && d.ids.search(re) !== -1) ? 1 : cfg.constellations.boundStyle.opacity; },
+            "stroke-dasharray": function(d) { return (Celestial.constellation && d.ids.search(re) !== -1) ? "none" : cfg.constellations.boundStyle.dash.join(" "); }
+         })
          .attr("d", map);
         callback(null);
       });
@@ -449,10 +458,11 @@ function saveSVG(fname) {
     return "translate(" + projection(coords) + ")";
   }
     
-  function filename(what, sub) {
-    var ext = (has(formats[what], culture)) ? "." + culture : "";
+  function filename(what, sub, ext) {
+    var cult = (has(formats[what], culture)) ? "." + culture : "";
+    ext = ext ? "." + ext : ".json";
     sub = sub ? "." + sub : "";
-    return what + ext + sub + ".json";
+    return what + sub + cult + ext;
   }
 
   function svgStyle(s) {
