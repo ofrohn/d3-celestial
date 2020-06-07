@@ -4784,7 +4784,7 @@ function saveSVG(fname) {
             .attr("class", "darkluna" )
             .style ( "fill", "#557" )
             .attr("transform", function(d) { return point(d.geometry.coordinates); })
-            .attr("d", function(d) { return d3.svg.symbol().type("circle").size(rl*rl)(); });        
+            .attr("d", function(d) { return d3.svg.symbol().type("circle").size(rl*rl)(); });
           planets.selectAll(".moon")
             .data(jlun.features)
             .enter().append("path")
