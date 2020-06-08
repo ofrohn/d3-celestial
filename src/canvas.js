@@ -108,9 +108,10 @@ Canvas.symbol = function () {
           e = 1.6 * Math.abs(ph - 0.5) + 0.01,
           dir = ag > Math.PI,
           termdir = Math.abs(ph) > 0.5 ? dir : !dir,
-          moonFill = ctx.fillStyle;
+          moonFill = ctx.fillStyle,
+          darkFill = ph < 0.157 ? "#669" : "#557";
       ctx.save();
-      ctx.fillStyle = "#557";
+      ctx.fillStyle = darkFill;
       ctx.beginPath();
       ctx.moveTo(pos[0], pos[1]);
       ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    

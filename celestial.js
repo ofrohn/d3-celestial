@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.22',
+  version: '0.7.23',
   container: null,
   data: []
 };
@@ -2073,9 +2073,10 @@ Canvas.symbol = function () {
           e = 1.6 * Math.abs(ph - 0.5) + 0.01,
           dir = ag > Math.PI,
           termdir = Math.abs(ph) > 0.5 ? dir : !dir,
-          moonFill = ctx.fillStyle;
+          moonFill = ctx.fillStyle,
+          darkFill = ph < 0.157 ? "#669" : "#557";
       ctx.save();
-      ctx.fillStyle = "#557";
+      ctx.fillStyle = darkFill;
       ctx.beginPath();
       ctx.moveTo(pos[0], pos[1]);
       ctx.arc(pos[0], pos[1], r, 0, 2 * Math.PI);    
@@ -4782,7 +4783,7 @@ function saveSVG(fname) {
             .data(jlun.features)
             .enter().append("path")
             .attr("class", "darkluna" )
-            .style ( "fill", "#557" )
+            .style ( "fill", function (d) { return d.properties.phase < 0.157 ? "#669" : "#557"; })
             .attr("transform", function(d) { return point(d.geometry.coordinates); })
             .attr("d", function(d) { return d3.svg.symbol().type("circle").size(rl*rl)(); });
           planets.selectAll(".moon")
@@ -5053,8 +5054,10 @@ function saveSVG(fname) {
     if (cfg.planets.symbolType === "symbol" || cfg.planets.symbolType === "letter")
       res.properties.symbol = cfg.planets.symbols[res.id][cfg.planets.symbolType];
     res.properties.mag = o.ephemeris.mag || 10;
-    if (res.id === "lun")
+    if (res.id === "lun") {
       res.properties.age = o.ephemeris.age;
+      res.properties.phase = o.ephemeris.phase;
+    }
     res.geometry.type = "Point";
     res.geometry.coordinates = o.ephemeris.pos;
     return res;

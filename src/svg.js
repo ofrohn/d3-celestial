@@ -359,7 +359,7 @@ function saveSVG(fname) {
             .data(jlun.features)
             .enter().append("path")
             .attr("class", "darkluna" )
-            .style ( "fill", "#557" )
+            .style ( "fill", function (d) { return d.properties.phase < 0.157 ? "#669" : "#557"; })
             .attr("transform", function(d) { return point(d.geometry.coordinates); })
             .attr("d", function(d) { return d3.svg.symbol().type("circle").size(rl*rl)(); });
           planets.selectAll(".moon")
@@ -630,8 +630,10 @@ function saveSVG(fname) {
     if (cfg.planets.symbolType === "symbol" || cfg.planets.symbolType === "letter")
       res.properties.symbol = cfg.planets.symbols[res.id][cfg.planets.symbolType];
     res.properties.mag = o.ephemeris.mag || 10;
-    if (res.id === "lun")
+    if (res.id === "lun") {
       res.properties.age = o.ephemeris.age;
+      res.properties.phase = o.ephemeris.phase;
+    }
     res.geometry.type = "Point";
     res.geometry.coordinates = o.ephemeris.pos;
     return res;
