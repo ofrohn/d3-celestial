@@ -1,4 +1,4 @@
-/* global Celestial, settings, globalConfig, formats, formats_all, $, px, has, isNumber, isObject, isArray, findPos, transformDeg, euler, saveSVG */
+/* global Celestial, settings, globalConfig, formats, formats_all, $, px, has, isNumber, isObject, isArray, findPos, transformDeg, euler, exportSVG */
 
 //display settings form in div with id "celestial-form"
 function form(cfg) {
@@ -296,7 +296,7 @@ function form(cfg) {
   });
 
   col.append("input").attr("type", "button").attr("id", "download-svg").attr("value", "SVG File").on("click", function() {
-    saveSVG(getFilename(".svg")); 
+    exportSVG(getFilename(".svg")); 
     return false;
   });
 

@@ -5,7 +5,7 @@
     "maxerr"        : 50,       // {int} Maximum error before stopping
 
     // Enforcing
-    "bitwise"       : true,     // true: Prohibit bitwise operators (&, |, ^, etc.)
+    "bitwise"       : false,     // true: Prohibit bitwise operators (&, |, ^, etc.)
     "camelcase"     : false,    // true: Identifiers must be in camelCase
     "curly"         : false,     // true: Require {} for every new block or scope
     "eqeqeq"        : false,     // true: Require triple equals (===) for comparison

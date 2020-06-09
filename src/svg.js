@@ -1,5 +1,5 @@
 /* global d3, Celestial, projections, poles, getData, getPlanet, getMwbackground, getAngles, getWidth, getGridValues, has, isArray, halfπ, symbols, starnames, dsonames, bvcolor, settings, formats, transformDeg, euler, halfπ */
-function saveSVG(fname) {
+function exportSVG(fname) {
   var doc = d3.select("body").append("div").attr("id", "d3-celestial-svg").attr("style", "display: none"),
       svg = d3.select("#d3-celestial-svg").append("svg"), //.attr("style", "display: none"),
       m = Celestial.metrics(),
@@ -646,16 +646,19 @@ function saveSVG(fname) {
       .attr("title", "D3-Celestial")
       .attr("version", 1.1)
       .attr("xmlns", "http://www.w3.org/2000/svg");
-
-    var blob = new Blob([svg.node().outerHTML], {type:"image/svg+xml;charset=utf-8"});
+    if (fname) {
+      var blob = new Blob([svg.node().outerHTML], {type:"image/svg+xml;charset=utf-8"});
     
-    var a = d3.select("body").append("a").node(); 
-    a.download = fname || "d3-celestial.svg";
-    a.rel = "noopener";
-    a.href = URL.createObjectURL(blob);
-    a.click();
-    d3.select(a).remove();
-    d3.select("#d3-celestial-svg").remove();
+      var a = d3.select("body").append("a").node(); 
+      a.download = fname || "d3-celestial.svg";
+      a.rel = "noopener";
+      a.href = URL.createObjectURL(blob);
+      a.click();
+      d3.select(a).remove();
+      d3.select("#d3-celestial-svg").remove();
+    } else {
+      return svg.node().outerHTML;
+    }
   });
 
 }

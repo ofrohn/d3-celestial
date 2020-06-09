@@ -110,3 +110,83 @@ var Trig = {
     return Math.acos(Math.sin(p1[1])*Math.sin(p2[1]) + Math.cos(p1[1])*Math.cos(p2[1])*Math.cos(p1[0]-p2[0]));
   }
 };
+
+var epsilon = 1e-6, 
+    halfPi =  Math.PI / 2, 
+    quarterPi =  Math.PI / 4, 
+    tau =  Math.PI * 2;
+    
+function cartesian(spherical) {
+  var lambda = spherical[0], phi = spherical[1], cosPhi = Math.cos(phi);
+  return [cosPhi * Math.cos(lambda), cosPhi * Math.sin(lambda), Math.sin(phi)];
+}
+
+function cartesianCross(a, b) {
+  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+}
+
+function cartesianNormalizeInPlace(d) {
+  var l = Math.sqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
+  d[0] /= l; d[1] /= l; d[2] /= l;
+}
+
+function longitude(point) {
+  if (Math.abs(point[0]) <= Math.PI)
+    return point[0];
+  else
+    return sign(point[0]) * ((Math.abs(point[0]) +  Math.PI) % tau -  Math.PI);
+}
+
+function poligonContains(polygon, point) {
+  var lambda = longitude(point),
+      phi = point[1],
+      sinPhi = Math.sin(phi),
+      normal = [Math.sin(lambda), -Math.cos(lambda), 0],
+      angle = 0,
+      winding = 0,
+      sum = 0;
+
+  if (sinPhi === 1) phi = halfPi + epsilon;
+  else if (sinPhi === -1) phi = -halfPi - epsilon;
+
+  for (var i = 0, n = polygon.length; i < n; ++i) {
+    if (!(m = (ring = polygon[i]).length)) continue;
+    var ring,
+        m,
+        point0 = ring[m - 1],
+        lambda0 = longitude(point0),
+        phi0 = point0[1] / 2 + quarterPi,
+        sinPhi0 = Math.sin(phi0),
+        cosPhi0 = Math.cos(phi0),
+        point1, cosPhi1, sinPhi1, lambda1;
+
+    for (var j = 0; j < m; ++j, lambda0 = lambda1, sinPhi0 = sinPhi1, cosPhi0 = cosPhi1, point0 = point1) {
+      point1 = ring[j];
+      lambda1 = longitude(point1);
+      var phi1 = point1[1] / 2 + quarterPi;
+      sinPhi1 = Math.sin(phi1);
+      cosPhi1 = Math.cos(phi1);
+      var delta = lambda1 - lambda0,
+          sign = delta >= 0 ? 1 : -1,
+          absDelta = sign * delta,
+          antimeridian = absDelta > Math.PI,
+          k = sinPhi0 * sinPhi1;
+
+      sum += Math.atan2(k * sign * Math.sin(absDelta), cosPhi0 * cosPhi1 + k * Math.cos(absDelta));
+      angle += antimeridian ? delta + sign * tau : delta;
+
+      if ((antimeridian ^ lambda0) >= (lambda ^ lambda1) >= lambda) {
+        var arc = cartesianCross(cartesian(point0), cartesian(point1));
+        cartesianNormalizeInPlace(arc);
+        var intersection = cartesianCross(normal, arc);
+        cartesianNormalizeInPlace(intersection);
+        var phiArc = (antimeridian ^ delta >= 0 ? -1 : 1) * Math.asin(intersection[2]);
+        if (phi > phiArc || phi === phiArc && (arc[0] || arc[1])) {
+          winding += antimeridian ^ delta >= 0 ? 1 : -1;
+        }
+      }
+    }
+  }
+
+  return (angle < -epsilon || angle < epsilon && sum < -epsilon) ^ (winding & 1);
+}

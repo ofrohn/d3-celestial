@@ -80,6 +80,10 @@ function getMwbackground(d) {
   return res;
 }
 
+function getTimezones() {
+  
+}
+
 function translate(d, leo) {
   var res = [];
   switch (d.geometry.type) {
