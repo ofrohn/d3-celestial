@@ -24,12 +24,55 @@ function exportSVG(fname) {
 
   svg.attr("width", m.width).attr("height", m.height);
   // .attr("viewBox", " 0 0 " + (m.width) + " " + (m.height));
+  var inkScapeMode = true; 
+  var elementStyles = false;
 
-  var background = svg.append('g'),
-      grid = svg.append('g'),
-      objects = svg.append('g'),
-      planets = svg.append('g'),
-      foreground = svg.append('g');
+  var groupsNames = ['background','milkyWay','milkyWayBg','grid', 'boundaryline', 'gridline', 'gridvalues_lon','gridvalues_lat'];
+  for (var key in cfg.lines){
+    if(has(cfg.lines, key))
+      groupsNames.push(key);
+  }
+  var moreKeys = [ 'objects', 'constLines', 'mapBorder','constNames','stars', 'stardesigs', 'starNames', 'dsos', 'dsonames','planets', 'planetsNames', 'foreground'];
+  for (var i = 0; i< moreKeys.length; i+=1 ){
+      groupsNames.push(moreKeys[i]);
+  }
+
+  var groups = {};
+  for( i=0;i<groupsNames.length; i+= 1){
+    var name = groupsNames[i];
+    var group = svg.append('g');
+    groups[name] = group;
+    if(inkScapeMode){
+      group.attr('inkscape:label', name)
+           .attr('inkscape:groupmode','layer')
+           .attr('id', name);
+    }
+  }
+
+  if(elementStyles == false){
+    groups.gridline.style( svgStyle(cfg.lines.graticule) );
+    groups.gridvalues_lon.style( svgTextStyle(cfg.lines.graticule.lon)  ); 
+    groups.gridvalues_lat.style( svgTextStyle(cfg.lines.graticule.lat)  );
+    groups.milkyWay.style( svgStyle(cfg.mw.style) );
+    groups.milkyWayBg.style( {"fill": cfg.background.fill, 
+    "fill-opacity": cfg.background.opacity } );
+    for(  key in cfg.lines){
+      if(has(cfg.lines, key))
+        groups[key].style( svgStyle(cfg.lines[key]) );
+    }
+    groups.mapBorder.style({"fill": "none", "stroke": cfg.background.stroke, 
+    "stroke-width": cfg.background.width, "stroke-opacity": 1, "stroke-dasharray": "none" });
+    groups.boundaryline.style({
+      "fill": "none",
+      "stroke": function(d) { return cfg.constellations.boundStyle.stroke; }
+      // "stroke-width": function(d) { return (Celestial.constellation && d.ids.search(re) !== -1) ? cfg.constellations.boundStyle.width * 1.5 : cfg.constellations.boundStyle.width; },
+      // "stroke-opacity": function(d) { return (Celestial.constellation && d.ids.search(re) !== -1) ? 1 : cfg.constellations.boundStyle.opacity; },
+      // "stroke-dasharray": function(d) { return (Celestial.constellation && d.ids.search(re) !== -1) ? "none" : cfg.constellations.boundStyle.dash.join(" "); }
+   });
+   groups.constLines.style( {"fill": "none"} );
+   groups.starNames.style(svgTextStyle(cfg.stars.propernameStyle));
+  }
+
 
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
@@ -37,47 +80,47 @@ function exportSVG(fname) {
 
   var q = d3.queue(2);
   
-  background.append("path").datum(circle).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
+  groups.background.append("path").datum(circle).attr("class", "outline").attr("d", map).style("fill", cfg.background.fill);
 
   if (cfg.lines.graticule.show) {
     if (cfg.transform === "equatorial") {
-      grid.append("path").datum(graticule)
+      groups.gridline.append("path").datum(graticule)
        .attr("class", "gridline")
-       .style( svgStyle(cfg.lines.graticule) )
-       .attr("d", map);
+       .attr("d", map)
+       .style( elementStyles ? svgStyle(cfg.lines.graticule) :{} );
     } else {
-      Celestial.graticule(grid, map, cfg.transform);
+      Celestial.graticule(groups.gridline, map, cfg.transform);
     }
     if (has(cfg.lines.graticule, "lon") && cfg.lines.graticule.lon.pos.length > 0) {
       var jlon = {type: "FeatureCollection", features: getGridValues("lon", cfg.lines.graticule.lon.pos)};      
-      grid.selectAll(".gridvalues_lon")
+      groups.gridvalues_lon.selectAll(".gridvalues_lon")
         .data(jlon.features)
         .enter().append("text")
         .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
         .text( function(d) { return d.properties.value; } )
         .attr({dy: ".5em", dx: "-.75em", class: "graticule_lon"})
-        .style( svgTextStyle(cfg.lines.graticule.lon) ); 
+        .style( elementStyles ? svgTextStyle(cfg.lines.graticule.lon) : {} ); 
     }
     if (has(cfg.lines.graticule, "lat") && cfg.lines.graticule.lat.pos.length > 0) {
       var jlat = {type: "FeatureCollection", features: getGridValues("lat", cfg.lines.graticule.lat.pos)};
-      grid.selectAll(".gridvalues_lat")
+      groups.gridvalues_lat.selectAll(".gridvalues_lat")
         .data(jlat.features)
         .enter().append("text")
         .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
         .text( function(d) { return d.properties.value; } )
         .attr({dy: "-.5em", dx: "-.75em", class: "graticule_lat"})
-        .style( svgTextStyle(cfg.lines.graticule.lat) ); 
+        .style( elementStyles ? svgTextStyle(cfg.lines.graticule.lat) : {}); 
     }
   }
 
   //Celestial planes
-  for (var key in cfg.lines) {
+  for (key in cfg.lines) {
     if (has(cfg.lines, key) && key != "graticule" && cfg.lines[key].show !== false) { 
-      grid.append("path")
+      groups[key].append("path")
          .datum(d3.geo.circle().angle([90]).origin(poles[key]) )
          .attr("class", key)
-         .style( svgStyle(cfg.lines[key]) )
-         .attr("d", map);
+         .attr("d", map)
+         .style( elementStyles ? svgStyle(cfg.lines[key]) : {} );
     }
   }
 
@@ -89,20 +132,21 @@ function exportSVG(fname) {
         var mw = getData(json, cfg.transform);
         var mw_back = getMwbackground(mw);
         
-        background.selectAll(".mway")
+        groups.milkyWay.selectAll(".mway")
          .data(mw.features)
          .enter().append("path")
          .attr("class", "mw")
-         .style( svgStyle(cfg.mw.style) )
-         .attr("d", map);
+         .attr("d", map)
+         .style( elementStyles ? svgStyle(cfg.mw.style) : {});
 
-       background.selectAll(".mwaybg")
+         groups.milkyWayBg.selectAll(".mwaybg")
          .data(mw_back.features)
          .enter().append("path")
          .attr("class", "mwbg")
-         .style({"fill": cfg.background.fill, 
-                 "fill-opacity": cfg.background.opacity })
-         .attr("d", map);
+         .attr("d", map)
+         .style(elementStyles ? {"fill": cfg.background.fill, 
+         "fill-opacity": cfg.background.opacity } : {});
+
         callback(null);
       });
     });
@@ -120,18 +164,18 @@ function exportSVG(fname) {
           var re = new RegExp("\\b" + Celestial.constellation + "\\b");
         }
 
-        grid.selectAll(".bounds")
+        groups.boundaryline.selectAll(".bounds")
          .data(conb.features)
          .enter().append("path")
          .attr("class", "boundaryline")
-         .style({
-            "fill": "none",
-            "stroke": function(d) { return cfg.constellations.boundStyle.stroke; }, 
-            "stroke-width": function(d) { return (Celestial.constellation && d.ids.search(re) !== -1) ? cfg.constellations.boundStyle.width * 1.5 : cfg.constellations.boundStyle.width; },
-            "stroke-opacity": function(d) { return (Celestial.constellation && d.ids.search(re) !== -1) ? 1 : cfg.constellations.boundStyle.opacity; },
-            "stroke-dasharray": function(d) { return (Celestial.constellation && d.ids.search(re) !== -1) ? "none" : cfg.constellations.boundStyle.dash.join(" "); }
-         })
-         .attr("d", map);
+         .attr("d", map)
+         .style(elementStyles ? {
+          "fill": "none",
+          "stroke": function(d) { return cfg.constellations.boundStyle.stroke; }, 
+          "stroke-width": function(d) { return (Celestial.constellation && d.ids.search(re) !== -1) ? cfg.constellations.boundStyle.width * 1.5 : cfg.constellations.boundStyle.width; },
+          "stroke-opacity": function(d) { return (Celestial.constellation && d.ids.search(re) !== -1) ? 1 : cfg.constellations.boundStyle.opacity; },
+          "stroke-dasharray": function(d) { return (Celestial.constellation && d.ids.search(re) !== -1) ? "none" : cfg.constellations.boundStyle.dash.join(" "); }
+       } : {});
         callback(null);
       });
     });
@@ -144,16 +188,16 @@ function exportSVG(fname) {
         if (error) callback(error);
 
         var conl = getData(json, cfg.transform);
-        grid.selectAll(".lines")
+        groups.constLines.selectAll(".lines")
          .data(conl.features)
          .enter().append("path")
-         .attr("class", "constline")
-         .style({
+         .attr("class", function(d) { return "constline " + "rank_" + (d.properties.rank-1);})
+         .style(elementStyles ? {
             "fill": "none",
             "stroke": function(d) { return isArray(cfg.constellations.lineStyle.stroke) ? cfg.constellations.lineStyle.stroke[d.properties.rank-1] : null; },
             "stroke-width": function(d) { return isArray(cfg.constellations.lineStyle.width) ? cfg.constellations.lineStyle.width[d.properties.rank-1] : 0; },
             "stroke-opacity": function(d) { return isArray(cfg.constellations.lineStyle.opacity) ? cfg.constellations.lineStyle.opacity[d.properties.rank-1] : 0; }
-          })
+          } : {})
          .attr("d", map);
         callback(null);
       });
@@ -164,10 +208,10 @@ function exportSVG(fname) {
   q.defer(function(callback) {
     var rot = projection.rotate();
     projection.rotate([0,0,0]);
-    objects.append("path")
+    groups.mapBorder.append("path")
      .datum(graticule.outline)
      .attr("class", "outline")
-     .style({"fill": "none", "stroke": cfg.background.stroke, "stroke-width": cfg.background.width, "stroke-opacity": 1, "stroke-dasharray": "none" })
+     .style(elementStyles ? {"fill": "none", "stroke": cfg.background.stroke, "stroke-width": cfg.background.width, "stroke-opacity": 1, "stroke-dasharray": "none" } : {})
      .attr("d", map);
     projection.rotate(rot);
     callback(null);
@@ -180,19 +224,19 @@ function exportSVG(fname) {
         if (error) callback(error);
 
         var conn = getData(json, cfg.transform);
-        objects.selectAll(".constnames")
+        groups.constNames.selectAll(".constnames")
          .data(conn.features.filter( function(d) {
             return clip(d.geometry.coordinates) === 1; 
           }))
          .enter().append("text")
-         .attr("class", "constname")
+         .attr("class", function(d){ return "constname " + 'nameRank_' + (d.properties.rank-1);})
          // vertical-align  dy=-0.4em if middle, -1em top
-         .style({
+         .style(elementStyles ? {
             "fill": function(d) { return isArray(cfg.constellations.nameStyle.fill) ? cfg.constellations.nameStyle.fill[d.properties.rank-1] : "#ffffff"; },
             "fill-opacity": function(d) { return isArray(cfg.constellations.nameStyle.opacity) ? cfg.constellations.nameStyle.opacity[d.properties.rank-1] : 1; },
             "font": function(d) { return isArray(cfg.constellations.nameStyle.font) ? cfg.constellations.nameStyle.font[d.properties.rank-1] : "14px sans-serif"; },
             "text-anchor": svgAlign(cfg.constellations.nameStyle.align)
-          })
+          } : {})
          .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
          .text( function(d) { return constName(d); } ); 
         callback(null);
@@ -209,7 +253,7 @@ function exportSVG(fname) {
 
         var cons = getData(json, cfg.transform);
         
-        objects.selectAll(".stars")
+        groups.stars.selectAll(".stars")
           .data(cons.features.filter( function(d) {
             return d.properties.mag <= cfg.stars.limit; 
           }))
@@ -223,7 +267,7 @@ function exportSVG(fname) {
           });
         
         if (cfg.stars.designation) { 
-          objects.selectAll(".stardesigs")
+          groups.stardesigs.selectAll(".stardesigs")
             .data(cons.features.filter( function(d) {
               return d.properties.mag <= cfg.stars.designationLimit*adapt && clip(d.geometry.coordinates) === 1; 
             }))
@@ -234,15 +278,16 @@ function exportSVG(fname) {
             .style( svgTextStyle(cfg.stars.designationStyle) );
         }
         if (cfg.stars.propername) { 
-          objects.selectAll(".starnames")
+          groups.starNames.selectAll(".starnames")
             .data(cons.features.filter( function(d) {
               return d.properties.mag <= cfg.stars.propernameLimit*adapt && clip(d.geometry.coordinates) === 1; 
             }))
             .enter().append("text")
+            .attr('class','starNames')
             .attr("transform", function(d) { return point(d.geometry.coordinates); })
             .text( function(d) { return starPropername(d.id); })
             .attr({dy: "-.5em", dx: "-.35em", class: "starname"})
-            .style( svgTextStyle(cfg.stars.propernameStyle) );
+            .style( elementStyles ? svgTextStyle(cfg.stars.propernameStyle) : {} );
         }
         callback(null);
       });
@@ -257,7 +302,7 @@ function exportSVG(fname) {
 
         var cond = getData(json, cfg.transform);
         
-        objects.selectAll(".dsos")
+        groups.dsos.selectAll(".dsos")
           .data(cond.features.filter( function(d) {
             return clip(d.geometry.coordinates) === 1 && 
                    (d.properties.mag === 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.limit*adapt ||
@@ -265,7 +310,7 @@ function exportSVG(fname) {
           }))
           .enter().append("path")
           .attr("class", function(d) { return "dso " + d.properties.type; })
-          .style({"fill": function(d) {  if (has(cfg.dsos.symbols[d.properties.type], "stroke")) return "none";
+          .style(elementStyles ? {"fill": function(d) {  if (has(cfg.dsos.symbols[d.properties.type], "stroke")) return "none";
                     return cfg.dsos.colors ? cfg.dsos.symbols[d.properties.type].fill : cfg.dsos.style.fill; },
                   "fill-opacity": cfg.dsos.style.opacity,
                   "stroke": function(d) { if (!has(cfg.dsos.symbols[d.properties.type], "stroke")) return "none";
@@ -273,12 +318,12 @@ function exportSVG(fname) {
                   "stroke-width": function(d) { if (!has(cfg.dsos.symbols[d.properties.type], "width")) return 1;
                      return cfg.dsos.colors ? cfg.dsos.symbols[d.properties.type].width : cfg.dsos.style.width; },
                   "stroke-opacity": cfg.dsos.style.opacity,
-          })
+          } : {})
           .attr("transform", function(d) { return point(d.geometry.coordinates); })
           .attr("d", function(d) { return dsoSymbol(d.properties); });
       
         if (cfg.dsos.names) { 
-          objects.selectAll(".dsonames")
+          groups.dsonames.selectAll(".dsonames")
             .data(cond.features.filter( function(d) {
               return clip(d.geometry.coordinates) === 1 && 
                    (d.properties.mag == 999 && Math.sqrt(parseInt(d.properties.dim)) > cfg.dsos.nameLimit ||
@@ -289,11 +334,11 @@ function exportSVG(fname) {
             .attr("transform", function(d) { return point(d.geometry.coordinates); })
             .text( function(d) { return dsoName(d); } )
             .attr({dy: "-.5em", dx: ".35em"})
-            .style({"fill": function(d) { return cfg.dsos.colors ? cfg.dsos.symbols[d.properties.type].fill : cfg.dsos.style.fill; },
+            .style( elementStyles ? {"fill": function(d) { return cfg.dsos.colors ? cfg.dsos.symbols[d.properties.type].fill : cfg.dsos.style.fill; },
                     "fill-opacity": cfg.dsos.style.opacity,
                     "font": cfg.dsos.nameStyle.font,
                     "text-anchor": svgAlign(cfg.dsos.nameStyle.align)
-            });
+            } :{});
         }
         callback(null);
       });
@@ -319,7 +364,7 @@ function exportSVG(fname) {
         }
       });
       if (cfg.planets.symbolType === "disk") {
-        planets.selectAll(".planets")
+        groups.planets.selectAll(".planets")
          .data(jp.features)
          .enter().append("path")
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
@@ -328,45 +373,45 @@ function exportSVG(fname) {
            return planetSymbol(d.properties, r); 
          })
          .attr("class", "planet")
-         .style ( svgStyle(cfg.planets.symbolStyle) )
+         .style ( elementStyles ?  svgStyle(cfg.planets.symbolStyle) : {})
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
       } else {
-        planets.selectAll(".planets")
+        groups.planets.selectAll(".planets")
          .data(jp.features)
          .enter().append("text")
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .text( function(d) { return d.properties.symbol; })
          .attr("class", "planet")
          .attr({dy: ".35em"})
-         .style ( svgTextStyle(cfg.planets.symbolStyle) )
+         .style ( elementStyles ? svgTextStyle(cfg.planets.symbolStyle) : '')
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
       }
       // Special case for Moon crescent
       if (jlun.features.length > 0) {
         if (cfg.planets.symbolType === "letter") {
-          planets.selectAll(".moon")
+          groups.planets.selectAll(".moon")
            .data(jlun.features)
            .enter().append("text")
            .attr("transform", function(d) { return point(d.geometry.coordinates); })
            .text( function(d) { return d.properties.symbol; })
            .attr("class", "luna")
            .attr({dy: ".35em"})
-           .style ( svgTextStyle(cfg.planets.symbolStyle) )
+           .style ( elementStyles ? svgTextStyle(cfg.planets.symbolStyle) : {})
            .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
         } else {
           var rl = has(cfg.planets.symbols.lun, "size") ? (cfg.planets.symbols.lun.size - 1) * adapt : 11 * adapt; 
-          planets.selectAll(".dmoon")
+          groups.planets.selectAll(".dmoon")
             .data(jlun.features)
             .enter().append("path")
             .attr("class", "darkluna" )
             .style ( "fill", function (d) { return d.properties.phase < 0.157 ? "#669" : "#557"; })
             .attr("transform", function(d) { return point(d.geometry.coordinates); })
             .attr("d", function(d) { return d3.svg.symbol().type("circle").size(rl*rl)(); });
-          planets.selectAll(".moon")
+          groups.planets.selectAll(".moon")
             .data(jlun.features)
             .enter().append("path")
             .attr("class", "luna" )
-            .style ( svgStyle(cfg.planets.symbolStyle) )
+            .style ( elementStyles ? svgStyle(cfg.planets.symbolStyle) : {} )
             .attr("transform", function(d) { return point(d.geometry.coordinates); })
             .attr("d", function(d) { return moonSymbol(d.properties, rl); })
             .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
@@ -375,22 +420,22 @@ function exportSVG(fname) {
         
       //name
       if (cfg.planets.names) {
-        planets.selectAll(".planetnames")
+        groups.planetsNames.selectAll(".planetnames")
          .data(jp.features)
          .enter().append("text")
          .attr("transform", function(d) { return point(d.geometry.coordinates); })
          .text( function(d) { return d.properties.name; })
          .attr({dy: ".85em", dx: "-.35em", class: "planetname"})
-         .style ( svgTextStyle(cfg.planets.nameStyle) )
+         .style ( elementStyles ? svgTextStyle(cfg.planets.nameStyle) :{} )
          .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
         if (jlun.features.length > 0) {
-          planets.selectAll(".moonname")
+          groups.planetsNames.selectAll(".moonname")
            .data(jlun.features)
            .enter().append("text")
            .attr("transform", function(d) { return point(d.geometry.coordinates); })
            .text( function(d) { return d.properties.name; })
            .attr({dy: ".85em", dx: "-.35em", class: "planetname"})
-           .style ( svgTextStyle(cfg.planets.nameStyle) )
+           .style ( elementStyles ?  svgTextStyle(cfg.planets.nameStyle) : {})
            .style("fill", function(d) { return cfg.planets.symbols[d.id].fill; });
         }
       }
@@ -408,13 +453,14 @@ function exportSVG(fname) {
             pt = projection(solpos),
             daylight = d3.geo.circle().angle([179.95]).origin(solpos);
 
-      foreground.append("path").datum(daylight)
+      groups.foreground.append("path").datum(daylight)
        .attr("class", "daylight")
        .attr("d", map)
-       .style( svgSkyStyle(dist, pt) );  
+       .style( elementStyles ? svgSkyStyle(dist, pt) : {});  
 
         if (clip(solpos) === 1 && dist < halfπ) {
-          foreground.append("circle")
+          groups.foreground.append("circle")
+          .attr("class", "solPos")
            .attr("cx", pt[0])
            .attr("cy", pt[1])
            .attr("r", 5)
@@ -429,10 +475,10 @@ function exportSVG(fname) {
     q.defer(function(callback) {
       var horizon = d3.geo.circle().angle([90]).origin(Celestial.nadir());
      
-      foreground.append("path").datum(horizon)
+      groups.foreground.append("path").datum(horizon)
        .attr("class", "horizon")
        .attr("d", map)
-       .style( svgStyle(cfg.horizon) );  
+       .style( elementStyles ? svgStyle(cfg.horizon) : {} );
       callback(null);
     });
   }
@@ -522,7 +568,7 @@ function exportSVG(fname) {
       color3 = d3.interpolateLab("#57b0c8", "#6caae2")(factor);
     }
 
-    var gradient = foreground.append("radialGradient")
+    var gradient = groups.foreground.append("radialGradient")
      .attr("cx", pt[0])
      .attr("cy", pt[1])
      .attr("fr", "0")
