@@ -4521,8 +4521,13 @@ function exportSVG(fname) {
       culture = (cfg.culture !== "" && cfg.culture !== "iau") ? cfg.culture : "",
       circle;
 
+  var inkScapeMode = true; 
   svg.selectAll("*").remove();
 
+  if(inkScapeMode == true){
+    svg.attr(':xmlns:inkscape',"http://www.inkscape.org/namespaces/inkscape");
+    svg.attr(':xmlns:sodipodi',"http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd");
+  }
   if (proj.clip) {
     projection.clipAngle(90);
   }
@@ -4531,7 +4536,7 @@ function exportSVG(fname) {
 
   svg.attr("width", m.width).attr("height", m.height);
   // .attr("viewBox", " 0 0 " + (m.width) + " " + (m.height));
-  var inkScapeMode = true; 
+
   var elementStyles = false;
 
   var groupsNames = ['background','milkyWay','milkyWayBg','grid', 'boundaryline', 'gridline', 'gridvalues_lon','gridvalues_lat'];
@@ -4549,9 +4554,9 @@ function exportSVG(fname) {
     var name = groupsNames[i];
     var group = svg.append('g');
     groups[name] = group;
-    if(inkScapeMode){
-      group.attr('inkscape:label', name)
-           .attr('inkscape:groupmode','layer')
+    if(inkScapeMode === true){
+      group.attr(':inkscape:label', name)
+           .attr(':inkscape:groupmode','layer')
            .attr('id', name);
     }
   }
