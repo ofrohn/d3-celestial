@@ -4526,11 +4526,18 @@ function exportSVG(fname) {
   if (proj.clip) {
     projection.clipAngle(90);
   }
-    circle = d3.geo.circle().angle([179.95]).origin(center);
+  circle = d3.geo.circle().angle([179.95]).origin(center);
   //}
 
   svg.attr("width", m.width).attr("height", m.height);
   // .attr("viewBox", " 0 0 " + (m.width) + " " + (m.height));
+
+  var layers = ['background', 'milkyWay', 'milkyWayBg', 
+                'grid', 'constBoundaries', 'gridline', 
+                'constLines', 'mapBorder','stars', 'dsos', 'planets', 
+                'gridvalues_lon', 'gridvalues_lat', 'constNames', 'stardesigs', 'starNames', 'dsonames', 'planetsNames', 
+                'foreground'];
+
 
   var background = svg.append('g'),
       grid = svg.append('g'),
@@ -5149,7 +5156,7 @@ function exportSVG(fname) {
 
   q.await(function(error) {
     if (error) throw error;
-    var svg = d3.select("svg")
+    var svg = d3.select("#d3-celestial-svg svg")
       .attr("title", "D3-Celestial")
       .attr("version", 1.1)
       .attr("xmlns", "http://www.w3.org/2000/svg");
