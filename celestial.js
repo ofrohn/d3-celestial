@@ -1527,7 +1527,7 @@ var settings = {
     style: { fill: "#cccccc", stroke: "#cccccc", width: 2, opacity: 1 }, // Default style for dsos
     names: true,   // Show DSO names
     namesType: "desig",  // Type of displayed name: desig, name, or 15 different language codes from dsonames.json
-    nameStyle: { fill: "#cccccc", font: "11px 'Lucida Sans Unicode', Helvetica, Arial, serif", align: "left", baseline: "bottom" },
+    nameStyle: { fill: "#cccccc", font: "11px 'Lucida Sans Unicode', 'DejaVu Sans', Helvetica, Arial, serif", align: "left", baseline: "bottom" },
     nameLimit: 4,  // Show only names for DSOs brighter than nameLimit
     size: null,    // Optional seperate scale size for DSOs, null = stars.size
     exponent: 1.4, // Scale exponent for DSO size, larger = more non-linear
@@ -1558,9 +1558,9 @@ var settings = {
     namesType: "desig",   // What kind of name to show (default 3 letter designations) all options: name, desig, 
                          // lat, en, ar, cn, cz, ee, fi, fr, de, gr, il, it, jp, kr, in, ir, ru, es, tr 
     nameStyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8, 
-                 font: ["14px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // Different fonts for brighter &
-                        "12px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif",  // darker constellations
-                        "11px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"]},
+                 font: ["14px 'Lucida Sans Unicode', 'DejaVu Sans', Helvetica, Arial, sans-serif",  // Different fonts for brighter &
+                        "12px 'Lucida Sans Unicode', 'DejaVu Sans', Helvetica, Arial, sans-serif",  // darker constellations
+                        "11px 'Lucida Sans Unicode', 'DejaVu Sans', Helvetica, Arial, sans-serif"]},
     lines: true,   // Show constellation lines 
     lineStyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
     bounds: false,  // Show constellation boundaries 
@@ -1620,11 +1620,11 @@ var settings = {
       "eri": {symbol: "\u26aa", letter:"E", fill: "#eeeeee"}
     },
     // Style options for planetary symbols
-    symbolStyle: { fill: "#cccccc", opacity:1, font: "bold 17px 'Lucida Sans Unicode', Consolas, sans-serif", align: "center", baseline: "middle" },
+    symbolStyle: { fill: "#cccccc", opacity:1, font: "bold 17px 'DejaVu Sans Mono', 'Arial Unicode MS', sans-serif", align: "center", baseline: "middle" },
     symbolType: "symbol",  // Type of planetary symbol to be displayed: 'symbol', 'letter' or 'disk'
     names: false,  // Show name next to symbol
     // Style options for planetary names
-    nameStyle: { fill: "#cccccc", font: "14px 'Lucida Sans Unicode', Consolas, sans-serif", align: "right", baseline: "top" },
+    nameStyle: { fill: "#cccccc", font: "14px 'Lucida Sans Unicode', 'DejaVu Sans', sans-serif", align: "right", baseline: "top" },
     namesType: "en"  // Language in which the name is displayed, options desig, ar, cn, en, fr, de, gr, il, in, it, jp, lat, ru, es
   },
   set: function(cfg) {  // Override defaults with values of cfg
@@ -2882,6 +2882,7 @@ function form(cfg) {
     if (has(formats.starnames[config.culture].propername, lang)) config.stars.propernameType = lang;
     else config.stars.propernameType = "desig";
     //update cont. list
+    Object.assign(globalConfig, config);
     update();
     listConstellations();
     return config;
@@ -4819,7 +4820,7 @@ function exportSVG(fname) {
             styles[id]["stroke-width"] = cfg.dsos.colors ? cfg.dsos.symbols[key].width : cfg.dsos.style.width;
           } else {
             styles[id].stroke = "none"; 
-            styles[id].fill = cfg.dsos.colors ? cfg.dsos.symbols[key].stroke : cfg.dsos.style.fill;
+            styles[id].fill = cfg.dsos.colors ? cfg.dsos.symbols[key].fill : cfg.dsos.style.fill;
           }
         }
         

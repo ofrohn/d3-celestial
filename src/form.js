@@ -464,6 +464,7 @@ function form(cfg) {
     if (has(formats.starnames[config.culture].propername, lang)) config.stars.propernameType = lang;
     else config.stars.propernameType = "desig";
     //update cont. list
+    Object.assign(globalConfig, config);
     update();
     listConstellations();
     return config;

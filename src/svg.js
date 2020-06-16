@@ -311,7 +311,7 @@ function exportSVG(fname) {
             styles[id]["stroke-width"] = cfg.dsos.colors ? cfg.dsos.symbols[key].width : cfg.dsos.style.width;
           } else {
             styles[id].stroke = "none"; 
-            styles[id].fill = cfg.dsos.colors ? cfg.dsos.symbols[key].stroke : cfg.dsos.style.fill;
+            styles[id].fill = cfg.dsos.colors ? cfg.dsos.symbols[key].fill : cfg.dsos.style.fill;
           }
         }
         
