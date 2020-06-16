@@ -452,6 +452,7 @@ function form(cfg) {
   
   function setLanguage(lang) {
     Object.assign(config, globalConfig);
+    config.lang = lang;
     var keys = ["constellations", "planets"]; 
     for (var i=0; i < keys.length; i++) {
       if (has(formats[keys[i]][config.culture].names, lang)) config[keys[i]].namesType = lang;
