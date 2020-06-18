@@ -464,7 +464,7 @@ Celestial.display = function(config) {
     if (cfg.mw.show) { 
       container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
       // paint mw-outside in background color
-      if (cfg.transform !== "supergalactic")
+      if (cfg.transform !== "supergalactic" && cfg.background.opacity === 1)
         container.selectAll(".mwbg").each(function(d) { setStyle(cfg.background); map(d); context.fill(); });
     }
     
@@ -472,7 +472,7 @@ Celestial.display = function(config) {
       if (!has(cfg.lines, key)) continue;
       if (cfg.lines[key].show !== true) continue;
       setStyle(cfg.lines[key]);
-      container.selectAll("."+key).attr("d", map);  
+      container.selectAll("." + key).attr("d", map);  
       context.stroke(); 
     }
 
@@ -676,9 +676,10 @@ Celestial.display = function(config) {
     mapProjection.rotate([0,0]);
     setStyle(cfg.background);
     container.selectAll(".outline").attr("d", map);
-    if (stroke === true) 
+    if (stroke === true) {
+      context.globalAlpha = 1;      
       context.stroke(); 
-    else {
+    } else {
       context.fill();
     }
     mapProjection.rotate(rot);
@@ -694,7 +695,7 @@ Celestial.display = function(config) {
     context.fillStyle = s.fill || null;
     context.strokeStyle = s.stroke || null;
     context.lineWidth = s.width || null;
-    context.globalAlpha = s.opacity || 1;  
+    context.globalAlpha = s.opacity !== null ? s.opacity : 1;  
     context.font = s.font || null;
     if (has(s, "dash")) context.setLineDash(s.dash); else context.setLineDash([]);
     context.beginPath();
@@ -704,7 +705,7 @@ Celestial.display = function(config) {
     context.fillStyle = s.fill;
     context.textAlign = s.align || "left";
     context.textBaseline = s.baseline || "bottom";
-    context.globalAlpha = s.opacity || 1;  
+    context.globalAlpha = s.opacity !== null ? s.opacity : 1;  
     context.font = s.font;
   }
 
@@ -2517,8 +2518,8 @@ function form(cfg) {
       col.append("label").attr("for", "stars-" + fld).html("Show");
       
       selected = 0;
-      col.append("label").attr("title", "Type of star name").attr("for", "stars-" + fld + "Type").html("");
-      sel = col.append("select").attr("id", "stars-" + fld + "Type").on("change", apply);
+      col.append("label").attr("title", "Type of star name").attr("id", "label-propername").attr("for", "stars-" + fld + "Type").html(function () { return fld === "propername" ? "proper names" : ""; });
+      sel = col.append("select").attr("id", "stars-" + fld + "Type").attr("class", function () { return fld === "propername" ? "advanced" : ""; }).on("change", apply);
       list = keys.map(function (key, i) {
         if (key === config.stars[fld + "Type"]) selected = i;
         return {o:key, n:names[fld][key]}; 
@@ -2683,8 +2684,11 @@ function form(cfg) {
   
   col.append("br");
   
-  col.append("label").attr("for", "background").html("Background color");
+  col.append("label").attr("for", "background-fill").html("Background color");
   col.append("input").attr("type", "color").attr("id", "background-fill").attr("title", "Background color").attr("value", config.background.fill).on("change", apply);
+
+  col.append("label").attr("for", "background-opacity").attr("class", "advanced").html("opacity");
+  col.append("input").attr("type", "number").attr("id", "background-opacity").attr("class", "advanced").attr("title", "Background opacity").attr("value", config.background.opacity).attr("max", "1").attr("min", "0").attr("step", "0.01").on("change", apply);
   
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").attr("class", "advanced").html("Adaptable object sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").attr("class", "advanced").property("checked", config.adaptable).on("change", apply);
@@ -3137,6 +3141,7 @@ function setLimits() {
 function showAdvanced(showit) {
   var vis = showit ? "inline-block" : "none";
   d3.selectAll(".advanced").style("display", vis);
+  d3.selectAll("#label-propername").style("display", showit ? "none" : "inline-block");
 }
 
 

@@ -463,7 +463,7 @@ Celestial.display = function(config) {
     if (cfg.mw.show) { 
       container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
       // paint mw-outside in background color
-      if (cfg.transform !== "supergalactic")
+      if (cfg.transform !== "supergalactic" && cfg.background.opacity === 1)
         container.selectAll(".mwbg").each(function(d) { setStyle(cfg.background); map(d); context.fill(); });
     }
     
@@ -471,7 +471,7 @@ Celestial.display = function(config) {
       if (!has(cfg.lines, key)) continue;
       if (cfg.lines[key].show !== true) continue;
       setStyle(cfg.lines[key]);
-      container.selectAll("."+key).attr("d", map);  
+      container.selectAll("." + key).attr("d", map);  
       context.stroke(); 
     }
 
@@ -675,9 +675,10 @@ Celestial.display = function(config) {
     mapProjection.rotate([0,0]);
     setStyle(cfg.background);
     container.selectAll(".outline").attr("d", map);
-    if (stroke === true) 
+    if (stroke === true) {
+      context.globalAlpha = 1;      
       context.stroke(); 
-    else {
+    } else {
       context.fill();
     }
     mapProjection.rotate(rot);
@@ -693,7 +694,7 @@ Celestial.display = function(config) {
     context.fillStyle = s.fill || null;
     context.strokeStyle = s.stroke || null;
     context.lineWidth = s.width || null;
-    context.globalAlpha = s.opacity || 1;  
+    context.globalAlpha = s.opacity !== null ? s.opacity : 1;  
     context.font = s.font || null;
     if (has(s, "dash")) context.setLineDash(s.dash); else context.setLineDash([]);
     context.beginPath();
@@ -703,7 +704,7 @@ Celestial.display = function(config) {
     context.fillStyle = s.fill;
     context.textAlign = s.align || "left";
     context.textBaseline = s.baseline || "bottom";
-    context.globalAlpha = s.opacity || 1;  
+    context.globalAlpha = s.opacity !== null ? s.opacity : 1;  
     context.font = s.font;
   }
 

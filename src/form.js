@@ -94,8 +94,8 @@ function form(cfg) {
       col.append("label").attr("for", "stars-" + fld).html("Show");
       
       selected = 0;
-      col.append("label").attr("title", "Type of star name").attr("for", "stars-" + fld + "Type").html("");
-      sel = col.append("select").attr("id", "stars-" + fld + "Type").on("change", apply);
+      col.append("label").attr("title", "Type of star name").attr("id", "label-propername").attr("for", "stars-" + fld + "Type").html(function () { return fld === "propername" ? "proper names" : ""; });
+      sel = col.append("select").attr("id", "stars-" + fld + "Type").attr("class", function () { return fld === "propername" ? "advanced" : ""; }).on("change", apply);
       list = keys.map(function (key, i) {
         if (key === config.stars[fld + "Type"]) selected = i;
         return {o:key, n:names[fld][key]}; 
@@ -260,8 +260,11 @@ function form(cfg) {
   
   col.append("br");
   
-  col.append("label").attr("for", "background").html("Background color");
+  col.append("label").attr("for", "background-fill").html("Background color");
   col.append("input").attr("type", "color").attr("id", "background-fill").attr("title", "Background color").attr("value", config.background.fill).on("change", apply);
+
+  col.append("label").attr("for", "background-opacity").attr("class", "advanced").html("opacity");
+  col.append("input").attr("type", "number").attr("id", "background-opacity").attr("class", "advanced").attr("title", "Background opacity").attr("value", config.background.opacity).attr("max", "1").attr("min", "0").attr("step", "0.01").on("change", apply);
   
   col.append("label").attr("title", "Star/DSO sizes are increased with higher zoom-levels").attr("for", "adaptable").attr("class", "advanced").html("Adaptable object sizes");
   col.append("input").attr("type", "checkbox").attr("id", "adaptable").attr("class", "advanced").property("checked", config.adaptable).on("change", apply);
@@ -714,6 +717,7 @@ function setLimits() {
 function showAdvanced(showit) {
   var vis = showit ? "inline-block" : "none";
   d3.selectAll(".advanced").style("display", vis);
+  d3.selectAll("#label-propername").style("display", showit ? "none" : "inline-block");
 }
 
 
