@@ -463,7 +463,7 @@ Celestial.display = function(config) {
     if (cfg.mw.show) { 
       container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
       // paint mw-outside in background color
-      if (cfg.transform !== "supergalactic" && cfg.background.opacity === 1)
+      if (cfg.transform !== "supergalactic" && cfg.background.opacity > 0.95)
         container.selectAll(".mwbg").each(function(d) { setStyle(cfg.background); map(d); context.fill(); });
     }
     

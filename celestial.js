@@ -464,7 +464,7 @@ Celestial.display = function(config) {
     if (cfg.mw.show) { 
       container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
       // paint mw-outside in background color
-      if (cfg.transform !== "supergalactic" && cfg.background.opacity === 1)
+      if (cfg.transform !== "supergalactic" && cfg.background.opacity > 0.95)
         container.selectAll(".mwbg").each(function(d) { setStyle(cfg.background); map(d); context.fill(); });
     }
     
@@ -4630,14 +4630,16 @@ function exportSVG(fname) {
          .attr("class", "milkyWay")
          .attr("d", map);
         styles.milkyWay = svgStyle(cfg.mw.style);
-
-        groups.milkyWayBg.selectAll(".mwaybg")
-         .data(mw_back.features)
-         .enter().append("path")
-         .attr("class", "milkyWayBg")
-         .attr("d", map);
-        styles.milkyWayBg = {"fill": cfg.background.fill, 
-                 "fill-opacity": cfg.background.opacity };
+        
+        if (!has(cfg.background, "opacity") || cfg.background.opacity > 0.95) {
+          groups.milkyWayBg.selectAll(".mwaybg")
+           .data(mw_back.features)
+           .enter().append("path")
+           .attr("class", "milkyWayBg")
+           .attr("d", map);
+          styles.milkyWayBg = {"fill": cfg.background.fill, 
+                   "fill-opacity": cfg.background.opacity };
+        }
         callback(null);
       });
     });
@@ -5030,10 +5032,10 @@ function exportSVG(fname) {
   function svgStyle(s) {
     var res = {};
     res.fill = s.fill || "none";
-    res["fill-opacity"] = s.opacity || 1;  
+    res["fill-opacity"] = s.opacity !== null ? s.opacity : 1;  
     res.stroke = s.stroke || "none";
-    res["stroke-width"] = s.width || null;
-    res["stroke-opacity"] = s.opacity || 1;  
+    res["stroke-width"] = s.width !== null ? s.width : 0;
+    res["stroke-opacity"] = s.opacity !== null ? s.opacity : 1;  
     if (has(s, "dash")) res["stroke-dasharray"] = s.dash.join(" ");
     else res["stroke-dasharray"] = "none";
     res.font = s.font || null;
@@ -5044,7 +5046,7 @@ function exportSVG(fname) {
     var res = {};
     res.stroke = "none";
     res.fill = s.fill || "none";
-    res["fill-opacity"] = s.opacity || 1;  
+    res["fill-opacity"] = s.opacity !== null ? s.opacity : 1;  
     //res.textBaseline = s.baseline || "bottom";
     res["text-anchor"] = svgAlign(s.align);
     res.font = s.font || null;
