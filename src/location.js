@@ -199,7 +199,8 @@ function geo(cfg) {
   function setPosition(p, settime) {
     if (!p || !has(config, "settimezone") || config.settimezone === false) return;
     var timestamp = Math.floor(date.getTime() / 1000),
-        url = "http://api.timezonedb.com/v2.1/get-time-zone?key=" + config.timezoneid + "&format=json&by=position" + 
+        protocol = window && window.location.protocol === "https:" ? "https" : "http",
+        url = protocol + "://api.timezonedb.com/v2.1/get-time-zone?key=" + config.timezoneid + "&format=json&by=position" + 
               "&lat=" + p[0] + "&lng=" + p[1] + "&time=" + timestamp;
        // oldZone = timeZone;
 

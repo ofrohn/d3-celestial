@@ -167,16 +167,21 @@ function exportSVG(fname) {
          .enter().append("path")
          .attr("class", function(d) { return "constLines" + d.properties.rank; })
          .attr("d", map);
+
+        var dasharray = has(cfg.constellations.lineStyle, "dash") ? cfg.constellations.lineStyle.dash.join(" ") : "none";
          
         styles.constLines1 = {"fill": "none", "stroke": cfg.constellations.lineStyle.stroke[0],
                               "stroke-width": cfg.constellations.lineStyle.width[0],
-                              "stroke-opacity": cfg.constellations.lineStyle.opacity[0]};
+                              "stroke-opacity": cfg.constellations.lineStyle.opacity[0],
+                              "stroke-dasharray": dasharray};
         styles.constLines2 = {"fill": "none", "stroke": cfg.constellations.lineStyle.stroke[1],
                               "stroke-width": cfg.constellations.lineStyle.width[1],
-                              "stroke-opacity": cfg.constellations.lineStyle.opacity[1]};
+                              "stroke-opacity": cfg.constellations.lineStyle.opacity[1],
+                              "stroke-dasharray": dasharray};
         styles.constLines3 = {"fill": "none", "stroke": cfg.constellations.lineStyle.stroke[2],
                               "stroke-width": cfg.constellations.lineStyle.width[2],
-                              "stroke-opacity": cfg.constellations.lineStyle.opacity[2]};
+                              "stroke-opacity": cfg.constellations.lineStyle.opacity[2],
+                              "stroke-dasharray": dasharray};
         callback(null);
       });
     });

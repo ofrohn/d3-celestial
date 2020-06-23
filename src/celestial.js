@@ -1,6 +1,6 @@
 /* global module, require, topojson, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.25',
+  version: '0.7.26',
   container: null,
   data: []
 };
@@ -715,6 +715,7 @@ Celestial.display = function(config) {
     context.lineWidth = isArray(s.width) ? s.width[rank-1] : null;
     context.globalAlpha = isArray(s.opacity) ? s.opacity[rank-1] : 1;  
     context.font = isArray(s.font) ? s.font[rank-1] : null;
+    if (has(s, "dash")) context.setLineDash(s.dash); else context.setLineDash([]);
     context.textAlign = s.align || "left";
     context.textBaseline = s.baseline || "bottom";
     context.beginPath();

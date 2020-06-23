@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.25',
+  version: '0.7.26',
   container: null,
   data: []
 };
@@ -716,6 +716,7 @@ Celestial.display = function(config) {
     context.lineWidth = isArray(s.width) ? s.width[rank-1] : null;
     context.globalAlpha = isArray(s.opacity) ? s.opacity[rank-1] : 1;  
     context.font = isArray(s.font) ? s.font[rank-1] : null;
+    if (has(s, "dash")) context.setLineDash(s.dash); else context.setLineDash([]);
     context.textAlign = s.align || "left";
     context.textBaseline = s.baseline || "bottom";
     context.beginPath();
@@ -3403,7 +3404,8 @@ function geo(cfg) {
   function setPosition(p, settime) {
     if (!p || !has(config, "settimezone") || config.settimezone === false) return;
     var timestamp = Math.floor(date.getTime() / 1000),
-        url = "http://api.timezonedb.com/v2.1/get-time-zone?key=" + config.timezoneid + "&format=json&by=position" + 
+        protocol = window && window.location.protocol === "https:" ? "https" : "http",
+        url = protocol + "://api.timezonedb.com/v2.1/get-time-zone?key=" + config.timezoneid + "&format=json&by=position" + 
               "&lat=" + p[0] + "&lng=" + p[1] + "&time=" + timestamp;
        // oldZone = timeZone;
 
@@ -4686,16 +4688,21 @@ function exportSVG(fname) {
          .enter().append("path")
          .attr("class", function(d) { return "constLines" + d.properties.rank; })
          .attr("d", map);
+
+        var dasharray = has(cfg.constellations.lineStyle, "dash") ? cfg.constellations.lineStyle.dash.join(" ") : "none";
          
         styles.constLines1 = {"fill": "none", "stroke": cfg.constellations.lineStyle.stroke[0],
                               "stroke-width": cfg.constellations.lineStyle.width[0],
-                              "stroke-opacity": cfg.constellations.lineStyle.opacity[0]};
+                              "stroke-opacity": cfg.constellations.lineStyle.opacity[0],
+                              "stroke-dasharray": dasharray};
         styles.constLines2 = {"fill": "none", "stroke": cfg.constellations.lineStyle.stroke[1],
                               "stroke-width": cfg.constellations.lineStyle.width[1],
-                              "stroke-opacity": cfg.constellations.lineStyle.opacity[1]};
+                              "stroke-opacity": cfg.constellations.lineStyle.opacity[1],
+                              "stroke-dasharray": dasharray};
         styles.constLines3 = {"fill": "none", "stroke": cfg.constellations.lineStyle.stroke[2],
                               "stroke-width": cfg.constellations.lineStyle.width[2],
-                              "stroke-opacity": cfg.constellations.lineStyle.opacity[2]};
+                              "stroke-opacity": cfg.constellations.lineStyle.opacity[2],
+                              "stroke-dasharray": dasharray};
         callback(null);
       });
     });
