@@ -150,7 +150,7 @@ var settings = {
       "eri": {symbol: "\u26aa", letter:"E", fill: "#eeeeee"}
     },
     // Style options for planetary symbols
-    symbolStyle: { fill: "#cccccc", opacity:1, font: "bold 17px 'DejaVu Sans Mono', 'Arial Unicode MS', sans-serif", align: "center", baseline: "middle" },
+    symbolStyle: { fill: "#cccccc", opacity:1, font: "bold 20px 'DejaVu Sans Mono', 'Arial Unicode MS', sans-serif", align: "center", baseline: "middle" },
     symbolType: "symbol",  // Type of planetary symbol to be displayed: 'symbol', 'letter' or 'disk'
     names: false,  // Show name next to symbol
     // Style options for planetary names

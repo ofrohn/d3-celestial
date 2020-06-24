@@ -11,7 +11,7 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
     ANIMINTERVAL_P = 2500, // Projection duration in ms
     ANIMINTERVAL_Z = 1500, // Zoom duration scale in ms
     zoomextent = 10,       // Default maximum extent of zoom (max/min)
-    zoomlevel = 1;      // Default zoom level, 1 = 100%
+    zoomlevel = 1;         // Default zoom level, 1 = 100%
 
 var cfg, mapProjection, zoom, map, circle, daylight, starnames = {}, dsonames = {};
 
@@ -604,6 +604,7 @@ Celestial.display = function(config) {
             context.fill();
           } else if (cfg.planets.symbolType === "symbol") {
             setTextStyle(cfg.planets.symbolStyle);
+            context.font = planetSymbol(cfg.planets.symbolStyle.font);
             context.fillStyle = sym.fill;
             context.fillText(sym[cfg.planets.symbolType], pt[0], pt[1]);            
           }
@@ -837,11 +838,17 @@ Celestial.display = function(config) {
     return d.properties[cfg.constellations.namesType]; 
   }
 
- function planetSize(d) {
+  function planetSize(d) {
     var mag = d.mag;
     if (mag === null) return 2; 
     var r = 4 * adapt * Math.exp(-0.05 * (mag+2));
     return Math.max(r, 2);
+  }
+ 
+  function planetSymbol(s) {
+    var size = s.replace(/(^\D*)(\d+)(\D.+$)/i,'$2');
+    size = Math.round(adapt * size);
+    return s.replace(/(^\D*)(\d+)(\D.+$)/i,'$1' + size + '$3');
   }
  
   function gridOrientation(pos, orient) {

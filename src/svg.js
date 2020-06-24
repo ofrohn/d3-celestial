@@ -416,6 +416,7 @@ function exportSVG(fname) {
       } 
       
       styles.planets = svgTextStyle(cfg.planets.symbolStyle);
+      styles.planets.font = planetFont(cfg.planets.symbolStyle.font);
       styles.darkluna = {"fill": "#557"};
       for (key in cfg.planets.symbols) {
          if (!has(cfg.planets.symbols, key)) continue;
@@ -668,6 +669,12 @@ function exportSVG(fname) {
     return d3.svg.symbol().type("circle").size(size)();
   }
 
+  function planetFont(s) {
+    var size = s.replace(/(^\D*)(\d+)(\D.+$)/i,'$2');
+    size = Math.round(adapt * size);
+    return s.replace(/(^\D*)(\d+)(\D.+$)/i,'$1' + size + '$3');
+  }
+
   function planetSize(m) {
     var mag = m || 2; 
     var r = 4 * adapt * Math.exp(-0.05 * (mag+2));
@@ -817,4 +824,8 @@ d3.svg.customSymbol = function() {
     return symbol;
   };
   return symbol;
+};
+
+Celestial.exportSVG = function() {
+  
 };
