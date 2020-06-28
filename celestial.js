@@ -3214,6 +3214,21 @@ function listConstellations() {
 
 var geoInfo = null;
 
+Celestial.locationAndDateIntoCenter = function(geopos, date, transform) {
+  var lon = parseFloat(geopos[0]),
+      lat = parseFloat(geopos[1]),
+      localZone = -date.getTimezoneOffset(),
+      timeZone = localZone,
+      tz;
+
+  if (!isNaN(lon) && !isNaN(lat)) {
+    var dtc = new Date(date.valueOf() - (timeZone - localZone) * 60000);
+    var inverse = horizontal.inverse(dtc, [90, 0], geopos);
+    var zenith = Celestial.getPoint(inverse, transform);
+    return zenith;
+  }
+};
+
 function geo(cfg) {
   var dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zenith = [0,0],

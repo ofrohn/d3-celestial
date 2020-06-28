@@ -2,6 +2,19 @@
 
 var geoInfo = null;
 
+Celestial.locationAndDateIntoCenter = function(geopos, date, transform) {
+  var lon = parseFloat(geopos[0]),
+      lat = parseFloat(geopos[1]),
+      localZone = -date.getTimezoneOffset(),
+      timeZone = localZone;
+
+  if (!isNaN(lon) && !isNaN(lat)) {
+    var dtc = new Date(date.valueOf() - (timeZone - localZone) * 60000);
+    var inverse = horizontal.inverse(dtc, [90, 0], geopos);
+    return Celestial.getPoint(inverse, transform);
+  }
+};
+
 function geo(cfg) {
   var dtFormat = d3.time.format("%Y-%m-%d %H:%M:%S"),
       zenith = [0,0],
