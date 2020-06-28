@@ -594,14 +594,14 @@ Celestial.display = function(config) {
             setTextStyle(cfg.planets.symbolStyle);
             context.fillStyle = sym.fill;
             context.fillText(sym.letter, pt[0], pt[1]);
-          } else if (id === "lun") {
+          } else if (id === "lun" && !sym.showAsPlanet) {
             if (has(sym, "size") && isNumber(sym.size)) r = sym.size * adapt;
             context.fillStyle = sym.fill;
             Canvas.symbol().type("crescent").size(r*r).age(p.ephemeris.age).position(pt)(context);
           } else if (cfg.planets.symbolType === "disk") {
             r = has(sym, "size") && isNumber(sym.size) ? sym.size * adapt : planetSize(p.ephemeris);
-            context.fillStyle = sym.fill;
-            Canvas.symbol().type("circle").size(r*r).position(pt)(context);
+            context.fillStyle = sym.stroke;
+            Canvas.symbol().type("stroke-circle").size(r*r).position(pt)(context);
             context.fill();
           } else if (cfg.planets.symbolType === "symbol") {
             setTextStyle(cfg.planets.symbolStyle);
