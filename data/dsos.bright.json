@@ -68,7 +68,6 @@
   {"type": "Feature",
    "id": "NGC 6405",
    "properties": {
-     "name": "Butterfly Cluster",
      "desig": "M 6",
      "type": "oc",
      "morph":"III2p",

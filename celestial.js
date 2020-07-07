@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.27',
+  version: '0.7.28',
   container: null,
   data: []
 };
@@ -1858,7 +1858,7 @@ var formats = {
         "fr": "French", 
         "de": "German",
         "el": "Greek", 
-        //"he": "Hebrew",
+        "he": "Hebrew", 
         "hi": "Hindi", 
         "it": "Italian", 
         "ja": "Japanese", 

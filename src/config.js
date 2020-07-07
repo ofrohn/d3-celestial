@@ -374,7 +374,7 @@ var formats = {
         "fr": "French", 
         "de": "German",
         "el": "Greek", 
-        //"he": "Hebrew",
+        "he": "Hebrew", 
         "hi": "Hindi", 
         "it": "Italian", 
         "ja": "Japanese", 
