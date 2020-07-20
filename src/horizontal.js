@@ -27,7 +27,8 @@ horizontal.inverse = function(dt, hor, loc) {
   
   ha = Math.acos(ha);
   ha  = ha / deg2rad;
-  
+
+  // ??
   var ra = getMST(dt, loc[1]) - ha;
   //if (ra < 0) ra = ra + 360;
     
