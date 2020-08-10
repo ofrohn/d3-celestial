@@ -1,6 +1,6 @@
 /* global module, require, topojson, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.28',
+  version: '0.7.29',
   container: null,
   data: []
 };
@@ -361,9 +361,12 @@ Celestial.display = function(config) {
     width = getWidth();
     if (cfg.width === width && !set) return;
     height = width/ratio;
+    canvaswidth = isNumber(cfg.background.width) ? width + cfg.background.width : width;
+    canvasheight = Math.round(canvaswidth / ratio);
+
     scale = projectionSetting.scale * width/1024;
     //canvas.attr("width", width).attr("height", height);
-    canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height", height * pixelRatio);
+    canvas.style("width", px(canvaswidth)).style("height", px(canvasheight)).attr("width", canvaswidth * pixelRatio).attr("height", canvasheight * pixelRatio);
     zoom.scaleExtent([scale, scale * zoomextent]).scale(scale * zoomlevel);
     mapProjection.translate([canvaswidth/2, canvasheight/2]).scale(scale * zoomlevel);
     if (parent) parent.style.height = px(height);
@@ -381,7 +384,9 @@ Celestial.display = function(config) {
         delay = 0, clipTween = null,
         rTween = d3.interpolateNumber(ratio, prj.ratio);
 
-    if (projectionSetting.clip != prj.clip) interval = 0; // Different clip = no transition
+    if (projectionSetting.clip != prj.clip) {
+      interval = 0; // Different clip = no transition
+    }
     /*if (projectionSetting.clip !== prj.clip) {
       clipTween = d3.interpolateNumber(projectionSetting.clip ? 90 : 180, prj.clip ? 90 : 180); // Clipangle from - to
     } else*/ setClip(prj.clip);
@@ -412,18 +417,19 @@ Celestial.display = function(config) {
         ratio = rTween(_);
         height = width/ratio;
         //canvas.attr("width", width).attr("height", height);
-        canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height",  height * pixelRatio);
-        if (parent) parent.style.height = px(height);
+        canvas.style("width", px(canvaswidth)).style("height", px(canvasheight)).attr("width", canvaswidth * pixelRatio).attr("height",  canvasheight * pixelRatio);
+        if (parent) parent.style.height = px(canvasheight);
         redraw();
       };
     }).transition().duration(0).tween("projection", function () {
       projectionSetting = prj;
       ratio = projectionSetting.ratio;
       height = width / projectionSetting.ratio;
+      canvasheight = isNumber(cfg.background.width) ? height + cfg.background.width : height;
       scale = projectionSetting.scale * width/1024;
       //canvas.attr("width", width).attr("height", height);
-      canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height", height * pixelRatio);
-      if (parent) parent.style.height = px(height);
+      canvas.style("width", px(canvaswidth)).style("height", px(canvasheight)).attr("width", canvaswidth * pixelRatio).attr("height", canvasheight * pixelRatio);
+      if (parent) parent.style.height = px(canvasheight);
       cfg.projection = config.projection;
       mapProjection = Celestial.projection(config.projection).rotate(rot).translate([canvaswidth/2, canvasheight/2]).scale(scale * zoomlevel);
       map.projection(mapProjection);

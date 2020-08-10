@@ -148,12 +148,12 @@ var config = {
     // List of all objects to show
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep"],
     // Font styles for planetary symbols
-    symbols: {  // Character and color for each symbol in 'which', simple circle \u25cf
-      "sol": {symbol: "\u2609", letter:"Su", fill: "#ffff00"},
+    symbols: {  // Character and color for each symbol in 'which' above (simple circle: \u25cf), optional size override for Sun & Moon
+      "sol": {symbol: "\u2609", letter:"Su", fill: "#ffff00", size:""},
       "mer": {symbol: "\u263f", letter:"Me", fill: "#cccccc"},
       "ven": {symbol: "\u2640", letter:"V", fill: "#eeeecc"},
       "ter": {symbol: "\u2295", letter:"T", fill: "#00ccff"},
-      "lun": {symbol: "\u25cf", letter:"L", fill: "#ffffff"}, // overridden by generated crecent, except letter
+      "lun": {symbol: "\u25cf", letter:"L", fill: "#ffffff", size:""}, // overridden by generated crecent, except letter & size
       "mar": {symbol: "\u2642", letter:"Ma", fill: "#ff6600"},
       "cer": {symbol: "\u26b3", letter:"C", fill: "#cccccc"},
       "ves": {symbol: "\u26b6", letter:"Ma", fill: "#cccccc"},

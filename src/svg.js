@@ -743,8 +743,8 @@ function exportSVG(fname) {
       a.click();
       d3.select(a).remove();
       d3.select("#d3-celestial-svg").remove();
-    } else {
-      return svg.node().outerHTML;
+    } else if (exportCallback !== null) {
+      exportCallback(svg.node().outerHTML);
     }
   });
 
@@ -826,6 +826,10 @@ d3.svg.customSymbol = function() {
   return symbol;
 };
 
-Celestial.exportSVG = function() {
-  
+var exportCallback = null;
+
+Celestial.exportSVG = function(callback) {
+  if (!callback) return;
+  exportCallback = callback;
+  exportSVG();
 };
