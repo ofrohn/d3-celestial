@@ -742,10 +742,10 @@ function exportSVG(fname) {
       a.href = URL.createObjectURL(blob);
       a.click();
       d3.select(a).remove();
-      d3.select("#d3-celestial-svg").remove();
     } else if (exportCallback !== null) {
       exportCallback(svg.node().outerHTML);
     }
+    d3.select("#d3-celestial-svg").remove();
   });
 
 }
