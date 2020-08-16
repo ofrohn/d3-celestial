@@ -294,11 +294,11 @@ function geo(cfg) {
     return [l, b-0.001]; 
   };
 
-  if (has(cfg, "formFields") && (cfg.location === true || cfg.formFields.location === true)) {
+  if (has(config, "formFields") && (config.location === true || config.formFields.location === true)) {
     d3.select("#location").style( {"display": "inline-block"} );
   }
   //only if appropriate
-  if (cfg.location === true && cfg.formFields.location === true)
+  if (isValidLocation(geopos) && config.formFields.location === true && config.follow === "zenith")
     setTimeout(go, 1000); 
  
 }
