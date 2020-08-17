@@ -298,7 +298,7 @@ function geo(cfg) {
     d3.select("#location").style( {"display": "inline-block"} );
   }
   //only if appropriate
-  if (isValidLocation(geopos) && config.formFields.location === true && config.follow === "zenith")
+  if (isValidLocation(geopos) && (config.location === true || config.formFields.location === true) && config.follow === "zenith")
     setTimeout(go, 1000); 
  
 }

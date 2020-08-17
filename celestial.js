@@ -1694,6 +1694,7 @@ var settings = {
     //if (!res.lang || res.lang.search(/^de|es$/) === -1) res.lang = "name";
     //Set all poss. names to cfg.lang if not english
     if (!res.culture || res.culture.search(/^cn$/) === -1) res.culture = "iau";
+
     // Adapt legacy name parameters
     if (has(cfg, "stars")) {
       // names -> designation
@@ -3524,7 +3525,7 @@ function geo(cfg) {
     d3.select("#location").style( {"display": "inline-block"} );
   }
   //only if appropriate
-  if (isValidLocation(geopos) && config.formFields.location === true && config.follow === "zenith")
+  if (isValidLocation(geopos) && (config.location === true || config.formFields.location === true) && config.follow === "zenith")
     setTimeout(go, 1000); 
  
 }
