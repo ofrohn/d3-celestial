@@ -1,15 +1,15 @@
-/* global Celestial, settings, globalConfig, formats, formats_all, $, px, has, isNumber, isObject, isArray, findPos, transformDeg, euler, exportSVG */
+/* global Celestial, settings, globalConfig, formats, formats_all, $, px, has, isNumber, isObject, isArray, findPos, transformDeg, euler, exportSVG, parentElement */
 
 //display settings form in div with id "celestial-form"
 function form(cfg) {
   var config = settings.set(cfg); 
 
   var prj = Celestial.projections(), leo = Celestial.eulerAngles();
-  var div = d3.select("#celestial-form");
+  var div = d3.select(parentElement + " ~ #celestial-form");
   //if div doesn't exist, create it
   if (div.size() < 1) {
-    var container = (config.container || "celestial-map");
-    div = d3.select("#" + container).select(function() { return this.parentNode; }).append("div").attr("id", "celestial-form");
+    //var container = (config.container || "celestial-map");
+    div = d3.select(parentElement).select(function() { return this.parentNode; }).append("div").attr("id", "celestial-form");
   }
   var ctrl = div.append("div").attr("class", "ctrl");
   var frm = ctrl.append("form").attr("id", "params").attr("name", "params").attr("method", "get").attr("action" ,"#");
@@ -125,7 +125,7 @@ function form(cfg) {
   col.append("input").attr("type", "number").attr("id", "stars-exponent").attr("class", "advanced").attr("title", "Size of the displayed star disk; exponent").attr("value", config.stars.exponent).attr("max", "3").attr("min", "-1").attr("step", "0.01").on("change", apply);
   col.append("span").attr("class", "advanced").text(" * (magnitude + 2))  [* adaptation]");
   
-  enable($("stars-show"));
+  enable($form("stars-show"));
   
   // DSOs 
   col = frm.append("div").attr("class", "col").attr("id", "dsos");
@@ -178,7 +178,7 @@ function form(cfg) {
   col.append("label").attr("for", "dsos-exponent").attr("class", "advanced").html(" * 2 [* adaptation] - magnitude) ^ exponent");
   col.append("input").attr("type", "number").attr("id", "dsos-exponent").attr("class", "advanced").attr("title", "Size of the displayed symbol; exponent").attr("value", config.dsos.exponent).attr("max", "3").attr("min", "-1").attr("step", "0.01").on("change", apply);
 
-  enable($("dsos-show"));
+  enable($form("dsos-show"));
 
   // Constellations 
   col = frm.append("div").attr("class", "col").attr("id", "constellations");
@@ -221,7 +221,7 @@ function form(cfg) {
   col.append("label").attr("for", "constellations-bounds").html(" boundaries");
   col.append("input").attr("type", "checkbox").attr("id", "constellations-bounds").property("checked", config.constellations.bounds).on("change", apply);
 
-  enable($("constellations-names"));
+  enable($form("constellations-names"));
 
   // graticules & planes 
   col = frm.append("div").attr("class", "col").attr("id", "lines");
@@ -290,7 +290,7 @@ function form(cfg) {
 
   col.append("input").attr("type", "button").attr("id", "download-png").attr("value", "PNG Image").on("click", function() {
     var a = d3.select("body").append("a").node(), 
-        canvas = document.querySelector("#" + config.container + ' canvas');
+        canvas = document.querySelector(parentElement + ' canvas');
     a.download = getFilename(".png");
     a.rel = "noopener";
     a.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
@@ -341,7 +341,7 @@ function form(cfg) {
   }
 
   function getCenter() {
-    var cx = $("centerx"), cy = $("centery"), cz = $("centerz"),
+    var cx = $form("centerx"), cy = $form("centery"), cz = $form("centerz"),
         rot = [];
 
     if (!cx || !cy) return;
@@ -476,7 +476,7 @@ function form(cfg) {
     
   function update() {
     // Update all form fields
-    d3.selectAll("#celestial-form input, #celestial-form select").each( function(d, i) {
+    d3.selectAll(parentElement + " ~ #celestial-form input, " + parentElement + " ~  #celestial-form select").each( function(d, i) {
       if (this === undefined) return;
       var id = this.id;
 
@@ -550,36 +550,36 @@ function enable(source) {
   
   switch (fld) {
     case "stars-show": 
-      off = !$(fld).checked;
+      off = !$form(fld).checked;
       for (var i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
       /* falls through */
     case "stars-designation": 
-      off = !$("stars-designation").checked || !$("stars-show").checked;
+      off = !$form("stars-designation").checked || !$form("stars-show").checked;
       for (i=0; i< depends["stars-designation"].length; i++) { fldEnable(depends["stars-designation"][i], off); }
       /* falls through */
     case "stars-propername": 
-      off = !$("stars-propername").checked || !$("stars-show").checked;
+      off = !$form("stars-propername").checked || !$form("stars-show").checked;
       for (i=0; i< depends["stars-propername"].length; i++) { fldEnable(depends["stars-propername"][i], off); }
       break;
     case "dsos-show": 
-      off = !$(fld).checked;
+      off = !$form(fld).checked;
       for (i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
       /* falls through */
     case "dsos-names": 
-      off = !$("dsos-names").checked || !$("dsos-show").checked;      
+      off = !$form("dsos-names").checked || !$form("dsos-show").checked;      
       for (i=0; i< depends["dsos-names"].length; i++) { fldEnable(depends["dsos-names"][i], off); }
       break;
     case "planets-show": 
-      off = !$(fld).checked;
+      off = !$form(fld).checked;
       for (i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
       /* falls through */
     case "planets-names": 
-      off = !$("planets-names").checked || !$("planets-show").checked;      
+      off = !$form("planets-names").checked || !$form("planets-show").checked;      
       for (i=0; i< depends["planets-names"].length; i++) { fldEnable(depends["planets-names"][i], off); }
       break;
     case "constellations-names": 
     case "mw-show": 
-      off = !$(fld).checked;
+      off = !$form(fld).checked;
       for (i=0; i< depends[fld].length; i++) { fldEnable(depends[fld][i], off); }
       break;
   }  
@@ -587,7 +587,7 @@ function enable(source) {
 
 // Enable/disable field d to status off
 function fldEnable(d, off) {
-  var node = $(d);
+  var node = $form(d);
   if (!node) return;
   node.disabled = off;
   node.style.color = off ? "#999" : "#000";  
@@ -637,7 +637,7 @@ function testColor(node) {
 }
 
 function setUnit(trans, old) {
-  var cx = $("centerx");
+  var cx = $form("centerx");
   if (!cx) return null;
   
   if (old) {
@@ -652,17 +652,17 @@ function setUnit(trans, old) {
   if (trans === 'equatorial') {
     cx.min = "0";
     cx.max = "24";
-    $("cxunit").innerHTML = "h";
+    $form("cxunit").innerHTML = "h";
   } else {
     cx.min = "-180";
     cx.max = "180";
-    $("cxunit").innerHTML = "\u00b0";
+    $form("cxunit").innerHTML = "\u00b0";
   }
   return cx.value;
 }
 
 function setCenter(ctr, trans) {
-  var cx = $("centerx"), cy = $("centery"), cz = $("centerz");
+  var cx = $form("centerx"), cy = $form("centery"), cz = $form("centerz");
   if (!cx || !cy) return;
   
   if (ctr === null || ctr.length < 1) ctr = [0,0,0]; 
@@ -691,8 +691,8 @@ function setLimits() {
   }
 
   if (res.d !== 6) {
-    $("dsos-limit").max = res.d;
-    $("dsos-nameLimit").max = res.d;
+    $form("dsos-limit").max = res.d;
+    $form("dsos-nameLimit").max = res.d;
   }
    
    s = config.stars.data;
@@ -704,9 +704,9 @@ function setLimits() {
   }
 
   if (res.s != 6) {
-    $("stars-limit").max = res.s;
-    $("stars-designationLimit").max = res.s;
-    $("stars-propernameLimit").max = res.s;
+    $form("stars-limit").max = res.s;
+    $form("stars-designationLimit").max = res.s;
+    $form("stars-propernameLimit").max = res.s;
   }
 
   return res;
@@ -716,8 +716,8 @@ function setLimits() {
 //"stars-designationType", "stars-propernameType", "stars-size", "stars-exponent", "stars-size", "stars-exponent", //"constellations-namesType", "planets-namesType", "planets-symbolType"
 function showAdvanced(showit) {
   var vis = showit ? "inline-block" : "none";
-  d3.selectAll(".advanced").style("display", vis);
-  d3.selectAll("#label-propername").style("display", showit ? "none" : "inline-block");
+  d3.select(parentElement + " ~ #celestial-form").selectAll(".advanced").style("display", vis);
+  d3.select(parentElement + " ~ #celestial-form").selectAll("#label-propername").style("display", showit ? "none" : "inline-block");
 }
 
 
@@ -725,33 +725,33 @@ function setVisibility(cfg, which) {
    var vis, fld;
    if (!has(cfg, "formFields")) return;
    if (which && has(cfg.formFields, which)) {
-     d3.select("#" + which).style( {"display": "none"} );
+     d3.select(parentElement + " ~ #celestial-form").select("#" + which).style( {"display": "none"} );
      return;
    }
    // Special case for backward compatibility
    if (cfg.form === false && cfg.location === true) {
-     d3.select("#celestial-form").style("display", "inline-block");
+     d3.select(parentElement + " ~ #celestial-form").style("display", "inline-block");
      for (fld in cfg.formFields) {
       if (!has(cfg.formFields, fld)) continue;
        if (fld === "location") continue;
-       d3.select("#" + fld).style( {"display": "none"} );     
+       d3.select(parentElement + " ~ #celestial-form").select("#" + fld).style( {"display": "none"} );     
      }
      return;
    }
    // hide if not desired
-   if (cfg.form === false) d3.select("#celestial-form").style("display", "none"); 
+   if (cfg.form === false) d3.select(parentElement + " ~ #celestial-form").style("display", "none"); 
 
    for (fld in cfg.formFields) {
      if (!has(cfg.formFields, fld)) continue;
      if (fld === "location") continue;
      vis = cfg.formFields[fld] === false ? "none" : "block";
-     d3.select("#" + fld).style( {"display": vis} );     
+     d3.select(parentElement + " ~ #celestial-form").select("#" + fld).style( {"display": vis} );     
    }
    
 }
 
 function listConstellations() {
-  var sel = d3.select("#constellation"),
+  var sel = d3.select(parentElement + " ~ #celestial-form").select("#constellation"),
       list = [], selected = 0, id, name, config = globalConfig;
     
   Celestial.container.selectAll(".constname").each( function(d, i) {
@@ -772,9 +772,13 @@ function listConstellations() {
      .attr("value", function (d) { return d.o; })
      .text(function (d) { return d.n; });
   sel.property("selectedIndex", selected);
-  //$("constellation").firstChild.disabled = true;
+  //$form("constellation").firstChild.disabled = true;
 
   //Celestial.constellations = list;
 }
+
+function $form(id) { return document.querySelector(parentElement + " ~ #celestial-form" + " #" + id); }
+
+
 
 

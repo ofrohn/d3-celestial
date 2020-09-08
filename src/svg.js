@@ -37,13 +37,7 @@ function exportSVG(fname) {
     groups[groupNames[i]] = svg.append('g').attr({"id": groupNames[i], ":inkscape:groupmode": "layer", ":inkscape:label": groupNames[i]});
     styles[groupNames[i]] = {};
   }
-/*
-  var background = svg.append('g'),
-      grid = svg.append('g'),
-      objects = svg.append('g'),
-      planets = svg.append('g'),
-      foreground = svg.append('g');
-*/  
+
   var graticule = d3.geo.graticule().minorStep([15,10]);
   
   var map = d3.geo.path().projection(projection);

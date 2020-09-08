@@ -1,4 +1,4 @@
-/* global dateDiff, $, px, testNumber, isNumber */
+/* global dateDiff, $, $form, px, testNumber, isNumber, parentElement */
 var datetimepicker = function(cfg, callback) {
   var date = new Date(), 
       tzFormat = d3.time.format("%Z"),
@@ -9,7 +9,7 @@ var datetimepicker = function(cfg, callback) {
       dateFormat = d3.time.format("%Y-%m-%d"),
       dtrange = cfg.daterange || [];
     
-  var picker = d3.select("#celestial-form").append("div").attr("id", "celestial-date");
+  var picker = d3.select(parentElement + " ~ #celestial-form").append("div").attr("id", "celestial-date");
   nav("left");
   monSel();
   yrSel();
@@ -23,9 +23,9 @@ var datetimepicker = function(cfg, callback) {
   tzSel();
   
   function daySel() {
-    var mo = $("mon").value, yr = $("yr").value,
+    var mo = $form("mon").value, yr = $form("yr").value,
         curdt = new Date(yr, mo, 1),
-        cal = d3.select("#cal"),
+        cal = d3.select(parentElement + " ~ #celestial-form").select("#cal"),
         today = new Date();
     yr = parseInt(yr);   
     mo = parseInt(mo);   
@@ -59,7 +59,7 @@ var datetimepicker = function(cfg, callback) {
   }
 
   function fillYrSel() { 
-    var sel = d3.select("select#yr"),
+    var sel = d3.select(parentElement + " ~ #celestial-form").select("select#yr"),
         year = date.getFullYear(),
         selected = 0,
         years = getYears(date);
@@ -89,7 +89,7 @@ var datetimepicker = function(cfg, callback) {
   
   function nav(dir) {
     var lnk = picker.append("div").attr("id", dir).on("click", function () {
-      var mon = $("mon"), yr = $("yr");
+      var mon = $form("mon"), yr = $form("yr");
       
       if (dir === "left") {
         if (mon.selectedIndex === 0) {
@@ -149,7 +149,7 @@ var datetimepicker = function(cfg, callback) {
   }
 
   function select(id, val) {
-    var sel = $(id);
+    var sel = $form(id);
     for (var i=0; i<sel.childNodes.length; i++) {
       if (sel.childNodes[i].value == val) {
         sel.selectedIndex = i;
@@ -164,14 +164,14 @@ var datetimepicker = function(cfg, callback) {
      select("yr", date.getFullYear());
      select("mon", date.getMonth());
      daySel();
-     $("hr").value = date.getHours();
-     $("min").value = date.getMinutes();
-     $("sec").value = date.getSeconds();
+     $form("hr").value = date.getHours();
+     $form("min").value = date.getMinutes();
+     $form("sec").value = date.getSeconds();
   } 
   
   this.show = function(dt, tz) {
-    var nd = $("celestial-date"),
-        src = $("datepick"),
+    var nd = $form("celestial-date"),
+        src = $form("datepick"),
         left = src.offsetLeft + src.offsetWidth - nd.offsetWidth,
         top = src.offsetTop - nd.offsetHeight - 1;
   
@@ -179,8 +179,8 @@ var datetimepicker = function(cfg, callback) {
       date.setTime(dt.valueOf());
       select("tz", tz);
       set();
-      d3.select("#celestial-date").style({"top": px(top), "left": px(left), "opacity": 1});  
-      d3.select("#datepick").classed("active", true);
+      d3.select(parentElement + " ~ #celestial-form").select("#celestial-date").style({"top": px(top), "left": px(left), "opacity": 1});  
+      d3.select(parentElement + " ~ #celestial-form").select("#datepick").classed("active", true);
     } else {
       vanish();
     }
@@ -188,7 +188,7 @@ var datetimepicker = function(cfg, callback) {
   
   this.isVisible = function () {
     if (!document.getElementById("datepick")) return false;
-    return d3.select("#datepick").classed("active") === true;
+    return d3.select(parentElement + " ~ #celestial-form").select("#datepick").classed("active") === true;
   };
 
   this.hide = function () {
@@ -196,15 +196,15 @@ var datetimepicker = function(cfg, callback) {
   };
   
   function vanish() {
-    d3.select("#celestial-date").style("opacity", 0);
+    d3.select(parentElement + " ~ #celestial-form").select("#celestial-date").style("opacity", 0);
     d3.select("#error").style( {top:"-9999px", left:"-9999px", opacity:0} ); 
-    d3.select("#datepick").classed("active", false);
-    setTimeout(function () { $("celestial-date").style.top = px(-9999); }, 600);    
+    d3.select(parentElement + " ~ #celestial-form").select("#datepick").classed("active", false);
+    setTimeout(function () { $form("celestial-date").style.top = px(-9999); }, 600);    
   }
   
   function pick() {
-    var h = $("hr").value, m = $("min").value,
-        s = $("sec").value, tz = $("tz").value;
+    var h = $form("hr").value, m = $form("min").value,
+        s = $form("sec").value, tz = $form("tz").value;
         
     if (this.id && this.id.search(/^\d/) !== -1) {
       date = dateFormat.parse(this.id); 
@@ -216,5 +216,6 @@ var datetimepicker = function(cfg, callback) {
     
     callback(date, tz);
   } 
+  
   
 };

@@ -1,5 +1,5 @@
-/* global τ, halfπ, deg2rad */
-function $(id) { return document.getElementById(id); }
+/* global τ, halfπ, deg2rad, parentElement */
+function $(id) { return document.querySelector(parentElement + " #" + id); }
 function px(n) { return n + "px"; } 
 function Round(x, dg) { return(Math.round(Math.pow(10,dg)*x)/Math.pow(10,dg)); }
 function sign(x) { return x ? x < 0 ? -1 : 1 : 0; }

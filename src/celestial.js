@@ -1,6 +1,6 @@
 /* global module, require, topojson, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.31',
+  version: '0.7.32',
   container: null,
   data: []
 };
@@ -13,22 +13,22 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
     zoomextent = 10,       // Default maximum extent of zoom (max/min)
     zoomlevel = 1;         // Default zoom level, 1 = 100%
 
-var cfg, mapProjection, zoom, map, circle, daylight, starnames = {}, dsonames = {};
+var cfg, mapProjection, parentElement, zoom, map, circle, daylight, starnames = {}, dsonames = {};
 
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
-  var parentElement, animationID,
+  var animationID,
       container = Celestial.container,
       animations = [], 
       current = 0, 
       repeat = false;
   
-  //Mash config with default settings
+  //Mash config with default settings, todo: if globalConfig exists, make another one
   cfg = settings.set(config).applyDefaults(config);
   if (isNumber(cfg.zoomextend)) zoomextent = cfg.zoomextend;
   if (isNumber(cfg.zoomlevel)) zoomlevel = cfg.zoomlevel;
 
-  var parent = $(cfg.container);
+  var parent = document.getElementById(cfg.container);
   if (parent) { 
     parentElement = "#" + cfg.container;
     var st = window.getComputedStyle(parent, null);
@@ -59,9 +59,8 @@ Celestial.display = function(config) {
       adapt = 1,
       rotation = getAngles(cfg.center),
       path = cfg.datapath;
-  
-      
-  if (parentElement !== "body") $(cfg.container).style.height = px(canvasheight);
+     
+  if (parentElement !== "body") parent.style.height = px(canvasheight);
   
   mapProjection = Celestial.projection(cfg.projection).rotate(rotation).translate([canvaswidth/2, canvasheight/2]).scale(scale * zoomlevel);
     
@@ -83,7 +82,7 @@ Celestial.display = function(config) {
   map = d3.geo.path().projection(mapProjection).context(context);
    
   //parent div with id #celestial-map or body
-  if (container) container.selectAll("*").remove();
+  if (container) container.selectAll(parentElement + "*").remove();
   else container = d3.select(parentElement).append("container");
 
   if (cfg.interactive) {
@@ -113,7 +112,7 @@ Celestial.display = function(config) {
   else if (cfg.location === true && cfg.follow === "zenith") rotate({center: Celestial.zenith()});
 
   if (cfg.location === true || cfg.formFields.location === true) {
-    d3.select("#location").style("display", "inline-block");
+    d3.select(parentElement + " #location").style("display", "inline-block");
     fldEnable("horizon-show", projectionSetting.clip);
     fldEnable("daylight-show", !projectionSetting.clip);
   }
@@ -132,12 +131,12 @@ Celestial.display = function(config) {
       if (key === "graticule") {
         container.append("path").datum(graticule).attr("class", "graticule"); 
         if (has(cfg.lines.graticule, "lon") && cfg.lines.graticule.lon.pos.length > 0) 
-          container.selectAll(".gridvalues_lon")
+          container.selectAll(parentElement + " .gridvalues_lon")
             .data(getGridValues("lon", cfg.lines.graticule.lon.pos))
             .enter().append("path")
             .attr("class", "graticule_lon"); 
         if (has(cfg.lines.graticule, "lat") && cfg.lines.graticule.lat.pos.length > 0) 
-          container.selectAll(".gridvalues_lat")
+          container.selectAll(parentElement + " .gridvalues_lat")
             .data(getGridValues("lat", cfg.lines.graticule.lat.pos))
             .enter().append("path")
             .attr("class", "graticule_lat"); 
@@ -158,11 +157,11 @@ Celestial.display = function(config) {
       var mw = getData(json, cfg.transform);
       var mw_back = getMwbackground(mw);
 
-      container.selectAll(".mway")
+      container.selectAll(parentElement + " .mway")
          .data(mw.features)
          .enter().append("path")
          .attr("class", "mw");
-      container.selectAll(".mwaybg")
+      container.selectAll(parentElement + " .mwaybg")
          .data(mw_back.features)
          .enter().append("path")
          .attr("class", "mwbg");
@@ -174,7 +173,7 @@ Celestial.display = function(config) {
       if (error) return console.warn(error);
       
       var con = getData(json, cfg.transform);
-      container.selectAll(".constnames")
+      container.selectAll(parentElement + " .constnames")
          .data(con.features)
          .enter().append("text")
          .attr("class", "constname");
@@ -190,7 +189,7 @@ Celestial.display = function(config) {
       //var cb = getData(topojson.feature(json, json.objects.constellations_bounds), cfg.transform);
       var cb = getData(json, cfg.transform);
       
-      container.selectAll(".bounds")
+      container.selectAll(parentElement + " .bounds")
          .data(cb.features)
          .enter().append("path")
          .attr("class", "boundaryline");
@@ -203,7 +202,7 @@ Celestial.display = function(config) {
 
       var conl = getData(json, cfg.transform);
 
-      container.selectAll(".lines")
+      container.selectAll(parentElement + " .lines")
          .data(conl.features)
          .enter().append("path")
          .attr("class", "constline");
@@ -218,7 +217,7 @@ Celestial.display = function(config) {
 
       var st = getData(json, cfg.transform);
 
-      container.selectAll(".stars")
+      container.selectAll(parentElement + " .stars")
          .data(st.features)
          .enter().append("path")
          .attr("class", "star");
@@ -239,7 +238,7 @@ Celestial.display = function(config) {
       
       var ds = getData(json, cfg.transform);
 
-      container.selectAll(".dsos")
+      container.selectAll(parentElement + " .dsos")
          .data(ds.features)
          .enter().append("path")
          .attr("class", "dso" );
@@ -259,7 +258,7 @@ Celestial.display = function(config) {
       
       var pl = getPlanets(json, cfg.transform);
 
-      container.selectAll(".planets")
+      container.selectAll(parentElement + " .planets")
          .data(pl)
          .enter().append("path")
          .attr("class", "planet");
@@ -467,23 +466,23 @@ Celestial.display = function(config) {
     
     //Draw all types of objects on the canvas
     if (cfg.mw.show) { 
-      container.selectAll(".mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
+      container.selectAll(parentElement + " .mw").each(function(d) { setStyle(cfg.mw.style); map(d); context.fill(); });
       // paint mw-outside in background color
       if (cfg.transform !== "supergalactic" && cfg.background.opacity > 0.95)
-        container.selectAll(".mwbg").each(function(d) { setStyle(cfg.background); map(d); context.fill(); });
+        container.selectAll(parentElement + " .mwbg").each(function(d) { setStyle(cfg.background); map(d); context.fill(); });
     }
     
     for (var key in cfg.lines) {
       if (!has(cfg.lines, key)) continue;
       if (cfg.lines[key].show !== true) continue;
       setStyle(cfg.lines[key]);
-      container.selectAll("." + key).attr("d", map);  
+      container.selectAll(parentElement + " ." + key).attr("d", map);  
       context.stroke(); 
     }
 
     if (has(cfg.lines.graticule, "lon")) {
       setTextStyle(cfg.lines.graticule.lon);
-      container.selectAll(".graticule_lon").each(function(d, i) { 
+      container.selectAll(parentElement + " .graticule_lon").each(function(d, i) { 
         if (clip(d.geometry.coordinates)) {
           var pt = mapProjection(d.geometry.coordinates);
           gridOrientation(pt, d.properties.orientation);
@@ -494,7 +493,7 @@ Celestial.display = function(config) {
     
     if (has(cfg.lines.graticule, "lat")) {
       setTextStyle(cfg.lines.graticule.lat);
-      container.selectAll(".graticule_lat").each(function(d, i) { 
+      container.selectAll(parentElement + " .graticule_lat").each(function(d, i) { 
         if (clip(d.geometry.coordinates)) {
           var pt = mapProjection(d.geometry.coordinates);
           gridOrientation(pt, d.properties.orientation);
@@ -504,7 +503,7 @@ Celestial.display = function(config) {
     }
     
     if (cfg.constellations.bounds) { 
-      container.selectAll(".boundaryline").each(function(d) { 
+      container.selectAll(parentElement + " .boundaryline").each(function(d) { 
         setStyle(cfg.constellations.boundStyle); 
         if (Celestial.constellation) {
           var re = new RegExp("\\b" + Celestial.constellation + "\\b");
@@ -521,7 +520,7 @@ Celestial.display = function(config) {
     }
 
     if (cfg.constellations.lines) { 
-      container.selectAll(".constline").each(function(d) { 
+      container.selectAll(parentElement + " .constline").each(function(d) { 
         setStyleA(d.properties.rank, cfg.constellations.lineStyle); 
         map(d); 
         context.stroke(); 
@@ -532,7 +531,7 @@ Celestial.display = function(config) {
 
     if (cfg.constellations.names) { 
       //setTextStyle(cfg.constellations.nameStyle);
-      container.selectAll(".constname").each( function(d) { 
+      container.selectAll(parentElement + " .constname").each( function(d) { 
         if (clip(d.geometry.coordinates)) {
           setStyleA(d.properties.rank, cfg.constellations.nameStyle);
           var pt = mapProjection(d.geometry.coordinates);
@@ -544,7 +543,7 @@ Celestial.display = function(config) {
 
     if (cfg.stars.show) { 
       setStyle(cfg.stars.style);
-      container.selectAll(".star").each(function(d) {
+      container.selectAll(parentElement + " .star").each(function(d) {
         if (clip(d.geometry.coordinates) && d.properties.mag <= cfg.stars.limit) {
           var pt = mapProjection(d.geometry.coordinates),
               r = starSize(d);
@@ -566,7 +565,7 @@ Celestial.display = function(config) {
     }
     
     if (cfg.dsos.show) { 
-      container.selectAll(".dso").each(function(d) {
+      container.selectAll(parentElement + " .dso").each(function(d) {
         if (clip(d.geometry.coordinates) && dsoDisplay(d.properties, cfg.dsos.limit)) {
           var pt = mapProjection(d.geometry.coordinates),
               type = d.properties.type;
@@ -588,7 +587,7 @@ Celestial.display = function(config) {
     if ((cfg.location || cfg.formFields.location) && cfg.planets.show && Celestial.origin) { 
       var dt = Celestial.date(),
           o = Celestial.origin(dt).spherical();
-      container.selectAll(".planet").each(function(d) {
+      container.selectAll(parentElement + " .planet").each(function(d) {
         var id = d.id(), r = 12 * adapt,
             p = d(dt).equatorial(o),
             pos = transformDeg(p.ephemeris.pos, euler[cfg.transform]);  //transform; 
@@ -642,7 +641,7 @@ Celestial.display = function(config) {
 
         daylight.origin(solpos);
         setSkyStyle(dist, pt);
-        container.selectAll(".daylight").datum(daylight).attr("d", map);
+        container.selectAll(parentElement + " .daylight").datum(daylight).attr("d", map);
         context.fill();    
         context.fillStyle = "#fff"; 
         if (clip(solpos)) {
@@ -657,7 +656,7 @@ Celestial.display = function(config) {
     if ((cfg.location || cfg.formFields.location) && cfg.horizon.show && !projectionSetting.clip) {
       circle.origin(Celestial.nadir());
       setStyle(cfg.horizon);
-      container.selectAll(".horizon").datum(circle).attr("d", map);  
+      container.selectAll(parentElement + " .horizon").datum(circle).attr("d", map);  
       context.fill(); 
       if (cfg.horizon.stroke) context.stroke(); 
     }
@@ -681,7 +680,7 @@ Celestial.display = function(config) {
     
     mapProjection.rotate([0,0]);
     setStyle(cfg.background);
-    container.selectAll(".outline").attr("d", map);
+    container.selectAll(parentElement + " .outline").attr("d", map);
     if (stroke === true) {
       context.globalAlpha = 1;      
       context.stroke(); 
@@ -955,7 +954,7 @@ Celestial.display = function(config) {
       ctr = getAngles(Celestial.zenith());
     } 
     if (ctr) mapProjection.rotate(ctr);
-    container.selectAll("*").remove(); 
+    container.selectAll(parentElement + " *").remove(); 
     load(); 
   }; 
   this.apply = function(config) { apply(config); }; 

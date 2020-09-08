@@ -1,6 +1,6 @@
 /* Copyright 2015-16 Olaf Frohn https://github.com/ofrohn, see LICENSE */
 
-#celestial-map { width: 100%; height: auto; margin: 0; padding: 0; display: inline-block; position: relative; }
+#celestial-map { width: 100%; height: auto; margin: 0; padding: 0; display: inline-block; position: relative; min-width:720px; overflow: visible; }
 #celestial-map canvas { display: inline-block; position:absolute; z-index:0; cursor:hand; cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; }
 #celestial-map canvas:active { cursor:move; cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing; }
 #d3-celestial-footer { text-align:center; color:#666; font:10pt/1 'Arial Unicode MS', Arial, Helvetica, sans-serif; }
@@ -9,7 +9,7 @@
 /* Form */
 #celestial-form { font:12pt/1 'Arial Unicode MS', Arial, Helvetica, sans-serif;  display: inline-block; position: relative; }
 #error { position:absolute; min-width:100px; height:auto; padding: 2px 4px; color:#f00; background:#fff; border:2px solid #f00; border-radius:3px; font-weight:normal; display:block; top:-9999px; left:-9999px; opacity:0; transition:opacity 1s linear; }
-#celestial-form .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; clear:both; }
+#celestial-form .col { border-top: 1px dotted #000; padding: 4px 6px; margin:0 0 4px; clear:both; white-space: nowrap; }
 /* What parts to show */
 #celestial-form #general,
 #celestial-form #location,

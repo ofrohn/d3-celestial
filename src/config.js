@@ -205,48 +205,51 @@ var settings = {
     //Set all poss. names to cfg.lang if not english
     if (!res.culture || res.culture.search(/^cn$/) === -1) res.culture = "iau";
 
-    // Adapt legacy name parameters
-    if (has(cfg, "stars")) {
-      // names -> designation
-      if (has(cfg.stars, "names")) res.stars.designation = cfg.stars.names;
-      if (has(cfg.stars, "namelimit")) res.stars.designationLimit = cfg.stars.namelimit;
-      if (has(cfg.stars, "namestyle")) Object.assign(res.stars.designationStyle, cfg.stars.namestyle);    
-      // proper -> propername
-      if (has(cfg.stars, "proper")) res.stars.propername = cfg.stars.proper;
-      if (has(cfg.stars, "propernamelimit")) res.stars.propernameLimit = cfg.stars.propernamelimit;
-      if (has(cfg.stars, "propernamestyle")) Object.assign(res.stars.propernameStyle, cfg.stars.propernamestyle);
+    if (cfg) {
+      // Adapt legacy name parameters
+      if (has(cfg, "stars")) {
+        // names -> designation
+        if (has(cfg.stars, "names")) res.stars.designation = cfg.stars.names;
+        if (has(cfg.stars, "namelimit")) res.stars.designationLimit = cfg.stars.namelimit;
+        if (has(cfg.stars, "namestyle")) Object.assign(res.stars.designationStyle, cfg.stars.namestyle);    
+        // proper -> propername
+        if (has(cfg.stars, "proper")) res.stars.propername = cfg.stars.proper;
+        if (has(cfg.stars, "propernamelimit")) res.stars.propernameLimit = cfg.stars.propernamelimit;
+        if (has(cfg.stars, "propernamestyle")) Object.assign(res.stars.propernameStyle, cfg.stars.propernamestyle);
+      }
+
+      if (has(cfg, "dsos")) {
+        // names, desig -> namesType
+        //if (has(cfg.dsos, "names") && cfg.dsos.names === true) res.dsos.namesType = "name";
+        if (has(cfg.dsos, "desig") && cfg.dsos.desig === true) res.dsos.namesType = "desig";
+        if (has(cfg.dsos, "namelimit")) res.dsos.nameLimit = cfg.dsos.namelimit;
+        if (has(cfg.dsos, "namestyle")) Object.assign(res.dsos.nameStyle, cfg.dsos.namestyle);    
+      }
+      
+      if (has(cfg, "constellations")) {
+        // names, desig -> namesType
+        if (has(cfg.constellations, "show") && cfg.constellations.show === true) res.constellations.names = true;
+        //if (has(cfg.constellations, "names") && cfg.constellations.names === true) res.constellations.namesType = "name";
+        if (has(cfg.constellations, "desig") && cfg.constellations.desig === true) res.constellations.namesType = "desig";
+        if (res.constellations.namesType === "latin") res.constellations.namesType = "la";
+        if (res.constellations.namesType === "iau") res.constellations.namesType = "name";
+        if (has(cfg.constellations, "namestyle")) Object.assign(res.constellations.nameStyle, cfg.constellations.namestyle);
+        if (has(cfg.constellations, "linestyle")) Object.assign(res.constellations.lineStyle, cfg.constellations.linestyle);
+        if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
+      }
+
+      if (has(cfg, "planets")) {
+        if (has(cfg.planets, "style")) Object.assign(res.planets.style, cfg.planets.symbolStyle);      
+      }
     }
+    //Assign default name types if none given
     if (!res.stars.designationType || res.stars.designationType === "") res.stars.designationType = "desig";
     if (!has(formats.starnames[res.culture].designation, res.stars.designationType)) res.designationType = "desig";
     if (!res.stars.propernameType || res.stars.propernameType === "") res.stars.propernameType = "name";
     if (!has(formats.starnames[res.culture].propername, res.stars.propernameType)) res.propernameType = "name";
-
-    if (has(cfg, "dsos")) {
-      // names, desig -> namesType
-      //if (has(cfg.dsos, "names") && cfg.dsos.names === true) res.dsos.namesType = "name";
-      if (has(cfg.dsos, "desig") && cfg.dsos.desig === true) res.dsos.namesType = "desig";
-      if (has(cfg.dsos, "namelimit")) res.dsos.nameLimit = cfg.dsos.namelimit;
-      if (has(cfg.dsos, "namestyle")) Object.assign(res.dsos.nameStyle, cfg.dsos.namestyle);    
-    }
     if (!res.dsos.namesType || res.dsos.namesType === "") res.dsos.namesType = "desig";
-    
-    if (has(cfg, "constellations")) {
-      // names, desig -> namesType
-      if (has(cfg.constellations, "show") && cfg.constellations.show === true) res.constellations.names = true;
-      //if (has(cfg.constellations, "names") && cfg.constellations.names === true) res.constellations.namesType = "name";
-      if (has(cfg.constellations, "desig") && cfg.constellations.desig === true) res.constellations.namesType = "desig";
-      if (res.constellations.namesType === "latin") res.constellations.namesType = "la";
-      if (res.constellations.namesType === "iau") res.constellations.namesType = "name";
-      if (has(cfg.constellations, "namestyle")) Object.assign(res.constellations.nameStyle, cfg.constellations.namestyle);
-      if (has(cfg.constellations, "linestyle")) Object.assign(res.constellations.lineStyle, cfg.constellations.linestyle);
-      if (has(cfg.constellations, "boundstyle")) Object.assign(res.constellations.boundStyle, cfg.constellations.boundstyle);
-    }
     if (!res.constellations.namesType || res.constellations.namesType === "") res.constellations.namesType = "desig";
     if (!has(formats.constellations[res.culture].names, res.constellations.namesType)) res.constellations.namesType = "name";
-
-    if (has(cfg, "planets")) {
-      if (has(cfg.planets, "style")) Object.assign(res.planets.style, cfg.planets.symbolStyle);      
-    }
     if (!res.planets.symbolType || res.planets.symbolType === "") res.planets.symbolType = "symbol";
     if (!res.planets.namesType || res.planets.namesType === "") res.planets.namesType = "desig";
     if (!has(formats.planets[res.culture].names, res.planets.namesType)) res.planets.namesType = "desig";
