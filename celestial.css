@@ -1,7 +1,7 @@
 /* Copyright 2015-16 Olaf Frohn https://github.com/ofrohn, see LICENSE */
 
 #celestial-map { width: 100%; height: auto; margin: 0; padding: 0; display: inline-block; position: relative; min-width:720px; overflow: visible; }
-#celestial-map canvas { display: inline-block; position:absolute; z-index:0; cursor:hand; cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; }
+#celestial-map canvas { display: inline-block; position:relative; z-index:0; cursor:hand; cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; }
 #celestial-map canvas:active { cursor:move; cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing; }
 #d3-celestial-footer { text-align:center; color:#666; font:10pt/1 'Arial Unicode MS', Arial, Helvetica, sans-serif; }
 #d3-celestial-footer a { text-decoration:none; color:#99f; }
