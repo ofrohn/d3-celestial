@@ -43,7 +43,7 @@ Celestial.display = function(config) {
       width = getWidth(),
       canvaswidth = isNumber(cfg.background.width) ? width + cfg.background.width : width,
       pixelRatio = window.devicePixelRatio || 1,
-      projectionSetting = getProjection(cfg.projection);
+      projectionSetting = getProjection(cfg.projection, cfg.projectionRatio);
 
   if (!projectionSetting) return;
 
@@ -375,7 +375,7 @@ Celestial.display = function(config) {
   }
 
   function reproject(config) {
-    var prj = getProjection(config.projection);
+    var prj = getProjection(config.projection, config.projectionRatio);
     if (!prj) return;
     
     var rot = mapProjection.rotate(), ctr = mapProjection.center(), sc = mapProjection.scale(), ext = zoom.scaleExtent(), clip = [],
@@ -677,7 +677,7 @@ Celestial.display = function(config) {
 
   function drawOutline(stroke) {
     var rot = mapProjection.rotate(),
-        prj = getProjection(cfg.projection);
+        prj = getProjection(cfg.projection, config.projectionRatio);
     
     mapProjection.rotate([0,0]);
     setStyle(cfg.background);
@@ -885,10 +885,11 @@ Celestial.display = function(config) {
     return w;
   }
   
-  function getProjection(p) {
+  function getProjection(p, ratioOverride) {
     if (!has(projections, p)) return;
     var res = projections[p];
     if (!has(res, "ratio")) res.ratio = 2;  // Default w/h ratio 2:1    
+    res.ratio = ratioOverride ? ratioOverride : res.ratio;
     return res;
   }
  
@@ -1496,6 +1497,7 @@ var globalConfig = {};
 var settings = { 
   width: 0,     // Default width; height is determined by projection
   projection: "aitoff",  // Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
+  projectionRatio: null, // Optional override for default projection ratio
   transform: "equatorial", // Coordinate transformation: equatorial (default), ecliptic, galactic, supergalactic
   center: null,       // Initial center coordinates in equatorial transformation [hours, degrees, degrees], 
                       // otherwise [degrees, degrees, degrees], 3rd parameter is orientation, null = default center
@@ -1999,6 +2001,7 @@ var formats_all = {
   "iau": Object.keys(formats.constellations.iau.names).concat(Object.keys(formats.planets.iau.names)).filter( function(value, index, self) { return self.indexOf(value) === index; } ),
   "cn":  Object.keys(formats.constellations.cn.names).concat(Object.keys(formats.starnames.cn.propername)).filter( function(value, index, self) { return self.indexOf(value) === index; } )
 };
+
 var Canvas = {}; 
 
 Canvas.symbol = function () {
