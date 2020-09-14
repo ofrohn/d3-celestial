@@ -27,6 +27,7 @@ Celestial.display = function(config) {
   cfg = settings.set(config).applyDefaults(config);
   if (isNumber(cfg.zoomextend)) zoomextent = cfg.zoomextend;
   if (isNumber(cfg.zoomlevel)) zoomlevel = cfg.zoomlevel;
+  if (cfg.disableAnimations) ANIMDISTANCE = Infinity;
 
   var parent = document.getElementById(cfg.container);
   if (parent) { 

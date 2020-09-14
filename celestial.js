@@ -28,6 +28,7 @@ Celestial.display = function(config) {
   cfg = settings.set(config).applyDefaults(config);
   if (isNumber(cfg.zoomextend)) zoomextent = cfg.zoomextend;
   if (isNumber(cfg.zoomlevel)) zoomlevel = cfg.zoomlevel;
+  if (cfg.disableAnimations) ANIMDISTANCE = Infinity;
 
   var parent = document.getElementById(cfg.container);
   if (parent) { 
@@ -1508,6 +1509,7 @@ var settings = {
   zoomextend: 10,     // maximum zoom level
   adaptable: true,    // Sizes are increased with higher zoom-levels
   interactive: true,  // Enable zooming and rotation with mousewheel and dragging
+  disableAnimations: false, // Disable all animations
   form: false,        // Display settings form
   location: false,    // Display location settings, deprecated, use formFields
   // Set visiblity for each group of fields of the form
