@@ -1,6 +1,6 @@
 /* global module, require, topojson, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.32',
+  version: '0.7.33',
   container: null,
   data: []
 };
@@ -82,7 +82,7 @@ Celestial.display = function(config) {
   map = d3.geo.path().projection(mapProjection).context(context);
    
   //parent div with id #celestial-map or body
-  if (container) container.selectAll(parentElement + "*").remove();
+  if (container) container.selectAll(parentElement + " *").remove();
   else container = d3.select(parentElement).append("container");
 
   if (cfg.interactive) {

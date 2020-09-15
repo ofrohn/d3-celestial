@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.32',
+  version: '0.7.33',
   container: null,
   data: []
 };
@@ -83,7 +83,7 @@ Celestial.display = function(config) {
   map = d3.geo.path().projection(mapProjection).context(context);
    
   //parent div with id #celestial-map or body
-  if (container) container.selectAll(parentElement + "*").remove();
+  if (container) container.selectAll(parentElement + " *").remove();
   else container = d3.select(parentElement).append("container");
 
   if (cfg.interactive) {
