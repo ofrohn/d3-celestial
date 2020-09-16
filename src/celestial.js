@@ -1,6 +1,6 @@
 /* global module, require, topojson, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.33',
+  version: '0.7.34',
   container: null,
   data: []
 };
@@ -27,6 +27,7 @@ Celestial.display = function(config) {
   cfg = settings.set(config).applyDefaults(config);
   if (isNumber(cfg.zoomextend)) zoomextent = cfg.zoomextend;
   if (isNumber(cfg.zoomlevel)) zoomlevel = cfg.zoomlevel;
+  if (cfg.disableAnimations) ANIMDISTANCE = Infinity;
 
   var parent = document.getElementById(cfg.container);
   if (parent) { 
@@ -42,7 +43,7 @@ Celestial.display = function(config) {
       width = getWidth(),
       canvaswidth = isNumber(cfg.background.width) ? width + cfg.background.width : width,
       pixelRatio = window.devicePixelRatio || 1,
-      projectionSetting = getProjection(cfg.projection);
+      projectionSetting = getProjection(cfg.projection, cfg.projectionRatio);
 
   if (!projectionSetting) return;
 
@@ -374,7 +375,7 @@ Celestial.display = function(config) {
   }
 
   function reproject(config) {
-    var prj = getProjection(config.projection);
+    var prj = getProjection(config.projection, config.projectionRatio);
     if (!prj) return;
     
     var rot = mapProjection.rotate(), ctr = mapProjection.center(), sc = mapProjection.scale(), ext = zoom.scaleExtent(), clip = [],
@@ -676,7 +677,7 @@ Celestial.display = function(config) {
 
   function drawOutline(stroke) {
     var rot = mapProjection.rotate(),
-        prj = getProjection(cfg.projection);
+        prj = getProjection(cfg.projection, config.projectionRatio);
     
     mapProjection.rotate([0,0]);
     setStyle(cfg.background);
@@ -884,10 +885,11 @@ Celestial.display = function(config) {
     return w;
   }
   
-  function getProjection(p) {
+  function getProjection(p, ratioOverride) {
     if (!has(projections, p)) return;
     var res = projections[p];
     if (!has(res, "ratio")) res.ratio = 2;  // Default w/h ratio 2:1    
+    res.ratio = ratioOverride ? ratioOverride : res.ratio;
     return res;
   }
  

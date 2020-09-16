@@ -49,6 +49,7 @@ var config = {
   width: 0,           // Default width, 0 = full parent element width; 
                       // height is determined by projection
   projection: "aitoff",    // Map projection used: see below
+  projectionRatio: null,   // Optional override for default projection ratio
   transform: "equatorial", // Coordinate transformation: equatorial (default),
                            // ecliptic, galactic, supergalactic
   center: null,       // Initial center coordinates in set transform
