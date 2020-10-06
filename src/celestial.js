@@ -1,11 +1,11 @@
 /* global module, require, topojson, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.34',
+  version: '0.7.35',
   container: null,
   data: []
 };
 
-var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
+var ANIMDISTANCE = 0.035,  // Rotation animation threshold, default ~2deg in radians
     ANIMSCALE = 1.4,       // Zoom animation threshold, scale factor
     ANIMINTERVAL_R = 2000, // Rotation duration scale in ms
     ANIMINTERVAL_P = 2500, // Projection duration in ms

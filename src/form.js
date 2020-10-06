@@ -11,7 +11,13 @@ function form(cfg) {
     //var container = (config.container || "celestial-map");
     div = d3.select(parentElement).select(function() { return this.parentNode; }).append("div").attr("id", "celestial-form");
   }
-  var ctrl = div.append("div").attr("class", "ctrl");
+  var ctrl = d3.select(parentElement + " ~ #celestial-form .ctrl");
+  if (ctrl.size() < 1) {
+    ctrl = div.append("div").attr("class", "ctrl");
+  } else {
+    update();
+    return;
+  }
   var frm = ctrl.append("form").attr("id", "params").attr("name", "params").attr("method", "get").attr("action" ,"#");
   
   //Map parameters    

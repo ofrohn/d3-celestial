@@ -192,6 +192,8 @@ var settings = {
     Object.assign(globalConfig, res);
     return res;
   },
+  get: function(id) {
+  },
   applyDefaults: function(cfg) {
     var res = {};
     Object.assign(res, globalConfig);
