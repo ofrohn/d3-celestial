@@ -23,7 +23,7 @@ Celestial.display = function(config) {
       current = 0, 
       repeat = false;
   
-  //Mash config with default settings, todo: if globalConfig exists, make another one
+  //Mash config with default settings, todo: if globalConfig with different id exists, make another one
   cfg = settings.set(config).applyDefaults(config);
   if (isNumber(cfg.zoomextend)) zoomextent = cfg.zoomextend;
   if (isNumber(cfg.zoomlevel)) zoomlevel = cfg.zoomlevel;

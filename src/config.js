@@ -161,6 +161,7 @@ var settings = {
   },
   set: function(cfg) {  // Override defaults with values of cfg
     var prop, key, config = {}, res = {};
+    //globalConfig entry by id
     if (Object.entries(globalConfig).length === 0) Object.assign(config, this);
     else Object.assign(config, globalConfig);
     if (!cfg) return config; 
