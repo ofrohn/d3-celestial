@@ -1,6 +1,6 @@
 /* global module, require, topojson, settings, bvcolor, projections, projectionTween, poles, eulerAngles, euler, getAngles, transformDeg, getData, getPlanets, getPlanet, listConstellations, getConstellationList, getMwbackground, getGridValues, Canvas, halfπ, $, px, Round, has, hasCallback, isArray, isNumber, arrayfy, form, geo, fldEnable, setCenter, interpolateAngle, formats */
 var Celestial = {
-  version: '0.7.34',
+  version: '0.7.35',
   container: null,
   data: []
 };
@@ -287,13 +287,14 @@ Celestial.display = function(config) {
         
     if (sc1 < ext[0]) sc1 = ext[0];
     if (sc1 > ext[1]) sc1 = ext[1];
+    if (cfg.disableAnimations === true) { zoom.scale(sc1); redraw(); return 0; }
     var zTween = d3.interpolateNumber(sc0, sc1);
     d3.select({}).transition().duration(interval).tween("scale", function () {
         return function(t) {
           var z = zTween(t);
           mapProjection.scale(z); 
           redraw(); 
-        };   
+        };
     }).transition().duration(0).tween("scale", function () {
       zoom.scale(sc1); 
       redraw(); 

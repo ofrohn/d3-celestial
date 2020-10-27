@@ -379,7 +379,9 @@ function form(cfg) {
     if (id === "---") { 
       Celestial.constellation = null;
       z = Celestial.zoomBy();
-      if (z !== 1) anims.push({param:"zoom", value:1/z, duration:0});
+      if (z !== 1) {
+        anims.push({param:"zoom", value:1/z, duration:0});
+      }
       Celestial.animate(anims, false);    
       //Celestial.redraw();
       return;
