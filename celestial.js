@@ -1,7 +1,7 @@
 // Copyright 2015-2020 Olaf Frohn https://github.com/ofrohn, see LICENSE
 !(function() {
 var Celestial = {
-  version: '0.7.34',
+  version: '0.7.35',
   container: null,
   data: []
 };
@@ -28,7 +28,7 @@ Celestial.display = function(config) {
   cfg = settings.set(config).applyDefaults(config);
   if (isNumber(cfg.zoomextend)) zoomextent = cfg.zoomextend;
   if (isNumber(cfg.zoomlevel)) zoomlevel = cfg.zoomlevel;
-  if (cfg.disableAnimations) ANIMDISTANCE = Infinity;
+  //if (cfg.disableAnimations) ANIMDISTANCE = Infinity;
 
   var parent = document.getElementById(cfg.container);
   if (parent) { 
@@ -98,7 +98,7 @@ Celestial.display = function(config) {
 
   d3.select(window).on('resize', resize);
 
-  if (cfg.controls === true && $("celestial-zoomin") === null) {
+  if (cfg.interactive === true && cfg.controls === true && $("celestial-zoomin") === null) {
     d3.select(parentElement).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function () { zoomBy(1.25); return false; });
     d3.select(parentElement).append("input").attr("type", "button").attr("id", "celestial-zoomout").attr("value", "\u2212").on("click", function () { zoomBy(0.8); return false; });
   }
@@ -288,13 +288,19 @@ Celestial.display = function(config) {
         
     if (sc1 < ext[0]) sc1 = ext[0];
     if (sc1 > ext[1]) sc1 = ext[1];
+    if (cfg.disableAnimations === true) { 
+      mapProjection.scale(sc1); 
+      zoom.scale(sc1); 
+      redraw(); 
+      return 0; 
+    }
     var zTween = d3.interpolateNumber(sc0, sc1);
     d3.select({}).transition().duration(interval).tween("scale", function () {
         return function(t) {
           var z = zTween(t);
           mapProjection.scale(z); 
           redraw(); 
-        };   
+        };
     }).transition().duration(0).tween("scale", function () {
       zoom.scale(sc1); 
       redraw(); 
@@ -321,40 +327,40 @@ Celestial.display = function(config) {
     cfg = cfg.set(config);
     var d = Round(d3.geo.distance(cFrom, cfg.center), 2);
     var o = d3.geo.distance([cFrom[2],0], [cfg.center[2],0]);
-    if (d < ANIMDISTANCE && o < ANIMDISTANCE) {  
+    if ((d < ANIMDISTANCE && o < ANIMDISTANCE) || cfg.disableAnimations === true) { 
       rotation = getAngles(cfg.center);
       mapProjection.rotate(rotation);
       redraw();
-    } else {
-      // Zoom interpolator
-      if (sc > scale * ANIMSCALE) zTween = d3.interpolateNumber(sc, scale);
-      else zTween = function () { return sc; };
-      // Orientation interpolator
-      if (o === 0) oTween = function () { return rot[2]; };
-      else oTween = interpolateAngle(cFrom[2], cfg.center[2]);
-      if (d > 3.14) cfg.center[0] -= 0.01; //180deg turn doesn't work well
-      cfg.orientationfixed = false;  
-      // Rotation interpolator
-      if (d === 0) cTween = function () { return cfg.center; };
-      else cTween = d3.geo.interpolate(cFrom, cfg.center);
-      interval = (d !== 0) ? interval * d : interval * o; // duration scaled by ang. distance
-      d3.select({}).transition().duration(interval).tween("center", function () {
-        return function(t) {
-          var c = getAngles(cTween(t));
-          c[2] = oTween(t);
-          var z = t < 0.5 ? zTween(t) : zTween(1-t);
-          if (keep) c[1] = rot[1]; 
-          mapProjection.scale(z);
-          mapProjection.rotate(c);
-          redraw();
-        };
-      }).transition().duration(0).tween("center", function () {
-        cfg.orientationfixed = oof;
-        rotation = getAngles(cfg.center);
-        mapProjection.rotate(rotation);
+      return 0; 
+    } 
+    // Zoom interpolator
+    if (sc > scale * ANIMSCALE) zTween = d3.interpolateNumber(sc, scale);
+    else zTween = function () { return sc; };
+    // Orientation interpolator
+    if (o === 0) oTween = function () { return rot[2]; };
+    else oTween = interpolateAngle(cFrom[2], cfg.center[2]);
+    if (d > 3.14) cfg.center[0] -= 0.01; //180deg turn doesn't work well
+    cfg.orientationfixed = false;  
+    // Rotation interpolator
+    if (d === 0) cTween = function () { return cfg.center; };
+    else cTween = d3.geo.interpolate(cFrom, cfg.center);
+    interval = (d !== 0) ? interval * d : interval * o; // duration scaled by ang. distance
+    d3.select({}).transition().duration(interval).tween("center", function () {
+      return function(t) {
+        var c = getAngles(cTween(t));
+        c[2] = oTween(t);
+        var z = t < 0.5 ? zTween(t) : zTween(1-t);
+        if (keep) c[1] = rot[1]; 
+        mapProjection.scale(z);
+        mapProjection.rotate(c);
         redraw();
-      });
-    }
+      };
+    }).transition().duration(0).tween("center", function () {
+      cfg.orientationfixed = oof;
+      rotation = getAngles(cfg.center);
+      mapProjection.rotate(rotation);
+      redraw();
+    });
     return interval;
   }
   
@@ -385,7 +391,7 @@ Celestial.display = function(config) {
         delay = 0, clipTween = null,
         rTween = d3.interpolateNumber(ratio, prj.ratio);
 
-    if (projectionSetting.clip != prj.clip) {
+    if (projectionSetting.clip != prj.clip || cfg.disableAnimations === true) {
       interval = 0; // Different clip = no transition
     }
     /*if (projectionSetting.clip !== prj.clip) {
@@ -2833,7 +2839,9 @@ function form(cfg) {
     if (id === "---") { 
       Celestial.constellation = null;
       z = Celestial.zoomBy();
-      if (z !== 1) anims.push({param:"zoom", value:1/z, duration:0});
+      if (z !== 1) {
+        anims.push({param:"zoom", value:1/z, duration:0});
+      }
       Celestial.animate(anims, false);    
       //Celestial.redraw();
       return;

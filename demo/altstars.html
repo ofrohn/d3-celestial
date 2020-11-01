@@ -5,7 +5,7 @@
   <title>D3-Celestial Alternative Stars</title>
   <script type="text/javascript" src="../lib/d3.min.js"></script>
   <script type="text/javascript" src="../lib/d3.geo.projection.min.js"></script>
-  <script type="text/javascript" src="../celestial.min.js"></script>
+  <script type="text/javascript" src="../celestial.js"></script>
   <link rel="stylesheet" href="../celestial.css">
   <style type="text/css">
   .btn { display: inline-block; font: bold 14pt "Lucida Console", Consolas, monospace; margin: 0 6px; padding: 2px 6px; border: 2px solid #000; border-radius: 3px; background: rgba(204, 204, 255, 0.6); cursor: pointer }
@@ -22,6 +22,7 @@
 // Some prettifying styles
 var config = {
   projection: "orthographic",
+  //interactive: false,
   background: { fill: "#000000", stroke: "#000000", opacity: 1, width: 4 },
   datapath: "https://ofrohn.github.io/data/",
   stars: { show: false },
