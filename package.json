@@ -10,7 +10,7 @@
     "d3": "^3.5.17"
   },
   "devDependencies": {
-    "jsdom": "^15.2.1",
+    "jsdom": "^16.5.0",
     "jshint": "^2.11.1",
     "shelljs": "^0.8.4",
     "uglify-js": "^2.8.29"
