@@ -84,6 +84,9 @@ var config = {
   culture: "",        // Source of constellations and star names, default "iau", other: "cn" Traditional Chinese
   container: "map",   // ID of parent element, e.g. div, null = html-body
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
+  httpRequestHeaders: { // HTTP headers to apply before sending XHR request
+    // "Key" => HTTP request header name
+  },
   stars: {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude

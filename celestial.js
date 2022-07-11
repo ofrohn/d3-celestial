@@ -16,6 +16,29 @@ var ANIMDISTANCE = 0.035,  // Rotation animation threshold, ~2deg in radians
 
 var cfg, mapProjection, parentElement, zoom, map, circle, daylight, starnames = {}, dsonames = {};
 
+Celestial.requestData = function (path, callback) {
+  // configure XHR object
+  var d3xhr = d3.json(path, null);
+
+  if (settings.httpRequestHeaders) {
+    // apply HTTP request headers
+    for (var configuredHttpHeader in settings.httpRequestHeaders) {
+      if (settings.httpRequestHeaders.hasOwnProperty(configuredHttpHeader)) {
+        d3xhr.header(configuredHttpHeader, settings.httpRequestHeaders[configuredHttpHeader]);
+      }
+    }
+  }
+
+  function d3XhrFixCallback(cb) {
+    return cb.length === 1 ? function(error, request) {
+      cb(error == null ? request : null);
+    } : cb;
+  }
+
+  // perform request
+  return d3xhr.get(d3XhrFixCallback(callback));
+};
+
 // Show it all, with the given config, otherwise with default settings
 Celestial.display = function(config) {
   var animationID,
@@ -150,7 +173,7 @@ Celestial.display = function(config) {
     }
 
     //Milky way outline
-    d3.json(path + "mw.json", function(error, json) {
+    Celestial.requestData(path + "mw.json", function(error, json) {
       if (error) { 
         window.alert("Data file could not be loaded or doesn't exist. See readme.md");
         return console.warn(error);  
@@ -171,7 +194,7 @@ Celestial.display = function(config) {
     }); 
 
     //Constellation names or designation
-    d3.json(path + filename("constellations"), function(error, json) {
+    Celestial.requestData(path + filename("constellations"), function(error, json) {
       if (error) return console.warn(error);
       
       var con = getData(json, cfg.transform);
@@ -185,7 +208,7 @@ Celestial.display = function(config) {
     });
 
     //Constellation boundaries
-    d3.json(path + filename("constellations", "borders"), function(error, json) {
+    Celestial.requestData(path + filename("constellations", "borders"), function(error, json) {
       if (error) return console.warn(error);
       
       //var cb = getData(topojson.feature(json, json.objects.constellations_bounds), cfg.transform);
@@ -199,7 +222,7 @@ Celestial.display = function(config) {
     });
 
     //Constellation lines
-    d3.json(path + filename("constellations", "lines"), function(error, json) {
+    Celestial.requestData(path + filename("constellations", "lines"), function(error, json) {
       if (error) return console.warn(error);
 
       var conl = getData(json, cfg.transform);
@@ -214,7 +237,7 @@ Celestial.display = function(config) {
     });
     
     //Stars
-    d3.json(path + cfg.stars.data, function(error, json) {
+    Celestial.requestData(path + cfg.stars.data, function(error, json) {
       if (error) return console.warn(error);
 
       var st = getData(json, cfg.transform);
@@ -228,14 +251,14 @@ Celestial.display = function(config) {
     });
 
     //Star names
-    d3.json(path + filename("starnames"), function(error, json) {
+    Celestial.requestData(path + filename("starnames"), function(error, json) {
       if (error) return console.warn(error);
       Object.assign(starnames, json);
       redraw();
     });
 
     //Deep space objects
-    d3.json(path + cfg.dsos.data, function(error, json) {
+    Celestial.requestData(path + cfg.dsos.data, function(error, json) {
       if (error) return console.warn(error);
       
       var ds = getData(json, cfg.transform);
@@ -248,14 +271,14 @@ Celestial.display = function(config) {
     });
 
     //DSO names
-    d3.json(path + filename("dsonames"), function(error, json) {
+    Celestial.requestData(path + filename("dsonames"), function(error, json) {
       if (error) return console.warn(error);
       Object.assign(dsonames, json);
       redraw();
     });
 
     //Planets, Sun & Moon
-    d3.json(path + filename("planets"), function(error, json) {
+    Celestial.requestData(path + filename("planets"), function(error, json) {
       if (error) return console.warn(error);
       
       var pl = getPlanets(json, cfg.transform);
@@ -269,7 +292,7 @@ Celestial.display = function(config) {
 
     if (Celestial.data.length > 0) { 
       Celestial.data.forEach( function(d) {
-        if (has(d, "file")) d3.json(d.file, d.callback);
+        if (has(d, "file")) Celestial.requestData(d.file, d.callback);
         else setTimeout(d.callback, 0);
       }, this);
     }
@@ -923,7 +946,6 @@ Celestial.display = function(config) {
     //current = 0;
     //repeat = false;
   }
-
   
   // Exported objects and functions for adding data
   this.container = container;
@@ -1531,6 +1553,9 @@ var settings = {
   culture: "",        // Constellation lines, default "iau"
   container: "celestial-map",   // ID of parent element, e.g. div
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
+  httpRequestHeaders: {
+    // "Key" => HTTP request header name
+  },
   stars: {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude
@@ -3450,7 +3475,7 @@ function geo(cfg) {
               "&lat=" + p[0] + "&lng=" + p[1] + "&time=" + timestamp;
        // oldZone = timeZone;
 
-    d3.json(url, function(error, json) { 
+    Celestial.requestData(url, function(error, json) { 
       if (error) return console.warn(error);
       if (json.status === "FAILED") {
         // Location at sea inferred from longitude
@@ -4656,7 +4681,7 @@ function exportSVG(fname) {
   //Milky way outline
   if (cfg.mw.show) {
     q.defer(function(callback) { 
-      d3.json(path + "mw.json", function(error, json) {
+      Celestial.requestData(path + "mw.json", function(error, json) {
         if (error) callback(error);
         var mw = getData(json, cfg.transform);
         var mw_back = getMwbackground(mw);
@@ -4685,7 +4710,7 @@ function exportSVG(fname) {
   //Constellation boundaries
   if (cfg.constellations.bounds) { 
     q.defer(function(callback) { 
-      d3.json(path + filename("constellations", "borders"), function(error, json) {
+      Celestial.requestData(path + filename("constellations", "borders"), function(error, json) {
         if (error) callback(error);
 
         var conb = getData(json, cfg.transform);
@@ -4714,7 +4739,7 @@ function exportSVG(fname) {
   //Constellation lines
   if (cfg.constellations.lines) { 
     q.defer(function(callback) { 
-      d3.json(path + filename("constellations", "lines"), function(error, json) {
+      Celestial.requestData(path + filename("constellations", "lines"), function(error, json) {
         if (error) callback(error);
 
         var conl = getData(json, cfg.transform);
@@ -4761,7 +4786,7 @@ function exportSVG(fname) {
   //Constellation names or designation
   if (cfg.constellations.names) { 
     q.defer(function(callback) { 
-      d3.json(path + filename("constellations"), function(error, json) {
+      Celestial.requestData(path + filename("constellations"), function(error, json) {
         if (error) callback(error);
 
         var conn = getData(json, cfg.transform);
@@ -4794,7 +4819,7 @@ function exportSVG(fname) {
   //Stars
   if (cfg.stars.show) { 
     q.defer(function(callback) { 
-      d3.json(path +  cfg.stars.data, function(error, json) {
+      Celestial.requestData(path +  cfg.stars.data, function(error, json) {
         if (error) callback(error);
 
         var cons = getData(json, cfg.transform);
@@ -4846,7 +4871,7 @@ function exportSVG(fname) {
   //Deep space objects
   if (cfg.dsos.show) { 
     q.defer(function(callback) { 
-      d3.json(path +  cfg.dsos.data, function(error, json) {
+      Celestial.requestData(path +  cfg.dsos.data, function(error, json) {
         if (error) callback(error);
 
         var cond = getData(json, cfg.transform);

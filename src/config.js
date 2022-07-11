@@ -34,6 +34,9 @@ var settings = {
   culture: "",        // Constellation lines, default "iau"
   container: "celestial-map",   // ID of parent element, e.g. div
   datapath: "data/",  // Path/URL to data files, empty = subfolder 'data'
+  httpRequestHeaders: {
+    // "Key" => HTTP request header name
+  },
   stars: {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude

@@ -204,7 +204,7 @@ function geo(cfg) {
               "&lat=" + p[0] + "&lng=" + p[1] + "&time=" + timestamp;
        // oldZone = timeZone;
 
-    d3.json(url, function(error, json) { 
+    Celestial.requestData(url, function(error, json) { 
       if (error) return console.warn(error);
       if (json.status === "FAILED") {
         // Location at sea inferred from longitude

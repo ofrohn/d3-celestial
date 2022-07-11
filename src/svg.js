@@ -94,7 +94,7 @@ function exportSVG(fname) {
   //Milky way outline
   if (cfg.mw.show) {
     q.defer(function(callback) { 
-      d3.json(path + "mw.json", function(error, json) {
+      Celestial.requestData(path + "mw.json", function(error, json) {
         if (error) callback(error);
         var mw = getData(json, cfg.transform);
         var mw_back = getMwbackground(mw);
@@ -123,7 +123,7 @@ function exportSVG(fname) {
   //Constellation boundaries
   if (cfg.constellations.bounds) { 
     q.defer(function(callback) { 
-      d3.json(path + filename("constellations", "borders"), function(error, json) {
+      Celestial.requestData(path + filename("constellations", "borders"), function(error, json) {
         if (error) callback(error);
 
         var conb = getData(json, cfg.transform);
@@ -152,7 +152,7 @@ function exportSVG(fname) {
   //Constellation lines
   if (cfg.constellations.lines) { 
     q.defer(function(callback) { 
-      d3.json(path + filename("constellations", "lines"), function(error, json) {
+      Celestial.requestData(path + filename("constellations", "lines"), function(error, json) {
         if (error) callback(error);
 
         var conl = getData(json, cfg.transform);
@@ -199,7 +199,7 @@ function exportSVG(fname) {
   //Constellation names or designation
   if (cfg.constellations.names) { 
     q.defer(function(callback) { 
-      d3.json(path + filename("constellations"), function(error, json) {
+      Celestial.requestData(path + filename("constellations"), function(error, json) {
         if (error) callback(error);
 
         var conn = getData(json, cfg.transform);
@@ -232,7 +232,7 @@ function exportSVG(fname) {
   //Stars
   if (cfg.stars.show) { 
     q.defer(function(callback) { 
-      d3.json(path +  cfg.stars.data, function(error, json) {
+      Celestial.requestData(path +  cfg.stars.data, function(error, json) {
         if (error) callback(error);
 
         var cons = getData(json, cfg.transform);
@@ -284,7 +284,7 @@ function exportSVG(fname) {
   //Deep space objects
   if (cfg.dsos.show) { 
     q.defer(function(callback) { 
-      d3.json(path +  cfg.dsos.data, function(error, json) {
+      Celestial.requestData(path +  cfg.dsos.data, function(error, json) {
         if (error) callback(error);
 
         var cond = getData(json, cfg.transform);
