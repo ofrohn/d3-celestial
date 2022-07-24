@@ -175,7 +175,8 @@ function geo(cfg) {
     //Celestial.apply(config);
 
     if (!isNaN(lon) && !isNaN(lat)) {
-      if (lat !== geopos[0] || lon !== geopos[1]) {
+      if (lat !== geopos[0] || lon !== geopos[1] || typeof prev_date === 'undefined' || prev_date.getTime() !== date.getTime()) {
+        prev_date = date;
         geopos = [lat, lon];
         setPosition([lat, lon], true);
         return;
