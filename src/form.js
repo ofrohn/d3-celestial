@@ -299,8 +299,7 @@ function form(cfg) {
   });
 
   col.append("input").attr("type", "button").attr("id", "download-svg").attr("value", "SVG File").on("click", function() {
-    exportSVG(getFilename(".svg")); 
-    return false;
+    return true;
   });
 
   setLimits();
