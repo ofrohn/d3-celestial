@@ -1,6 +1,6 @@
 /* Copyright 2015-16 Olaf Frohn https://github.com/ofrohn, see LICENSE */
 
-#celestial-map { width: 100%; height: auto; margin: 0; padding: 0; display: inline-block; position: relative; min-width:720px; overflow: visible; }
+#celestial-map { width: 100%; height: auto; margin: 0; padding: 0; display: inline-block; position: relative; min-width: 320px; overflow: visible; }
 #celestial-map canvas { display: inline-block; position:relative; z-index:0; cursor:hand; cursor:grab; cursor:-moz-grab; cursor:-webkit-grab; }
 #celestial-map canvas:active { cursor:move; cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing; }
 #d3-celestial-footer { text-align:center; color:#666; font:10pt/1 'Arial Unicode MS', Arial, Helvetica, sans-serif; }
@@ -69,9 +69,9 @@ input[type="number"]::-webkit-outer-spin-button { height: auto; }
 #celestial-form br + label { margin-left:0; }
 
 /* Zoom controls */
-#celestial-zoomin, 
-#celestial-zoomout { width:32px; height:32px; left:8px; top:12px; background: rgba(255,255,255,0.5); border:1px solid #000; border-radius:3px; position:absolute; font: normal bold 24px/1 Consolas, Courier, 'Courier New', monospace; cursor:pointer; }
-#celestial-zoomout { top: 48px; }
+#celestial-zoomin,
+#celestial-zoomout { width:44px; height:44px; left:8px; top:12px; background: rgba(255,255,255,0.5); border:1px solid #000; border-radius:3px; position:absolute; font: normal bold 24px/1 Consolas, Courier, 'Courier New', monospace; cursor:pointer; display: flex; align-items: center; justify-content: center; }
+#celestial-zoomout { top: 60px; }
 #celestial-zoomin:hover, 
 #celestial-zoomout:hover { background: rgba(255,255,255,0.7); }
 #celestial-zoomin:disabled, 
@@ -101,6 +101,96 @@ input[type="number"]::-webkit-outer-spin-button { height: auto; }
 
 @media print {
   #celestial-zoomin, #celestial-zoomout, #celestial-form { display: none; }
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  /* Stack map and form vertically on tablets and mobile */
+  #celestial-map {
+    display: block;
+    width: 100%;
+    min-width: 320px;
+  }
+
+  #celestial-form {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  /* Make form inputs responsive */
+  #celestial-form input[type='text'] {
+    width: calc(100% - 10px);
+    max-width: 300px;
+  }
+
+  #celestial-form .col {
+    white-space: normal;
+  }
+
+  /* Ensure zoom controls are accessible */
+  #celestial-zoomin,
+  #celestial-zoomout {
+    width: 48px;
+    height: 48px;
+    font-size: 28px;
+  }
+
+  #celestial-zoomout {
+    top: 64px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Phone-specific adjustments */
+  #celestial-map {
+    min-width: 100%;
+  }
+
+  /* Adjust footer for small screens */
+  #d3-celestial-footer {
+    font-size: 9pt;
+    padding: 5px;
+  }
+
+  /* Make form elements more touch-friendly */
+  #celestial-form input[type='button'],
+  #celestial-form select {
+    height: 32px;
+    font-size: 14px;
+  }
+
+  #celestial-form input#download-png,
+  #celestial-form input#download-svg {
+    width: 100%;
+    max-width: 200px;
+    height: 32px;
+  }
+
+  /* Date picker adjustments */
+  #celestial-date {
+    width: 95%;
+    max-width: 300px;
+  }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase tap target sizes for touch devices */
+  #celestial-form input[type='checkbox'] {
+    width: 20px;
+    height: 20px;
+  }
+
+  #celestial-form input[type='button'] {
+    min-height: 44px;
+    padding: 8px 12px;
+  }
+
+  /* Disable hover effects on touch devices */
+  #celestial-map canvas {
+    cursor: default;
+  }
 }
 
 /* SVG styles
