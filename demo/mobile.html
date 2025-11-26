@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>D3-Celestial Mobile Planetarium</title>
+  <script type="text/javascript" src="../lib/d3.min.js"></script>
+  <script type="text/javascript" src="../lib/d3.geo.projection.min.js"></script>
+  <script type="text/javascript" src="../celestial.min.js"></script>
+  <link rel="stylesheet" href="../celestial.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #000;
+      color: #fff;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Main container */
+    #app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Modern header */
+    #mobile-header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+
+    #mobile-header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* Map container - takes most of the screen */
+    #map-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #celestial-map {
+      width: 100% !important;
+      height: 100% !important;
+      display: block !important;
+      position: absolute !important;
+      top: 0;
+      left: 0;
+    }
+
+    /* Modern toolbar */
+    #mobile-toolbar {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* Modern buttons */
+    .mobile-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      color: #fff;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .mobile-btn:active {
+      transform: scale(0.95);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .mobile-btn.primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+    }
+
+    .mobile-btn.icon-only {
+      width: 44px;
+      padding: 12px;
+    }
+
+    /* Gesture hints */
+    #gesture-hints {
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 16px 24px;
+      border-radius: 12px;
+      text-align: center;
+      z-index: 100;
+      animation: fadeInOut 4s ease-in-out;
+      pointer-events: none;
+    }
+
+    #gesture-hints.hidden {
+      display: none;
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0; }
+      10%, 90% { opacity: 1; }
+    }
+
+    /* Welcome wizard */
+    #wizard-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #wizard-overlay.hidden {
+      display: none;
+    }
+
+    #wizard-content {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 20px;
+      padding: 32px 24px;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    #wizard-content h2 {
+      font-size: 24px;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+
+    #wizard-content p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 24px;
+    }
+
+    .wizard-step {
+      display: none;
+    }
+
+    .wizard-step.active {
+      display: block;
+    }
+
+    .wizard-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    .wizard-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    /* Fullscreen styles */
+    #app-container:fullscreen,
+    #app-container:-webkit-full-screen,
+    #app-container:-moz-full-screen {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Landscape optimizations */
+    @media (orientation: landscape) {
+      #mobile-header {
+        padding: 8px 16px;
+      }
+
+      #mobile-header h1 {
+        font-size: 16px;
+      }
+
+      #mobile-toolbar {
+        padding: 8px 16px;
+      }
+    }
+
+    /* Loading indicator */
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 50;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Custom zoom controls */
+    #celestial-zoomin,
+    #celestial-zoomout {
+      background: rgba(255, 255, 255, 0.15) !important;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      color: #fff !important;
+      border-radius: 12px !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- Welcome Wizard -->
+  <div id="wizard-overlay">
+    <div id="wizard-content">
+      <div class="wizard-step active" id="step1">
+        <div class="wizard-icon">🌟</div>
+        <h2>Welcome to the Planetarium!</h2>
+        <p>Explore the night sky with an interactive star map. Let's show you how it works.</p>
+        <div class="wizard-buttons">
+          <button class="mobile-btn primary" onclick="nextWizardStep()">Get Started</button>
+        </div>
+      </div>
+
+      <div class="wizard-step" id="step2">
+        <div class="wizard-icon">👆</div>
+        <h2>Pan & Rotate</h2>
+        <p>Drag your finger across the screen to rotate the sky and explore different regions.</p>
+        <div class="wizard-buttons">
+          <button class="mobile-btn" onclick="nextWizardStep()">Next</button>
+        </div>
+      </div>
+
+      <div class="wizard-step" id="step3">
+        <div class="wizard-icon">🤏</div>
+        <h2>Zoom In & Out</h2>
+        <p>Pinch with two fingers to zoom in and see more detail, or spread to zoom out.</p>
+        <div class="wizard-buttons">
+          <button class="mobile-btn" onclick="nextWizardStep()">Next</button>
+        </div>
+      </div>
+
+      <div class="wizard-step" id="step4">
+        <div class="wizard-icon">📱</div>
+        <h2>Fullscreen Mode</h2>
+        <p>Tap the fullscreen button below for an immersive experience. Rotate your device for the best view!</p>
+        <div class="wizard-buttons">
+          <button class="mobile-btn primary" onclick="closeWizard()">Start Exploring</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app-container">
+    <!-- Header -->
+    <div id="mobile-header">
+      <h1>✨ Night Sky</h1>
+      <button class="mobile-btn icon-only" onclick="showWizard()" title="Help">
+        ?
+      </button>
+    </div>
+
+    <!-- Map Container -->
+    <div id="map-container">
+      <div id="loading">
+        <div class="spinner"></div>
+        <p>Loading stars...</p>
+      </div>
+      <div id="celestial-map"></div>
+      <div id="gesture-hints">
+        👆 Drag to rotate • 🤏 Pinch to zoom
+      </div>
+    </div>
+
+    <!-- Bottom Toolbar -->
+    <div id="mobile-toolbar">
+      <button class="mobile-btn" onclick="resetView()" title="Reset View">
+        🔄 Reset
+      </button>
+      <button class="mobile-btn" onclick="toggleFullscreen()" id="fullscreen-btn" title="Fullscreen">
+        ⛶ Fullscreen
+      </button>
+      <button class="mobile-btn" onclick="getCurrentLocation()" title="My Location">
+        📍 Location
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    var config = {
+      width: 0,
+      projection: "stereographic",
+      transform: "equatorial",
+      center: null,
+      orientationfixed: true,
+      background: { fill: "#000000", stroke: "#000000", opacity: 1 },
+      adaptable: true,
+      interactive: true,
+      disableAnimations: false,
+      form: false,
+      controls: true,
+      container: "celestial-map",
+      datapath: "../data/",
+      stars: {
+        show: true,
+        limit: 6,
+        colors: true,
+        style: { fill: "#ffffff", opacity: 1 },
+        names: false,
+        proper: false,
+        desig: false,
+        size: 7,
+        exponent: -0.28,
+        data: 'stars.6.json'
+      },
+      dsos: {
+        show: true,
+        limit: 6,
+        names: false,
+        desig: false,
+        size: null,
+        exponent: 1.4,
+        data: 'dsos.bright.json',
+        symbols: {
+          gg: {shape: "circle", fill: "#ff0000"},
+          g:  {shape: "ellipse", fill: "#ff0000"},
+          s:  {shape: "ellipse", fill: "#ff0000"},
+          s0: {shape: "ellipse", fill: "#ff0000"},
+          sd: {shape: "ellipse", fill: "#ff0000"},
+          e:  {shape: "ellipse", fill: "#ff0000"},
+          i:  {shape: "ellipse", fill: "#ff0000"},
+          oc: {shape: "circle", fill: "#ffcc00", stroke: "#ffcc00", width: 1.5},
+          gc: {shape: "circle", fill: "#ff9900"},
+          en: {shape: "square", fill: "#ff00cc"},
+          bn: {shape: "square", fill: "#ff00cc", stroke: "#ff00cc", width: 2},
+          sfr:{shape: "square", fill: "#cc00ff", stroke: "#cc00ff", width: 2},
+          rn: {shape: "square", fill: "#00ooff"},
+          pn: {shape: "diamond", fill: "#00cccc"},
+          snr:{shape: "diamond", fill: "#ff00cc"},
+          dn: {shape: "square", fill: "#999999", stroke: "#999999", width: 2},
+          pos:{shape: "marker", fill: "#cccccc", stroke: "#cccccc", width: 1.5}
+        }
+      },
+      constellations: {
+        show: true,
+        names: true,
+        desig: false,
+        namestyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity: 0.8,
+                     font: ["14px Helvetica, Arial, sans-serif",
+                            "12px Helvetica, Arial, sans-serif",
+                            "11px Helvetica, Arial, sans-serif"]},
+        lines: true,
+        linestyle: { stroke: "#cccccc", width: 1, opacity: 0.4 },
+        bounds: false
+      },
+      mw: {
+        show: true,
+        style: { fill: "#ffffff", opacity: "0.12" }
+      },
+      lines: {
+        graticule: { show: false },
+        equatorial: { show: false },
+        ecliptic: { show: false },
+        galactic: { show: false },
+        supergalactic: { show: false }
+      }
+    };
+
+    // Wizard state
+    var currentStep = 1;
+    var wizardShown = localStorage.getItem('wizardShown') !== 'true';
+
+    function nextWizardStep() {
+      document.getElementById('step' + currentStep).classList.remove('active');
+      currentStep++;
+      if (currentStep <= 4) {
+        document.getElementById('step' + currentStep).classList.add('active');
+      }
+    }
+
+    function closeWizard() {
+      document.getElementById('wizard-overlay').classList.add('hidden');
+      localStorage.setItem('wizardShown', 'true');
+      setTimeout(showGestureHints, 500);
+    }
+
+    function showWizard() {
+      currentStep = 1;
+      document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active'));
+      document.getElementById('step1').classList.add('active');
+      document.getElementById('wizard-overlay').classList.remove('hidden');
+    }
+
+    function showGestureHints() {
+      var hints = document.getElementById('gesture-hints');
+      hints.classList.remove('hidden');
+      setTimeout(() => hints.classList.add('hidden'), 4000);
+    }
+
+    // Initialize the map
+    window.addEventListener('load', function() {
+      Celestial.display(config);
+      document.getElementById('loading').style.display = 'none';
+
+      // Show wizard on first visit
+      if (!wizardShown) {
+        // Wizard is already visible by default
+      } else {
+        document.getElementById('wizard-overlay').classList.add('hidden');
+        setTimeout(showGestureHints, 1000);
+      }
+    });
+
+    // Fullscreen functionality
+    function toggleFullscreen() {
+      var container = document.getElementById('app-container');
+      var btn = document.getElementById('fullscreen-btn');
+
+      if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement) {
+        if (container.requestFullscreen) {
+          container.requestFullscreen();
+        } else if (container.webkitRequestFullscreen) {
+          container.webkitRequestFullscreen();
+        } else if (container.mozRequestFullScreen) {
+          container.mozRequestFullScreen();
+        }
+        btn.innerHTML = '⛶ Exit';
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+        }
+        btn.innerHTML = '⛶ Fullscreen';
+      }
+    }
+
+    // Reset view
+    function resetView() {
+      Celestial.rotate({center: [0, 0, 0]});
+      Celestial.zoomBy(1/Celestial.zoomBy());
+    }
+
+    // Get current location
+    function getCurrentLocation() {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var lat = position.coords.latitude;
+          var lon = position.coords.longitude;
+          Celestial.location([lat, lon]);
+          alert('Location set to: ' + lat.toFixed(2) + '°, ' + lon.toFixed(2) + '°');
+        }, function(error) {
+          alert('Unable to get location. Please enable location services.');
+        });
+      } else {
+        alert('Geolocation is not supported by your device.');
+      }
+    }
+
+    // Handle orientation changes
+    window.addEventListener('orientationchange', function() {
+      setTimeout(() => {
+        Celestial.resize();
+      }, 200);
+    });
+
+    // Handle resize
+    window.addEventListener('resize', function() {
+      Celestial.resize();
+    });
+  </script>
+</body>
+</html>
